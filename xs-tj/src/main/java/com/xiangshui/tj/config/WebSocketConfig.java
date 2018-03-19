@@ -11,12 +11,12 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private MyHandler myHandler;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(myHandler, "/tj").addInterceptors(new MyHttpSessionHandshakeInterceptor()).setAllowedOrigins(
                 "http://localhost:8080",
-                "http://localhost:8081",
-                "http://*:*"
+                "http://localhost:8081"
         );
     }
 

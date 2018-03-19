@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +37,21 @@ public class ClassUtils {
         return new JSONObject(map);
     }
 
+
+    public static void getPattern(Class<?> clazz, int index) {
+        while (clazz != Object.class) {
+            Type type = clazz.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                Type[] args = ((ParameterizedType) type).getActualTypeArguments();
+                if (args[0] instanceof Class) {
+
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+
+    }
 
 }

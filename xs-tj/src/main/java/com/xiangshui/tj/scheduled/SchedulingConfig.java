@@ -1,8 +1,11 @@
 package com.xiangshui.tj.scheduled;
 
 import com.xiangshui.tj.bean.Booking;
+import com.xiangshui.tj.dao.DynamoDBService;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.PushBookingCommitMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -18,16 +21,25 @@ import java.util.TimerTask;
 @Component
 public class SchedulingConfig implements ApplicationRunner {
 
+
+    private static final Logger log = LoggerFactory.getLogger(SchedulingConfig.class);
+
+    @Autowired
+    DynamoDBService<Booking> bookingDynamoDBService;
+
     @Autowired
     WebSocketSessionManager sessionManager;
 
     public void sendMessageTest() {
+
+
         PushBookingCommitMessage message = new PushBookingCommitMessage();
         Booking booking = new Booking();
         booking.setBooking_id(123123);
         message.setBooking(booking);
         sessionManager.sendMessage(message);
     }
+
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -37,5 +49,6 @@ public class SchedulingConfig implements ApplicationRunner {
                 sendMessageTest();
             }
         }, 1000 * 3, 1000 * 3);
+
     }
 }
