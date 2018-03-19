@@ -5,7 +5,7 @@ import com.xiangshui.util.ClassUtils;
 
 public class TaskAction {
     //    BOOKING
-    public static final byte BOOKING_CONMIT = 10;
+    public static final byte BOOKING_COMMIT = 10;
     public static final byte BOOKING_PROPAY = 11;
     public static final byte BOOKING_FINISH = 12;
 

@@ -5,12 +5,18 @@ import com.xiangshui.tj.constant.TaskModule;
 import com.xiangshui.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+@Component
 public class MyHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MyHandler.class);
+
+    @Autowired
+    private WebSocketSessionManager sessionManager;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -18,6 +24,7 @@ public class MyHandler extends TextWebSocketHandler {
         JSONObject jsonMessage = new JSONObject();
         jsonMessage.put("constant_taskModule", ClassUtils.getStaticJSON(TaskModule.class));
         session.sendMessage(new TextMessage(jsonMessage.toJSONString()));
+        sessionManager.addSession(session);
     }
 
     @Override
@@ -44,6 +51,8 @@ public class MyHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
+        sessionManager.removeSession(session);
+        log.info("afterConnectionClosed");
     }
 
     @Override
