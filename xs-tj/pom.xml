@@ -26,6 +26,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>xxxx</groupId>
+            <artifactId>xxxxxx</artifactId>
+            <version>1.0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../aws-java-sdk-1.11.295.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>com.xiangshui</groupId>
             <artifactId>xs-utils</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -56,15 +63,13 @@
             <artifactId>quartz</artifactId>
             <version>2.3.0</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
+
 
     <build>
         <plugins>
