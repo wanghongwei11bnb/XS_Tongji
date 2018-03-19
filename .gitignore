@@ -17,3 +17,4 @@ buildNumber.properties
 **/*.iml
 **/build
 .idea
+**/.idea
