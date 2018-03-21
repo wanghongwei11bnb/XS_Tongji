@@ -15,9 +15,16 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private MyHandler myHandler;
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(myHandler, "/tj").addInterceptors(new MyHttpSessionHandshakeInterceptor()).setAllowedOrigins(
-                "http://localhost:8080",
-                "http://localhost:8081"
-        );
+        registry.addHandler(myHandler, "/tj")
+                .addInterceptors(new MyHttpSessionHandshakeInterceptor())
+                .setAllowedOrigins(
+                        "http://xiangshuispace.com",
+                        "http://www.xiangshuispace.com",
+                        "http://op.xiangshuispace.com",
+                        "http://tj.xiangshuispace.com",
+                        "http://h5.xiangshuispace.com",
+                        "http://localhost:8081",
+                        "http://localhost:8080"
+                );
     }
 }

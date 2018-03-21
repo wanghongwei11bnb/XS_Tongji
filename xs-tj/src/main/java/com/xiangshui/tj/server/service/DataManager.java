@@ -20,7 +20,7 @@ abstract public class DataManager<K, V> {
         return map.containsKey(id);
     }
 
-    synchronized public boolean save(V v) {
+    public boolean save(V v) {
         if (v == null) {
             return false;
         }
@@ -32,7 +32,7 @@ abstract public class DataManager<K, V> {
         return true;
     }
 
-    synchronized public boolean removeById(K k) {
+    public boolean removeById(K k) {
         if (k == null) {
             return false;
         }
@@ -40,7 +40,7 @@ abstract public class DataManager<K, V> {
         return true;
     }
 
-    synchronized public boolean remove(V v) {
+    public boolean remove(V v) {
         if (v == null) {
             return false;
         }

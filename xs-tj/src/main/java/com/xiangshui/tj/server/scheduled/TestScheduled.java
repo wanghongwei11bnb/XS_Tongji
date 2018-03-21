@@ -29,9 +29,6 @@ public class TestScheduled implements InitializingBean {
     private static final Logger log = LoggerFactory.getLogger(TestScheduled.class);
 
 
-    public static boolean inited;
-
-
     @Autowired
     WebSocketSessionManager sessionManager;
 
@@ -63,7 +60,11 @@ public class TestScheduled implements InitializingBean {
 
 
     public void initLoad() {
+
+        log.info("start reloadCity");
         dynamoDBService.reloadCity();
+
+        log.info("start loadArea");
         final Map<String, City> cityMap = new HashMap();
         dynamoDBService.loadArea(new CallBack<Area>() {
             public void run(Area object) {
@@ -80,16 +81,22 @@ public class TestScheduled implements InitializingBean {
             }
         });
         City.cityList = new ArrayList(cityMap.values());
+
+        log.info("start loadArea");
         dynamoDBService.loadCapsule(new CallBack<Capsule>() {
             public void run(Capsule object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+
+        log.info("start loadBooking");
         dynamoDBService.loadBooking(new CallBack<Booking>() {
             public void run(Booking object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+
+        log.info("start loadAppraise");
         dynamoDBService.loadAppraise(new CallBack<Appraise>() {
             public void run(Appraise object) {
                 appraiseDataManager.save(object);
@@ -100,70 +107,84 @@ public class TestScheduled implements InitializingBean {
     }
 
 
-    public void startRedis() {
-        new Thread(new Runnable() {
-            public void run() {
-                redisService.run(new CallBack<Jedis>() {
-                    public void run(Jedis object) {
-                        try {
-                            List<String> stringList = object.blpop(0, "booking");
-                            if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
-                                Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
-                                if (booking != null) {
-                                    dataReceiver.receive(booking.getStatus() <= 2 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+    public void startRedisBooking() {
+        redisService.run(new CallBack<Jedis>() {
+            public void run(Jedis object) {
+                try {
+                    List<String> stringList = object.blpop(0, "booking");
+                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
+                        Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
+                        if (booking != null) {
+                            dataReceiver.receive(booking.getStatus() <= 2 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                         }
                     }
-                });
-                startRedis();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }).start();
+        });
+        startRedisBooking();
+
+    }
+
+    public void startRedisAppraise() {
+        redisService.run(new CallBack<Jedis>() {
+            public void run(Jedis object) {
+                try {
+                    List<String> stringList = object.blpop(0, "appraise");
+                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
+                        Appraise appraise = JSON.parseObject(stringList.get(1), Appraise.class);
+                        if (appraise != null) {
+                            dataReceiver.receive(ReceiveEvent.APPRAISE, appraise);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        startRedisAppraise();
     }
 
     public void afterPropertiesSet() throws Exception {
+        log.info("init dynamoDBService");
         dynamoDBService.init();
+        log.info("init redisService");
         redisService.init();
+        log.info("start initLoad");
         initLoad();
+        log.info("end initLoad");
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
                 object.del("booking");
             }
         });
-        startRedis();
+        new Thread(new Runnable() {
+            public void run() {
+                startRedisBooking();
+            }
+        }).start();
+        new Thread(new Runnable() {
+            public void run() {
+                startRedisAppraise();
+            }
+        }).start();
     }
 
 
-    //    @Scheduled(fixedDelay = 1000 * 5)
-    public void testSendBooking() {
-        Booking booking = bookingDataManager.getById((Long) bookingDataManager.getMap().keySet().toArray()[(int) Math.floor(Math.random() * bookingDataManager.size())]);
-        PushBookingMessage message = new PushBookingMessage();
-        message.setBooking(booking);
-        message.setCapsule(capsuleDataManager.getById(booking.getCapsule_id()));
-        message.setArea(areaDataManager.getById(booking.getArea_id()));
-        sessionManager.sendMessage(message);
-    }
-
-
-    //    @Scheduled(fixedDelay = 1000 * 5)
-    public void testSendAppraise() {
-        Appraise appraise = appraiseDataManager.getById((Long) appraiseDataManager.getMap().keySet().toArray()[(int) Math.floor(Math.random() * appraiseDataManager.size())]);
-        PushAppraiseMessage message = new PushAppraiseMessage();
-        message.setAppraise(appraise);
-        sessionManager.sendMessage(message);
-    }
-
-
-    @Scheduled(fixedDelay = 1000 * 10)
-    public void testSendUsageRate() {
+    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 20)
+    public void sendUsageRateMessage() {
         dataReceiver.sendUsageRateMessage();
     }
 
-    @Scheduled(fixedDelay = 1000 * 10)
-    public void testCumulativeBooking() {
+    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 25)
+    public void sendCumulativeBookingMessage() {
         dataReceiver.sendCumulativeBookingMessage();
+    }
+
+    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 30)
+    public void sendCumulativeTimeMessage() {
+        dataReceiver.sendCumulativeTimeMessage();
     }
 
 }

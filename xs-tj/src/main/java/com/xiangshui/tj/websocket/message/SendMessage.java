@@ -7,6 +7,4 @@ abstract public class SendMessage {
         return messageType;
     }
 
-
-
 }

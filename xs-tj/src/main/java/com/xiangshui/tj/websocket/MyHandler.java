@@ -6,8 +6,7 @@ import com.xiangshui.tj.server.dao.DynamoDBService;
 import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.BaseTask;
 import com.xiangshui.tj.server.task.BookingTask;
-import com.xiangshui.tj.websocket.message.ContractMessage;
-import com.xiangshui.tj.websocket.message.UsageRateMessage;
+import com.xiangshui.tj.websocket.message.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class MyHandler extends TextWebSocketHandler {
@@ -52,29 +50,37 @@ public class MyHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-
         sessionManager.addSession(session);
 
-
+        List<SendMessage> messageList = new ArrayList<SendMessage>();
+        //ContractMessage
         ContractMessage contractMessage = new ContractMessage();
         contractMessage.setCityList(City.cityList);
-
-        if (appraiseDataManager.getMap() != null && appraiseDataManager.size() > 0) {
-            List<Appraise> appraiseList = new ArrayList(appraiseDataManager.getMap().values());
-            List<Appraise> sendList = new ArrayList();
-            for (int i = 0; i < 10; i++) {
-                if (appraiseList.size() >= i + 1) {
-                    Appraise appraise = appraiseList.get(appraiseList.size() - i - 1);
-                    sendList.add(appraise);
-                }
-            }
-            contractMessage.setAppraiseList(sendList);
+        messageList.add(contractMessage);
+        //InitAppraiseMessage
+        if (appraiseDataManager.getMap() != null && appraiseDataManager.getMap().size() > 0) {
+            List<Appraise> appraiseList = new ArrayList<Appraise>(appraiseDataManager.getMap().values());
+            InitAppraiseMessage initAppraiseMessage = new InitAppraiseMessage();
+            initAppraiseMessage.setAppraiseList(appraiseList);
+            messageList.add(initAppraiseMessage);
         }
-
-        sessionManager.sendMessage(session, contractMessage);
+        //UsageRateMessage
         if (UsageRateMessage.last != null) {
-            sessionManager.sendMessage(session, UsageRateMessage.last);
+            messageList.add(UsageRateMessage.last);
         }
+        //CumulativeBookingMessage
+        if (CumulativeBookingMessage.last != null) {
+            messageList.add(CumulativeBookingMessage.last);
+        }
+        //CumulativeTimeMessage
+        if (CumulativeTimeMessage.last != null) {
+            messageList.add(CumulativeTimeMessage.last);
+        }
+        //ListMessage
+        ListMessage listMessage = new ListMessage();
+        listMessage.setMessageList(messageList);
+        sessionManager.sendMessage(session, listMessage);
+
     }
 
     @Override

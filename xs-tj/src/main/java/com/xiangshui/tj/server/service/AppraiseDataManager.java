@@ -3,23 +3,26 @@ package com.xiangshui.tj.server.service;
 import com.xiangshui.tj.server.bean.Appraise;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 @Component
-public class AppraiseDataManager extends DataManager<Long, Appraise> {
-    @Override
-    Long getId(Appraise appraise) {
-        if (appraise == null) {
-            return null;
+public class AppraiseDataManager {
+
+    private TreeMap<String, Appraise> map = new TreeMap<String, Appraise>();
+
+    public void save(Appraise appraise) {
+        map.put("" + appraise.getCreatetime() + appraise.getBooking_id(), appraise);
+        if (map.size() > 5) {
+            map.remove(map.firstKey());
         }
-        return appraise.getBooking_id();
     }
 
-    @Override
-    public boolean save(Appraise appraise) {
-        boolean result = super.save(appraise);
-        if (getMap().size() > 30) {
-            Object[] ks = getMap().keySet().toArray();
-            getMap().remove(ks[ks.length - 1]);
-        }
-        return result;
+    public TreeMap<String, Appraise> getMap() {
+        return map;
+    }
+
+    public void setMap(TreeMap<String, Appraise> map) {
+        this.map = map;
     }
 }

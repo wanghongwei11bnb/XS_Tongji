@@ -9,8 +9,17 @@ public class Appraise {
     private long booking_id;
     private int createtime;
     private int score;
+    private String suggest;
 
     private int uin;
+
+    public String getSuggest() {
+        return suggest;
+    }
+
+    public void setSuggest(String suggest) {
+        this.suggest = suggest;
+    }
 
     public List<String> getAppraise() {
         return appraise;

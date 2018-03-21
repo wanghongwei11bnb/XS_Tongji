@@ -1,11 +1,10 @@
 package com.xiangshui.tj.websocket.message;
 
 import java.util.List;
-import java.util.Map;
 
-public class CumulativeBookingMessage extends SendMessage {
+public class CumulativeTimeMessage extends SendMessage {
 
-    public static CumulativeBookingMessage last;
+    public static CumulativeTimeMessage last;
 
     private List<Object[]> data;
 
@@ -17,7 +16,7 @@ public class CumulativeBookingMessage extends SendMessage {
         this.data = data;
     }
 
-    public CumulativeBookingMessage() {
+    public CumulativeTimeMessage() {
         last = this;
     }
 }

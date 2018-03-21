@@ -6,6 +6,7 @@ public class UsageRateMessage extends SendMessage {
 
     public static UsageRateMessage last;
 
+
     private List<Object[]> data;
 
     public List<Object[]> getData() {
@@ -14,6 +15,9 @@ public class UsageRateMessage extends SendMessage {
 
     public void setData(List<Object[]> data) {
         this.data = data;
+    }
+
+    public UsageRateMessage() {
         last = this;
     }
 }

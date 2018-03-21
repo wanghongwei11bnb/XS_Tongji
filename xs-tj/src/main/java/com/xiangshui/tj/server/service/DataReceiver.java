@@ -1,17 +1,13 @@
 package com.xiangshui.tj.server.service;
 
+import com.xiangshui.tj.server.bean.Appraise;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
-import com.xiangshui.tj.server.task.BaseTask;
-import com.xiangshui.tj.server.task.BookingTask;
-import com.xiangshui.tj.server.task.CumulativeBookingTask;
-import com.xiangshui.tj.server.task.UsageRateForHourTask;
+import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
-import com.xiangshui.tj.websocket.message.CumulativeBookingMessage;
-import com.xiangshui.tj.websocket.message.PushBookingMessage;
-import com.xiangshui.tj.websocket.message.UsageRateMessage;
+import com.xiangshui.tj.websocket.message.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +30,8 @@ public class DataReceiver {
 
     @Autowired
     CumulativeBookingTask cumulativeBookingTask;
+    @Autowired
+    CumulativeTimeTask cumulativeTimeTask;
 
 
     @Autowired
@@ -42,6 +40,8 @@ public class DataReceiver {
     CapsuleDataManager capsuleDataManager;
     @Autowired
     BookingDataManager bookingDataManager;
+    @Autowired
+    AppraiseDataManager appraiseDataManager;
 
     @Autowired
     WebSocketSessionManager sessionManager;
@@ -71,13 +71,19 @@ public class DataReceiver {
 
     }
 
+    public void receive(int event, Appraise appraise) {
+        appraiseDataManager.save(appraise);
+        PushAppraiseMessage message = new PushAppraiseMessage();
+        message.setAppraise(appraise);
+        sessionManager.sendMessage(message);
+    }
 
     public void sendUsageRateMessage() {
         BaseTask.Result baseResult = baseTask.tongji();
         UsageRateForHourTask.Result hourResult = usageRateForHourTask.tongji();
         List<Object[]> data = new ArrayList();
         for (long key : hourResult.usageNumMap.keySet()) {
-            data.add(new Object[]{key + "", hourResult.usageNumMap.get(key) * 1f / baseResult.countCapsule});
+            data.add(new Object[]{key, hourResult.usageNumMap.get(key) * 1f / baseResult.countCapsule});
         }
         UsageRateMessage message = new UsageRateMessage();
         message.setData(data);
@@ -90,9 +96,22 @@ public class DataReceiver {
         int cumulative = 0;
         for (long key : result.data.keySet()) {
             cumulative += result.data.get(key);
-            data.add(new Object[]{key + "", cumulative});
+            data.add(new Object[]{key, cumulative});
         }
         CumulativeBookingMessage message = new CumulativeBookingMessage();
+        message.setData(data);
+        sessionManager.sendMessage(message);
+    }
+
+    public void sendCumulativeTimeMessage() {
+        CumulativeTimeTask.Result result = cumulativeTimeTask.tongji();
+        List<Object[]> data = new ArrayList();
+        long cumulative = 0;
+        for (long key : result.data.keySet()) {
+            cumulative += result.data.get(key);
+            data.add(new Object[]{key, cumulative});
+        }
+        CumulativeTimeMessage message = new CumulativeTimeMessage();
         message.setData(data);
         sessionManager.sendMessage(message);
     }
