@@ -1,8 +1,13 @@
 package com.xiangshui.tj.websocket;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xiangshui.tj.constant.TaskModule;
-import com.xiangshui.util.ClassUtils;
+import com.xiangshui.tj.server.bean.Appraise;
+import com.xiangshui.tj.server.bean.City;
+import com.xiangshui.tj.server.dao.DynamoDBService;
+import com.xiangshui.tj.server.service.*;
+import com.xiangshui.tj.server.task.BaseTask;
+import com.xiangshui.tj.server.task.BookingTask;
+import com.xiangshui.tj.websocket.message.ContractMessage;
+import com.xiangshui.tj.websocket.message.UsageRateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,21 +15,66 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class MyHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MyHandler.class);
 
     @Autowired
-    private WebSocketSessionManager sessionManager;
+    WebSocketSessionManager sessionManager;
+
+    @Autowired
+    DynamoDBService dynamoDBService;
+
+    @Autowired
+    DataReceiver dataReceiver;
+
+
+    @Autowired
+    AreaDataManager areaDataManager;
+    @Autowired
+    CapsuleDataManager capsuleDataManager;
+    @Autowired
+    BookingDataManager bookingDataManager;
+    @Autowired
+    AppraiseDataManager appraiseDataManager;
+
+
+    @Autowired
+    BaseTask baseTask;
+    @Autowired
+    BookingTask bookingTask;
+
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        JSONObject jsonMessage = new JSONObject();
-        jsonMessage.put("constant_taskModule", ClassUtils.getStaticJSON(TaskModule.class));
-        session.sendMessage(new TextMessage(jsonMessage.toJSONString()));
+
         sessionManager.addSession(session);
+
+
+        ContractMessage contractMessage = new ContractMessage();
+        contractMessage.setCityList(City.cityList);
+
+        if (appraiseDataManager.getMap() != null && appraiseDataManager.size() > 0) {
+            List<Appraise> appraiseList = new ArrayList(appraiseDataManager.getMap().values());
+            List<Appraise> sendList = new ArrayList();
+            for (int i = 0; i < 10; i++) {
+                if (appraiseList.size() >= i + 1) {
+                    Appraise appraise = appraiseList.get(appraiseList.size() - i - 1);
+                    sendList.add(appraise);
+                }
+            }
+            contractMessage.setAppraiseList(sendList);
+        }
+
+        sessionManager.sendMessage(session, contractMessage);
+        if (UsageRateMessage.last != null) {
+            sessionManager.sendMessage(session, UsageRateMessage.last);
+        }
     }
 
     @Override

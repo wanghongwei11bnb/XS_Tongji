@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+
+    <!--文件打印-->
+    <!--<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+    <!--<file>/opt/logs/msz-web/${APP_NAME}.log</file>-->
+    <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+    <!--<fileNamePattern>/opt/logs/msz-web/${APP_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>-->
+    <!--<maxHistory>30</maxHistory>-->
+    <!--</rollingPolicy>-->
+    <!--<encoder>-->
+    <!--&lt;!&ndash; 必须指定，否则不会往文件输出内容 &ndash;&gt;-->
+    <!--<pattern>%d{HH:mm:ss.SSS} [%level] [%-8class{1}:%L] - %m%n%ex{3}</pattern>-->
+    <!--</encoder>-->
+    <!--<append>false</append>-->
+    <!--<prudent>false</prudent>-->
+    <!--</appender>-->
+
+    <!--控制台打印-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%level] [%-8class{1}:%L] - %m%n%ex{3}</pattern>
+        </encoder>
+    </appender>
+
+
+    <root level="info">
+        <appender-ref ref="console"/>
+    </root>
+
+    <logger name="com.xiangshui" level="debug"></logger>
+
+
+</configuration>

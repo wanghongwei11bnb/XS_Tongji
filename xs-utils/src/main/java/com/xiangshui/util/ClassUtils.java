@@ -1,6 +1,8 @@
 package com.xiangshui.util;
 
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClassUtils {
+    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
     public static Map<String, Object> getStatic(Class<?> clazz) {
         if (clazz == null) {
@@ -38,20 +41,18 @@ public class ClassUtils {
     }
 
 
-    public static void getPattern(Class<?> clazz, int index) {
-        while (clazz != Object.class) {
-            Type type = clazz.getGenericSuperclass();
-            if (type instanceof ParameterizedType) {
-                Type[] args = ((ParameterizedType) type).getActualTypeArguments();
-                if (args[0] instanceof Class) {
-
-                }
+    public static Class<?> getPattern(Class<?> clazz, int index) {
+        if (clazz == null) {
+            return null;
+        }
+        ParameterizedType parameterizedType = (ParameterizedType) clazz.getGenericSuperclass();
+        Type[] types = parameterizedType.getActualTypeArguments();
+        if (types == null || types.length > index) {
+            if (types[index] instanceof Class) {
+                return (Class<?>) types[index];
             }
         }
-    }
-
-    public static void main(String[] args) {
-
+        return null;
     }
 
 }
