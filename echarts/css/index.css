@@ -22,7 +22,8 @@ body,html{
 .appraise{
     flex: 1;
     color: #fff;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
 }
 #appraise_list{
     padding:0;

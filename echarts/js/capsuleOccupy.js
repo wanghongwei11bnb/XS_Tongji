@@ -17,7 +17,7 @@ function occupyChartDraw(dateList,valueList){
             left: -4,
             textStyle: {
                 color: '#fff',
-                fontWeight: 1200,
+                fontWeight: 'bold',
                 fontSize: 14
             }
         },
@@ -32,7 +32,7 @@ function occupyChartDraw(dateList,valueList){
             trigger: 'axis',
             formatter: function (params) {
                 var tooltpText = "<span>使用率: "+params[0].value+"%</span><br/>" +
-                    "<span>"+params[0].name+"</span><br/>";
+                    "<span>时间："+params[0].name+"</span><br/>";
                 return tooltpText
             }
         },
@@ -86,7 +86,7 @@ function servicePeopleChartDraw(dateList,valueList){
             left: 15,
             textStyle: {
                 color: '#fff',
-                fontWeight: 1200,
+                fontWeight: 'bold',
                 fontSize: 14
             }
         },
@@ -98,7 +98,12 @@ function servicePeopleChartDraw(dateList,valueList){
             max: Math.max.apply(null, valueList)
         }],
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
+            formatter: function (params) {
+                var tooltpText = "<span>累计服务人次: "+params[0].value+"人</span><br/>" +
+                    "<span>时间："+params[0].name+"</span><br/>";
+                return tooltpText
+            }
         },
         xAxis: [{
             data: dateList,
@@ -144,12 +149,12 @@ function servicePeopleChartDraw(dateList,valueList){
 function timeChartDraw(dateList,valueList){
     timeChart.setOption(option = {
         title: {
-            text: '头等舱使用时长（单位:小时）',
+            text: '头等舱累计使用时长（单位:小时）',
             top: '5%',
             left: 0,
             textStyle: {
                 color: '#fff',
-                fontWeight: 1200,
+                fontWeight: 'bold',
                 fontSize: 14
             }
         },
@@ -161,7 +166,12 @@ function timeChartDraw(dateList,valueList){
             max: Math.max.apply(null, valueList)
         }],
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
+            formatter: function (params) {
+                var tooltpText = "<span>累计使用时长: "+params[0].value+"小时</span><br/>" +
+                    "<span>时间："+params[0].name+"</span><br/>";
+                return tooltpText
+            }
         },
         xAxis: [{
             data: dateList,
