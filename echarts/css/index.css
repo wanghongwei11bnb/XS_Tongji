@@ -66,8 +66,13 @@ body,html{
         width: 800px;
     }
 }
-@media screen and (min-width: 1601px){
+@media screen and (min-width: 1601px)  and (max-width: 1920px){
     #order,#service_people{
         width: 900px;
+    }
+}
+@media screen and (min-width: 1920px){
+    #order,#service_people{
+        width: 55%;
     }
 }
