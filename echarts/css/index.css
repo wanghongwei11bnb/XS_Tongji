@@ -1,0 +1,73 @@
+body,html{
+    margin: 0;
+    padding: 0;
+    background: #404a58;
+    width: 100%;
+    height: 100%;
+}
+.capsule_title{
+    text-align: center;
+    font-size: 16px;
+    color: #ffffff;
+}
+.capsule_title h1{
+    font-weight: 200;
+}
+.container_one{
+    width: 100%;
+    height: 62%;
+    display: flex;
+    justify-content: space-between;
+}
+.appraise{
+    flex: 1;
+    color: #fff;
+    font-size: 12px;
+}
+#appraise_list{
+    padding:0;
+    height:35%;
+    overflow:hidden;
+    margin-right: 30px;
+    font-weight: 100;
+    font-size: 12px;
+}
+#appraise_list li{
+    border-bottom:1px dashed #CCC;
+    padding:5px 0 8px 0;
+    margin:0;
+    list-style:none;
+    text-align: justify
+}
+.container_two{
+    width: 100%;
+    height: 38%;
+    display: flex;
+    justify-content: space-between;
+}
+.time_wrap{
+    flex: 1;
+}
+
+@media screen and (max-width: 1080px){
+    #order,#service_people{
+        width: 58%;
+    }
+}
+
+@media screen and (min-width: 1081px) and (max-width: 1400px){
+    #order,#service_people{
+        width: 700px;
+    }
+}
+
+@media screen and (min-width: 1401px) and (max-width: 1600px){
+    #order,#service_people{
+        width: 800px;
+    }
+}
+@media screen and (min-width: 1601px){
+    #order,#service_people{
+        width: 900px;
+    }
+}
