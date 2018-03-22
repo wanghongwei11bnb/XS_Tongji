@@ -4,7 +4,6 @@ import java.util.List;
 
 public class CumulativeTimeMessage extends SendMessage {
 
-    public static CumulativeTimeMessage last;
 
     private List<Object[]> data;
 
@@ -16,7 +15,4 @@ public class CumulativeTimeMessage extends SendMessage {
         this.data = data;
     }
 
-    public CumulativeTimeMessage() {
-        last = this;
-    }
 }

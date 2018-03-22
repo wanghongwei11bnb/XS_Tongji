@@ -5,6 +5,8 @@ import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
+import com.xiangshui.tj.server.redis.RedisService;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.*;
@@ -45,6 +47,8 @@ public class DataReceiver {
 
     @Autowired
     WebSocketSessionManager sessionManager;
+    @Autowired
+    RedisService redisService;
 
     private static final Logger log = LoggerFactory.getLogger(DataReceiver.class);
 
@@ -87,6 +91,7 @@ public class DataReceiver {
         }
         UsageRateMessage message = new UsageRateMessage();
         message.setData(data);
+        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
         sessionManager.sendMessage(message);
     }
 
@@ -100,6 +105,7 @@ public class DataReceiver {
         }
         CumulativeBookingMessage message = new CumulativeBookingMessage();
         message.setData(data);
+        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
         sessionManager.sendMessage(message);
     }
 
@@ -113,6 +119,7 @@ public class DataReceiver {
         }
         CumulativeTimeMessage message = new CumulativeTimeMessage();
         message.setData(data);
+        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
         sessionManager.sendMessage(message);
     }
 

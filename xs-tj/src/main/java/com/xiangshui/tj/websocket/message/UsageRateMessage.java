@@ -4,9 +4,6 @@ import java.util.List;
 
 public class UsageRateMessage extends SendMessage {
 
-    public static UsageRateMessage last;
-
-
     private List<Object[]> data;
 
     public List<Object[]> getData() {
@@ -17,7 +14,4 @@ public class UsageRateMessage extends SendMessage {
         this.data = data;
     }
 
-    public UsageRateMessage() {
-        last = this;
-    }
 }

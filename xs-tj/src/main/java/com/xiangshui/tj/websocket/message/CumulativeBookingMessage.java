@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class CumulativeBookingMessage extends SendMessage {
 
-    public static CumulativeBookingMessage last;
 
     private List<Object[]> data;
 
@@ -17,7 +16,4 @@ public class CumulativeBookingMessage extends SendMessage {
         this.data = data;
     }
 
-    public CumulativeBookingMessage() {
-        last = this;
-    }
 }

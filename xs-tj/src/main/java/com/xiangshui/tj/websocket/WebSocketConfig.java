@@ -18,13 +18,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(myHandler, "/tj")
                 .addInterceptors(new MyHttpSessionHandshakeInterceptor())
                 .setAllowedOrigins(
-                        "http://xiangshuispace.com",
-                        "http://www.xiangshuispace.com",
-                        "http://op.xiangshuispace.com",
-                        "http://tj.xiangshuispace.com",
-                        "http://h5.xiangshuispace.com",
-                        "http://localhost:8081",
-                        "http://localhost:8080"
+                        "http://www.xiangshuispace.com", "http://dev.xiangshuispace.com",
+                        "http://op.xiangshuispace.com", "http://devop.xiangshuispace.com",
+                        "http://h5.xiangshuispace.com", "http://dev.h5.xiangshuispace.com",
+                        "http://tj.xiangshuispace.com", "http://dev.tj.xiangshuispace.com",
+                        "http://localhost:8081", "http://localhost:8080",
+                        "http://*:*",
+                        "file://"
                 );
     }
 }
