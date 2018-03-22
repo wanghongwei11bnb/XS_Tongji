@@ -8,15 +8,27 @@ var receiveAppraiseflag = false;
 
 var socket;//websocket实例
 var lockReconnect = false;//避免重复连接
-//http://dev.tj.xiangshuispace.com
+
 var wsUrl;
-var host = window.location.host;
-if(host === 'dev.tj.xiangshuispace.com'){
+var hostname = window.location.hostname;
+if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
-}else if(host === 'tj.xiangshuispace.com'){
+}else if(hostname === 'tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
-    wsUrl = 'ws://192.168.1.99:8080/tj';
+    //ws://192.168.1.99:8080/tj
+    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+}
+
+//数据重置
+function dataReset(){
+    if(appraiseTimer){
+        clearInterval(appraiseTimer)
+    }
+    appraiseTimer='';
+    appraiseArr = [];
+    cityList = [];
+    receiveAppraiseflag = false;
 }
 
 function createWebSocket(url) {
@@ -30,9 +42,11 @@ function createWebSocket(url) {
 
 function initEventHandle() {
     socket.onclose = function () {
+        dataReset();
         reconnect(wsUrl);
     };
     socket.onerror = function () {
+        dataReset();
         reconnect(wsUrl);
     };
     socket.onopen = function () {
@@ -79,7 +93,7 @@ function initEventHandle() {
                 }
                 if(listData.messageType === 'InitAppraiseMessage'){
                     if(listData.appraiseList && listData.appraiseList.length > 0){
-                        appraiseArr = listData.appraiseList
+                        appraiseArr = listData.appraiseList;
                         appraiseTimer=setInterval(function(){
                             var sTxt=appraiseArr.shift();
                             createDom(sTxt,'appraise_list');
@@ -240,19 +254,24 @@ function initEventHandle() {
         }
 
         setTimeout(function () {
-            if(appraiseTimer){
-                clearInterval(appraiseTimer)
+            if(receiveAppraiseflag){
+                if(appraiseTimer){
+                    clearInterval(appraiseTimer)
+                }
+                appraiseTimer=setInterval(function(){
+                    var sTxt=appraiseArr.shift();
+                    console.log(sTxt)
+                    createDom(sTxt,'appraise_list');
+                    appraiseArr.push(sTxt);
+                },2000);
+                receiveAppraiseflag = false
             }
-            appraiseTimer=setInterval(function(){
-                var sTxt=appraiseArr.shift();
-                createDom(sTxt,'appraise_list');
-                appraiseArr.push(sTxt);
-            },2000);
         },300);
     };
 }
 
 function reconnect(url) {
+    dataReset();
     if(lockReconnect) return;
     lockReconnect = true;
     //没连接上会一直重连，设置延迟避免请求过多

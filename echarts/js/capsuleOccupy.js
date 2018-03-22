@@ -195,8 +195,8 @@ function timeChartDraw(dateList,valueList){
         },
         series: [{
             data: valueList,
-            type: 'line',
-            smooth: true,
+            type: 'line'
+            //smooth: true,
             //areaStyle: {
             //    color: '#189df9'
             //}
