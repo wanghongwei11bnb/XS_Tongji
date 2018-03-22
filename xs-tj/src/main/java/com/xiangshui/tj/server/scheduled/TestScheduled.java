@@ -115,7 +115,7 @@ public class TestScheduled implements InitializingBean {
                     if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
                         Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
                         if (booking != null) {
-                            dataReceiver.receive(booking.getStatus() <= 2 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
+                            dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                         }
                     }
                 } catch (Exception e) {
