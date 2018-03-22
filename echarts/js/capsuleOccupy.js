@@ -140,3 +140,66 @@ function servicePeopleChartDraw(dateList,valueList){
         }]
     });
 }
+
+function timeChartDraw(dateList,valueList){
+    timeChart.setOption(option = {
+        title: {
+            text: '头等舱使用时长（单位:小时）',
+            top: '5%',
+            left: 0,
+            textStyle: {
+                color: '#fff',
+                fontWeight: 1200,
+                fontSize: 14
+            }
+        },
+        visualMap: [{
+            show: false,
+            type: 'continuous',
+            seriesIndex: 0,
+            min:0,
+            max: Math.max.apply(null, valueList)
+        }],
+        tooltip: {
+            trigger: 'axis'
+        },
+        xAxis: [{
+            data: dateList,
+            axisLine: {
+                lineStyle: {
+                    color: '#ccc'
+                }
+            }
+        }],
+        yAxis: [{
+            //name: '单位: %',
+            axisLabel: {
+                formatter: '{value}'
+            },
+            splitLine: {show: false},
+            axisLine: {
+                lineStyle: {
+                    color: '#ccc'
+                }
+            }
+        }],
+        textStyle: {
+            color: '#fff'
+        },
+        lable: {
+            show: true
+        },
+        grid: {
+            left: 40,
+            right: 30
+        },
+        series: [{
+            data: valueList,
+            type: 'line',
+            smooth: true,
+            //areaStyle: {
+            //    color: '#189df9'
+            //}
+        }]
+    });
+}

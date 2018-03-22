@@ -12,9 +12,9 @@ var lockReconnect = false;//避免重复连接
 var wsUrl;
 var host = window.location.host;
 if(host === 'dev.tj.xiangshuispace.com'){
-    wsUrl = 'ws://dev.tj.xiangshuispace.com';
+    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
 }else if(host === 'tj.xiangshuispace.com'){
-    wsUrl = 'ws://tj.xiangshuispace.com';
+    wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     wsUrl = 'ws://192.168.1.99:8080/tj';
 }
@@ -95,74 +95,7 @@ function initEventHandle() {
                         var valueList = listData.data.map(function (item) {
                             return (item[1] * 100).toFixed(2);
                         });
-                        occupyChartDraw(dateList,valueList)
-                        occupyChart.setOption(option = {
-                            title: {
-                                text: '头等舱使用率',
-                                top: '5%',
-                                left: -4,
-                                textStyle: {
-                                    color: '#fff',
-                                    fontWeight: 1200,
-                                    fontSize: 14
-                                }
-                            },
-                            visualMap: [{
-                                show: false,
-                                type: 'continuous',
-                                seriesIndex: 0,
-                                min: 0,
-                                max: 100
-                            }],
-                            tooltip: {
-                                trigger: 'axis',
-                                formatter: function (params) {
-                                    var tooltpText = "<span>使用率: "+params[0].value+"%</span><br/>" +
-                                        "<span>"+params[0].name+"</span><br/>";
-                                    return tooltpText
-                                }
-                            },
-                            xAxis: [{
-                                data: dateList,
-                                axisLine: {
-                                    lineStyle: {
-                                        color: '#ccc'
-                                    }
-                                }
-                            }],
-                            yAxis: [{
-                                min: 0,
-                                max: 100,
-                                //name: '单位: %',
-                                axisLabel: {
-                                    formatter: '{value} %'
-                                },
-                                splitLine: {show: false},
-                                axisLine: {
-                                    lineStyle: {
-                                        color: '#ccc'
-                                    }
-                                }
-                            }],
-                            textStyle: {
-                                color: '#fff'
-                            },
-                            lable: {
-                                show: true
-                            },
-                            grid: {
-                                left: 40,
-                                right: 30
-                            },
-                            series: [{
-                                data: valueList,
-                                type: 'line'
-                                //smooth: true,
-                                //areaStyle: {
-                                //    color: '#189df9'
-                                //}
-                            }]
-                        });
+                        occupyChartDraw(dateList,valueList);
                     }
                 }
                 if(listData.messageType === 'CumulativeBookingMessage'){
@@ -182,68 +115,9 @@ function initEventHandle() {
                             return dateUtil('m-d',item[0]/1000);
                         });
                         var listTimeValueList = listData.data.map(function (item) {
-                            return item[1]/1000/60/60;
+                            return (item[1]/1000/60/60).toFixed(2);
                         });
-                        timeChart.setOption(option = {
-                            title: {
-                                text: '头等舱使用时长（单位:小时）',
-                                top: '5%',
-                                left: 0,
-                                textStyle: {
-                                    color: '#fff',
-                                    fontWeight: 1200,
-                                    fontSize: 14
-                                }
-                            },
-                            visualMap: [{
-                                show: false,
-                                type: 'continuous',
-                                seriesIndex: 0,
-                                min:0,
-                                max: Math.max.apply(null, listTimeValueList)
-                            }],
-                            tooltip: {
-                                trigger: 'axis'
-                            },
-                            xAxis: [{
-                                data: listTimeDateList,
-                                axisLine: {
-                                    lineStyle: {
-                                        color: '#ccc'
-                                    }
-                                }
-                            }],
-                            yAxis: [{
-                                //name: '单位: %',
-                                axisLabel: {
-                                    formatter: '{value}'
-                                },
-                                splitLine: {show: false},
-                                axisLine: {
-                                    lineStyle: {
-                                        color: '#ccc'
-                                    }
-                                }
-                            }],
-                            textStyle: {
-                                color: '#fff'
-                            },
-                            lable: {
-                                show: true
-                            },
-                            grid: {
-                                left: 40,
-                                right: 30
-                            },
-                            series: [{
-                                data: listTimeValueList,
-                                type: 'line',
-                                smooth: true,
-                                //areaStyle: {
-                                //    color: '#189df9'
-                                //}
-                            }]
-                        });
+                        timeChartDraw(listTimeDateList,listTimeValueList)
                     }
                 }
             }
@@ -343,6 +217,27 @@ function initEventHandle() {
                 }]
             });
         }
+        //收到的推送消息是 使用时长
+        if(data.messageType === 'CumulativeTimeMessage'){
+            var timeDateList = data.data.map(function (item) {
+                return dateUtil('m-d',item[0]/1000);
+            });
+            var timeValueList = data.data.map(function (item) {
+                return (item[1]/1000/60/60).toFixed(2);
+            });
+
+            timeChart.setOption(option = {
+                visualMap: [{
+                    max: Math.max.apply(null, timeValueList)
+                }],
+                xAxis: [{
+                    data: timeDateList
+                }],
+                series: [{
+                    data: timeValueList
+                }]
+            });
+        }
 
         setTimeout(function () {
             if(appraiseTimer){
@@ -392,12 +287,4 @@ var heartCheck = {
 };
 
 createWebSocket(wsUrl);
-
-
-//当没有收到 评论 推送时,让现有的最新评论轮播
-//appraiseTimer=setInterval(function(){
-//    var sTxt=appraiseArr.shift();
-//    createDom(sTxt,'appraise_list');
-//    appraiseArr.push(sTxt);
-//},2000);
 
