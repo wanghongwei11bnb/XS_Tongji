@@ -65,7 +65,7 @@ function initEventHandle() {
         heartCheck.reset().start();
         console.log('Client received a message');
         var data = JSON.parse(event.data);
-        console.log(data);
+        // console.log(data);
         //收到 初始化 数据
         if(data.messageType === 'ListMessage'){
             var messageList = data.messageList;
@@ -258,9 +258,9 @@ function initEventHandle() {
                 if(appraiseTimer){
                     clearInterval(appraiseTimer)
                 }
+                console.log(appraiseTimer)
                 appraiseTimer=setInterval(function(){
-                    var sTxt=appraiseArr.shift();
-                    console.log(sTxt)
+                    var sTxt = appraiseArr.shift();
                     createDom(sTxt,'appraise_list');
                     appraiseArr.push(sTxt);
                 },2000);

@@ -49,7 +49,7 @@ option = {
         y: '2%',
         textStyle: {
             color: '#fff',
-            fontWeight: 1200,
+            fontWeight: 'bold',
             fontSize: 14
         }
     },
