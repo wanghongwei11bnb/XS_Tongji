@@ -5,11 +5,14 @@ import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.dao.DynamoDBService;
 import com.xiangshui.tj.server.redis.RedisService;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.BaseTask;
 import com.xiangshui.tj.server.task.BookingTask;
 import com.xiangshui.tj.server.task.UsageRateForHourTask;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
+import com.xiangshui.tj.websocket.message.ContractMessage;
+import com.xiangshui.tj.websocket.message.InitAppraiseMessage;
 import com.xiangshui.tj.websocket.message.PushAppraiseMessage;
 import com.xiangshui.tj.websocket.message.PushBookingMessage;
 import com.xiangshui.util.CallBack;
@@ -81,7 +84,6 @@ public class TestScheduled implements InitializingBean {
             }
         });
         City.cityList = new ArrayList(cityMap.values());
-
         log.info("start loadArea");
         dynamoDBService.loadCapsule(new CallBack<Capsule>() {
             public void run(Capsule object) {
@@ -102,8 +104,6 @@ public class TestScheduled implements InitializingBean {
                 appraiseDataManager.save(object);
             }
         });
-
-
     }
 
 

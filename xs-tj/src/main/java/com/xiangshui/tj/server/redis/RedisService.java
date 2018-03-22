@@ -39,7 +39,7 @@ public class RedisService {
     public void init() {
         if (!inited) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-            jedisPool = new JedisPool(config, debug ? host_dev : host_www, debug ? port_dev : port_www, 30, password);
+            jedisPool = new JedisPool(config, debug ? host_dev : host_www, debug ? port_dev : port_www, 1000 * 30, password);
             inited = true;
         }
     }

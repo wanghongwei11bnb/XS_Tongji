@@ -3,6 +3,8 @@ package com.xiangshui.tj.websocket;
 import com.xiangshui.tj.server.bean.Appraise;
 import com.xiangshui.tj.server.bean.City;
 import com.xiangshui.tj.server.dao.DynamoDBService;
+import com.xiangshui.tj.server.redis.RedisService;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.BaseTask;
 import com.xiangshui.tj.server.task.BookingTask;
@@ -45,6 +47,8 @@ public class MyHandler extends TextWebSocketHandler {
     BaseTask baseTask;
     @Autowired
     BookingTask bookingTask;
+    @Autowired
+    RedisService redisService;
 
 
     @Override
@@ -54,27 +58,35 @@ public class MyHandler extends TextWebSocketHandler {
 
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         //ContractMessage
-        ContractMessage contractMessage = new ContractMessage();
-        contractMessage.setCityList(City.cityList);
-        messageList.add(contractMessage);
+        if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, ContractMessage.class.getSimpleName(), ContractMessage.class));
+        } else if (City.cityList != null) {
+            ContractMessage contractMessage = new ContractMessage();
+            contractMessage.setCityList(City.cityList);
+            redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
+            messageList.add(contractMessage);
+        }
         //InitAppraiseMessage
         if (appraiseDataManager.getMap() != null && appraiseDataManager.getMap().size() > 0) {
             List<Appraise> appraiseList = new ArrayList<Appraise>(appraiseDataManager.getMap().values());
             InitAppraiseMessage initAppraiseMessage = new InitAppraiseMessage();
             initAppraiseMessage.setAppraiseList(appraiseList);
+            redisService.set(SendMessagePrefix.cache, initAppraiseMessage.getClass().getSimpleName(), initAppraiseMessage);
             messageList.add(initAppraiseMessage);
+        } else if (redisService.exists(SendMessagePrefix.cache, InitAppraiseMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, InitAppraiseMessage.class.getSimpleName(), InitAppraiseMessage.class));
         }
         //UsageRateMessage
-        if (UsageRateMessage.last != null) {
-            messageList.add(UsageRateMessage.last);
+        if (redisService.exists(SendMessagePrefix.cache, UsageRateMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, UsageRateMessage.class.getSimpleName(), UsageRateMessage.class));
         }
         //CumulativeBookingMessage
-        if (CumulativeBookingMessage.last != null) {
-            messageList.add(CumulativeBookingMessage.last);
+        if (redisService.exists(SendMessagePrefix.cache, CumulativeBookingMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, CumulativeBookingMessage.class.getSimpleName(), CumulativeBookingMessage.class));
         }
         //CumulativeTimeMessage
-        if (CumulativeTimeMessage.last != null) {
-            messageList.add(CumulativeTimeMessage.last);
+        if (redisService.exists(SendMessagePrefix.cache, CumulativeTimeMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, CumulativeTimeMessage.class.getSimpleName(), CumulativeTimeMessage.class));
         }
         //ListMessage
         ListMessage listMessage = new ListMessage();

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Component
-public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
+public class CumulativeBookingTodayTask extends Task<CumulativeBookingTodayTask.Result> {
 
 
     public Result createResult() {
@@ -40,17 +40,21 @@ public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
 
     public void reduce(Booking booking, Result result) {
 
-        long start_time = booking.getCreate_time();
-        if (start_time <= 0) {
+        long create_time = booking.getCreate_time();
+        if (create_time <= 0) {
             return;
         }
-        start_time = DateUtils.copyDateEndDate(new Date(start_time * 1000)).getTime();
-        if (!(result.start_date.getTime() <= start_time && start_time <= result.end_date.getTime())) {
+        create_time *= 1000;
+        if (!(result.start_hour.getTime() <= create_time && create_time <= result.end_hour.getTime())) {
             return;
         }
 
-        result.data.put(start_time, result.data.get(start_time) + 1);
+        Date create_hour = DateUtils.copyDateEndHour(new Date(create_time));
+        long create_hour_time = create_hour.getTime() + 1000 * 60 * 60;
 
+        if (result.data.containsKey(create_hour_time)) {
+            result.data.put(create_hour_time, result.data.get(create_hour_time) + 1);
+        }
     }
 
     public void reduce(Capsule capsule, Result result) {
@@ -65,22 +69,22 @@ public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
 
         public Date now;
 
-        public Date start_date;
-        public Date end_date;
+        public Date start_hour;
+        public Date end_hour;
 
         public Map<Long, Integer> data;
 
         public Result() {
             now = new Date();
-            end_date = DateUtils.copyDateEndDate(now);
-            start_date = DateUtils.copyDateEndDate(now);
-            start_date.setTime(end_date.getTime() - 1000 * 60 * 60 * 24 * 7);
+            start_hour = DateUtils.copyDateEndDate(now);
+            end_hour = DateUtils.copyDateEndHour(now);
+            end_hour.setTime(end_hour.getTime() + 1000 * 60 * 60);
             data = new TreeMap<Long, Integer>();
-            Date index_date = (Date) start_date.clone();
+            Date index_hour = (Date) start_hour.clone();
             do {
-                data.put(index_date.getTime(), 0);
-                index_date.setTime(index_date.getTime() + 1000 * 60 * 60 * 24);
-            } while (index_date.getTime() <= end_date.getTime());
+                data.put(index_hour.getTime(), 0);
+                index_hour.setTime(index_hour.getTime() + 1000 * 60 * 60);
+            } while (index_hour.getTime() <= end_hour.getTime());
         }
     }
 }
