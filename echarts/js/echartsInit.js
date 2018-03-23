@@ -9,10 +9,18 @@ var servicePeopleChart = echarts.init(document.getElementById('service_people'))
 
 var timeChart = echarts.init(document.getElementById('time'));
 
-function occupyChartDraw(dateList,valueList){
+function occupyChartDraw(dateList,valueList,valueList2){
+    var maxValue = Math.ceil(Math.max.apply(null, valueList));
+    var maxValue2 = Math.ceil(Math.max.apply(null, valueList2));
+    var max =  maxValue> maxValue2 ? maxValue : maxValue2;
+
+    var minValue = Math.floor(Math.min.apply(null, valueList));
+    var minValue2 = Math.floor(Math.min.apply(null, valueList2));
+    var min = minValue < minValue2 ? minValue : minValue2;
+
     occupyChart.setOption(option = {
         title: {
-            text: '头等舱使用率',
+            text: '使用率',
             top: '5%',
             left: -4,
             textStyle: {
@@ -21,20 +29,15 @@ function occupyChartDraw(dateList,valueList){
                 fontSize: 14
             }
         },
-        visualMap: [{
-            show: false,
-            type: 'continuous',
-            seriesIndex: 0,
-            min: 0,
-            max: 100
-        }],
+        //visualMap: [{
+        //    show: false,
+        //    type: 'continuous',
+        //    seriesIndex: 0,
+        //    min: min,
+        //    max: max
+        //}],
         tooltip: {
-            trigger: 'axis',
-            formatter: function (params) {
-                var tooltpText = "<span>使用率: "+params[0].value+"%</span><br/>" +
-                    "<span>时间："+params[0].name+"</span><br/>";
-                return tooltpText
-            }
+            trigger: 'axis'
         },
         xAxis: [{
             data: dateList,
@@ -45,12 +48,28 @@ function occupyChartDraw(dateList,valueList){
             }
         }],
         yAxis: [{
-            min: 0,
-            max: 100,
+            type: 'value',
+            min: min,
+            max: max,
             axisLabel: {
                 formatter: '{value} %'
             },
             splitLine: {show: false},
+            position: 'left',
+            axisLine: {
+                lineStyle: {
+                    color: '#ccc'
+                }
+            }
+        },{
+            type: 'value',
+            min: min,
+            max: max,
+            axisLabel: {
+                formatter: '{value} %'
+            },
+            splitLine: {show: false},
+            position: 'right',
             axisLine: {
                 lineStyle: {
                     color: '#ccc'
@@ -63,25 +82,65 @@ function occupyChartDraw(dateList,valueList){
         lable: {
             show: true
         },
+        legend: {
+            show: true,
+            top:'5%',
+            data: [{name: '使用率',
+                    icon: 'circle',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                   },
+                    {name: '累计使用率',
+                    icon: 'circle',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                }
+            ]
+        },
         grid: {
-            left: 40,
-            right: 30
+            left: 60,
+            right: 60
         },
         series: [{
+            name: '使用率',
             data: valueList,
-            type: 'line'
+            type: 'line',
+            lineStyle: {
+                color: '#8ecefc'
+            },
+            itemStyle: {
+                normal: {
+                    color: '#8ecefc'
+                }
+            }
             //smooth: true,
             //areaStyle: {
             //    color: '#189df9'
             //}
+        },{
+            name: '累计使用率',
+            data: valueList2,
+            type: 'line',
+            lineStyle: {
+                color: '#7cedc4'
+            },
+            itemStyle: {
+                normal: {
+                    color: '#7cedc4'
+                }
+            }
         }]
     });
 }
 
 function servicePeopleChartDraw(dateList,valueList){
+    var min = parseInt(Math.min.apply(null, valueList))-100;
+    var max = parseInt(Math.max.apply(null, valueList))+100;
     servicePeopleChart.setOption(option = {
         title: {
-            text: '头等舱服务人次（单位:人）',
+            text: '服务人次',
             top: '5%',
             left: 15,
             textStyle: {
@@ -94,13 +153,13 @@ function servicePeopleChartDraw(dateList,valueList){
             show: false,
             type: 'continuous',
             seriesIndex: 0,
-            min:0,
-            max: Math.max.apply(null, valueList)
+            min: min,
+            max: max
         }],
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                var tooltpText = "<span>累计服务人次: "+params[0].value+"人</span><br/>" +
+                var tooltpText = "<span>服务人次: "+params[0].value+"人</span><br/>" +
                     "<span>时间："+params[0].name+"</span><br/>";
                 return tooltpText
             }
@@ -115,6 +174,8 @@ function servicePeopleChartDraw(dateList,valueList){
         }],
         yAxis: [{
             //name: '单位: %',
+            min: min,
+            max: max,
             axisLabel: {
                 formatter: '{value}'
             },
@@ -132,7 +193,7 @@ function servicePeopleChartDraw(dateList,valueList){
             show: true
         },
         grid: {
-            left: 40,
+            left: '8%',
             right: 30
         },
         series: [{
@@ -147,9 +208,12 @@ function servicePeopleChartDraw(dateList,valueList){
 }
 
 function timeChartDraw(dateList,valueList){
+    var min = parseInt(Math.min.apply(null, valueList))-100;
+    var max = parseInt(Math.max.apply(null, valueList))+100;
+
     timeChart.setOption(option = {
         title: {
-            text: '头等舱累计使用时长（单位:小时）',
+            text: '使用时长',
             top: '5%',
             left: 0,
             textStyle: {
@@ -162,13 +226,13 @@ function timeChartDraw(dateList,valueList){
             show: false,
             type: 'continuous',
             seriesIndex: 0,
-            min:0,
-            max: Math.max.apply(null, valueList)
+            min: min,
+            max: max
         }],
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                var tooltpText = "<span>累计使用时长: "+params[0].value+"小时</span><br/>" +
+                var tooltpText = "<span>使用时长: "+params[0].value+"小时</span><br/>" +
                     "<span>时间："+params[0].name+"</span><br/>";
                 return tooltpText
             }
@@ -183,6 +247,8 @@ function timeChartDraw(dateList,valueList){
         }],
         yAxis: [{
             //name: '单位: %',
+            min: min,
+            max: max,
             axisLabel: {
                 formatter: '{value}'
             },
@@ -200,7 +266,7 @@ function timeChartDraw(dateList,valueList){
             show: true
         },
         grid: {
-            left: 40,
+            left: 60,
             right: 30
         },
         series: [{
