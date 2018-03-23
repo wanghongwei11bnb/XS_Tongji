@@ -72,7 +72,9 @@ public class DataReceiver {
         if (event != ReceiveEvent.HISTORY_DATA) {
             sendUsageRateMessage();
         }
-
+        sendCumulativeBookingMessage();
+        sendUsageRateMessage();
+        sendCumulativeTimeMessage();
     }
 
     public void receive(int event, Appraise appraise) {
