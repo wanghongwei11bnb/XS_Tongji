@@ -45,10 +45,6 @@ public class RedisService {
     }
 
 
-    public String getRealKey(KeyPrefix keyPrefix, String key) {
-        return keyPrefix.prefix + ":" + key;
-    }
-
     private <T> String beanToString(T value) {
         if (value == null) {
             return null;
@@ -96,7 +92,7 @@ public class RedisService {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = getRealKey(keyPrefix, key);
+            String realKey = keyPrefix.getRealKey(key);
             return jedis.exists(realKey);
         } finally {
             if (jedis != null) {
@@ -109,7 +105,7 @@ public class RedisService {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = getRealKey(keyPrefix, key);
+            String realKey = keyPrefix.getRealKey(key);
             return jedis.expire(realKey, keyPrefix.expiry);
         } finally {
             if (jedis != null) {
@@ -122,7 +118,7 @@ public class RedisService {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = getRealKey(keyPrefix, key);
+            String realKey = keyPrefix.getRealKey(key);
             String str = beanToString(value);
             if (keyPrefix.expiry > 0) {
                 jedis.setex(realKey, keyPrefix.expiry, str);
@@ -143,7 +139,7 @@ public class RedisService {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = getRealKey(keyPrefix, key);
+            String realKey = keyPrefix.getRealKey(key);
             String str = jedis.get(realKey);
             T obj = stringToBean(str, clazz);
             return obj;
@@ -159,7 +155,7 @@ public class RedisService {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = getRealKey(keyPrefix, key);
+            String realKey = keyPrefix.getRealKey(key);
             return jedis.incr(realKey);
         } finally {
             if (jedis != null) {

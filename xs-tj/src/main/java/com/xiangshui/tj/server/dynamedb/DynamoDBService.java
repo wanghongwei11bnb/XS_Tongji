@@ -1,4 +1,4 @@
-package com.xiangshui.tj.server.dao;
+package com.xiangshui.tj.server.dynamedb;
 
 import com.alibaba.fastjson.JSON;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -40,6 +40,23 @@ public class DynamoDBService {
     private String prefix() {
         return debug ? "dev_" : "";
     }
+
+    public void loadUser(CallBack<User> callBack) {
+        Table table = dynamoDB.getTable(prefix() + "user_info");
+        ScanSpec scanSpec = new ScanSpec();
+        ItemCollection<ScanOutcome> items = table.scan(scanSpec);
+        Iterator<Item> iter = items.iterator();
+        while (iter.hasNext()) {
+            try {
+                Item item = iter.next();
+                User user = JSON.parseObject(item.toJSON(), User.class);
+                callBack.run(user);
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
+    }
+
 
     public void loadArea(CallBack<Area> callBack) {
         Table table = dynamoDB.getTable(prefix() + "area");

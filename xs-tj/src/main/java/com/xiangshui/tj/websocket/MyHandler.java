@@ -2,7 +2,7 @@ package com.xiangshui.tj.websocket;
 
 import com.xiangshui.tj.server.bean.Appraise;
 import com.xiangshui.tj.server.bean.City;
-import com.xiangshui.tj.server.dao.DynamoDBService;
+import com.xiangshui.tj.server.dynamedb.DynamoDBService;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.*;
@@ -58,13 +58,13 @@ public class MyHandler extends TextWebSocketHandler {
 
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         //ContractMessage
-        if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
-            messageList.add(redisService.get(SendMessagePrefix.cache, ContractMessage.class.getSimpleName(), ContractMessage.class));
-        } else if (City.cityList != null) {
+        if (City.cityList != null) {
             ContractMessage contractMessage = new ContractMessage();
             contractMessage.setCityList(City.cityList);
             redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
             messageList.add(contractMessage);
+        } else if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, ContractMessage.class.getSimpleName(), ContractMessage.class));
         }
         //InitAppraiseMessage
         if (appraiseDataManager.getMap() != null && appraiseDataManager.getMap().size() > 0) {

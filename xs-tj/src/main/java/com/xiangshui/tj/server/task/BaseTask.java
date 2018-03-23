@@ -6,6 +6,7 @@ import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,6 +51,10 @@ public class BaseTask extends Task<BaseTask.Result> {
     @Override
     public void reduce(Area area, Result result) {
 
+    }
+
+    public SendMessage toSendMessage(Result result) {
+        return null;
     }
 
 

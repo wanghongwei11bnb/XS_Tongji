@@ -3,15 +3,21 @@ package com.xiangshui.tj.server.task;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.SendMessage;
+import com.xiangshui.tj.websocket.message.UsageRateMessage;
+import com.xiangshui.util.DateUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+/**
+ * 1.统计过去24小时内舱的使用率
+ * 2.统计过去24小时内累计舱使用率
+ */
 @Component
 public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
@@ -19,6 +25,20 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
     @Override
     public boolean reduce_for_booking() {
         return true;
+    }
+
+    public SendMessage toSendMessage(Result result) {
+        List<Object[]> data = new ArrayList();
+        Set<Long> cisSet = new HashSet<Long>();
+        for (long key : result.usageCumuMap.keySet()) {
+            for (long cid : result.usageCumuMap.get(key)) {
+                cisSet.add(cid);
+            }
+            data.add(new Object[]{key, result.usageCumuMap.get(key).size() * 1f / result.countCapsule, cisSet.size() * 1f / result.countCapsule});
+        }
+        UsageRateMessage message = new UsageRateMessage();
+        message.setData(data);
+        return message;
     }
 
     @Override
@@ -33,7 +53,7 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
     @Override
     public void handDataManager(CapsuleDataManager capsuleDataManager, Result result) {
-
+        result.countCapsule = capsuleDataManager.size();
     }
 
     @Override
@@ -43,30 +63,27 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
     @Override
     public void reduce(Booking booking, Result result) {
-        long create_time = booking.getCreate_time();
+        long start_time = booking.getCreate_time();
         long end_time = booking.getEnd_time();
-        if (create_time <= 0) {
+        if (start_time <= 0) {
             return;
         }
-
-        Date start_date = new Date(create_time * 1000);
-
-        Date end_date;
+        start_time *= 1000;
         if (end_time <= 0) {
-            end_date = result.end_date;
+            end_time = result.end_hour.getTime();
         } else {
-            end_date = new Date(end_time * 1000);
+            end_time *= 1000;
         }
-
-
-        if (end_date.getTime() < result.start_date.getTime()) {
+        if (end_time < result.start_hour.getTime()) {
             return;
         }
 
-        for (long ts : result.usageNumMap.keySet()) {
-            if (start_date.getTime() - 1000 * 60 * 30 <= ts && ts <= end_date.getTime() + 1000 * 60 * 30) {
-                append(result, ts);
+        for (long ts : result.usageCumuMap.keySet()) {
+
+            if (end_time < ts || start_time >= ts + 1000 * 60 * 60) {
+                continue;
             }
+            result.usageCumuMap.get(ts).add(booking.getCapsule_id());
         }
     }
 
@@ -81,35 +98,26 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
     }
 
 
-    private void append(Result result, long k) {
-        if (result.usageNumMap.containsKey(k)) {
-            result.usageNumMap.put(k, result.usageNumMap.get(k) + 1);
-        }
-    }
-
     public static class Result {
 
-        public Date start_date;
-        public Date end_date;
-        //key:yyyyMMddhh,value:订单数
-        public Map<Long, Integer> usageNumMap = new TreeMap();
+        public int countCapsule;
+
+        public Date now;
+
+        public Date start_hour;
+        public Date end_hour;
+        public Map<Long, Set<Long>> usageCumuMap;
 
         public Result() {
-
-            Date now = new Date();
-            end_date = (Date) now.clone();
-            try {
-                Date indexDate = (Date) end_date.clone();
-                for (int i = 0; i < 25; i++) {
-                    usageNumMap.put(indexDate.getTime(), 0);
-                    indexDate.setTime(indexDate.getTime() - (1000 * 60 * 60));
-                }
-                start_date = indexDate;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
+            usageCumuMap = new TreeMap<Long, Set<Long>>();
+            now = new Date();
+            end_hour = DateUtils.copyDateEndHour(now);
+            start_hour = new Date(end_hour.getTime() - 1000 * 60 * 60 * 24);
+            long index_hour_time = start_hour.getTime();
+            do {
+                usageCumuMap.put(index_hour_time, new HashSet<Long>());
+                index_hour_time += 1000 * 60 * 60;
+            } while (index_hour_time <= end_hour.getTime());
         }
     }
 }

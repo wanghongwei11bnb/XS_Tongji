@@ -3,16 +3,20 @@ package com.xiangshui.tj.server.task;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.CumulativeBookingMessage;
+import com.xiangshui.tj.websocket.message.SendMessage;
 import com.xiangshui.util.DateUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+/**
+ * 统计累计服务人数（累计订单数）
+ */
 @Component
 public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
 
@@ -38,6 +42,18 @@ public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
         return true;
     }
 
+    public SendMessage toSendMessage(Result result) {
+        List<Object[]> data = new ArrayList();
+        int cumulative = 0;
+        for (long key : result.data.keySet()) {
+            cumulative += result.data.get(key);
+            data.add(new Object[]{key, cumulative});
+        }
+        CumulativeBookingMessage message = new CumulativeBookingMessage();
+        message.setData(data);
+        return message;
+    }
+
     public void reduce(Booking booking, Result result) {
 
         long start_time = booking.getCreate_time();
@@ -45,11 +61,13 @@ public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
             return;
         }
         start_time = DateUtils.copyDateEndDate(new Date(start_time * 1000)).getTime();
-        if (!(result.start_date.getTime() <= start_time && start_time <= result.end_date.getTime())) {
-            return;
+
+        if (start_time <= result.start_date.getTime()) {
+            result.data.put(result.start_date.getTime(), result.data.get(result.start_date.getTime()) + 1);
+        } else {
+            result.data.put(start_time, result.data.get(start_time) + 1);
         }
 
-        result.data.put(start_time, result.data.get(start_time) + 1);
 
     }
 

@@ -3,16 +3,20 @@ package com.xiangshui.tj.server.task;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.CumulativeTimeMessage;
+import com.xiangshui.tj.websocket.message.SendMessage;
 import com.xiangshui.util.DateUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+/**
+ * 统计累计使用时长
+ */
 @Component
 public class CumulativeTimeTask extends Task<CumulativeTimeTask.Result> {
 
@@ -38,6 +42,18 @@ public class CumulativeTimeTask extends Task<CumulativeTimeTask.Result> {
         return true;
     }
 
+    public SendMessage toSendMessage(Result result) {
+        List<Object[]> data = new ArrayList();
+        long cumulative = 0;
+        for (long key : result.data.keySet()) {
+            cumulative += result.data.get(key);
+            data.add(new Object[]{key, cumulative});
+        }
+        CumulativeTimeMessage message = new CumulativeTimeMessage();
+        message.setData(data);
+        return message;
+    }
+
     public void reduce(Booking booking, Result result) {
         long start_time = booking.getCreate_time();
         long end_time = booking.getEnd_time();
@@ -50,9 +66,16 @@ public class CumulativeTimeTask extends Task<CumulativeTimeTask.Result> {
         } else {
             end_time *= 1000;
         }
-        if (end_time < result.start_date.getTime() || start_time > result.end_date.getTime()) {
+        if (start_time > result.end_date.getTime()) {
             return;
         }
+
+        if (start_time < result.start_date.getTime()) {
+            long min_end_time = end_time < result.start_date.getTime() ? end_time : result.start_date.getTime();
+            long time = min_end_time - start_time;
+            result.data.put(result.start_date.getTime(), result.data.get(result.start_date.getTime()) + time);
+        }
+
 
         for (long index_time : result.data.keySet()) {
 
@@ -89,15 +112,15 @@ public class CumulativeTimeTask extends Task<CumulativeTimeTask.Result> {
         public Result() {
             now = new Date();
             end_date = DateUtils.copyDateEndDate(now);
-            now_date = (Date) end_date.clone();
-            start_date = DateUtils.copyDateEndHour(now);
+            now_date = DateUtils.copyDateEndDate(now);
+            start_date = DateUtils.copyDateEndDate(now);
             start_date.setTime(start_date.getTime() - 1000 * 60 * 60 * 24 * 7);
             data = new TreeMap<Long, Long>();
-            Date index_hour = (Date) start_date.clone();
+            Date index_date = (Date) start_date.clone();
             do {
-                data.put(index_hour.getTime(), 0l);
-                index_hour.setTime(index_hour.getTime() + 1000 * 60 * 60 * 24);
-            } while (index_hour.getTime() <= end_date.getTime());
+                data.put(index_date.getTime(), 0l);
+                index_date.setTime(index_date.getTime() + 1000 * 60 * 60 * 24);
+            } while (index_date.getTime() <= end_date.getTime());
         }
     }
 }

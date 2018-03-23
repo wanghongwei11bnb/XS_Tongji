@@ -1,9 +1,6 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.Appraise;
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
@@ -37,6 +34,8 @@ public class DataReceiver {
 
 
     @Autowired
+    UserDataManager userDataManager;
+    @Autowired
     AreaDataManager areaDataManager;
     @Autowired
     CapsuleDataManager capsuleDataManager;
@@ -44,13 +43,16 @@ public class DataReceiver {
     BookingDataManager bookingDataManager;
     @Autowired
     AppraiseDataManager appraiseDataManager;
-
     @Autowired
     WebSocketSessionManager sessionManager;
     @Autowired
     RedisService redisService;
 
     private static final Logger log = LoggerFactory.getLogger(DataReceiver.class);
+
+    public void receive(int event, User user) {
+        userDataManager.save(user);
+    }
 
     public void receive(int event, Area area) {
         areaDataManager.save(area);
@@ -67,60 +69,68 @@ public class DataReceiver {
             pushBookingMessage.setBooking(booking);
             pushBookingMessage.setArea(areaDataManager.getById(booking.getArea_id()));
             pushBookingMessage.setCapsule(capsuleDataManager.getById(booking.getCapsule_id()));
+            User user = userDataManager.getById(booking.getUin());
+            if (user != null) {
+                booking.setNick_name(user.getNick_name());
+            }
             sessionManager.sendMessage(pushBookingMessage);
         }
         if (event != ReceiveEvent.HISTORY_DATA) {
-            sendUsageRateMessage();
+            doTask(new Task[]{usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
         }
-
     }
 
     public void receive(int event, Appraise appraise) {
         appraiseDataManager.save(appraise);
         PushAppraiseMessage message = new PushAppraiseMessage();
         message.setAppraise(appraise);
+        User user = userDataManager.getById(appraise.getUin());
+        if (user != null) {
+            appraise.setPhone(user.getPhone());
+            appraise.setNick_name(user.getNick_name());
+        }
         sessionManager.sendMessage(message);
     }
 
-    public void sendUsageRateMessage() {
-        BaseTask.Result baseResult = baseTask.tongji();
-        UsageRateForHourTask.Result hourResult = usageRateForHourTask.tongji();
-        List<Object[]> data = new ArrayList();
-        for (long key : hourResult.usageNumMap.keySet()) {
-            data.add(new Object[]{key, hourResult.usageNumMap.get(key) * 1f / baseResult.countCapsule});
+
+    public void doTask(Task[] tasks, DataManager[] dataManagers) {
+        List<TaskEntry> taskEntryList = new ArrayList<TaskEntry>();
+        for (Task task : tasks) {
+            taskEntryList.add(task.createTaskEntry());
         }
-        UsageRateMessage message = new UsageRateMessage();
-        message.setData(data);
-        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
-        sessionManager.sendMessage(message);
+        for (DataManager dataManager : dataManagers) {
+            Class dataManagerClass = dataManager.getClass();
+            for (TaskEntry taskEntry : taskEntryList) {
+                if (dataManagerClass == AreaDataManager.class) {
+                    taskEntry.getTask().handDataManager((AreaDataManager) dataManager, taskEntry.getResult());
+                } else if (dataManagerClass == CapsuleDataManager.class) {
+                    taskEntry.getTask().handDataManager((CapsuleDataManager) dataManager, taskEntry.getResult());
+                } else if (dataManagerClass == BookingDataManager.class) {
+                    taskEntry.getTask().handDataManager((BookingDataManager) dataManager, taskEntry.getResult());
+                }
+            }
+            for (Object object : new ArrayList(dataManager.getMap().values())) {
+                for (TaskEntry taskEntry : taskEntryList) {
+                    if (dataManagerClass == AreaDataManager.class && taskEntry.getTask().reduce_for_area()) {
+                        taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
+                    } else if (dataManagerClass == CapsuleDataManager.class && taskEntry.getTask().reduce_for_capsule()) {
+                        taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
+                    } else if (dataManagerClass == BookingDataManager.class && taskEntry.getTask().reduce_for_booking()) {
+                        taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
+                    }
+                }
+            }
+        }
+        List<SendMessage> messageList = new ArrayList<SendMessage>();
+        for (TaskEntry taskEntry : taskEntryList) {
+            SendMessage message = taskEntry.getTask().toSendMessage(taskEntry.getResult());
+            redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
+            messageList.add(message);
+        }
+        ListMessage listMessage = new ListMessage();
+        listMessage.setMessageList(messageList);
+        sessionManager.sendMessage(listMessage);
     }
 
-    public void sendCumulativeBookingMessage() {
-        CumulativeBookingTask.Result result = cumulativeBookingTask.tongji();
-        List<Object[]> data = new ArrayList();
-        int cumulative = 0;
-        for (long key : result.data.keySet()) {
-            cumulative += result.data.get(key);
-            data.add(new Object[]{key, cumulative});
-        }
-        CumulativeBookingMessage message = new CumulativeBookingMessage();
-        message.setData(data);
-        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
-        sessionManager.sendMessage(message);
-    }
-
-    public void sendCumulativeTimeMessage() {
-        CumulativeTimeTask.Result result = cumulativeTimeTask.tongji();
-        List<Object[]> data = new ArrayList();
-        long cumulative = 0;
-        for (long key : result.data.keySet()) {
-            cumulative += result.data.get(key);
-            data.add(new Object[]{key, cumulative});
-        }
-        CumulativeTimeMessage message = new CumulativeTimeMessage();
-        message.setData(data);
-        redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
-        sessionManager.sendMessage(message);
-    }
 
 }

@@ -76,15 +76,15 @@ function createDom(sTxt,idName)
     var iHeight=0;
     if(sTxt.appraise || sTxt.suggest){
         var appraiseText = sTxt.suggest ? sTxt.suggest : sTxt.appraise.join('、');
-        oLi.innerHTML = "<div>"+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
+        oLi.innerHTML = "<div class='appraise_text'><span>用户</span>"+sTxt.uin+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
     }else{
         oLi.innerHTML = ""
     }
-    console.log('test=========')
-    console.log(appraiseText+'~~~~~~~~~'+ dateUtil('Y-m-d h:i:s',sTxt.createtime))
+    //console.log('test=========')
+    //console.log(appraiseText+'~~~~~~~~~'+ dateUtil('Y-m-d h:i:s',sTxt.createtime))
     oLi.style.filter="alpha(opacity:0)";
     oLi.style.opacity=0;
-    if(appraiseSave != dateUtil('Y-m-d h:i:s',sTxt.createtime)){
+    //if(appraiseSave != dateUtil('Y-m-d h:i:s',sTxt.createtime)){
         if(aLi.length){
             oUl.insertBefore(oLi,aLi[0])
         }
@@ -99,8 +99,5 @@ function createDom(sTxt,idName)
             startMove(oLi,"opacity",1)
         });
         appraiseSave = dateUtil('Y-m-d h:i:s',sTxt.createtime);
-    }else{
-        return;
-    }
-    
+    //}
 }
