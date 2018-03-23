@@ -70,9 +70,10 @@ public class DataReceiver {
             sessionManager.sendMessage(pushBookingMessage);
         }
         if (event != ReceiveEvent.HISTORY_DATA) {
+            sendCumulativeBookingMessage();
             sendUsageRateMessage();
+            sendCumulativeTimeMessage();
         }
-
     }
 
     public void receive(int event, Appraise appraise) {
