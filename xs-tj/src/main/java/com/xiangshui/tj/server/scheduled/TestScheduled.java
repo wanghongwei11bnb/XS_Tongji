@@ -3,24 +3,19 @@ package com.xiangshui.tj.server.scheduled;
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
-import com.xiangshui.tj.server.dao.DynamoDBService;
+import com.xiangshui.tj.server.dynamedb.DynamoDBService;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.*;
-import com.xiangshui.tj.server.task.BaseTask;
-import com.xiangshui.tj.server.task.BookingTask;
-import com.xiangshui.tj.server.task.UsageRateForHourTask;
+import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
-import com.xiangshui.tj.websocket.message.ContractMessage;
-import com.xiangshui.tj.websocket.message.InitAppraiseMessage;
-import com.xiangshui.tj.websocket.message.PushAppraiseMessage;
-import com.xiangshui.tj.websocket.message.PushBookingMessage;
 import com.xiangshui.util.CallBack;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
@@ -31,6 +26,9 @@ import java.util.*;
 public class TestScheduled implements InitializingBean {
     private static final Logger log = LoggerFactory.getLogger(TestScheduled.class);
 
+
+    @Value("${isdebug}")
+    boolean debug;
 
     @Autowired
     WebSocketSessionManager sessionManager;
@@ -60,9 +58,19 @@ public class TestScheduled implements InitializingBean {
     BookingTask bookingTask;
     @Autowired
     UsageRateForHourTask usageRateForHourTask;
+    @Autowired
+    CumulativeBookingTask cumulativeBookingTask;
+    @Autowired
+    CumulativeTimeTask cumulativeTimeTask;
 
 
     public void initLoad() {
+        log.info("start loadUser");
+        dynamoDBService.loadUser(new CallBack<User>() {
+            public void run(User object) {
+                dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
+            }
+        });
 
         log.info("start reloadCity");
         dynamoDBService.reloadCity();
@@ -111,7 +119,7 @@ public class TestScheduled implements InitializingBean {
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
                 try {
-                    List<String> stringList = object.blpop(0, "booking");
+                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "booking");
                     if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
                         Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
                         if (booking != null) {
@@ -131,7 +139,7 @@ public class TestScheduled implements InitializingBean {
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
                 try {
-                    List<String> stringList = object.blpop(0, "appraise");
+                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "appraise");
                     if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
                         Appraise appraise = JSON.parseObject(stringList.get(1), Appraise.class);
                         if (appraise != null) {
@@ -147,6 +155,7 @@ public class TestScheduled implements InitializingBean {
     }
 
     public void afterPropertiesSet() throws Exception {
+        SendMessagePrefix.debug = debug;
         log.info("init dynamoDBService");
         dynamoDBService.init();
         log.info("init redisService");
@@ -156,7 +165,12 @@ public class TestScheduled implements InitializingBean {
         log.info("end initLoad");
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
-                object.del("booking");
+                object.del((debug ? "" : "online_") + "booking");
+            }
+        });
+        redisService.run(new CallBack<Jedis>() {
+            public void run(Jedis object) {
+                object.del((debug ? "" : "online_") + "appraise");
             }
         });
         new Thread(new Runnable() {
@@ -172,19 +186,9 @@ public class TestScheduled implements InitializingBean {
     }
 
 
-    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 20)
-    public void sendUsageRateMessage() {
-        dataReceiver.sendUsageRateMessage();
-    }
-
-    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 25)
-    public void sendCumulativeBookingMessage() {
-        dataReceiver.sendCumulativeBookingMessage();
-    }
-
-    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 30)
-    public void sendCumulativeTimeMessage() {
-        dataReceiver.sendCumulativeTimeMessage();
+    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 10)
+    public void doTask() {
+        dataReceiver.doTask(new Task[]{usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
     }
 
 }

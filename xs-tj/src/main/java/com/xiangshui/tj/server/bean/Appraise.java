@@ -11,6 +11,7 @@ public class Appraise {
     private int score;
     private String suggest;
 
+
     private int uin;
 
     public String getSuggest() {
@@ -67,5 +68,25 @@ public class Appraise {
 
     public void setUin(int uin) {
         this.uin = uin;
+    }
+
+
+    private String nick_name;
+    private String phone;
+
+    public String getNick_name() {
+        return nick_name;
+    }
+
+    public void setNick_name(String nick_name) {
+        this.nick_name = nick_name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

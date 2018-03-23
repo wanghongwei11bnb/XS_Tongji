@@ -13,7 +13,7 @@ public class AppraiseDataManager {
 
     public void save(Appraise appraise) {
         map.put("" + appraise.getCreatetime() + appraise.getBooking_id(), appraise);
-        if (map.size() > 5) {
+        if (map.size() > 30) {
             map.remove(map.firstKey());
         }
     }

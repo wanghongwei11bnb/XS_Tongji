@@ -6,6 +6,7 @@ import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.SendMessage;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -46,6 +47,10 @@ public class BookingTask extends Task<BookingTask.Result> {
     @Override
     public void reduce(Area area, Result result) {
 
+    }
+
+    public SendMessage toSendMessage(Result result) {
+        return null;
     }
 
     public static class Result {

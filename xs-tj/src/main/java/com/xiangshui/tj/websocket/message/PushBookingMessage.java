@@ -4,6 +4,7 @@ package com.xiangshui.tj.websocket.message;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.User;
 
 public class PushBookingMessage extends SendMessage {
     private Booking booking;
@@ -34,4 +35,5 @@ public class PushBookingMessage extends SendMessage {
     public void setBooking(Booking booking) {
         this.booking = booking;
     }
+
 }
