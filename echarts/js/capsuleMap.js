@@ -42,15 +42,13 @@ var convertData = function (data) {
 option = {
     backgroundColor: '#404a59',
     title: {
-        text: '享+共享头等舱订单实况',
-//            subtext: 'data from PM25.in',
-//            sublink: 'http://www.pm25.in',
-        x: '2%',
+        text: '享+共享头等舱实时监控平台',
+        x: 'center',
         y: '2%',
         textStyle: {
             color: '#fff',
             fontWeight: 'bold',
-            fontSize: 14
+            fontSize: 18
         }
     },
     tooltip: {
