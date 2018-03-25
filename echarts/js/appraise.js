@@ -1,5 +1,4 @@
 var bPause = false;
-
 function startMove(obj,attr,iTarget,fnMoveEnd)
 {
     if(obj.timer)
@@ -70,34 +69,33 @@ function leaveMessage()
 var appraiseSave;
 function createDom(sTxt,idName)
 {
+    // console.log("createDom", sTxt)
     var oUl=document.getElementById(idName);
     var aLi=oUl.getElementsByTagName("li");
     var oLi=document.createElement("li");
     var iHeight=0;
+    var appraise_text_width = (window.innerWidth-document.getElementById('order').clientWidth)*0.92;
     if(sTxt.appraise || sTxt.suggest){
         var appraiseText = sTxt.suggest ? sTxt.suggest : sTxt.appraise.join('、');
-        oLi.innerHTML = "<div class='appraise_text'><span>用户</span>"+sTxt.uin+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
+        oLi.innerHTML = "<div class='appraise_text' style='width: "+appraise_text_width +"px'><span>用户</span>"+sTxt.uin+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
     }else{
         oLi.innerHTML = ""
     }
-    //console.log('test=========')
-    //console.log(appraiseText+'~~~~~~~~~'+ dateUtil('Y-m-d h:i:s',sTxt.createtime))
     oLi.style.filter="alpha(opacity:0)";
     oLi.style.opacity=0;
-    //if(appraiseSave != dateUtil('Y-m-d h:i:s',sTxt.createtime)){
-        if(aLi.length){
-            oUl.insertBefore(oLi,aLi[0])
-        }
-        else{
-            oUl.appendChild(oLi)
-        }
-        //开始运动
-        iHeight=oLi.offsetHeight;
-        oLi.style.height="0px";
-        oLi.style.overflow='hidden';
-        startMove(oLi,"height",iHeight,function(){
-            startMove(oLi,"opacity",1)
-        });
-        appraiseSave = dateUtil('Y-m-d h:i:s',sTxt.createtime);
-    //}
+    oLi.style.width='100%';
+    if(aLi.length){
+        oUl.insertBefore(oLi,aLi[0])
+    }
+    else{
+        oUl.appendChild(oLi)
+    }
+    //开始运动
+    iHeight=oLi.offsetHeight;
+    oLi.style.height="0px";
+    oLi.style.overflow='hidden';
+    startMove(oLi,"height",iHeight,function(){
+        startMove(oLi,"opacity",1)
+    });
+    appraiseSave = dateUtil('Y-m-d h:i:s',sTxt.createtime);
 }
