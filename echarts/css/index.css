@@ -26,21 +26,24 @@ body,html{
     font-weight: bold;
 }
 #appraise_list{
+    width: 95%;
     padding:0;
     height:35%;
     overflow:hidden;
-    margin-right: 30px;
+    /*margin-right: 30px;*/
     font-weight: 100;
     font-size: 12px;
 }
 #appraise_list li{
+    width: 100%;
     border-bottom:1px dashed #CCC;
     padding:5px 0 8px 0;
     margin:0;
-    text-align: justify
+    text-align: justify;
 }
 .appraise_text{
     width: 100%;
+    max-height: 20px;
     overflow: hidden;
     text-overflow:ellipsis;
     white-space: nowrap;
@@ -56,29 +59,29 @@ body,html{
 }
 
 @media screen and (max-width: 1080px){
-    #order,#service_people{
+    #order,#occupy{
         width: 58%;
     }
 }
 
 @media screen and (min-width: 1081px) and (max-width: 1400px){
-    #order,#service_people{
+    #order,#occupy{
         width: 700px;
     }
 }
 
 @media screen and (min-width: 1401px) and (max-width: 1600px){
-    #order,#service_people{
+    #order,#occupy{
         width: 800px;
     }
 }
 @media screen and (min-width: 1601px)  and (max-width: 1920px){
-    #order,#service_people{
+    #order,#occupy{
         width: 900px;
     }
 }
 @media screen and (min-width: 1920px){
-    #order,#service_people{
+    #order,#occupy{
         width: 55%;
     }
 }

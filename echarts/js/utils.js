@@ -116,3 +116,20 @@ function dateUtil(format, timestamp) {
         return ret;
     });
 }
+
+function getMinMaxUtil(minValue,maxValue){
+    var min,max;
+    var n1 = (parseInt(minValue)+'').length;
+    var n2 = (parseInt(maxValue)+'').length;
+    if(n1 < 2){
+        min = 0;
+    }else{
+        min = parseInt(minValue / Math.pow(10,1)) * Math.pow(10,1)
+    }
+    if(n2 < 2){
+        max = 10;
+    }else{
+        max = Math.ceil(maxValue / Math.pow(10,1)) * Math.pow(10,1)
+    }
+    return {min: min,max: max}
+}

@@ -19,16 +19,16 @@ function occupyChartDraw(dateList,valueList,valueList2){
     var min = minValue < minValue2 ? minValue : minValue2;
 
     occupyChart.setOption(option = {
-        title: {
-            text: '使用率',
-            top: '5%',
-            left: -4,
-            textStyle: {
-                color: '#fff',
-                fontWeight: 'bold',
-                fontSize: 14
-            }
-        },
+        // title: {
+        //     text: '使用率',
+        //     top: '5%',
+        //     left: -4,
+        //     textStyle: {
+        //         color: '#fff',
+        //         fontWeight: 'bold',
+        //         fontSize: 14
+        //     }
+        // },
         //visualMap: [{
         //    show: false,
         //    type: 'continuous',
@@ -84,24 +84,27 @@ function occupyChartDraw(dateList,valueList,valueList2){
         },
         legend: {
             show: true,
+            left: 10,
             top:'5%',
             data: [{name: '使用率',
                     icon: 'circle',
                     textStyle: {
-                        color: '#fff'
+                        color: '#fff',
+                        fontSize: 14,
                     }
                    },
                     {name: '累计使用率',
                     icon: 'circle',
                     textStyle: {
-                        color: '#fff'
+                        color: '#fff',
+                        fontSize: 14,
                     }
                 }
             ]
         },
         grid: {
-            left: 60,
-            right: 60
+            left: 50,
+            right: 100
         },
         series: [{
             name: '使用率',
@@ -136,13 +139,16 @@ function occupyChartDraw(dateList,valueList,valueList2){
 }
 
 function servicePeopleChartDraw(dateList,valueList){
-    var min = parseInt(Math.min.apply(null, valueList))-100;
-    var max = parseInt(Math.max.apply(null, valueList))+100;
+    // var min = parseInt(Math.min.apply(null, valueList))-100;
+    // var max = parseInt(Math.max.apply(null, valueList))+100;
+    var result = getMinMaxUtil(Math.min.apply(null, valueList),Math.max.apply(null, valueList));
+    var min = result.min;
+    var max = result.max;
     servicePeopleChart.setOption(option = {
         title: {
             text: '服务人次',
             top: '5%',
-            left: 15,
+            left: 0,
             textStyle: {
                 color: '#fff',
                 fontWeight: 'bold',
@@ -159,8 +165,8 @@ function servicePeopleChartDraw(dateList,valueList){
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                var tooltpText = "<span>服务人次: "+params[0].value+"人</span><br/>" +
-                    "<span>时间："+params[0].name+"</span><br/>";
+                var tooltpText = "<span>时间："+params[0].name+"</span><br/>" +
+                    "<span>服务人次: "+params[0].value+"人</span>";
                 return tooltpText
             }
         },
@@ -193,7 +199,7 @@ function servicePeopleChartDraw(dateList,valueList){
             show: true
         },
         grid: {
-            left: '8%',
+            left: 60,
             right: 30
         },
         series: [{
@@ -208,8 +214,11 @@ function servicePeopleChartDraw(dateList,valueList){
 }
 
 function timeChartDraw(dateList,valueList){
-    var min = parseInt(Math.min.apply(null, valueList))-100;
-    var max = parseInt(Math.max.apply(null, valueList))+100;
+    // var min = parseInt(Math.min.apply(null, valueList))-100;
+    // var max = parseInt(Math.max.apply(null, valueList))+100;
+    var result = getMinMaxUtil(Math.min.apply(null, valueList),Math.max.apply(null, valueList));
+    var min = result.min;
+    var max = result.max;
 
     timeChart.setOption(option = {
         title: {
@@ -232,8 +241,8 @@ function timeChartDraw(dateList,valueList){
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                var tooltpText = "<span>使用时长: "+params[0].value+"小时</span><br/>" +
-                    "<span>时间："+params[0].name+"</span><br/>";
+                var tooltpText = "<span>时间："+params[0].name+"</span><br/>" +
+                    "<span>使用时长: "+params[0].value+"小时</span><br/>";
                 return tooltpText
             }
         },

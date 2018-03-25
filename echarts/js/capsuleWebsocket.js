@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }
 
 //处理部分相似的message
@@ -169,25 +169,20 @@ function doMessage(message){
             if(appraiseArr.length > 5){
                 appraiseArr.pop()
             }
+            appraiseArr.push(appraiseArr.shift())
             // 2s 内没有收到消息就会执行下面的代码
-            timeOutTimer = setTimeout(function () {
-                appraiseTimer=setInterval(function(){
-                    var sTxt = appraiseArr.shift();
-                    createDom(sTxt,'appraise_list');
-                    appraiseArr.push(sTxt);
-                },2000);
-            }, 2000);
+            // timeOutTimer = setTimeout(function () {
+            //     appraiseTimer=setInterval(function(){
+            //         var sTxt = appraiseArr.shift();
+            //         console.log(appraiseArr)
+            //         createDom(sTxt,'appraise_list');
+            //         appraiseArr.push(sTxt);
+            //     },2000);
+            // }, 2000);
             break;
         case "UsageRateMessage":
             if(message.data && message.data.length > 0){
                 handleApartMessage(message.data,"UsageRateMessage");
-                //var dateList = message.data.map(function (item) {
-                //    return dateUtil('m-d h:i',item[0]/1000);
-                //});
-                //var valueList = data.map(function (item) {
-                //    return (item[1] * 100).toFixed(2);
-                //});
-                //occupyChartDraw(dateList,valueList);
             }
             break;
         case "CumulativeBookingMessage":
