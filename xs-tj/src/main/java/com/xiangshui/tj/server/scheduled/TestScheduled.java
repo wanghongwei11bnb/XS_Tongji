@@ -57,6 +57,8 @@ public class TestScheduled implements InitializingBean {
     @Autowired
     BookingTask bookingTask;
     @Autowired
+    GeneralTask generalTask;
+    @Autowired
     UsageRateForHourTask usageRateForHourTask;
     @Autowired
     CumulativeBookingTask cumulativeBookingTask;
@@ -188,7 +190,16 @@ public class TestScheduled implements InitializingBean {
 
     @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 10)
     public void doTask() {
-        dataReceiver.doTask(new Task[]{usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
+        dataReceiver.doTask(new Task[]{
+//                generalTask,
+                usageRateForHourTask,
+                cumulativeBookingTask,
+                cumulativeTimeTask
+        }, new DataManager[]{
+                areaDataManager,
+                capsuleDataManager,
+                bookingDataManager
+        });
     }
 
 }

@@ -10,6 +10,7 @@ import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.SendMessage;
 import com.xiangshui.tj.websocket.message.UsageRateMessage;
 import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.NumberUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -34,7 +35,11 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
             for (long cid : result.usageCumuMap.get(key)) {
                 cisSet.add(cid);
             }
-            data.add(new Object[]{key, result.usageCumuMap.get(key).size() * 1f / result.countCapsule, cisSet.size() * 1f / result.countCapsule});
+            data.add(new Object[]{
+                    key,
+                    NumberUtils.toFixed(result.usageCumuMap.get(key).size() * 1f / result.countCapsule, 2, true),
+                    NumberUtils.toFixed(cisSet.size() * 1f / result.countCapsule, 2, true)
+            });
         }
         UsageRateMessage message = new UsageRateMessage();
         message.setData(data);
