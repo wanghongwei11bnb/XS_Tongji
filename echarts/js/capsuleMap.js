@@ -31,8 +31,8 @@ var convertData = function (data) {
         var geoCoord = geoCoordMap[data[i].name];
         if (geoCoord) {
             res.push({
-                name: data[i].name,
-                value: geoCoord.concat(data[i].value)
+                name: data[i].name.substring(0,data[i].name.length-1),
+                value: geoCoord.concat(data[i].countBooking)
             });
         }
     }
@@ -40,26 +40,38 @@ var convertData = function (data) {
 };
 
 option = {
-    backgroundColor: '#404a59',
-    title: {
-        text: '享+共享头等舱实时监控平台',
-        x: 'center',
-        y: '2%',
-        textStyle: {
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: 18
+    backgroundColor: '#0e012a',
+    visualMap: {
+        type: 'continuous',
+        show: false,
+        min: 0,
+        max: 400,
+        dimension:2,
+        realtime: false,
+        calculable: true,
+        inRange: {
+            color: ['lightskyblue','yellow', 'orangered']
         }
+    },
+    dataRange: {
+        orient: 'horizontal',
+        min: 0,
+        max: 3000,
+        text:['高','低'],           // 文本，默认为数值文本
+        splitNumber:0,
+        dimension:2
     },
     tooltip: {
         trigger: 'item',
         formatter: function (params) {
             var tooltpText ='';
-            if(params.data.value[2]){
-                tooltpText = "<span>城市: "+params.data.value[2].city+"</span><br/>" +
-                    "<span>用户名: "+params.data.value[2].user_name+"</span><br/>" +
-                    "<span>店铺: "+params.data.value[2].title+"</span><br/>" +
-                    "<span>下单时间: "+params.data.value[2].booking_time+"</span>";
+            if(params.data.value[3]){
+                var data = params.data.value[3];
+                var userName =data.phone ? '用户'+(data.phone+'').substr((data.phone+'').length-4) : data.nick_name ? data.nick_name : '用户'+ data.uin;
+                tooltpText = "<span>城市: " + data.city + "</span><br/>" +
+                    "<span>用户名: " + userName + "</span><br/>" +
+                    "<span>店铺: " + data.title+"</span><br/>" +
+                    "<span>下单时间: " + data.booking_time + "</span>";
             }else{
                 tooltpText = params.name
             }
@@ -73,34 +85,31 @@ option = {
         mapType: 'china',
         roam: false,
         left: 'center',
-        label: {
-            normal: {
-                show: true,
-                textStyle:{color:"#c3c3c3"}
-            },
-            emphasis: {
-                show: true,
-                textStyle:{color:"#fff"}
-            }
-        },
-        itemStyle: {
-            normal: {
-                areaColor: '#323c48',
-                borderColor: '#111'
-            },
-            emphasis: {
-                areaColor: '#189df9'
-            }
+        //label: {
+        //    normal: {
+        //        show: true,
+        //        textStyle:{color:"#c3c3c3"}
+        //    },
+        //    emphasis: {
+        //        show: true,
+        //        textStyle:{color:"#fff"}
+        //    }
+        //},
+        itemStyle:{
+            normal:{label:{show:true}},
+            emphasis:{label:{show:true}}
         }
         //itemStyle:{
         //    normal:{
         //        label:{show:true},
         //        borderWidth:1,//省份的边框宽度
-        //        borderColor:'#f60',//省份的边框颜色
-        //        color:'#ece2df',//地图背景颜色
-        //        areaStyle:{color:'#f60'}//设置地图颜色
+        //        borderColor:'#6ac9f5',//省份的边框颜色
+        //        color:'#268de7',//地图背景颜色
+        //        areaStyle:{color:'#f00'}//设置地图颜色
         //    },
-        //    emphasis:{label:{show:true}}
+        //    emphasis: {
+        //        areaColor: '#2958dc'
+        //    }
         //}
     },
     series: [
@@ -116,13 +125,6 @@ option = {
             },
             selectedMode : 'multiple',
             hoverAnimation: true,
-//                label: {
-//                    normal: {
-//                        formatter: '{b}',
-//                        position: 'right',
-//                        show: true
-//                    }
-//                },
             itemStyle: {
                 normal: {
                     color: '#f4e925',

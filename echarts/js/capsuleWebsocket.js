@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }
 
 //处理部分相似的message
@@ -100,10 +100,12 @@ function doMessage(message){
                 var newAreaData = [];
                 for(var key in cityList){
                     newAreaData.push({
-                        name: cityList[key].city
+                        name: cityList[key].city,
+                        countBooking: cityList[key].countBooking
                     })
                 }
                 areaData = newAreaData;
+                console.log(convertData(areaData))
                 orderChart.setOption({
                     series: [{
                         // 根据名字对应到相应的系列
@@ -124,7 +126,7 @@ function doMessage(message){
             province = province.substring(0,province.length-1);
             areaData[orderIndex].value={
                 'city' : message.area.city,
-                'user_name': message.booking.uin,
+                'user_name': message.booking.nick_name,
                 'title': message.area.title,
                 'booking_time': dateUtil('Y-m-d h:i:s',message.booking.create_time)
             };
@@ -222,7 +224,7 @@ function initEventHandle() {
         //拿到任何消息都说明当前连接是正常的
         heartCheck.reset().start();
         console.log('Client received a message');
-        var data = JSON.parse(event.data);
+        var data = eval("("+event.data+")");
         console.log(data);
         doMessage(data);
     };
