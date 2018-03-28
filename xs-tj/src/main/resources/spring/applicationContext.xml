@@ -22,8 +22,7 @@
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath*:config.properties</value>
-                <!--<value>file:/opt/cf/word/config.properties</value>-->
+                <value>file:${user.home}/.xs/xs-tj/config.properties</value>
             </list>
         </property>
     </bean>

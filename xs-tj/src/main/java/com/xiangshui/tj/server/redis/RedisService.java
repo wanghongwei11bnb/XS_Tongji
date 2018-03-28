@@ -17,14 +17,10 @@ import java.util.Date;
 public class RedisService {
     private static final Logger log = LoggerFactory.getLogger(RedisService.class);
 
-    @Value("${redis.host.dev}")
-    private String host_dev;
-    @Value("${redis.host.www}")
-    private String host_www;
-    @Value("${redis.port.dev}")
-    private int port_dev;
-    @Value("${redis.port.www}")
-    private int port_www;
+    @Value("${redis.host}")
+    private String host;
+    @Value("${redis.port}")
+    private int port;
     @Value("${redis.password}")
     private String password;
 
@@ -39,7 +35,7 @@ public class RedisService {
     public void init() {
         if (!inited) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-            jedisPool = new JedisPool(config, debug ? host_dev : host_www, debug ? port_dev : port_www, 1000 * 30, password);
+            jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
             inited = true;
         }
     }

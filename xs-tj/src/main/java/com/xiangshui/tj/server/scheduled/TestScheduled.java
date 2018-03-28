@@ -57,6 +57,8 @@ public class TestScheduled implements InitializingBean {
     @Autowired
     BookingTask bookingTask;
     @Autowired
+    GeneralTask generalTask;
+    @Autowired
     UsageRateForHourTask usageRateForHourTask;
     @Autowired
     CumulativeBookingTask cumulativeBookingTask;
@@ -76,22 +78,26 @@ public class TestScheduled implements InitializingBean {
         dynamoDBService.reloadCity();
 
         log.info("start loadArea");
-        final Map<String, City> cityMap = new HashMap();
+        final Map<Integer, City> cityMap = new TreeMap<Integer, City>();
         dynamoDBService.loadArea(new CallBack<Area>() {
             public void run(Area object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
-                if (!cityMap.containsKey(object.getCity())) {
-                    City city = new City();
+                City city = City.getByCity(object.getCity());
+                if (city != null && !cityMap.containsKey(city.getCode())) {
+                    city = new City();
                     city.setCity(object.getCity());
-                    city.setCode(object.getArea_id() / 10000);
+                    city.setCode(object.getArea_id() / 1000);
                     if (City.getByCity(city.getCity()) != null) {
                         city.setProvince(City.getByCity(city.getCity()).getProvince());
                     }
-                    cityMap.put(city.getCity(), city);
+                    cityMap.put(city.getCode(), city);
                 }
             }
         });
-        City.cityList = new ArrayList(cityMap.values());
+
+        City.cityMap = cityMap;
+
+
         log.info("start loadArea");
         dynamoDBService.loadCapsule(new CallBack<Capsule>() {
             public void run(Capsule object) {
@@ -154,7 +160,10 @@ public class TestScheduled implements InitializingBean {
         startRedisAppraise();
     }
 
+
     public void afterPropertiesSet() throws Exception {
+
+
         SendMessagePrefix.debug = debug;
         log.info("init dynamoDBService");
         dynamoDBService.init();
@@ -188,7 +197,16 @@ public class TestScheduled implements InitializingBean {
 
     @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 10)
     public void doTask() {
-        dataReceiver.doTask(new Task[]{usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
+        dataReceiver.doTask(new Task[]{
+                generalTask,
+                usageRateForHourTask,
+                cumulativeBookingTask,
+                cumulativeTimeTask
+        }, new DataManager[]{
+                areaDataManager,
+                capsuleDataManager,
+                bookingDataManager
+        });
     }
 
 }

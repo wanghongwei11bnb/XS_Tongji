@@ -1,13 +1,20 @@
 package com.xiangshui.tj.server.bean;
 
 import java.util.List;
+import java.util.Map;
 
 public class City {
     private String city;
     private int code;
     private String province;
 
+    private int countArea;
+    private int countCapsule;
+    private int countBooking;
+
+
     public static List<City> cityList;
+    public static Map<Integer, City> cityMap;
 
     public static City getByCity(String cityName) {
         if (cityList == null) {
@@ -44,5 +51,29 @@ public class City {
 
     public void setProvince(String province) {
         this.province = province;
+    }
+
+    public int getCountArea() {
+        return countArea;
+    }
+
+    public void setCountArea(int countArea) {
+        this.countArea = countArea;
+    }
+
+    public int getCountCapsule() {
+        return countCapsule;
+    }
+
+    public void setCountCapsule(int countCapsule) {
+        this.countCapsule = countCapsule;
+    }
+
+    public int getCountBooking() {
+        return countBooking;
+    }
+
+    public void setCountBooking(int countBooking) {
+        this.countBooking = countBooking;
     }
 }

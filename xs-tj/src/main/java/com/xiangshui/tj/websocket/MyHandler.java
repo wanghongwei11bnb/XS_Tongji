@@ -58,9 +58,9 @@ public class MyHandler extends TextWebSocketHandler {
 
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         //ContractMessage
-        if (City.cityList != null) {
+        if (City.cityMap != null) {
             ContractMessage contractMessage = new ContractMessage();
-            contractMessage.setCityList(City.cityList);
+            contractMessage.setCityList(new ArrayList<City>(City.cityMap.values()));
             redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
             messageList.add(contractMessage);
         } else if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
