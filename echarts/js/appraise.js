@@ -74,7 +74,7 @@ function createDom(sTxt,idName)
     var oLi=document.createElement("li");
     var iHeight=0;
     var appraise_text_width = (window.innerWidth-document.getElementById('order').clientWidth)*0.92;
-    var userName = sTxt.phone ? '用户'+(sTxt.phone+'').substr((sTxt.phone+'').length-4) : sTxt.nick_name ? sTxt.nick_name : '用户'+ sTxt.uin;
+    var userName = '用户'+ subLastStringUtil(sTxt.phone,4);
     if(sTxt.appraise || sTxt.suggest){
         var appraiseText = sTxt.suggest ? sTxt.suggest : sTxt.appraise.join('、');
         oLi.innerHTML = "<div class='appraise_text' style='width: "+appraise_text_width +"px'>"+userName+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";

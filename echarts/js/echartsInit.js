@@ -162,11 +162,11 @@ function servicePeopleChartDraw(dateList,valueList){
             data: valueList,
             type: 'line',
             lineStyle: {
-                color: '#f5e6a1'
+                color: '#474fcc'
             },
             itemStyle: {
                 normal: {
-                    color: '#f5e6a1'
+                    color: '#474fcc'
                 }
             }
             //smooth: true,
@@ -234,11 +234,11 @@ function timeChartDraw(dateList,valueList){
             data: valueList,
             type: 'line',
             lineStyle: {
-                color: '#c0454c'
+                color: '#009688'
             },
             itemStyle: {
                 normal: {
-                    color: '#c0454c'
+                    color: '#009688'
                 }
             }
             //smooth: true,
