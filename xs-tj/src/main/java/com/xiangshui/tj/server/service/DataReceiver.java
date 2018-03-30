@@ -7,6 +7,7 @@ import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,7 @@ public class DataReceiver {
             User user = userDataManager.getById(booking.getUin());
             if (user != null) {
                 booking.setNick_name(user.getNick_name());
+                booking.setPhone(user.getPhone());
             }
             sessionManager.sendMessage(pushBookingMessage);
         }
@@ -81,15 +83,33 @@ public class DataReceiver {
     }
 
     public void receive(int event, Appraise appraise) {
-        appraiseDataManager.save(appraise);
-        PushAppraiseMessage message = new PushAppraiseMessage();
-        message.setAppraise(appraise);
+
+        if (
+                StringUtils.isBlank(appraise.getSuggest()) && (
+                        appraise.getAppraise() == null
+                                || appraise.getAppraise().size() == 0
+                                || (
+                                appraise.getAppraise().size() == 1
+                                        && (StringUtils.isBlank(appraise.getAppraise().get(0)) || appraise.getAppraise().get(0).trim().equals("无")))
+                )
+                ) {
+            return;
+        }
+
+
         User user = userDataManager.getById(appraise.getUin());
         if (user != null) {
             appraise.setPhone(user.getPhone());
             appraise.setNick_name(user.getNick_name());
+            appraise.setPhone(user.getPhone());
         }
-        sessionManager.sendMessage(message);
+        appraiseDataManager.save(appraise);
+        if (event == ReceiveEvent.APPRAISE) {
+            PushAppraiseMessage message = new PushAppraiseMessage();
+            message.setAppraise(appraise);
+            sessionManager.sendMessage(message);
+        }
+
     }
 
 

@@ -115,7 +115,7 @@ public class TestScheduled implements InitializingBean {
         log.info("start loadAppraise");
         dynamoDBService.loadAppraise(new CallBack<Appraise>() {
             public void run(Appraise object) {
-                appraiseDataManager.save(object);
+                dataReceiver.receive(ReceiveEvent.HISTORY_DATA,object);
             }
         });
     }
