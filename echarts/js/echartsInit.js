@@ -111,13 +111,6 @@ function servicePeopleChartDraw(dateList,valueList){
     var min = result.min;
     var max = result.max;
     servicePeopleChart.setOption(option = {
-        //visualMap: [{
-        //    show: false,
-        //    type: 'continuous',
-        //    seriesIndex: 0,
-        //    min: min,
-        //    max: max
-        //}],
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
@@ -183,13 +176,6 @@ function timeChartDraw(dateList,valueList){
     var max = result.max;
 
     timeChart.setOption(option = {
-        visualMap: [{
-            show: false,
-            type: 'continuous',
-            seriesIndex: 0,
-            min: min,
-            max: max
-        }],
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
@@ -234,17 +220,13 @@ function timeChartDraw(dateList,valueList){
             data: valueList,
             type: 'line',
             lineStyle: {
-                color: '#009688'
+                color: '#57b3fb'
             },
             itemStyle: {
                 normal: {
-                    color: '#009688'
+                    color: '#57b3fb'
                 }
             }
-            //smooth: true,
-            //areaStyle: {
-            //    color: '#189df9'
-            //}
         }]
     });
 }
