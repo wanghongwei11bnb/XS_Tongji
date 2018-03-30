@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://192.168.1.99:8080/tj';
 }
 
 //处理部分相似的message
@@ -67,15 +67,117 @@ function dataReset(){
     receiveAppraiseflag = false;
 }
 
-function createWebSocket(url) {
-    try {
-        socket = new WebSocket(url);
-        initEventHandle();
-    } catch (e) {
-        reconnect(url);
+//初始化评论
+function handleInitAppraiseMessage(message){
+    if(message.appraiseList && message.appraiseList.length > 0){
+        appraiseArr = message.appraiseList;
+        appraiseTimer=setInterval(function(){
+            var sTxt=appraiseArr.shift();
+            createDom(sTxt,'appraise_list');
+            appraiseArr.push(sTxt);
+        },2000);
     }
 }
 
+//初始化城市
+function handleContractMessage(message){
+    if(message.cityList && message.cityList.length > 0){
+        cityList = message.cityList;
+        var newAreaData = [];
+        var mapData = [];
+        for(var key in cityList){
+            newAreaData.push({
+                name: cityList[key].city.substring(0,cityList[key].city.length-1)
+            });
+            mapData.push({
+                name: cityList[key].province.substring(0,cityList[key].province.length-1),
+                value: 1
+            })
+        }
+        areaData = newAreaData;
+
+        orderChart.setOption({
+            series: [{
+                // 根据名字对应到相应的系列
+                name: 'orderArea',
+                data: convertData(areaData)
+            },{
+                name: 'orderMap',
+                data: mapData
+            }]
+        });
+    }
+}
+
+//处理 订单推送
+function handlePushBookingMessage(message){
+    var orderIndex;
+    for(var k in areaData){
+        if(areaData[k].name === message.area.city.substring(0, message.area.city.length - 1)){
+            orderIndex = k
+        }
+    }
+    var province = cityList[orderIndex].province;
+    province = province.substring(0,province.length-1);
+    areaData[orderIndex].value={
+        'city' : message.area.city,
+        'user_name': '用户'+ subLastStringUtil(message.booking.phone,4),
+        'title': message.area.title,
+        'booking_time': dateUtil('Y-m-d h:i:s',message.booking.create_time)
+    };
+    orderChart.dispatchAction({
+        type: 'mapToggleSelect',
+        // 可选，系列 index，可以是一个数组指定多个系列
+        seriesIndex: 0,
+        // 数据的 index，如果不指定也可以通过 name 属性根据名称指定数据
+        name: message.area.city
+    });
+    orderChart.setOption({
+        series: [{
+            // 根据名字对应到相应的系列
+            name: 'orderArea',
+            data: convertData(areaData)
+        }],
+        geo: {
+            regions: [{
+                name: province,
+                selected: true
+            }]
+        }
+    });
+    orderChart.dispatchAction({
+        type: 'showTip',
+        seriesIndex: 0,
+        dataIndex: orderIndex
+    });
+}
+
+//处理 评论推送
+function handlePushAppraiseMessage(message){
+    // 收到消息 清除手动播放循环
+    if(appraiseTimer){
+        clearInterval(appraiseTimer)
+    }
+    // 收到消息 清除准备启动手动循环的timeout
+    if (timeOutTimer) {
+        clearTimeout(timeOutTimer)
+    }
+    var acceptData = message.appraise;
+    appraiseArr.unshift(acceptData);
+    createDom(acceptData,'appraise_list');
+    if(appraiseArr.length > 5){
+        appraiseArr.pop()
+    }
+    appraiseArr.push(appraiseArr.shift());
+    //2s 内没有收到消息就会执行下面的代码
+    timeOutTimer = setTimeout(function () {
+        appraiseTimer=setInterval(function(){
+            var sTxt = appraiseArr.shift();
+            createDom(sTxt,'appraise_list');
+            appraiseArr.push(sTxt);
+        },2000);
+    }, 2000);
+}
 //处理推送信息
 function doMessage(message){
     switch (message.messageType){
@@ -85,99 +187,16 @@ function doMessage(message){
             }
             break;
         case "InitAppraiseMessage":
-            if(message.appraiseList && message.appraiseList.length > 0){
-                appraiseArr = message.appraiseList;
-                appraiseTimer=setInterval(function(){
-                    var sTxt=appraiseArr.shift();
-                    createDom(sTxt,'appraise_list');
-                    appraiseArr.push(sTxt);
-                },2000);
-            }
+            handleInitAppraiseMessage(message);
             break;
         case "ContractMessage":
-            if(message.cityList && message.cityList.length > 0){
-                cityList = message.cityList;
-                var newAreaData = [];
-                for(var key in cityList){
-                    newAreaData.push({
-                        name: cityList[key].city
-                    })
-                }
-                areaData = newAreaData;
-                orderChart.setOption({
-                    series: [{
-                        // 根据名字对应到相应的系列
-                        name: 'orderArea',
-                        data: convertData(areaData)
-                    }]
-                });
-            }
+            handleContractMessage(message);
             break;
         case "PushBookingMessage":
-            var orderIndex;
-            for(var k in areaData){
-                if(areaData[k].name === message.area.city){
-                    orderIndex = k
-                }
-            }
-            var province = cityList[orderIndex].province;
-            province = province.substring(0,province.length-1);
-            areaData[orderIndex].value={
-                'city' : message.area.city,
-                'user_name': message.booking.uin,
-                'title': message.area.title,
-                'booking_time': dateUtil('Y-m-d h:i:s',message.booking.create_time)
-            };
-            orderChart.dispatchAction({
-                type: 'mapToggleSelect',
-                // 可选，系列 index，可以是一个数组指定多个系列
-                seriesIndex: 0,
-                // 数据的 index，如果不指定也可以通过 name 属性根据名称指定数据
-                name: message.area.city
-            });
-            orderChart.setOption({
-                series: [{
-                    // 根据名字对应到相应的系列
-                    name: 'orderArea',
-                    data: convertData(areaData)
-                }],
-                geo: {
-                    regions: [{
-                        name: province,
-                        selected: true
-                    }]
-                }
-            });
-            orderChart.dispatchAction({
-                type: 'showTip',
-                seriesIndex: 0,
-                dataIndex: orderIndex
-            });
+            handlePushBookingMessage(message);
             break;
         case "PushAppraiseMessage":
-            // 收到消息 清除手动播放循环
-            if(appraiseTimer){
-                clearInterval(appraiseTimer)
-            }
-            // 收到消息 清除准备启动手动循环的timeout
-            if (timeOutTimer) {
-                clearTimeout(timeOutTimer)
-            }
-            var acceptData = message.appraise;
-            appraiseArr.unshift(acceptData);
-            createDom(acceptData,'appraise_list');
-            if(appraiseArr.length > 5){
-                appraiseArr.pop()
-            }
-            appraiseArr.push(appraiseArr.shift());
-            //2s 内没有收到消息就会执行下面的代码
-            timeOutTimer = setTimeout(function () {
-                appraiseTimer=setInterval(function(){
-                    var sTxt = appraiseArr.shift();
-                    createDom(sTxt,'appraise_list');
-                    appraiseArr.push(sTxt);
-                },2000);
-            }, 2000);
+            handlePushAppraiseMessage(message);
             break;
         case "UsageRateMessage":
             if(message.data && message.data.length > 0){
@@ -195,6 +214,15 @@ function doMessage(message){
             }
             break;
         default :break;
+    }
+}
+
+function createWebSocket(url) {
+    try {
+        socket = new WebSocket(url);
+        initEventHandle();
+    } catch (e) {
+        reconnect(url);
     }
 }
 
@@ -222,7 +250,7 @@ function initEventHandle() {
         //拿到任何消息都说明当前连接是正常的
         heartCheck.reset().start();
         console.log('Client received a message');
-        var data = JSON.parse(event.data);
+        var data = eval("("+event.data+")");
         console.log(data);
         doMessage(data);
     };
