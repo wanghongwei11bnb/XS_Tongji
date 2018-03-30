@@ -15,25 +15,41 @@
 </head>
 
 <body>
-    <!--<div class="capsule_title">-->
-        <!--<h1>享+共享头等舱</h1>-->
-    <!--</div>-->
     <div class="container_one">
         <!-- 头等舱订单实况图-->
-        <div id="order" style="height:100%;"></div>
-        <div class="appraise">
-            <p>用户评论</p>
-            <ul id="appraise_list"></ul>
+        <div class="order_wrap">
+            <div class="capsule_title_wrap">
+                <h1 class="capsule_title">享+共享头等舱实时监控平台</h1>
+                <div class="capsule_title_bottom"></div>
+            </div>
+            <div id="order" style="width: 100%;height:85%;"></div>
+        </div>
+        <div class="appraise_service_wrap">
+            <div class="appraise">
+                <h2 class="capsule_sub_title">用户评论</h2>
+                <ul id="appraise_list"></ul>
+            </div>
             <!-- 头等舱服务人次折线图-->
-            <div id="service_people" style="width: 100%;height:60%;"></div>
+            <div class="service_people_wrap">
+                <h2 class="capsule_sub_title capsule_sub_title_special">服务人次</h2>
+                <div id="service_people" style="width: 100%;height:100%;"></div>
+            </div>
         </div>
     </div>
     <div class="container_two">
         <!-- 头等舱使用率折线图-->
-        <div id="occupy" style="height:100%;"></div>
+        <div class="occupy_wrap">
+            <div class="occupy_wrap_contianer">
+                <h2 class="capsule_sub_title capsule_sub_title_special">使用率</h2>
+                <div id="occupy" style="width: 100%;height:100%;"></div>
+            </div>
+        </div>
         <!-- 头等舱使用时长折线图-->
         <div class="time_wrap">
-            <div id="time" style="width: 100%;height:100%;"></div>
+            <div class="time_wrap_container">
+                <h2 class="capsule_sub_title capsule_sub_title_special">使用时长</h2>
+                <div id="time" style="width: 100%;height:100%;"></div>
+            </div>
         </div>
     </div>
 </body>

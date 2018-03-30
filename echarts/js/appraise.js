@@ -69,15 +69,15 @@ function leaveMessage()
 var appraiseSave;
 function createDom(sTxt,idName)
 {
-    // console.log("createDom", sTxt)
     var oUl=document.getElementById(idName);
     var aLi=oUl.getElementsByTagName("li");
     var oLi=document.createElement("li");
     var iHeight=0;
     var appraise_text_width = (window.innerWidth-document.getElementById('order').clientWidth)*0.92;
+    var userName = '用户'+ subLastStringUtil(sTxt.phone,4);
     if(sTxt.appraise || sTxt.suggest){
         var appraiseText = sTxt.suggest ? sTxt.suggest : sTxt.appraise.join('、');
-        oLi.innerHTML = "<div class='appraise_text' style='width: "+appraise_text_width +"px'><span>用户</span>"+sTxt.uin+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
+        oLi.innerHTML = "<div class='appraise_text' style='width: "+appraise_text_width +"px'>"+userName+' : '+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
     }else{
         oLi.innerHTML = ""
     }
