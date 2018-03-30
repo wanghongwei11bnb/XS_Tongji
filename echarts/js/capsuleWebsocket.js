@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://192.168.1.99:8080/tj';
+    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
 }
 
 //处理部分相似的message
@@ -236,7 +236,7 @@ function initEventHandle() {
         reconnect(wsUrl);
     };
     socket.onopen = function () {
-        console.log("Client notified socket has opened");
+        //console.log("Client notified socket has opened");
         // 发送一个初始化消息
         socket.send(JSON.stringify({msg_type: 'test',name: String(100000)}));
         socketTimer = setInterval(function () {
@@ -249,9 +249,9 @@ function initEventHandle() {
         //如果获取到消息，心跳检测重置
         //拿到任何消息都说明当前连接是正常的
         heartCheck.reset().start();
-        console.log('Client received a message');
+        //console.log('Client received a message');
         var data = eval("("+event.data+")");
-        console.log(data);
+        //console.log(data);
         doMessage(data);
     };
 }
