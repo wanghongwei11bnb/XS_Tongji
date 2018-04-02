@@ -115,7 +115,7 @@ public class TestScheduled implements InitializingBean {
         log.info("start loadAppraise");
         dynamoDBService.loadAppraise(new CallBack<Appraise>() {
             public void run(Appraise object) {
-                dataReceiver.receive(ReceiveEvent.HISTORY_DATA,object);
+                dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
     }
@@ -195,7 +195,7 @@ public class TestScheduled implements InitializingBean {
     }
 
 
-    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 10)
+    @Scheduled(fixedDelay = 1000 * 60 * 5, initialDelay = 1000 * 10)
     public void doTask() {
         dataReceiver.doTask(new Task[]{
                 generalTask,
