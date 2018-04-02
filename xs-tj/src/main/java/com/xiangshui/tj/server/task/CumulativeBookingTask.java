@@ -37,10 +37,6 @@ public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
 
     }
 
-    @Override
-    public boolean reduce_for_booking() {
-        return true;
-    }
 
     public SendMessage toSendMessage(Result result) {
         List<Object[]> data = new ArrayList();

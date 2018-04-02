@@ -75,7 +75,7 @@ public class TestScheduled implements InitializingBean {
         });
 
         log.info("start reloadCity");
-        dynamoDBService.reloadCity();
+        dynamoDBService.loadCity();
 
         log.info("start loadArea");
         final Map<Integer, City> cityMap = new TreeMap<Integer, City>();
@@ -120,47 +120,6 @@ public class TestScheduled implements InitializingBean {
         });
     }
 
-
-    public void startRedisBooking() {
-        redisService.run(new CallBack<Jedis>() {
-            public void run(Jedis object) {
-                try {
-                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "booking");
-                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
-                        Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
-                        if (booking != null) {
-                            dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        startRedisBooking();
-
-    }
-
-    public void startRedisAppraise() {
-        redisService.run(new CallBack<Jedis>() {
-            public void run(Jedis object) {
-                try {
-                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "appraise");
-                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
-                        Appraise appraise = JSON.parseObject(stringList.get(1), Appraise.class);
-                        if (appraise != null) {
-                            dataReceiver.receive(ReceiveEvent.APPRAISE, appraise);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        startRedisAppraise();
-    }
-
-
     public void afterPropertiesSet() throws Exception {
 
 
@@ -182,16 +141,6 @@ public class TestScheduled implements InitializingBean {
                 object.del((debug ? "" : "online_") + "appraise");
             }
         });
-        new Thread(new Runnable() {
-            public void run() {
-                startRedisBooking();
-            }
-        }).start();
-        new Thread(new Runnable() {
-            public void run() {
-                startRedisAppraise();
-            }
-        }).start();
     }
 
 
@@ -208,5 +157,45 @@ public class TestScheduled implements InitializingBean {
                 bookingDataManager
         });
     }
+
+
+    @Scheduled(fixedDelay = 10, initialDelay = 1000 * 15)
+    public void startRedisBooking() {
+        redisService.run(new CallBack<Jedis>() {
+            public void run(Jedis object) {
+                try {
+                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "booking");
+                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
+                        Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
+                        if (booking != null) {
+                            dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("", e);
+                }
+            }
+        });
+    }
+
+    @Scheduled(fixedDelay = 10, initialDelay = 1000 * 15)
+    public void startRedisAppraise() {
+        redisService.run(new CallBack<Jedis>() {
+            public void run(Jedis object) {
+                try {
+                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "appraise");
+                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
+                        Appraise appraise = JSON.parseObject(stringList.get(1), Appraise.class);
+                        if (appraise != null) {
+                            dataReceiver.receive(ReceiveEvent.APPRAISE, appraise);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("", e);
+                }
+            }
+        });
+    }
+
 
 }

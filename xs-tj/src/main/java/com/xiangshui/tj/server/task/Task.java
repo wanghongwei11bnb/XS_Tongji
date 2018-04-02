@@ -38,17 +38,5 @@ abstract public class Task<R> {
 
     abstract public void reduce(Area area, R r);
 
-    public boolean reduce_for_area() {
-        return false;
-    }
-
-    public boolean reduce_for_capsule() {
-        return false;
-    }
-
-    public boolean reduce_for_booking() {
-        return false;
-    }
-
     public abstract SendMessage toSendMessage(R result);
 }
