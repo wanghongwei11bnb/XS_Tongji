@@ -122,7 +122,6 @@ public class TestScheduled implements InitializingBean {
 
     public void afterPropertiesSet() throws Exception {
 
-
         SendMessagePrefix.debug = debug;
         log.info("init dynamoDBService");
         dynamoDBService.init();
