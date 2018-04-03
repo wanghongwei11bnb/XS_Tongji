@@ -32,7 +32,7 @@ public class TestController {
     @Autowired
     WebSocketSessionManager sessionManager;
 
-    @GetMapping("")
+    @GetMapping("home")
     public String index(HttpServletRequest request) {
         request.setAttribute("sizeSession", sessionManager.sizeSession());
         return "ws";
