@@ -9,7 +9,7 @@ import java.util.Map;
 abstract public class DataManager<K, V> {
     private static final Logger log = LoggerFactory.getLogger(DataManager.class);
 
-    private volatile Map<K, V> map = new Hashtable();
+    private Map<K, V> map = new Hashtable();
 
     public V getById(K id) {
         return map.get(id);

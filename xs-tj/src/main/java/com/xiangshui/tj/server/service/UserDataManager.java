@@ -23,14 +23,12 @@ public class UserDataManager extends DataManager<Integer, User> {
     @Override
     public User getById(Integer id) {
         User user = super.getById(id);
-        if (user != null) {
-            return null;
+        if (user == null) {
+            user = dynamoDBService.getUserByUin(id);
+            if (user != null) {
+                save(user);
+            }
         }
-        user = dynamoDBService.getUserByUin(id);
-        if (user != null) {
-            save(user);
-            return user;
-        }
-        return null;
+        return user;
     }
 }
