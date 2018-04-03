@@ -9,7 +9,7 @@ import java.util.TreeMap;
 @Component
 public class AppraiseDataManager {
 
-    private TreeMap<String, Appraise> map = new TreeMap<String, Appraise>();
+    private volatile TreeMap<String, Appraise> map = new TreeMap<String, Appraise>();
 
     public void save(Appraise appraise) {
         map.put("" + appraise.getCreatetime() + appraise.getBooking_id(), appraise);

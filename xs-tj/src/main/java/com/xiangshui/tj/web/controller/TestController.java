@@ -67,25 +67,25 @@ public class TestController {
 
     @GetMapping("{type:.+}/{id:\\d+}")
     @ResponseBody
-    public Result get(HttpServletRequest request, @PathVariable("type") String type, @PathVariable("id") Long id) {
+    public Result get(HttpServletRequest request, @PathVariable("type") String type, @PathVariable("id") String id) {
 
         if ("user".equals(type)) {
-            return new Result(CodeMsg.SUCCESS).putData("user", userDataManager.getById(Math.toIntExact(id)));
+            return new Result(CodeMsg.SUCCESS).putData("user", userDataManager.getById(Integer.valueOf(id)));
         }
 
 
         if ("area".equals(type)) {
-            return new Result(CodeMsg.SUCCESS).putData("area", areaDataManager.getById(Math.toIntExact(id)));
+            return new Result(CodeMsg.SUCCESS).putData("area", areaDataManager.getById(Integer.valueOf(id)));
         }
 
 
         if ("capsule".equals(type)) {
-            return new Result(CodeMsg.SUCCESS).putData("capsule", capsuleDataManager.getById(id));
+            return new Result(CodeMsg.SUCCESS).putData("capsule", capsuleDataManager.getById(Long.valueOf(id)));
         }
 
 
         if ("booking".equals(type)) {
-            return new Result(CodeMsg.SUCCESS).putData("booking", bookingDataManager.getById(id));
+            return new Result(CodeMsg.SUCCESS).putData("booking", bookingDataManager.getById(Long.valueOf(id)));
         }
         return new Result(CodeMsg.NOT_FOUND);
     }
