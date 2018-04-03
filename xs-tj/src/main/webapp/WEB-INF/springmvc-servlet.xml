@@ -10,10 +10,11 @@
 		http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
-    <!--导入模块配置文件-->
-    <import resource="classpath*:spring/applicationContext.xml"/>
     <!--自动扫描注解类-->
     <context:component-scan base-package="com.xiangshui"/>
+
+    <!--导入模块配置文件-->
+    <import resource="classpath*:spring/applicationContext.xml"/>
 
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
@@ -87,6 +88,6 @@
 
     <!--对静态资源文件的访问-->
     <mvc:resources mapping="/static/**" location="/static/"/>
-    <mvc:resources mapping="/views/**" location="/views/"/>
+    <!--<mvc:resources mapping="/views/**" location="/views/"/>-->
     <mvc:default-servlet-handler/>
 </beans>
