@@ -35,25 +35,37 @@ public class GeneralTask extends Task<GeneralTask.Result> {
 
 
     public void reduce(Booking booking, Result result) {
-        String cityName = areaDataManager.getMap().get(booking.getArea_id()).getCity();
-        if (result.countBookingForCity.containsKey(cityName)) {
-            result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
+        try {
+            String cityName = areaDataManager.getMap().get(booking.getArea_id()).getCity();
+            if (result.countBookingForCity.containsKey(cityName)) {
+                result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void reduce(Capsule capsule, Result result) {
-        String cityName = areaDataManager.getMap().get(capsule.getArea_id()).getCity();
-        if (result.countCapsuleForCity.containsKey(cityName)) {
-            result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
+        try {
+            String cityName = areaDataManager.getMap().get(capsule.getArea_id()).getCity();
+            if (result.countCapsuleForCity.containsKey(cityName)) {
+                result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
 
     public void reduce(Area area, Result result) {
-        String cityName = area.getCity();
+        try {
+            String cityName = area.getCity();
 
-        if (result.countAreaForCity.containsKey(cityName)) {
-            result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
+            if (result.countAreaForCity.containsKey(cityName)) {
+                result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
