@@ -137,3 +137,6 @@ function getMinMaxUtil(minValue,maxValue){
 function subLastStringUtil(str,length){
     return (str+'').substr((str+'').length-length)
 }
+function subFirstStringUtil(str,length){
+    return (str+'').substr(0,length)
+}
