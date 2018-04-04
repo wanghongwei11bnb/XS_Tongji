@@ -60,7 +60,7 @@ public class DataReceiver {
     public void receive(int event, Area area) {
         areaDataManager.save(area);
         String cityName = area.getCity();
-        int code = Integer.valueOf((area.getArea_id() + "").substring(4));
+        int code = Integer.valueOf((area.getArea_id() + "").substring(0, 4));
         if (StringUtils.isNotBlank(cityName) && code > 0) {
             City city = new City();
             city.setCode(code);
