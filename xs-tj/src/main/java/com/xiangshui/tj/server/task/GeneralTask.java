@@ -76,8 +76,6 @@ public class GeneralTask extends Task<GeneralTask.Result> {
     }
 
     public SendMessage toSendMessage(Result result) {
-
-
         if (City.cityMap != null) {
             for (int code : result.countBookingForCity.keySet()) {
                 City city = City.cityMap.get(code);
@@ -87,9 +85,7 @@ public class GeneralTask extends Task<GeneralTask.Result> {
                     city.setCountBooking(result.countBookingForCity.get(code));
                 }
             }
-
         }
-
 
         GeneralMessage message = new GeneralMessage();
         message.countArea = result.countArea;

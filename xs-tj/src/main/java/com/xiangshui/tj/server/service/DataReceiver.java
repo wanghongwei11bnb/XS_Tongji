@@ -65,6 +65,14 @@ public class DataReceiver {
             City city = new City();
             city.setCode(code);
             city.setCity(cityName);
+            if (City.cityList != null) {
+                for (City cityItem : City.cityList) {
+                    if (cityItem.getCode() == city.getCode()) {
+                        city.setProvince(cityItem.getProvince());
+                        break;
+                    }
+                }
+            }
             City.cityMap.put(code, city);
         }
     }

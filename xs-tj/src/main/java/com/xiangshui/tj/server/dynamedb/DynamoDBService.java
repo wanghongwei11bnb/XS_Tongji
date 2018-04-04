@@ -136,4 +136,25 @@ public class DynamoDBService {
     }
 
 
+    public void loadCity() {
+        Table table = dynamoDB.getTable("city");
+        ScanSpec scanSpec = new ScanSpec();
+        ItemCollection<ScanOutcome> items = table.scan(scanSpec);
+        Iterator<Item> iter = items.iterator();
+        List<City> cityList = new ArrayList();
+        while (iter.hasNext()) {
+            try {
+                Item item = iter.next();
+                City city = JSON.parseObject(item.toJSON(), City.class);
+                cityList.add(city);
+            } catch (Exception e) {
+                log.error("", e);
+            }
+        }
+
+        City.cityList = cityList;
+
+    }
+
+
 }

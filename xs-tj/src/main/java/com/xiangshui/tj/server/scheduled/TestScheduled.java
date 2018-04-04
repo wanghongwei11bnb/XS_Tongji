@@ -74,8 +74,8 @@ public class TestScheduled implements InitializingBean {
             }
         });
 
-//        log.info("start reloadCity");
-//        dynamoDBService.loadCity();
+        log.info("start reloadCity");
+        dynamoDBService.loadCity();
 
         log.info("start loadArea");
         dynamoDBService.loadArea(new CallBack<Area>() {

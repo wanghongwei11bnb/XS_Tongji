@@ -16,6 +16,7 @@ public class City {
     private double lng;
     private double lat;
 
+    public static List<City> cityList;
 
     public static Map<Integer, City> cityMap = new HashMap<>();
 
