@@ -86,11 +86,13 @@ function handleContractMessage(message){
         var newAreaData = [];
         var mapData = [];
         for(var key in cityList){
+            cityList[key].city = cityList[key].city.substring(0,cityList[key].city.length-1);
             newAreaData.push({
-                name: cityList[key].city.substring(0,cityList[key].city.length-1)
+                name: cityList[key].city
             });
+            var provinceOrigin  = cityList[key].province;
             mapData.push({
-                name: cityList[key].province.substring(0,cityList[key].province.length-1),
+                name: provinceOrigin.substring(0,provinceOrigin.length-1),
                 value: 1
             })
         }
@@ -121,7 +123,7 @@ function handlePushBookingMessage(message){
     province = province.substring(0,province.length-1);
     areaData[orderIndex].value={
         'city' : message.area.city,
-        'user_name': '用户'+ subLastStringUtil(message.booking.phone,4),
+        'user_name': '用户'+ (message.booking.phone ? subLastStringUtil(message.booking.phone,4) : subLastStringUtil(message.booking.uin,4)),
         'title': message.area.title,
         'booking_time': dateUtil('Y-m-d h:i:s',message.booking.create_time)
     };
@@ -251,7 +253,7 @@ function initEventHandle() {
         heartCheck.reset().start();
         //console.log('Client received a message');
         var data = eval("("+event.data+")");
-        //console.log(data);
+        // console.log(data);
         doMessage(data);
     };
 }
