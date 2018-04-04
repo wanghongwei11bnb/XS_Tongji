@@ -60,14 +60,17 @@ public class MyHandler extends TextWebSocketHandler {
 
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         //ContractMessage
-        if (City.cityMap != null) {
-            ContractMessage contractMessage = new ContractMessage();
-            contractMessage.setCityList(new ArrayList<City>(City.cityMap.values()));
-            redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
-            messageList.add(contractMessage);
-        } else if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
-            messageList.add(redisService.get(SendMessagePrefix.cache, ContractMessage.class.getSimpleName(), ContractMessage.class));
+        if (!"1".equals(session.getAttributes().get("reconnect"))) {
+            if (City.cityMap != null) {
+                ContractMessage contractMessage = new ContractMessage();
+                contractMessage.setCityList(new ArrayList<City>(City.cityMap.values()));
+                redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
+                messageList.add(contractMessage);
+            } else if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
+                messageList.add(redisService.get(SendMessagePrefix.cache, ContractMessage.class.getSimpleName(), ContractMessage.class));
+            }
         }
+
         //InitAppraiseMessage
         if (appraiseDataManager.getMap() != null && appraiseDataManager.getMap().size() > 0) {
             List<Appraise> appraiseList = new ArrayList<Appraise>(appraiseDataManager.getMap().values());

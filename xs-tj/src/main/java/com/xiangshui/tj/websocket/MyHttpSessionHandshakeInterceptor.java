@@ -22,6 +22,10 @@ public class MyHttpSessionHandshakeInterceptor extends HttpSessionHandshakeInter
             HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
             String uin = servletRequest.getParameter("uin");
             String token = servletRequest.getParameter("token");
+            String reconnect = servletRequest.getParameter("reconnect");
+            if (StringUtils.isNotBlank(reconnect)) {
+                attributes.put("reconnect", reconnect);
+            }
             if (StringUtils.isBlank(uin) && StringUtils.isBlank(token)) {
                 log.info("匿名建立websocket连接");
                 return true;
