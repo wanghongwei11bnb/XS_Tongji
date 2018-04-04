@@ -31,7 +31,7 @@ orderChart.setOption({
     series: [{
         type: 'map',
         map: 'china',
-        zoom:1.2
+        zoom: 1.2
     }]
 });
 
