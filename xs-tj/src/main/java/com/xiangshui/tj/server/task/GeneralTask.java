@@ -20,21 +20,6 @@ public class GeneralTask extends Task<GeneralTask.Result> {
         return new Result();
     }
 
-    @Override
-    public boolean reduce_for_area() {
-        return true;
-    }
-
-    @Override
-    public boolean reduce_for_capsule() {
-        return true;
-    }
-
-    @Override
-    public boolean reduce_for_booking() {
-        return true;
-    }
-
 
     public void handDataManager(AreaDataManager areaDataManager, Result result) {
         result.countArea = areaDataManager.size();

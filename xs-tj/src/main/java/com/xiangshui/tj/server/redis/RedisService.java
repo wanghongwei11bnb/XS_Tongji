@@ -174,24 +174,4 @@ public class RedisService {
     }
 
 
-    public static void main(String[] args) {
-
-        RedisService redisService = new RedisService();
-
-        redisService.set(TestKeyPrefix.test, "dfdf", "sdfssdgfdg");
-
-
-//        TechArticle article = new TechArticle();
-//        article.setId(123);
-//        article.setTitle("123123124");
-//        article.setSubtitle("123123124");
-//        redisService.set(KeyPrefix.user_token, "B3D641ABD1C6425BB547DF90CE9AB0C2", article);
-
-
-//        TechArticle article = redisService.get(KeyPrefix.user_token, "B3D641ABD1C6425BB547DF90CE9AB0C2", TechArticle.class);
-
-//        System.out.println(JSON.toJSONString(article));
-    }
-
-
 }

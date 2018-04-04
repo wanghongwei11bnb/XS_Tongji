@@ -11,8 +11,8 @@ public class CodeMsg {
     }
 
     public static final CodeMsg SUCCESS = new CodeMsg(0, "success");
+    public static final CodeMsg NOT_FOUND = new CodeMsg(404, "资源未找到");
     public static final CodeMsg SERVER_ERROR = new CodeMsg(500, "未知错误");
     public static final CodeMsg CONNEC_TIMEOUT = new CodeMsg(500, "连接超时");
     public static final CodeMsg ILLEGAL_REQUEST = new CodeMsg(400, "连接超时");
-
 }

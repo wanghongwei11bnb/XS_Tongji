@@ -34,10 +34,6 @@ public class CumulativeBookingTodayTask extends Task<CumulativeBookingTodayTask.
 
     }
 
-    @Override
-    public boolean reduce_for_booking() {
-        return true;
-    }
 
     public SendMessage toSendMessage(Result result) {
         return null;

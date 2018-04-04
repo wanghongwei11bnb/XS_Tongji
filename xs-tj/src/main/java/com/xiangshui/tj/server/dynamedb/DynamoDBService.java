@@ -58,6 +58,16 @@ public class DynamoDBService {
     }
 
 
+    public User getUserByUin(int uin) {
+        Table table = dynamoDB.getTable(prefix() + "user_info");
+        Item item = table.getItem(new PrimaryKey("uin", uin));
+        if (item != null) {
+            return JSON.parseObject(item.toJSON(), User.class);
+        }
+        return null;
+    }
+
+
     public void loadArea(CallBack<Area> callBack) {
         Table table = dynamoDB.getTable(prefix() + "area");
         ScanSpec scanSpec = new ScanSpec();
@@ -126,7 +136,7 @@ public class DynamoDBService {
     }
 
 
-    public void reloadCity() {
+    public void loadCity() {
         Table table = dynamoDB.getTable("city");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);

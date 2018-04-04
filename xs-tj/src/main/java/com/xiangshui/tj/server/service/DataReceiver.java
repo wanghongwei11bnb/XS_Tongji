@@ -23,6 +23,8 @@ public class DataReceiver {
     @Autowired
     BaseTask baseTask;
     @Autowired
+    GeneralTask generalTask;
+    @Autowired
     BookingTask bookingTask;
     @Autowired
     UsageRateForHourTask usageRateForHourTask;
@@ -78,7 +80,7 @@ public class DataReceiver {
             sessionManager.sendMessage(pushBookingMessage);
         }
         if (event != ReceiveEvent.HISTORY_DATA) {
-            doTask(new Task[]{usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
+            doTask(new Task[]{generalTask, usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
         }
     }
 
@@ -131,11 +133,11 @@ public class DataReceiver {
             }
             for (Object object : new ArrayList(dataManager.getMap().values())) {
                 for (TaskEntry taskEntry : taskEntryList) {
-                    if (dataManagerClass == AreaDataManager.class && taskEntry.getTask().reduce_for_area()) {
+                    if (dataManagerClass == AreaDataManager.class) {
                         taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
-                    } else if (dataManagerClass == CapsuleDataManager.class && taskEntry.getTask().reduce_for_capsule()) {
+                    } else if (dataManagerClass == CapsuleDataManager.class) {
                         taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
-                    } else if (dataManagerClass == BookingDataManager.class && taskEntry.getTask().reduce_for_booking()) {
+                    } else if (dataManagerClass == BookingDataManager.class) {
                         taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
                     }
                 }

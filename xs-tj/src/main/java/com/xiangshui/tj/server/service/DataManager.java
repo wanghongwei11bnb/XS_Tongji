@@ -5,12 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 abstract public class DataManager<K, V> {
     private static final Logger log = LoggerFactory.getLogger(DataManager.class);
 
-    private Map<K, V> map = new ConcurrentHashMap();
+    private Map<K, V> map = new Hashtable();
 
     public V getById(K id) {
         return map.get(id);
