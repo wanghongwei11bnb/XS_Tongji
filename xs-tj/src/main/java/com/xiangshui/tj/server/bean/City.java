@@ -18,7 +18,7 @@ public class City {
 
     public static List<City> cityList;
 
-    public static Map<Integer, City> cityMap = new HashMap<>();
+    public static Map<String, City> cityMap = new HashMap<>();
 
 
     public double getLng() {

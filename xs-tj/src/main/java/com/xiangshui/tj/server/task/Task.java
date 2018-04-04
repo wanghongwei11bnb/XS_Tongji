@@ -4,9 +4,7 @@ import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.redis.RedisService;
-import com.xiangshui.tj.server.service.AreaDataManager;
-import com.xiangshui.tj.server.service.BookingDataManager;
-import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.websocket.message.SendMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,6 +12,18 @@ import java.util.Date;
 import java.util.Iterator;
 
 abstract public class Task<R> {
+
+
+    @Autowired
+    UserDataManager userDataManager;
+    @Autowired
+    AreaDataManager areaDataManager;
+    @Autowired
+    CapsuleDataManager capsuleDataManager;
+    @Autowired
+    BookingDataManager bookingDataManager;
+    @Autowired
+    AppraiseDataManager appraiseDataManager;
 
 
     public TaskEntry<R> createTaskEntry() {

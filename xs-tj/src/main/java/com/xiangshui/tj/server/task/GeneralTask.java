@@ -35,54 +35,36 @@ public class GeneralTask extends Task<GeneralTask.Result> {
 
 
     public void reduce(Booking booking, Result result) {
-        int code;
-        if (booking.getCapsule_id() > 0) {
-            code = (int) (booking.getCapsule_id() / 1000000);
-        } else if (booking.getArea_id() > 0) {
-            code = booking.getArea_id() / 1000;
-        } else {
-            return;
-        }
-        if (result.countBookingForCity.containsKey(code)) {
-            result.countBookingForCity.put(code, result.countBookingForCity.get(code) + 1);
+        String cityName = areaDataManager.getMap().get(booking.getArea_id()).getCity();
+        if (result.countBookingForCity.containsKey(cityName)) {
+            result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
         }
     }
 
     public void reduce(Capsule capsule, Result result) {
-        int code;
-        if (capsule.getCapsule_id() > 0) {
-            code = (int) (capsule.getCapsule_id() / 1000000);
-        } else if (capsule.getArea_id() > 0) {
-            code = capsule.getArea_id() / 1000;
-        } else {
-            return;
-        }
-        if (result.countCapsuleForCity.containsKey(code)) {
-            result.countCapsuleForCity.put(code, result.countCapsuleForCity.get(code) + 1);
+        String cityName = areaDataManager.getMap().get(capsule.getArea_id()).getCity();
+        if (result.countCapsuleForCity.containsKey(cityName)) {
+            result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
         }
     }
 
 
     public void reduce(Area area, Result result) {
-        int code;
-        if (area.getArea_id() > 0) {
-            code = (area.getArea_id() / 1000);
-        } else {
-            return;
-        }
-        if (result.countAreaForCity.containsKey(code)) {
-            result.countAreaForCity.put(code, result.countAreaForCity.get(code) + 1);
+        String cityName = area.getCity();
+
+        if (result.countAreaForCity.containsKey(cityName)) {
+            result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
         }
     }
 
     public SendMessage toSendMessage(Result result) {
         if (City.cityMap != null) {
-            for (int code : result.countBookingForCity.keySet()) {
-                City city = City.cityMap.get(code);
+            for (String cityName : result.countBookingForCity.keySet()) {
+                City city = City.cityMap.get(cityName);
                 if (city != null) {
-                    city.setCountArea(result.countAreaForCity.get(code));
-                    city.setCountCapsule(result.countCapsuleForCity.get(code));
-                    city.setCountBooking(result.countBookingForCity.get(code));
+                    city.setCountArea(result.countAreaForCity.get(cityName));
+                    city.setCountCapsule(result.countCapsuleForCity.get(cityName));
+                    city.setCountBooking(result.countBookingForCity.get(cityName));
                 }
             }
         }
@@ -101,20 +83,20 @@ public class GeneralTask extends Task<GeneralTask.Result> {
         public int countArea;
         public int countCapsule;
         public int countBooking;
-        public TreeMap<Integer, Integer> countAreaForCity;
-        public TreeMap<Integer, Integer> countCapsuleForCity;
-        public TreeMap<Integer, Integer> countBookingForCity;
+        public TreeMap<String, Integer> countAreaForCity;
+        public TreeMap<String, Integer> countCapsuleForCity;
+        public TreeMap<String, Integer> countBookingForCity;
 
         public Result() {
 
-            countAreaForCity = new TreeMap<Integer, Integer>();
-            countCapsuleForCity = new TreeMap<Integer, Integer>();
-            countBookingForCity = new TreeMap<Integer, Integer>();
+            countAreaForCity = new TreeMap<String, Integer>();
+            countCapsuleForCity = new TreeMap<String, Integer>();
+            countBookingForCity = new TreeMap<String, Integer>();
 
             for (City city : City.cityMap.values()) {
-                countAreaForCity.put(city.getCode(), 0);
-                countCapsuleForCity.put(city.getCode(), 0);
-                countBookingForCity.put(city.getCode(), 0);
+                countAreaForCity.put(city.getCity(), 0);
+                countCapsuleForCity.put(city.getCity(), 0);
+                countBookingForCity.put(city.getCity(), 0);
 
             }
 
