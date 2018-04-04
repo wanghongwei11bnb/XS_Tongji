@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }
 
 //处理部分相似的message
@@ -253,7 +253,7 @@ function initEventHandle() {
         heartCheck.reset().start();
         //console.log('Client received a message');
         var data = eval("("+event.data+")");
-        // console.log(data);
+        console.log(data);
         doMessage(data);
     };
 }
@@ -264,6 +264,9 @@ function reconnect(url) {
     lockReconnect = true;
     //没连接上会一直重连，设置延迟避免请求过多
     setTimeout(function () {
+        if(areaData && areaData.length > 0 && cityList && cityList.length > 0){
+            url+= '?reconnect=1';
+        }
         createWebSocket(url);
         lockReconnect = false;
     }, 2000);
