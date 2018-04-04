@@ -1,5 +1,6 @@
 package com.xiangshui.tj.websocket;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.Appraise;
 import com.xiangshui.tj.server.bean.City;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
@@ -9,6 +10,7 @@ import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.BaseTask;
 import com.xiangshui.tj.server.task.BookingTask;
 import com.xiangshui.tj.websocket.message.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +106,15 @@ public class MyHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         super.handleTextMessage(session, message);
         log.info("handleTextMessage(" + session.getAttributes().get("uin") + "," + session.getAttributes().get("token") + "):" + message.getPayload());
+
+        if (StringUtils.isNotBlank(message.getPayload())) {
+
+            JSONObject json = JSONObject.parseObject(message.getPayload());
+
+            if ("ping".equals(json.getString("msg_type"))) {
+                session.sendMessage(new TextMessage("{}"));
+            }
+        }
     }
 
     @Override

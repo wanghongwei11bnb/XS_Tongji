@@ -1,5 +1,6 @@
 package com.xiangshui.tj.server.bean;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,21 +17,7 @@ public class City {
     private double lat;
 
 
-    public static List<City> cityList;
-    public static Map<Integer, City> cityMap;
-
-    public static City getByCity(String cityName) {
-        if (cityList == null) {
-            return null;
-        }
-
-        for (City city : cityList) {
-            if (city.getCity().equals(cityName)) {
-                return city;
-            }
-        }
-        return null;
-    }
+    public static Map<Integer, City> cityMap = new HashMap<>();
 
 
     public double getLng() {

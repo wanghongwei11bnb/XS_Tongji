@@ -82,6 +82,8 @@ public class GeneralTask extends Task<GeneralTask.Result> {
             for (int code : result.countBookingForCity.keySet()) {
                 City city = City.cityMap.get(code);
                 if (city != null) {
+                    city.setCountArea(result.countAreaForCity.get(code));
+                    city.setCountCapsule(result.countCapsuleForCity.get(code));
                     city.setCountBooking(result.countBookingForCity.get(code));
                 }
             }
@@ -113,7 +115,7 @@ public class GeneralTask extends Task<GeneralTask.Result> {
             countCapsuleForCity = new TreeMap<Integer, Integer>();
             countBookingForCity = new TreeMap<Integer, Integer>();
 
-            for (City city : City.cityList) {
+            for (City city : City.cityMap.values()) {
                 countAreaForCity.put(city.getCode(), 0);
                 countCapsuleForCity.put(city.getCode(), 0);
                 countBookingForCity.put(city.getCode(), 0);

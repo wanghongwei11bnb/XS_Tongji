@@ -74,30 +74,16 @@ public class TestScheduled implements InitializingBean {
             }
         });
 
-        log.info("start reloadCity");
-        dynamoDBService.loadCity();
+//        log.info("start reloadCity");
+//        dynamoDBService.loadCity();
 
         log.info("start loadArea");
-        final Map<Integer, City> cityMap = new TreeMap<Integer, City>();
         dynamoDBService.loadArea(new CallBack<Area>() {
             public void run(Area object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
-                City city = City.getByCity(object.getCity());
-                if (city != null && !cityMap.containsKey(city.getCode())) {
-                    city = new City();
-                    city.setCity(object.getCity());
-                    city.setCode(object.getArea_id() / 1000);
-                    if (City.getByCity(city.getCity()) != null) {
-                        city.setProvince(City.getByCity(city.getCity()).getProvince());
-                    }
-                    cityMap.put(city.getCode(), city);
-                }
+
             }
         });
-
-        City.cityMap = cityMap;
-
-
         log.info("start loadArea");
         dynamoDBService.loadCapsule(new CallBack<Capsule>() {
             public void run(Capsule object) {
