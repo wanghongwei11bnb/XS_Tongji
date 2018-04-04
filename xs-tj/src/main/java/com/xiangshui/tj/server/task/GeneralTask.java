@@ -36,7 +36,7 @@ public class GeneralTask extends Task<GeneralTask.Result> {
 
     public void reduce(Booking booking, Result result) {
         try {
-            String cityName = areaDataManager.getMap().get(booking.getArea_id()).getCity();
+            String cityName = areaDataManager.getMap().get(capsuleDataManager.getMap().get(booking.getCapsule_id()).getArea_id()).getCity();
             if (result.countBookingForCity.containsKey(cityName)) {
                 result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
             }
