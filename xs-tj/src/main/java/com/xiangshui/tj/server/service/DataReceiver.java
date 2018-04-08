@@ -76,6 +76,11 @@ public class DataReceiver {
     }
 
     public void receive(int event, Capsule capsule) {
+
+        if (capsule.getStatus() == -1) {
+            return;
+        }
+
         capsuleDataManager.save(capsule);
     }
 
