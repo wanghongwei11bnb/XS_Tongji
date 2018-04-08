@@ -1,5 +1,6 @@
 package com.xiangshui.tj.server.task;
 
+import com.alibaba.fastjson.JSON;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
@@ -9,12 +10,16 @@ import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.GeneralMessage;
 import com.xiangshui.tj.websocket.message.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.TreeMap;
 
 @Component
 public class GeneralTask extends Task<GeneralTask.Result> {
+
+    private static final Logger log = LoggerFactory.getLogger(GeneralTask.class);
 
     public Result createResult() {
         return new Result();
@@ -42,6 +47,7 @@ public class GeneralTask extends Task<GeneralTask.Result> {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("reduce_Booking:" + JSON.toJSONString(booking), e);
         }
     }
 
