@@ -253,7 +253,7 @@ function initEventHandle() {
         heartCheck.reset().start();
         //console.log('Client received a message');
         var data = eval("("+event.data+")");
-        console.log(data);
+        // console.log(data);
         doMessage(data);
     };
 }
