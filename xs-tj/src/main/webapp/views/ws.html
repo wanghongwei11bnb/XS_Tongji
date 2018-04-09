@@ -1,7 +1,49 @@
-sizeSession:${sizeSession}
-<!--<script>-->
-    <!--var ws = new WebSocket("ws://192.168.1.99:8080/tj");-->
-    <!--ws.onmessage = function (msg) {-->
-        <!--console.log(JSON.parse(msg.data))-->
-    <!--};-->
-<!--</script>-->
+<h3>websocket客户端连接数：${sizeSession}</h3>
+
+
+<br>
+#if($generalMessage)
+总店铺数 ：$generalMessage.countArea
+总仓数 ：$generalMessage.countCapsule
+总订单数 ：$generalMessage.countBooking
+
+
+<h3>各个城市的店铺数量</h3>
+
+#foreach($city in $generalMessage.countAreaForCity.keySet())
+$city ：$generalMessage.countAreaForCity[$city]
+#end
+
+
+<h3>各个城市的仓数量</h3>
+#foreach($city in $generalMessage.countCapsuleForCity.keySet())
+$city ：$generalMessage.countCapsuleForCity[$city]
+#end
+
+<h3>各个城市的订单数量</h3>
+#foreach($city in $generalMessage.countBookingForCity.keySet())
+$city ：$generalMessage.countBookingForCity[$city]
+#end
+
+#end
+
+
+#if($usageRateMessage)
+
+<h3>使用率</h3>
+#foreach($item in $usageRateMessage.data)
+#set($usage = $item[1]*100 +"%")
+$DateUtils.format($item[0],"MM-dd hh:mm")：$usage
+<br>
+#end
+
+
+<h3>累计使用率</h3>
+#foreach($item in $usageRateMessage.data)
+#set($usage = $item[2]*100 +"%")
+$DateUtils.format($item[0],"MM-dd hh:mm")：$usage
+<br>
+#end
+
+
+#end

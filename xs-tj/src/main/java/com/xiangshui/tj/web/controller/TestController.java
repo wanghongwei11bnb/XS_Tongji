@@ -1,14 +1,22 @@
 package com.xiangshui.tj.web.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.User;
+import com.xiangshui.tj.server.redis.RedisService;
+import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.server.service.UserDataManager;
+import com.xiangshui.tj.server.task.GeneralTask;
+import com.xiangshui.tj.server.task.UsageRateForHourTask;
 import com.xiangshui.tj.web.result.CodeMsg;
 import com.xiangshui.tj.web.result.Result;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
+import com.xiangshui.tj.websocket.message.GeneralMessage;
+import com.xiangshui.tj.websocket.message.UsageRateMessage;
+import com.xiangshui.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 public class TestController {
 
     @Autowired
+    RedisService redisService;
+    @Autowired
     UserDataManager userDataManager;
     @Autowired
     AreaDataManager areaDataManager;
@@ -28,13 +38,17 @@ public class TestController {
     @Autowired
     BookingDataManager bookingDataManager;
 
-
     @Autowired
     WebSocketSessionManager sessionManager;
 
     @GetMapping("home")
     public String index(HttpServletRequest request) {
+        request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("sizeSession", sessionManager.sizeSession());
+        request.setAttribute("usageRateMessage", JSONObject.toJSON(redisService.get(SendMessagePrefix.cache, UsageRateMessage.class.getSimpleName(), UsageRateMessage.class)));
+        request.setAttribute("generalMessage", JSONObject.toJSON(redisService.get(SendMessagePrefix.cache, GeneralMessage.class.getSimpleName(), GeneralMessage.class)));
+
+
         return "ws";
     }
 
