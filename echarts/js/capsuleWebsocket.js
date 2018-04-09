@@ -63,7 +63,6 @@ function dataReset(){
     }
     appraiseTimer='';
     appraiseArr = [];
-    cityList = [];
     receiveAppraiseflag = false;
 }
 
