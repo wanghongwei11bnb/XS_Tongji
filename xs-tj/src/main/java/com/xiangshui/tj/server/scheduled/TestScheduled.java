@@ -1,6 +1,7 @@
 package com.xiangshui.tj.server.scheduled;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
@@ -11,6 +12,8 @@ import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.util.CallBack;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 @Component
 public class TestScheduled implements InitializingBean {
@@ -84,6 +88,8 @@ public class TestScheduled implements InitializingBean {
 
             }
         });
+
+
         log.info("start loadArea");
         dynamoDBService.loadCapsule(new CallBack<Capsule>() {
             public void run(Capsule object) {
@@ -104,6 +110,26 @@ public class TestScheduled implements InitializingBean {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+
+
+        City.cityMap.forEach(new BiConsumer<String, City>() {
+            @Override
+            public void accept(String s, City city) {
+                try {
+                    String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + city.getProvince() + city.getCity() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
+                    JSONObject resp = JSONObject.parseObject(string);
+                    if (resp.getIntValue("status") == 0) {
+                        JSONObject location = resp.getJSONObject("result").getJSONObject("location");
+                        city.setLat(location.getFloatValue("lat"));
+                        city.setLng(location.getFloatValue("lng"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
     }
 
     public void afterPropertiesSet() throws Exception {
