@@ -84,6 +84,7 @@ function handleContractMessage(message){
         cityList = message.cityList;
         var newAreaData = [];
         var mapData = [];
+        var newGeoCoordMap = [];
         for(var key in cityList){
             cityList[key].city = cityList[key].city.substring(0,cityList[key].city.length-1);
             newAreaData.push({
@@ -94,8 +95,10 @@ function handleContractMessage(message){
                 name: provinceOrigin.substring(0,provinceOrigin.length-1),
                 value: 1
             })
+            newGeoCoordMap[cityList[key].city] = [cityList[key].lng,cityList[key].lat]
         }
         areaData = newAreaData;
+        geoCoordMap = newGeoCoordMap;
 
         orderChart.setOption({
             series: [{
