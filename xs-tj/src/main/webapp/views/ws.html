@@ -1,49 +1,74 @@
-<h3>websocket客户端连接数：${sizeSession}</h3>
+websocket客户端连接数：${sizeSession}
+<table>
+
+    <tr>
 
 
-<br>
-#if($generalMessage)
-总店铺数 ：$generalMessage.countArea
-总仓数 ：$generalMessage.countCapsule
-总订单数 ：$generalMessage.countBooking
+        #if($generalMessage)
+
+        <td>
+            总店铺数 ：$generalMessage.countArea
+            <br>
+            总仓数 ：$generalMessage.countCapsule
+            <br>
+            总订单数 ：$generalMessage.countBooking
+            <br>
+
+        </td>
+
+        <td>
+            <h3>各个城市的店铺数量</h3>
+            #foreach($city in $generalMessage.countAreaForCity.keySet())
+            $city ：$generalMessage.countAreaForCity[$city]
+            <br>
+            #end
+        </td>
 
 
-<h3>各个城市的店铺数量</h3>
+        <td>
+            <h3>各个城市的仓数量</h3>
+            #foreach($city in $generalMessage.countCapsuleForCity.keySet())
+            $city ：$generalMessage.countCapsuleForCity[$city]
+            <br>
+            #end
+        </td>
 
-#foreach($city in $generalMessage.countAreaForCity.keySet())
-$city ：$generalMessage.countAreaForCity[$city]
-#end
+        <td>
+            <h3>各个城市的订单数量</h3>
+            #foreach($city in $generalMessage.countBookingForCity.keySet())
+            $city ：$generalMessage.countBookingForCity[$city]
+            <br>
+            #end
+        </td>
 
-
-<h3>各个城市的仓数量</h3>
-#foreach($city in $generalMessage.countCapsuleForCity.keySet())
-$city ：$generalMessage.countCapsuleForCity[$city]
-#end
-
-<h3>各个城市的订单数量</h3>
-#foreach($city in $generalMessage.countBookingForCity.keySet())
-$city ：$generalMessage.countBookingForCity[$city]
-#end
-
-#end
-
-
-#if($usageRateMessage)
-
-<h3>使用率</h3>
-#foreach($item in $usageRateMessage.data)
-#set($usage = $item[1]*100 +"%")
-$DateUtils.format($item[0],"MM-dd hh:mm")：$usage
-<br>
-#end
+        #end
 
 
-<h3>累计使用率</h3>
-#foreach($item in $usageRateMessage.data)
-#set($usage = $item[2]*100 +"%")
-$DateUtils.format($item[0],"MM-dd hh:mm")：$usage
-<br>
-#end
+        #if($usageRateMessage)
+
+        <td>
+            <h3>使用率</h3>
+            #foreach($item in $usageRateMessage.data)
+            #set($usage = $item[1]*100 +"%")
+            $DateUtils.format($item[0],"MM-dd hh:mm")：$usage
+            <br>
+            #end
+        </td>
 
 
-#end
+        <td>
+            <h3>累计使用率</h3>
+            #foreach($item in $usageRateMessage.data)
+            #set($usage = $item[2]*100 +"%")
+            $DateUtils.format($item[0],"MM-dd hh:mm")：$usage
+            <br>
+            #end
+        </td>
+
+
+        #end
+
+    </tr>
+
+</table>
+
