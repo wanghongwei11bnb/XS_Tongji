@@ -1,5 +1,6 @@
 package com.xiangshui.tj.server.task;
 
+import com.alibaba.fastjson.JSON;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
@@ -9,6 +10,8 @@ import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.GeneralMessage;
 import com.xiangshui.tj.websocket.message.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.TreeMap;
@@ -16,17 +19,19 @@ import java.util.TreeMap;
 @Component
 public class GeneralTask extends Task<GeneralTask.Result> {
 
+    private static final Logger log = LoggerFactory.getLogger(GeneralTask.class);
+
     public Result createResult() {
         return new Result();
     }
 
 
     public void handDataManager(AreaDataManager areaDataManager, Result result) {
-        result.countArea = areaDataManager.size();
+//        result.countArea = areaDataManager.size();
     }
 
     public void handDataManager(CapsuleDataManager capsuleDataManager, Result result) {
-        result.countCapsule = capsuleDataManager.size();
+//        result.countCapsule = capsuleDataManager.size();
     }
 
     public void handDataManager(BookingDataManager bookingDataManager, Result result) {
@@ -35,37 +40,47 @@ public class GeneralTask extends Task<GeneralTask.Result> {
 
 
     public void reduce(Booking booking, Result result) {
-        try {
-            String cityName = areaDataManager.getMap().get(capsuleDataManager.getMap().get(booking.getCapsule_id()).getArea_id()).getCity();
-            if (result.countBookingForCity.containsKey(cityName)) {
-                result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
+        if (capsule == null) {
+            return;
+        }
+        Area area = areaDataManager.getById(capsule.getArea_id());
+        if (area == null) {
+            return;
+        }
+        String cityName = area.getCity();
+        if (result.countBookingForCity.containsKey(cityName)) {
+            result.countBookingForCity.put(cityName, result.countBookingForCity.get(cityName) + 1);
         }
     }
 
     public void reduce(Capsule capsule, Result result) {
-        try {
-            String cityName = areaDataManager.getMap().get(capsule.getArea_id()).getCity();
-            if (result.countCapsuleForCity.containsKey(cityName)) {
-                result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Area area = areaDataManager.getById(capsule.getArea_id());
+
+        if (area == null || area.getStatus() == -1) {
+            return;
+        }
+        result.countCapsule++;
+        if (area == null) {
+            return;
+        }
+        String cityName = area.getCity();
+        if (result.countCapsuleForCity.containsKey(cityName)) {
+            result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
         }
     }
 
 
     public void reduce(Area area, Result result) {
-        try {
-            String cityName = area.getCity();
+        if (area.getStatus() == -1) {
+            return;
+        }
 
-            if (result.countAreaForCity.containsKey(cityName)) {
-                result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        result.countArea++;
+
+        String cityName = area.getCity();
+        if (result.countAreaForCity.containsKey(cityName)) {
+            result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
         }
     }
 

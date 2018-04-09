@@ -13,10 +13,22 @@ public class Area {
     private String notification;
     private String contact;
 
+    private int status;
+
+
+
     private Location location;
 
     private List<String> imgs;
 
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public int getArea_id() {
         return area_id;
