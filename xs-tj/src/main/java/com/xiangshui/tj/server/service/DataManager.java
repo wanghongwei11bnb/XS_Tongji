@@ -3,23 +3,25 @@ package com.xiangshui.tj.server.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 abstract public class DataManager<K, V> {
     private static final Logger log = LoggerFactory.getLogger(DataManager.class);
 
-    private Map<K, V> map = new Hashtable();
+    private volatile Map<K, V> map = new HashMap<>();
 
-    public V getById(K id) {
+    public synchronized V getById(K id) {
         return map.get(id);
     }
 
-    public boolean exists(K id) {
+    public synchronized boolean exists(K id) {
         return map.containsKey(id);
     }
 
-    public boolean save(V v) {
+    public synchronized boolean save(V v) {
         if (v == null) {
             return false;
         }
@@ -31,7 +33,7 @@ abstract public class DataManager<K, V> {
         return true;
     }
 
-    public boolean removeById(K k) {
+    public synchronized boolean removeById(K k) {
         if (k == null) {
             return false;
         }
@@ -39,7 +41,7 @@ abstract public class DataManager<K, V> {
         return true;
     }
 
-    public boolean remove(V v) {
+    public synchronized boolean remove(V v) {
         if (v == null) {
             return false;
         }
@@ -53,15 +55,15 @@ abstract public class DataManager<K, V> {
 
     abstract K getId(V v);
 
-    public int size() {
+    public synchronized int size() {
         return map.size();
     }
 
-    public Map<K, V> getMap() {
-        return map;
+    public synchronized void foreach(BiConsumer<K, V> consumer) {
+        map.forEach(consumer);
     }
 
-    public void setMap(Map<K, V> map) {
-        this.map = map;
+    public synchronized Map<K, V> getMap() {
+        return map;
     }
 }

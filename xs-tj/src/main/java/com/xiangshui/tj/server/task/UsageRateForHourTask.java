@@ -23,7 +23,6 @@ import java.util.*;
 public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
 
-
     public SendMessage toSendMessage(Result result) {
         List<Object[]> data = new ArrayList();
         Set<Long> cisSet = new HashSet<Long>();
@@ -54,7 +53,7 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
     @Override
     public void handDataManager(CapsuleDataManager capsuleDataManager, Result result) {
-        result.countCapsule = capsuleDataManager.size();
+//        result.countCapsule = capsuleDataManager.size();
     }
 
     @Override
@@ -64,32 +63,44 @@ public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
 
     @Override
     public void reduce(Booking booking, Result result) {
-        long start_time = booking.getCreate_time();
-        long end_time = booking.getEnd_time();
-        if (start_time <= 0) {
+        Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
+        if (capsule == null) {
             return;
         }
-        start_time *= 1000;
-        if (end_time <= 0) {
-            end_time = result.end_hour.getTime();
-        } else {
-            end_time *= 1000;
-        }
-        if (end_time < result.start_hour.getTime()) {
-            return;
-        }
+        Area area = areaDataManager.getById(capsule.getArea_id());
+        if (area != null && area.getStatus() != -1) {
 
-        for (long ts : result.usageCumuMap.keySet()) {
-
-            if (end_time < ts || start_time >= ts + 1000 * 60 * 60) {
-                continue;
+            long start_time = booking.getCreate_time();
+            long end_time = booking.getEnd_time();
+            if (start_time <= 0) {
+                return;
             }
-            result.usageCumuMap.get(ts).add(booking.getCapsule_id());
+            start_time *= 1000;
+            if (end_time <= 0) {
+                end_time = result.end_hour.getTime();
+            } else {
+                end_time *= 1000;
+            }
+            if (end_time < result.start_hour.getTime()) {
+                return;
+            }
+
+            for (long ts : result.usageCumuMap.keySet()) {
+
+                if (end_time < ts || start_time >= ts + 1000 * 60 * 60) {
+                    continue;
+                }
+                result.usageCumuMap.get(ts).add(booking.getCapsule_id());
+            }
         }
     }
 
     @Override
     public void reduce(Capsule capsule, Result result) {
+        Area area = areaDataManager.getById(capsule.getArea_id());
+        if (area != null && area.getStatus() != -1) {
+            result.countCapsule++;
+        }
 
     }
 

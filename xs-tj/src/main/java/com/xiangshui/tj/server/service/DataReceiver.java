@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @Component
 public class DataReceiver {
@@ -76,11 +77,6 @@ public class DataReceiver {
     }
 
     public void receive(int event, Capsule capsule) {
-
-        if (capsule.getStatus() == -1) {
-            return;
-        }
-
         capsuleDataManager.save(capsule);
     }
 
@@ -150,17 +146,33 @@ public class DataReceiver {
                     taskEntry.getTask().handDataManager((BookingDataManager) dataManager, taskEntry.getResult());
                 }
             }
-            for (Object object : new ArrayList(dataManager.getMap().values())) {
-                for (TaskEntry taskEntry : taskEntryList) {
-                    if (dataManagerClass == AreaDataManager.class) {
-                        taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
-                    } else if (dataManagerClass == CapsuleDataManager.class) {
-                        taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
-                    } else if (dataManagerClass == BookingDataManager.class) {
-                        taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
+
+            dataManager.foreach(new BiConsumer() {
+                @Override
+                public void accept(Object k, Object object) {
+                    for (TaskEntry taskEntry : taskEntryList) {
+                        if (dataManagerClass == AreaDataManager.class) {
+                            taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
+                        } else if (dataManagerClass == CapsuleDataManager.class) {
+                            taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
+                        } else if (dataManagerClass == BookingDataManager.class) {
+                            taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
+                        }
                     }
                 }
-            }
+            });
+
+//            for (Object object : new ArrayList(dataManager.getMap().values())) {
+//                for (TaskEntry taskEntry : taskEntryList) {
+//                    if (dataManagerClass == AreaDataManager.class) {
+//                        taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
+//                    } else if (dataManagerClass == CapsuleDataManager.class) {
+//                        taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
+//                    } else if (dataManagerClass == BookingDataManager.class) {
+//                        taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
+//                    }
+//                }
+//            }
         }
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         for (TaskEntry taskEntry : taskEntryList) {
