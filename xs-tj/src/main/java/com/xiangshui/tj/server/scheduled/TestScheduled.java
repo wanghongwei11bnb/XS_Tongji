@@ -170,14 +170,14 @@ public class TestScheduled implements InitializingBean {
     }
 
 
-    @Scheduled(fixedDelay = 10, initialDelay = 1000 * 15)
+    @Scheduled(fixedDelay = 1000, initialDelay = 1000 * 15)
     public void startRedisBooking() {
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
                 try {
-                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "booking");
-                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
-                        Booking booking = JSON.parseObject(stringList.get(1), Booking.class);
+                    String string = object.lpop((debug ? "" : "online_") + "booking");
+                    if (StringUtils.isNotBlank(string)) {
+                        Booking booking = JSON.parseObject(string, Booking.class);
                         if (booking != null) {
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                         }
@@ -189,14 +189,14 @@ public class TestScheduled implements InitializingBean {
         });
     }
 
-    @Scheduled(fixedDelay = 10, initialDelay = 1000 * 15)
+    @Scheduled(fixedDelay = 1000, initialDelay = 1000 * 15)
     public void startRedisAppraise() {
         redisService.run(new CallBack<Jedis>() {
             public void run(Jedis object) {
                 try {
-                    List<String> stringList = object.blpop(0, (debug ? "" : "online_") + "appraise");
-                    if (stringList != null && stringList.size() > 1 && StringUtils.isNotBlank(stringList.get(1))) {
-                        Appraise appraise = JSON.parseObject(stringList.get(1), Appraise.class);
+                    String string = object.lpop((debug ? "" : "online_") + "appraise");
+                    if (StringUtils.isNotBlank(string)) {
+                        Appraise appraise = JSON.parseObject(string, Appraise.class);
                         if (appraise != null) {
                             dataReceiver.receive(ReceiveEvent.APPRAISE, appraise);
                         }
