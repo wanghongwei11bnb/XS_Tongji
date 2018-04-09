@@ -67,6 +67,11 @@ public class DateUtils {
     }
 
 
+    public static String format(long ts, String format) {
+        return new SimpleDateFormat(format).format(new Date(ts));
+    }
+
+
     public static void main(String[] args) throws Exception {
 
 
