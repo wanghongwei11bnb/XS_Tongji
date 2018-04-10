@@ -10,7 +10,7 @@ public class Area {
     private String city;
     private String area_img;
     private String title;
-    private String notification;
+//    private String notification;
     private String contact;
 
     private int status;
@@ -19,7 +19,7 @@ public class Area {
 
     private Location location;
 
-    private List<String> imgs;
+//    private List<String> imgs;
 
 
     public int getStatus() {
@@ -70,13 +70,13 @@ public class Area {
         this.title = title;
     }
 
-    public String getNotification() {
-        return notification;
-    }
-
-    public void setNotification(String notification) {
-        this.notification = notification;
-    }
+//    public String getNotification() {
+//        return notification;
+//    }
+//
+//    public void setNotification(String notification) {
+//        this.notification = notification;
+//    }
 
     public String getContact() {
         return contact;
@@ -94,11 +94,11 @@ public class Area {
         this.location = location;
     }
 
-    public List<String> getImgs() {
-        return imgs;
-    }
-
-    public void setImgs(List<String> imgs) {
-        this.imgs = imgs;
-    }
+//    public List<String> getImgs() {
+//        return imgs;
+//    }
+//
+//    public void setImgs(List<String> imgs) {
+//        this.imgs = imgs;
+//    }
 }

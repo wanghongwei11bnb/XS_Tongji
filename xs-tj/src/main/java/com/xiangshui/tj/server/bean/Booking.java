@@ -13,7 +13,7 @@ public class Booking {
     private int area_id;
     private String area_title;
     private String reserve_token;
-    private String calculate_rule;
+//    private String calculate_rule;
     private String bank_type;
     private String phone;
     private int final_price;
@@ -114,13 +114,13 @@ public class Booking {
         this.reserve_token = reserve_token;
     }
 
-    public String getCalculate_rule() {
-        return calculate_rule;
-    }
-
-    public void setCalculate_rule(String calculate_rule) {
-        this.calculate_rule = calculate_rule;
-    }
+//    public String getCalculate_rule() {
+//        return calculate_rule;
+//    }
+//
+//    public void setCalculate_rule(String calculate_rule) {
+//        this.calculate_rule = calculate_rule;
+//    }
 
     public String getBank_type() {
         return bank_type;
