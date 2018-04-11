@@ -56,7 +56,6 @@
             #end
         </div>
 
-
         <div class="col-md-3">
             <h3>累计使用率</h3>
             #foreach($item in $usageRateMessage.data)
@@ -66,16 +65,14 @@
             #end
         </div>
 
-
         #end
 
 
-        #if($orderCapsuleByUseTime)
-
+        #if($orderCapsuleSet)
         <div class="col-md-12">
             <h3>最后订单时间（舱）</h3>
             <div class="row">
-                #foreach($capsule in $orderCapsuleByUseTime)
+                #foreach($capsule in $orderCapsuleSet)
                 <div class="col-md-3">
                     #if($capsule.lastBookingTime)
                     <a href="javascript:showCapsule($capsule.capsule_id);">$capsule.capsule_id</a>：
@@ -89,28 +86,8 @@
                 #end
             </div>
         </div>
-
-        <div class="col-md-12">
-            <h3>最后使用时间（舱）</h3>
-            <div class="row">
-                #foreach($capsule in $orderCapsuleByUseTime)
-                <div class="col-md-3">
-                    #if($capsule.lastUseTime)
-                    <a href="javascript:showCapsule($capsule.capsule_id);" target="_blank">$capsule.capsule_id</a>：
-                    $DateUtils.format($capsule.lastUseTime,"yyyy-MM-dd HH:mm:ss")
-
-                    #else
-                    <a class="text-danger" href="javascript:showCapsule($capsule.capsule_id);" target="_blank">
-                        $capsule.capsule_id：未使用过
-                    </a>
-                    #end
-                </div>
-                #end
-
-
-            </div>
-        </div>
         #end
+
     </div>
 </div>
 
