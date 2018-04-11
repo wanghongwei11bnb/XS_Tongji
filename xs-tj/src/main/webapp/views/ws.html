@@ -3,120 +3,142 @@
 
     <h2>websocket客户端连接数：${sizeSession}</h2>
 
-    <table class="table table-bordered">
+    <div class="row">
 
-        <tr>
-            #if($generalMessage)
+        #if($generalMessage)
 
-            <td>
-                总店铺数 ：$generalMessage.countArea
-                <br>
-                总仓数 ：$generalMessage.countCapsule
-                <br>
-                总订单数 ：$generalMessage.countBooking
-                <br>
-
-            </td>
-
-            <td>
-                <h3>各个城市的店铺数量</h3>
-                #foreach($city in $generalMessage.countAreaForCity.keySet())
-                $city ：$generalMessage.countAreaForCity[$city]
-                <br>
-                #end
-            </td>
-
-
-            <td>
-                <h3>各个城市的仓数量</h3>
-                #foreach($city in $generalMessage.countCapsuleForCity.keySet())
-                $city ：$generalMessage.countCapsuleForCity[$city]
-                <br>
-                #end
-            </td>
-
-            <td>
-                <h3>各个城市的订单数量</h3>
-                #foreach($city in $generalMessage.countBookingForCity.keySet())
-                $city ：$generalMessage.countBookingForCity[$city]
-                <br>
-                #end
-            </td>
-
+        <div class="col-md-3">
+            总店铺数 ：$generalMessage.countArea
+            <br>
+            总舱数 ：$generalMessage.countCapsule
+            <br>
+            总订单数 ：$generalMessage.countBooking
+            <br>
+        </div>
+        <div class="col-md-3">
+            <h3>各个城市的店铺数量</h3>
+            #foreach($city in $generalMessage.countAreaForCity.keySet())
+            $city ：$generalMessage.countAreaForCity[$city]
+            <br>
             #end
+        </div>
 
 
-            #if($usageRateMessage)
-
-            <td>
-                <h3>使用率</h3>
-                #foreach($item in $usageRateMessage.data)
-                #set($usage = $item[1]*100 +"%")
-                $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
-                <br>
-                #end
-            </td>
-
-
-            <td>
-                <h3>累计使用率</h3>
-                #foreach($item in $usageRateMessage.data)
-                #set($usage = $item[2]*100 +"%")
-                $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
-                <br>
-                #end
-            </td>
-
-
+        <div class="col-md-3">
+            <h3>各个城市的舱数量</h3>
+            #foreach($city in $generalMessage.countCapsuleForCity.keySet())
+            $city ：$generalMessage.countCapsuleForCity[$city]
+            <br>
             #end
+        </div>
 
-            #if($orderCapsuleByUseTime)
+        <div class="col-md-3">
+            <h3>各个城市的订单数量</h3>
+            #foreach($city in $generalMessage.countBookingForCity.keySet())
+            $city ：$generalMessage.countBookingForCity[$city]
+            <br>
+            #end
+        </div>
 
-            <td>
-                <h3>最后订单时间</h3>
+        #end
+
+
+        #if($usageRateMessage)
+
+        <div class="col-md-3">
+            <h3>使用率</h3>
+            #foreach($item in $usageRateMessage.data)
+            #set($usage = $item[1]*100 +"%")
+            $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
+            <br>
+            #end
+        </div>
+
+
+        <div class="col-md-3">
+            <h3>累计使用率</h3>
+            #foreach($item in $usageRateMessage.data)
+            #set($usage = $item[2]*100 +"%")
+            $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
+            <br>
+            #end
+        </div>
+
+
+        #end
+
+
+        #if($orderCapsuleByUseTime)
+
+        <div class="col-md-12">
+            <h3>最后订单时间（舱）</h3>
+            <div class="row">
                 #foreach($capsule in $orderCapsuleByUseTime)
-
-                #if($capsule.lastBookingTime)
-                <a href="/tj/capsule/$capsule.capsule_id" target="_blank">$capsule.capsule_id</a>：
-                <br>
-                $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")
-                #else
-                <a class="text-danger" href="/tj/capsule/$capsule.capsule_id" target="_blank">
-                    $capsule.capsule_id：未使用过
-                </a>
+                <div class="col-md-3">
+                    #if($capsule.lastBookingTime)
+                    <a href="javascript:showCapsule($capsule.capsule_id);">$capsule.capsule_id</a>：
+                    $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")
+                    #else
+                    <a class="text-danger" href="javascript:showCapsule($capsule.capsule_id);" target="_blank">
+                        $capsule.capsule_id：未使用过
+                    </a>
+                    #end
+                </div>
                 #end
-                <br>
+            </div>
+        </div>
 
-                #end
-
-            </td>
-
-            <td>
-                <h3>最后使用时间</h3>
+        <div class="col-md-12">
+            <h3>最后使用时间（舱）</h3>
+            <div class="row">
                 #foreach($capsule in $orderCapsuleByUseTime)
+                <div class="col-md-3">
+                    #if($capsule.lastUseTime)
+                    <a href="javascript:showCapsule($capsule.capsule_id);" target="_blank">$capsule.capsule_id</a>：
+                    $DateUtils.format($capsule.lastUseTime,"yyyy-MM-dd HH:mm:ss")
 
-                #if($capsule.lastUseTime)
-                <a href="/tj/capsule/$capsule.capsule_id" target="_blank">$capsule.capsule_id</a>：
-                <br>
-                $DateUtils.format($capsule.lastUseTime,"yyyy-MM-dd HH:mm:ss")
-
-                #else
-                <a class="text-danger" href="/tj/capsule/$capsule.capsule_id" target="_blank">
-                    $capsule.capsule_id：未使用过
-                </a>
+                    #else
+                    <a class="text-danger" href="javascript:showCapsule($capsule.capsule_id);" target="_blank">
+                        $capsule.capsule_id：未使用过
+                    </a>
+                    #end
+                </div>
                 #end
-                <br>
-                #end
 
 
-            </td>
-
-
-            #end
-
-
-        </tr>
-
-    </table>
-
+            </div>
+        </div>
+        #end
+    </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="myModal">
+    <div class="modal-dialog  modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function showCapsule(capsule_id) {
+        $.ajax({
+            url: `/tj/capsule/${capsule_id}`,
+            success: function (resp) {
+                $('#myModal .modal-body').html(`<pre><code>${JSON.stringify(resp, null, 2)}</code></pre>`);
+                $('#myModal').modal({})
+            }
+        });
+
+    }
+
+
+</script>
