@@ -85,13 +85,13 @@ public class DataReceiver {
         bookingDataManager.save(booking);
         Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
         if (capsule != null) {
-            if (capsule.getLastUseTime() == null || booking.getStatus() == 1) {
-                capsule.setLastUseTime(new Date());
-            } else if (booking.getEnd_time() * 1000 > capsule.getLastUseTime().getTime()) {
-                capsule.setLastUseTime(new Date(booking.getEnd_time() * 1000));
-            }
             if (capsule.getLastBookingTime() == null || booking.getCreate_time() * 1000 > capsule.getLastBookingTime().getTime()) {
                 capsule.setLastBookingTime(new Date(booking.getCreate_time() * 1000));
+            }
+
+            Date endTime = booking.getStatus() == 1 ? new Date() : new Date(booking.getEnd_time() * 1000);
+            if (capsule.getLastUseTime() == null || endTime.getTime() > capsule.getLastUseTime().getTime()) {
+                capsule.setLastUseTime(new Date());
             }
         }
 

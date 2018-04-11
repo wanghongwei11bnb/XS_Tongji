@@ -24,9 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 @Controller
@@ -55,22 +53,25 @@ public class TestController {
         request.setAttribute("generalMessage", JSONObject.toJSON(redisService.get(SendMessagePrefix.cache, GeneralMessage.class.getSimpleName(), GeneralMessage.class)));
 
 
-        Map<String, Capsule> capsuleMap = new TreeMap<>(new Comparator<String>() {
+        Set<Capsule> capsuleSet = new TreeSet<>(new Comparator<Capsule>() {
             @Override
-            public int compare(String o1, String o2) {
-                return o2.compareTo(o1);
+            public int compare(Capsule o1, Capsule o2) {
+                long n1 = o1.getLastUseTime() != null ? o1.getLastUseTime().getTime() : 0;
+                long n2 = o2.getLastUseTime() != null ? o2.getLastUseTime().getTime() : 0;
+                return (int) (n2 - n1);
             }
         });
+
         capsuleDataManager.foreach(new BiConsumer<Long, Capsule>() {
             @Override
             public void accept(Long aLong, Capsule capsule) {
                 Area area = areaDataManager.getById(capsule.getArea_id());
                 if (area != null && area.getStatus() != -1) {
-                    capsuleMap.put(capsule.getLastUseTime() != null ? capsule.getLastUseTime().getTime() + "" + capsule.getCapsule_id() : 0 + "" + capsule.getCapsule_id(), capsule);
+                    capsuleSet.add(capsule);
                 }
             }
         });
-        request.setAttribute("orderCapsuleByUseTime", capsuleMap.values().toArray());
+        request.setAttribute("orderCapsuleByUseTime", capsuleSet);
 
         return "ws";
     }
