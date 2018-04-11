@@ -78,6 +78,12 @@ public class DataReceiver {
     }
 
     public void receive(int event, Capsule capsule) {
+        if (capsule.getCreate_time() > 0) {
+            capsule.setCreate_time_date(new Date(capsule.getCreate_time() * 1000l));
+        }
+        if (capsule.getUpdate_time() > 0) {
+            capsule.setUpdate_time_date(new Date(capsule.getUpdate_time() * 1000l));
+        }
         capsuleDataManager.save(capsule);
     }
 

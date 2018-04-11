@@ -72,13 +72,27 @@
         <div class="col-md-12">
             <h3>最后订单时间（舱）</h3>
 
-            <table class="table">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>舱编号</th>
+                    <th>城市</th>
+                    <th>店铺</th>
+                    <th>创建时间</th>
+                    <th>最后下单时间</th>
+                </tr>
+                </thead>
                 <tbody>
                 #foreach($capsule in $orderCapsuleSet)
                 <tr>
                     <td><a href="javascript:showCapsule($capsule.capsule_id);">$capsule.capsule_id</a></td>
                     <td>$!{capsule.cityObj.city}</td>
                     <td>$!{capsule.areaObj.title}</td>
+                    <td>
+                        #if($capsule.create_time_date)
+                        $DateUtils.format($capsule.create_time_date,"yyyy-MM-dd HH:mm:ss")
+                        #end
+                    </td>
                     <td>
                         #if($capsule.lastBookingTime)
                         $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")

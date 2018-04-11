@@ -6,7 +6,9 @@ public class Capsule {
 
     private long capsule_id;
     private int create_time;
+    private Date create_time_date;
     private int update_time;
+    private Date update_time_date;
     private int status;
     private int type;
     private int area_id;
@@ -96,5 +98,21 @@ public class Capsule {
 
     public void setDevice_id_new(String device_id_new) {
         this.device_id_new = device_id_new;
+    }
+
+    public Date getCreate_time_date() {
+        return create_time_date;
+    }
+
+    public void setCreate_time_date(Date create_time_date) {
+        this.create_time_date = create_time_date;
+    }
+
+    public Date getUpdate_time_date() {
+        return update_time_date;
+    }
+
+    public void setUpdate_time_date(Date update_time_date) {
+        this.update_time_date = update_time_date;
     }
 }
