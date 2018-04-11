@@ -2,6 +2,8 @@
 
 
     <h2>websocket客户端连接数：${sizeSession}</h2>
+    <button id="showAllArea" type="button" class="btn btn-primary">查看所有的门店</button>
+    <button id="showAllCapsule" type="button" class="btn btn-primary">查看所有的门头等舱</button>
 
     <div class="row">
 
@@ -117,28 +119,50 @@
 <div class="modal fade bs-example-modal-lg" id="myModal">
     <div class="modal-dialog  modal-lg" role="document">
         <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
             <div class="modal-body">
 
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            </div>
+
         </div>
     </div>
 </div>
 
 <script>
 
+    function showJson(json) {
+        $('#myModal .modal-body').html(`<pre><code>${JSON.stringify(json, null, 2)}</code></pre>`);
+        $('#myModal').modal({})
+    }
+
     function showCapsule(capsule_id) {
         $.ajax({
             url: `/tj/capsule/${capsule_id}`,
             success: function (resp) {
-                $('#myModal .modal-body').html(`<pre><code>${JSON.stringify(resp, null, 2)}</code></pre>`);
-                $('#myModal').modal({})
+                showJson(resp);
             }
         });
-
     }
+
+    $('#showAllArea').click(function () {
+        $.ajax({
+            url: `/tj/area/map`,
+            success: function (resp) {
+                showJson(resp);
+            }
+        });
+    });
+
+    $('#showAllCapsule').click(function () {
+        $.ajax({
+            url: `/tj/capsule/map`,
+            success: function (resp) {
+                showJson(resp);
+            }
+        });
+    });
 
 
 </script>
