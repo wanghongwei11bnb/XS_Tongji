@@ -58,7 +58,7 @@ public class TestController {
             public int compare(Capsule o1, Capsule o2) {
                 long n1 = o1.getLastBookingTime() != null ? o1.getLastBookingTime().getTime() : 0;
                 long n2 = o2.getLastBookingTime() != null ? o2.getLastBookingTime().getTime() : 0;
-                return n1 == n2 ? 1 : (int) (n2 - n1);
+                return n1 == n2 ? -1 : (int) (n2 - n1);
             }
         });
 
