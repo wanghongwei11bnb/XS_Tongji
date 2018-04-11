@@ -1,5 +1,7 @@
 package com.xiangshui.tj.server.bean;
 
+import java.util.Date;
+
 public class Capsule {
 
     private long capsule_id;
@@ -11,6 +13,26 @@ public class Capsule {
 
     private String device_id;
     private String device_id_new;
+
+
+    private Date lastUseTime;
+    private Date lastBookingTime;
+
+    public Date getLastUseTime() {
+        return lastUseTime;
+    }
+
+    public void setLastUseTime(Date lastUseTime) {
+        this.lastUseTime = lastUseTime;
+    }
+
+    public Date getLastBookingTime() {
+        return lastBookingTime;
+    }
+
+    public void setLastBookingTime(Date lastBookingTime) {
+        this.lastBookingTime = lastBookingTime;
+    }
 
     public long getCapsule_id() {
         return capsule_id;

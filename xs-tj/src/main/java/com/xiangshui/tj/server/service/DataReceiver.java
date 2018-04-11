@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -82,6 +83,19 @@ public class DataReceiver {
 
     public void receive(int event, Booking booking) {
         bookingDataManager.save(booking);
+        Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
+        if (capsule != null) {
+            if (capsule.getLastUseTime() == null || booking.getStatus() == 1) {
+                capsule.setLastUseTime(new Date());
+            } else if (booking.getEnd_time() * 1000 > capsule.getLastUseTime().getTime()) {
+                capsule.setLastUseTime(new Date(booking.getEnd_time() * 1000));
+            }
+            if (capsule.getLastBookingTime() == null || booking.getCreate_time() * 1000 > capsule.getLastBookingTime().getTime()) {
+                capsule.setLastBookingTime(new Date(booking.getCreate_time() * 1000));
+            }
+        }
+
+
         if (event == ReceiveEvent.BOOKING_START) {
             PushBookingMessage pushBookingMessage = new PushBookingMessage();
             pushBookingMessage.setBooking(booking);
