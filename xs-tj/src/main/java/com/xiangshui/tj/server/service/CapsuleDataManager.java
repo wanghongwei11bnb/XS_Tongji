@@ -12,4 +12,6 @@ public class CapsuleDataManager extends DataManager<Long, Capsule> {
         }
         return capsule.getCapsule_id();
     }
+
+
 }

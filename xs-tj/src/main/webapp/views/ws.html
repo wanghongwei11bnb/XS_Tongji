@@ -71,20 +71,26 @@
         #if($orderCapsuleSet)
         <div class="col-md-12">
             <h3>最后订单时间（舱）</h3>
-            <div class="row">
+
+            <table class="table">
+                <tbody>
                 #foreach($capsule in $orderCapsuleSet)
-                <div class="col-md-3">
-                    #if($capsule.lastBookingTime)
-                    <a href="javascript:showCapsule($capsule.capsule_id);">$capsule.capsule_id</a>：
-                    $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")
-                    #else
-                    <a class="text-danger" href="javascript:showCapsule($capsule.capsule_id);" target="_blank">
-                        $capsule.capsule_id：未使用过
-                    </a>
-                    #end
-                </div>
+                <tr>
+                    <td><a href="javascript:showCapsule($capsule.capsule_id);">$capsule.capsule_id</a></td>
+                    <td>$!{capsule.cityObj.city}</td>
+                    <td>$!{capsule.areaObj.title}</td>
+                    <td>
+                        #if($capsule.lastBookingTime)
+                        $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")
+                        #else
+                        <span class="text-danger">未使用过</span>
+                        #end
+                    </td>
+                </tr>
                 #end
-            </div>
+                </tbody>
+            </table>
+
         </div>
         #end
 

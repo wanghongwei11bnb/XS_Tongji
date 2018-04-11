@@ -7,10 +7,8 @@ import com.xiangshui.tj.server.bean.Capsule;
 import com.xiangshui.tj.server.bean.User;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
-import com.xiangshui.tj.server.service.AreaDataManager;
-import com.xiangshui.tj.server.service.BookingDataManager;
-import com.xiangshui.tj.server.service.CapsuleDataManager;
-import com.xiangshui.tj.server.service.UserDataManager;
+import com.xiangshui.tj.server.relation.CapsuleRelation;
+import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.GeneralTask;
 import com.xiangshui.tj.server.task.UsageRateForHourTask;
 import com.xiangshui.tj.web.result.CodeMsg;
@@ -45,6 +43,9 @@ public class TestController {
     @Autowired
     WebSocketSessionManager sessionManager;
 
+    @Autowired
+    RelationService relationService;
+
     @GetMapping("home")
     public String index(HttpServletRequest request) {
         request.setAttribute("DateUtils", DateUtils.class);
@@ -53,9 +54,9 @@ public class TestController {
         request.setAttribute("generalMessage", JSONObject.toJSON(redisService.get(SendMessagePrefix.cache, GeneralMessage.class.getSimpleName(), GeneralMessage.class)));
 
 
-        Set<Capsule> capsuleSet = new TreeSet<>(new Comparator<Capsule>() {
+        Set<CapsuleRelation> capsuleSet = new TreeSet<>(new Comparator<CapsuleRelation>() {
             @Override
-            public int compare(Capsule o1, Capsule o2) {
+            public int compare(CapsuleRelation o1, CapsuleRelation o2) {
                 String n1 = (o1.getLastBookingTime() != null ? o1.getLastBookingTime().getTime() : 0) + "" + o1.getCapsule_id();
                 String n2 = (o2.getLastBookingTime() != null ? o2.getLastBookingTime().getTime() : 0) + "" + o2.getCapsule_id();
                 return n2.compareTo(n1);
@@ -67,10 +68,11 @@ public class TestController {
             public void accept(Long aLong, Capsule capsule) {
                 Area area = areaDataManager.getById(capsule.getArea_id());
                 if (area != null && area.getStatus() != -1) {
-                    capsuleSet.add(capsule);
+                    capsuleSet.add(relationService.getRelation(capsule));
                 }
             }
         });
+
         request.setAttribute("orderCapsuleSet", capsuleSet);
 
         return "ws";
