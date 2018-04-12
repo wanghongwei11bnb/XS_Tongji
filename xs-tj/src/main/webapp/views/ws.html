@@ -7,6 +7,40 @@
 
     <div class="row">
 
+
+        <div class="col-md-12">
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>城市</th>
+                    <th>店铺数量</th>
+                    <th>头等舱数量</th>
+                    <th>订单数量</th>
+                </tr>
+                </thead>
+                <tbody>
+                #foreach($city in $generalMessage.countAreaForCity.keySet())
+                <tr>
+                    <td>$city</td>
+                    <td>$generalMessage.countAreaForCity[$city]</td>
+                    <td>$generalMessage.countCapsuleForCity[$city]</td>
+                    <td>$generalMessage.countBookingForCity[$city]</td>
+                </tr>
+                $city ：$generalMessage.countAreaForCity[$city]
+                <br>
+                #end
+
+                <tr>
+                    <td>Total</td>
+                    <td>$generalMessage.countArea</td>
+                    <td>$generalMessage.countCapsule</td>
+                    <td>$generalMessage.countBooking</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
         #if($generalMessage)
 
         <div class="col-md-3">
