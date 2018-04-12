@@ -7,9 +7,8 @@
 
     <div class="row">
 
-
-        <div class="col-md-12">
-
+        #if($generalMessage)
+        <div class="col-md-6">
             <table class="table">
                 <thead>
                 <tr>
@@ -27,10 +26,7 @@
                     <td>$generalMessage.countCapsuleForCity[$city]</td>
                     <td>$generalMessage.countBookingForCity[$city]</td>
                 </tr>
-                $city ：$generalMessage.countAreaForCity[$city]
-                <br>
                 #end
-
                 <tr>
                     <td>Total</td>
                     <td>$generalMessage.countArea</td>
@@ -40,72 +36,39 @@
                 </tbody>
             </table>
         </div>
-
-        #if($generalMessage)
-
-        <div class="col-md-3">
-            总店铺数 ：$generalMessage.countArea
-            <br>
-            总舱数 ：$generalMessage.countCapsule
-            <br>
-            总订单数 ：$generalMessage.countBooking
-            <br>
-        </div>
-        <div class="col-md-3">
-            <h3>各个城市的店铺数量</h3>
-            #foreach($city in $generalMessage.countAreaForCity.keySet())
-            $city ：$generalMessage.countAreaForCity[$city]
-            <br>
-            #end
-        </div>
-
-
-        <div class="col-md-3">
-            <h3>各个城市的舱数量</h3>
-            #foreach($city in $generalMessage.countCapsuleForCity.keySet())
-            $city ：$generalMessage.countCapsuleForCity[$city]
-            <br>
-            #end
-        </div>
-
-        <div class="col-md-3">
-            <h3>各个城市的订单数量</h3>
-            #foreach($city in $generalMessage.countBookingForCity.keySet())
-            $city ：$generalMessage.countBookingForCity[$city]
-            <br>
-            #end
-        </div>
-
         #end
-
 
         #if($usageRateMessage)
-
-        <div class="col-md-3">
-            <h3>使用率</h3>
-            #foreach($item in $usageRateMessage.data)
-            #set($usage = $item[1]*100 +"%")
-            $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
-            <br>
-            #end
+        <div class="col-md-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>使用率</th>
+                    <th>累计使用率</th>
+                </tr>
+                </thead>
+                <tbody>
+                #foreach($item in $usageRateMessage.data)
+                <tr>
+                    <td>$DateUtils.format($item[0],"MM-dd HH:mm")</td>
+                    <td>
+                        #set($usage = $item[1]*100 +"%")
+                        $usage
+                    </td>
+                    <td>
+                        #set($usage = $item[2]*100 +"%")
+                        $usage
+                    </td>
+                    #end
+                </tbody>
+            </table>
         </div>
-
-        <div class="col-md-3">
-            <h3>累计使用率</h3>
-            #foreach($item in $usageRateMessage.data)
-            #set($usage = $item[2]*100 +"%")
-            $DateUtils.format($item[0],"MM-dd HH:mm")：$usage
-            <br>
-            #end
-        </div>
-
         #end
-
 
         #if($orderCapsuleSet)
         <div class="col-md-12">
             <h3>最后订单时间（舱）</h3>
-
             <table class="table table-hover">
                 <thead>
                 <tr>
@@ -138,7 +101,6 @@
                 #end
                 </tbody>
             </table>
-
         </div>
         #end
 
