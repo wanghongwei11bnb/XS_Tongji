@@ -59,7 +59,7 @@ public class TestController {
             public int compare(CapsuleRelation o1, CapsuleRelation o2) {
                 String n1 = (o1.getLastBookingTime() != null ? o1.getLastBookingTime().getTime() : 0) + "" + o1.getCapsule_id();
                 String n2 = (o2.getLastBookingTime() != null ? o2.getLastBookingTime().getTime() : 0) + "" + o2.getCapsule_id();
-                return n2.compareTo(n1);
+                return n1.compareTo(n2);
             }
         });
 
