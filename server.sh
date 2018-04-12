@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -m
+
 if [ $1 == "log" ]
 then
-    tail -f ~/tomcat-xs-tj/logs/catalina.out
+    tail -100f ~/tomcat-xs-tj/logs/catalina.out
 elif [ $1 == "stop" ]
 then
     ps -ef | grep -e 'tomcat-xs-tj/bin' | grep -v 'grep' | awk '{print $2}' | xargs -i kill -9 {}
@@ -13,9 +15,8 @@ then
 elif [ $1 == "restart" ]
 then
     ps -ef | grep -e 'tomcat-xs-tj/bin' | grep -v 'grep' | awk '{print $2}' | xargs -i kill -9 {}
-    sleep 2s
     sh ~/tomcat-xs-tj/bin/startup.sh
-    tail -100f ~/tomcat-xs-tj/logs/catalina.out
+    tail -f ~/tomcat-xs-tj/logs/catalina.out
 elif [ $1 == "update" ]
 then
     ps -ef | grep -e 'tomcat-xs-tj/bin' | grep -v 'grep' | awk '{print $2}' | xargs -i kill -9 {}
@@ -29,5 +30,5 @@ then
     sh ~/tomcat-xs-tj/bin/startup.sh
     tail -f ~/tomcat-xs-tj/logs/catalina.out
 else
-    echo "参数错误：log/stop|start|restart|deploy"
+    echo "参数错误：log/stop|start|restart|update"
 fi
