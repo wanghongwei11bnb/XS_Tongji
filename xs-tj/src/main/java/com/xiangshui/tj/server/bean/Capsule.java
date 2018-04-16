@@ -19,10 +19,19 @@ public class Capsule {
 
     private Date lastUseTime;
     private Date lastBookingTime;
+    private String lastBookingTimeText;
 
     private int countBookingFor3Day;
     private int countBookingFor7Day;
 
+
+    public String getLastBookingTimeText() {
+        return lastBookingTimeText;
+    }
+
+    public void setLastBookingTimeText(String lastBookingTimeText) {
+        this.lastBookingTimeText = lastBookingTimeText;
+    }
 
     public int getCountBookingFor3Day() {
         return countBookingFor3Day;

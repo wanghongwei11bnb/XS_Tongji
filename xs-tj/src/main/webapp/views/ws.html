@@ -70,7 +70,7 @@
 
         #if($orderCapsuleSet)
         <div class="col-md-12 table-responsive">
-            <h3>头等舱最后订单时间（倒排）</h3>
+            <h3>头等舱实时信息（最后订单时间倒排）</h3>
             <table class="table table-hover">
                 <thead>
                 <tr>
@@ -98,13 +98,7 @@
                     </td>
                     <td>$!{capsule.countBookingFor3Day}</td>
                     <td>$!{capsule.countBookingFor7Day}</td>
-                    <td>
-                        #if($capsule.lastBookingTime)
-                        $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")
-                        #else
-                        <span class="text-danger">未使用过</span>
-                        #end
-                    </td>
+                    <td>$!{capsule.lastBookingTimeText}</td>
                 </tr>
                 #end
                 </tbody>

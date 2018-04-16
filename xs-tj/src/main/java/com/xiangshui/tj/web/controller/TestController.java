@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
@@ -69,6 +70,26 @@ public class TestController {
             public void accept(Long aLong, Capsule capsule) {
                 Area area = areaDataManager.getById(capsule.getArea_id());
                 if (area != null && area.getStatus() != -1) {
+
+                    capsule.setLastBookingTimeText("未使用过");
+
+                    if (capsule.getLastBookingTime() != null) {
+                        Date now = new Date();
+                        long t = DateUtils.copyDateEndDate(now).getTime();
+                        long ct = DateUtils.copyDateEndDate(capsule.getLastBookingTime()).getTime();
+                        long c = (t - ct) / (1000 * 60 * 60 * 24);
+                        if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 1) {
+                            capsule.setLastBookingTimeText("1小时内");
+                        } else if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 12) {
+                            capsule.setLastBookingTimeText("12小时内");
+                        } else if (c <= 0) {
+                            capsule.setLastBookingTimeText("今天");
+                        } else if (c <= 1) {
+                            capsule.setLastBookingTimeText("昨天");
+                        } else {
+                            capsule.setLastBookingTimeText(c + "天前");
+                        }
+                    }
                     capsuleSet.add(relationService.getRelation(capsule));
                 }
             }
