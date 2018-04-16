@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Component
-public class CumulativeBookingTodayTask extends Task<CumulativeBookingTodayTask.Result> {
+public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTodayTask.Result> {
 
 
     public Result createResult() {

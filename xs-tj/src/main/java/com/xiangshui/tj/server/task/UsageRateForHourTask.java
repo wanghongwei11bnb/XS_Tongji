@@ -3,7 +3,6 @@ package com.xiangshui.tj.server.task;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
@@ -20,7 +19,7 @@ import java.util.*;
  * 2.统计过去24小时内累计舱使用率
  */
 @Component
-public class UsageRateForHourTask extends Task<UsageRateForHourTask.Result> {
+public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Result> {
 
 
     public SendMessage toSendMessage(Result result) {

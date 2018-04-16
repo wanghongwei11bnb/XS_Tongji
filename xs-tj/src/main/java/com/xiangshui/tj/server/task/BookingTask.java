@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class BookingTask extends Task<BookingTask.Result> {
+public class BookingTask extends AbstractTask<BookingTask.Result> {
 
     @Override
     public Result createResult() {

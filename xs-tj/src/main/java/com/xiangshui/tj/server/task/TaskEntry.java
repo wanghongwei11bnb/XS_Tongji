@@ -1,14 +1,14 @@
 package com.xiangshui.tj.server.task;
 
 public class TaskEntry<R> {
-    private Task task;
+    private AbstractTask task;
     private R result;
 
-    public Task getTask() {
+    public AbstractTask getTask() {
         return task;
     }
 
-    public void setTask(Task task) {
+    public void setTask(AbstractTask task) {
         this.task = task;
     }
 

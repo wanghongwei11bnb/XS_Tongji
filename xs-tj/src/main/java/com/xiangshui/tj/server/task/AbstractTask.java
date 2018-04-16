@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.Iterator;
 
-abstract public class Task<R> {
+abstract public class AbstractTask<R> {
 
 
     @Autowired

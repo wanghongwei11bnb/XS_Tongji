@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BaseTask extends Task<BaseTask.Result> {
+public class BaseTask extends AbstractTask<BaseTask.Result> {
 
 
     private static final Logger log = LoggerFactory.getLogger(BaseTask.class);

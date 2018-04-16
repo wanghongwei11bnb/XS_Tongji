@@ -3,7 +3,6 @@ package com.xiangshui.tj.server.task;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
@@ -18,7 +17,7 @@ import java.util.*;
  * 统计累计服务人数（累计订单数）
  */
 @Component
-public class CumulativeBookingTask extends Task<CumulativeBookingTask.Result> {
+public class CumulativeBookingTask extends AbstractTask<CumulativeBookingTask.Result> {
 
 
     public Result createResult() {

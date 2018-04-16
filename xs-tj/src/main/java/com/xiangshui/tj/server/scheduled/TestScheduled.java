@@ -13,7 +13,6 @@ import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.util.CallBack;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,7 +22,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
-import java.util.*;
 import java.util.function.BiConsumer;
 
 @Component
@@ -68,6 +66,8 @@ public class TestScheduled implements InitializingBean {
     CumulativeBookingTask cumulativeBookingTask;
     @Autowired
     CumulativeTimeTask cumulativeTimeTask;
+    @Autowired
+    CountBookingForDaysTask countBookingForDaysTask;
 
 
     public void initLoad() {
@@ -157,11 +157,12 @@ public class TestScheduled implements InitializingBean {
 
     @Scheduled(fixedDelay = 1000 * 60 * 5, initialDelay = 1000 * 10)
     public void doTask() {
-        dataReceiver.doTask(new Task[]{
+        dataReceiver.doTask(new AbstractTask[]{
                 generalTask,
                 usageRateForHourTask,
                 cumulativeBookingTask,
-                cumulativeTimeTask
+                cumulativeTimeTask,
+                countBookingForDaysTask
         }, new DataManager[]{
                 areaDataManager,
                 capsuleDataManager,

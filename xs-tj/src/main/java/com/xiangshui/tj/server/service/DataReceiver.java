@@ -114,9 +114,9 @@ public class DataReceiver {
             }
             sessionManager.sendMessage(pushBookingMessage);
         }
-        if (event != ReceiveEvent.HISTORY_DATA) {
-            doTask(new Task[]{generalTask, usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
-        }
+//        if (event != ReceiveEvent.HISTORY_DATA) {
+//            doTask(new AbstractTask[]{generalTask, usageRateForHourTask, cumulativeBookingTask, cumulativeTimeTask}, new DataManager[]{areaDataManager, capsuleDataManager, bookingDataManager});
+//        }
     }
 
     public void receive(int event, Appraise appraise) {
@@ -150,9 +150,9 @@ public class DataReceiver {
     }
 
 
-    public void doTask(Task[] tasks, DataManager[] dataManagers) {
+    public void doTask(AbstractTask[] tasks, DataManager[] dataManagers) {
         List<TaskEntry> taskEntryList = new ArrayList<TaskEntry>();
-        for (Task task : tasks) {
+        for (AbstractTask task : tasks) {
             taskEntryList.add(task.createTaskEntry());
         }
         for (DataManager dataManager : dataManagers) {
@@ -182,23 +182,14 @@ public class DataReceiver {
                 }
             });
 
-//            for (Object object : new ArrayList(dataManager.getMap().values())) {
-//                for (TaskEntry taskEntry : taskEntryList) {
-//                    if (dataManagerClass == AreaDataManager.class) {
-//                        taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
-//                    } else if (dataManagerClass == CapsuleDataManager.class) {
-//                        taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
-//                    } else if (dataManagerClass == BookingDataManager.class) {
-//                        taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
-//                    }
-//                }
-//            }
         }
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         for (TaskEntry taskEntry : taskEntryList) {
             SendMessage message = taskEntry.getTask().toSendMessage(taskEntry.getResult());
-            redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
-            messageList.add(message);
+            if (message != null) {
+                redisService.set(SendMessagePrefix.cache, message.getClass().getSimpleName(), message);
+                messageList.add(message);
+            }
         }
         ListMessage listMessage = new ListMessage();
         listMessage.setMessageList(messageList);

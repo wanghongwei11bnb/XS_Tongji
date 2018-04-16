@@ -1,6 +1,5 @@
 package com.xiangshui.tj.server.task;
 
-import com.alibaba.fastjson.JSON;
 import com.xiangshui.tj.server.bean.Area;
 import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.TreeMap;
 
 @Component
-public class GeneralTask extends Task<GeneralTask.Result> {
+public class GeneralTask extends AbstractTask<GeneralTask.Result> {
 
     private static final Logger log = LoggerFactory.getLogger(GeneralTask.class);
 

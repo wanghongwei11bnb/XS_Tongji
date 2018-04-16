@@ -79,6 +79,8 @@
                     <th>店铺</th>
                     <th>地址</th>
                     <th>创建时间</th>
+                    <th>3日内订单数量</th>
+                    <th>7日内订单数量</th>
                     <th>最后下单时间</th>
                 </tr>
                 </thead>
@@ -94,6 +96,8 @@
                         $DateUtils.format($capsule.create_time_date,"yyyy-MM-dd HH:mm:ss")
                         #end
                     </td>
+                    <td>$!{capsule.countBookingFor3Day}</td>
+                    <td>$!{capsule.countBookingFor7Day}</td>
                     <td>
                         #if($capsule.lastBookingTime)
                         $DateUtils.format($capsule.lastBookingTime,"yyyy-MM-dd HH:mm:ss")

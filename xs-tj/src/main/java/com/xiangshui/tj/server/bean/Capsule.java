@@ -20,6 +20,26 @@ public class Capsule {
     private Date lastUseTime;
     private Date lastBookingTime;
 
+    private int countBookingFor3Day;
+    private int countBookingFor7Day;
+
+
+    public int getCountBookingFor3Day() {
+        return countBookingFor3Day;
+    }
+
+    public void setCountBookingFor3Day(int countBookingFor3Day) {
+        this.countBookingFor3Day = countBookingFor3Day;
+    }
+
+    public int getCountBookingFor7Day() {
+        return countBookingFor7Day;
+    }
+
+    public void setCountBookingFor7Day(int countBookingFor7Day) {
+        this.countBookingFor7Day = countBookingFor7Day;
+    }
+
     public Date getLastUseTime() {
         return lastUseTime;
     }
