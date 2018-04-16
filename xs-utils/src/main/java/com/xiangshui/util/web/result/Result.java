@@ -1,4 +1,4 @@
-package com.xiangshui.tj.web.result;
+package com.xiangshui.util.web.result;
 
 
 import com.alibaba.fastjson.JSON;

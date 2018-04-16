@@ -1,12 +1,10 @@
-package com.xiangshui.tj.web.converter;
+package com.xiangshui.util.web.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Pattern;
 
 public class DateConverter implements Converter<String, Date> {
 

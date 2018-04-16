@@ -19,7 +19,7 @@
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
             <set>
-                <bean class="com.xiangshui.tj.web.converter.DateConverter"/>
+                <bean class="com.xiangshui.util.web.converter.DateConverter"/>
             </set>
         </property>
     </bean>
@@ -34,6 +34,7 @@
                 </property>
                 <property name="writeAcceptCharset" value="false"/>
             </bean>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>
 

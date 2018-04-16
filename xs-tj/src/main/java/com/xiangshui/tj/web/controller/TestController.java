@@ -2,27 +2,28 @@ package com.xiangshui.tj.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
 import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.bean.User;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.relation.CapsuleRelation;
 import com.xiangshui.tj.server.service.*;
-import com.xiangshui.tj.server.task.GeneralTask;
-import com.xiangshui.tj.server.task.UsageRateForHourTask;
-import com.xiangshui.tj.web.result.CodeMsg;
-import com.xiangshui.tj.web.result.Result;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.GeneralMessage;
 import com.xiangshui.tj.websocket.message.UsageRateMessage;
 import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.web.result.CodeMsg;
+import com.xiangshui.util.web.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 @Controller
