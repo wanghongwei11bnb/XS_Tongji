@@ -35,17 +35,17 @@ public class BookingTask extends AbstractTask<BookingTask.Result> {
     }
 
     @Override
-    public void reduce(Booking booking, Result result) {
+    public void reduceBooking(Booking booking, Result result) {
 
     }
 
     @Override
-    public void reduce(Capsule capsule, Result result) {
+    public void reduceCapsule(Capsule capsule, Result result) {
 
     }
 
     @Override
-    public void reduce(Area area, Result result) {
+    public void reduceArea(Area area, Result result) {
 
     }
 

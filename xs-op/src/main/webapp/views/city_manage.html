@@ -1,0 +1,23 @@
+<div id="datagrid"></div>
+
+<script>
+    $(document).ready(function () {
+
+        var columns = [[
+            {field: 'code', title: '城市编号', width: 100},
+            {field: 'city', title: '城市名称', width: 100},
+            {field: 'province', title: '省份', width: 100},
+            {field: 'lng', title: '经度（lng）', width: 100},
+            {field: 'lat', title: '纬度（lng）', width: 100},
+        ]];
+
+        $('#datagrid').datagrid({
+            url: '/api/jv/cityList', method: 'get',
+            singleSelect: true,
+            columns: columns,
+            loadFilter: function (resp) {
+                return {rows: resp.data.cityList, total: resp.data.cityList.length}
+            }
+        });
+    });
+</script>

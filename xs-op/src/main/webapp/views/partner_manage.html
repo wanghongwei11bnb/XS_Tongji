@@ -1,0 +1,180 @@
+<style>
+</style>
+<br>
+<div>
+    用户编号：<input id="search_id" type="text" class="easyui-textbox" style="width:150px">
+    手机号：<input id="search_phone" type="text" class="easyui-textbox" style="width:150px">
+    <button id="search" type="button">搜索</button>
+</div>
+<br>
+<div id="datagrid"></div>
+
+<div id="dialog_add">
+    <div class="box">
+        <table>
+            <tr>
+                <td>手机号：</td>
+                <td><input name="phone" type="text"/></td>
+            </tr>
+            <tr>
+                <td>电子邮箱：</td>
+                <td><input name="email" type="text"/></td>
+            </tr>
+            <tr>
+                <td>密码：</td>
+                <td><input name="password" type="text"/></td>
+            </tr>
+            <tr>
+                <td>城市：</td>
+                <td><input name="city" type="text"/></td>
+            </tr>
+            <tr>
+                <td>地址：</td>
+                <td><input name="address" type="text"/></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    var columns = [[
+        {
+            field: 'id', title: '用户编号', width: 100,
+            formatter: function (value, row, index) {
+                return `<a id="btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">${value}</a>`;
+            }
+        },
+        {field: 'phone', title: '手机号', width: 100},
+        {
+            field: 'create_time', title: '创建时间', width: 100,
+            formatter: function (value, row, index) {
+                if (value) {
+                    return new Date(value).format('yyyy-MM-dd');
+                }
+            }
+        },
+        {field: 'last_login_time', title: '上次登录时间', width: 100},
+        {
+            field: 'area_list', title: '合作场地', width: 100,
+            formatter: function (value, row, index) {
+                if (value && value.length > 0) {
+                    return value.map(function (item, i) {
+                        return item.title
+                    }).join(",");
+                }
+            }
+        },
+        {
+            field: '操作', title: '操作', width: 200,
+            formatter: function (value, row, index) {
+                return `<a id="btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">场地管理</a>`;
+            }
+        },
+    ]];
+
+    var html_add = $('#dialog_add .box').html();
+
+    $.ajax({
+        url: '/api/cityList',
+        success: function (resp) {
+            if (resp.code == 0) {
+                window.cityList = resp.data.cityList;
+            } else {
+                $.messager.alert('请求错误', resp.msg, 'error');
+            }
+        }
+    });
+
+
+    function search() {
+        $('#datagrid').datagrid({
+            url: '/api/partner/search', method: 'get',
+            queryParams: {
+                id: $('#search_id').val(),
+                phone: $('#search_phone').val(),
+            },
+            singleSelect: true,
+            columns: columns,
+            toolbar: [{
+                iconCls: 'icon-add',
+                text: '创建用户',
+                handler: function () {
+                    $('#dialog_add').dialog({
+                        title: '创建新用户',
+                        width: 800,
+                        height: 500,
+                        closed: false,
+                        cache: false,
+                        modal: true,
+                        buttons: [{
+                            text: '保存',
+                            handler: function () {
+                                $.ajax({
+                                    url: '/api/partner/add', method: 'post',
+                                    data: {
+                                        phone: $('#dialog_add [name=phone]').val(),
+                                        email: $('#dialog_add [name=email]').val(),
+                                        passwd: $('#dialog_add [name=password]').val(),
+                                        remark: $('#dialog_add [name=remark]').val(),
+                                        city: $('#dialog_add [name=city]').val(),
+                                        address: $('#dialog_add [name=address]').val(),
+                                    },
+                                    success: function (resp) {
+                                        if (resp.code == 0) {
+                                            $.messager.alert('请求结果', resp.msg, 'success');
+                                            $('#dialog_add').dialog('close');
+                                            $('#dialog_add').dialog('reload');
+                                        } else {
+                                            $.messager.alert('请求结果', resp.msg, 'error');
+                                        }
+                                    }
+                                });
+                            }
+                        }, {
+                            text: '取消',
+                            handler: function () {
+                                $('#dialog_add').dialog('close');
+                            }
+                        }]
+                    });
+                    $('#dialog_add .box').html(html_add);
+                    $('#dialog_add [name=phone]').validatebox({
+                        required: true,
+                        validType: 'phone'
+                    });
+                    $('#dialog_add [name=password]').validatebox({
+                        required: true,
+                    });
+                    $('#dialog_add [name=email]').validatebox({
+                        validType: 'email'
+                    });
+                    $('#dialog_add [name=city]').combobox({
+                        data: cityList,
+                        valueField: 'city',
+                        textField: 'city'
+                    });
+                }
+            }],
+            loadFilter: function (resp) {
+                return {rows: resp.data.list}
+            },
+            onLoadError: function (error) {
+                $.messager.alert('请求错误', error.responseText, 'error');
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        $('#dialog_add').hide();
+
+        $('#search').linkbutton({
+            iconCls: 'icon-search',
+            onClick: search
+        });
+
+
+        search();
+    });
+</script>

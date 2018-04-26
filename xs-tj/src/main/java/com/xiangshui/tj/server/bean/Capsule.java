@@ -24,6 +24,15 @@ public class Capsule {
     private int countBookingFor3Day;
     private int countBookingFor7Day;
 
+    private int is_downline;
+
+    public int getIs_downline() {
+        return is_downline;
+    }
+
+    public void setIs_downline(int is_downline) {
+        this.is_downline = is_downline;
+    }
 
     public String getLastBookingTimeText() {
         return lastBookingTimeText;

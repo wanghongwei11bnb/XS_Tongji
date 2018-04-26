@@ -39,7 +39,7 @@ public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTo
         return null;
     }
 
-    public void reduce(Booking booking, Result result) {
+    public void reduceBooking(Booking booking, Result result) {
 
         long create_time = booking.getCreate_time();
         if (create_time <= 0) {
@@ -58,11 +58,11 @@ public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTo
         }
     }
 
-    public void reduce(Capsule capsule, Result result) {
+    public void reduceCapsule(Capsule capsule, Result result) {
 
     }
 
-    public void reduce(Area area, Result result) {
+    public void reduceArea(Area area, Result result) {
 
     }
 

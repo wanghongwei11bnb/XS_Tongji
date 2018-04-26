@@ -60,7 +60,7 @@ public class CountBookingForDaysTask extends AbstractTask<CountBookingForDaysTas
     }
 
     @Override
-    public void reduce(Booking booking, Result result) {
+    public void reduceBooking(Booking booking, Result result) {
         if (result.start_time_3.getTime() < booking.getCreate_time() * 1000 && booking.getCreate_time() * 1000 < result.end_time.getTime()) {
             if (result.countFor3Days.containsKey(booking.getCapsule_id())) {
                 result.countFor3Days.put(booking.getCapsule_id(), result.countFor3Days.get(booking.getCapsule_id()) + 1);
@@ -74,12 +74,12 @@ public class CountBookingForDaysTask extends AbstractTask<CountBookingForDaysTas
     }
 
     @Override
-    public void reduce(Capsule capsule, Result result) {
+    public void reduceCapsule(Capsule capsule, Result result) {
 
     }
 
     @Override
-    public void reduce(Area area, Result result) {
+    public void reduceArea(Area area, Result result) {
 
     }
 

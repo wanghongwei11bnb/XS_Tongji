@@ -3,14 +3,13 @@
 
     <h2>websocket客户端连接数：${sizeSession}</h2>
     <button id="showAllArea" type="button" class="btn btn-primary">查看所有的门店</button>
-    <button id="showAllCapsule" type="button" class="btn btn-primary">查看所有的门头等舱</button>
 
     <div class="row">
 
         #if($generalMessage)
         <div class="col-md-6">
             <h3>分城市计数</h3>
-            <table class="table">
+            <table class="table table-hover">
                 <thead>
                 <tr>
                     <th>城市</th>
@@ -42,7 +41,7 @@
         #if($usageRateMessage)
         <div class="col-md-6">
             <h3>24小时内头等舱使用率</h3>
-            <table class="table table-condensed">
+            <table class="table  table-hover  table-sm">
                 <thead>
                 <tr>
                     <th>时间</th>
@@ -106,6 +105,46 @@
         </div>
         #end
 
+        #if($runingBookings)
+        <div class="col-md-12 table-responsive">
+            <h3>进行中的订单（订单时长倒排）</h3>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>订单编号</th>
+                    <th>城市</th>
+                    <th>店铺</th>
+                    <th>地址</th>
+                    <th>舱编号</th>
+                    <th>创建时间</th>
+                    <th>3日内订单数量</th>
+                    <th>7日内订单数量</th>
+                    <th>最后下单时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                #foreach($booking in $runingBookings)
+                <tr>
+                    <td><a href="javascript:showBooking($booking.booking_id);">$booking.booking_id</a></td>
+                    <td>$!{capsule.cityObj.city}</td>
+                    <td>$!{capsule.areaObj.title}</td>
+                    <td>$!{capsule.areaObj.address}</td>
+                    <td>
+                        #if($capsule.create_time_date)
+                        $DateUtils.format($capsule.create_time_date,"yyyy-MM-dd HH:mm:ss")
+                        #end
+                    </td>
+                    <td>$!{capsule.countBookingFor3Day}</td>
+                    <td>$!{capsule.countBookingFor7Day}</td>
+                    <td>$!{capsule.lastBookingTimeText}</td>
+                </tr>
+                #end
+                </tbody>
+            </table>
+
+        </div>
+        #end
+
     </div>
 </div>
 
@@ -118,14 +157,37 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             </div>
             <div class="modal-body">
-
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
+    var UUID = {
+        cs: '012346789abcdef'.toUpperCase().split(''),
+        get: function (n) {
+            n = n || 32;
+            var _uuid = "";
+            for (var i = 0; i < n; i++) {
+                var index = Math.floor(Math.random() * this.cs.length);
+                _uuid += this.cs[index];
+            }
+            return _uuid;
+        }
+    };
+
+
+    function Modal(opt) {
+        opt = opt || {};
+        this.id = UUID.get();
+
+
+    }
+
+    Modal.prototype.open = function () {
+
+    };
+
 
     function showJson(json) {
         $('#myModal .modal-body').html(`<pre><code>${JSON.stringify(json, null, 2)}</code></pre>`);
@@ -141,19 +203,20 @@
         });
     }
 
-    $('#showAllArea').click(function () {
+    function showBooking(booking_id) {
         $.ajax({
-            url: `/tj/area/map`,
+            url: `/tj/booking/${booking_id}`,
             success: function (resp) {
                 showJson(resp);
             }
         });
-    });
+    }
 
-    $('#showAllCapsule').click(function () {
+    $('#showAllArea').click(function () {
         $.ajax({
-            url: `/tj/capsule/map`,
+            url: `/tj/area/map`,
             success: function (resp) {
+
                 showJson(resp);
             }
         });

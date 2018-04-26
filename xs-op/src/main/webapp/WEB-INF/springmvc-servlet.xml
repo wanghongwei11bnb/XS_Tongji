@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+
+    <!--自动扫描注解类-->
+    <context:component-scan base-package="com.xiangshui"/>
+
+    <!--导入模块配置文件-->
+    <import resource="classpath*:spring/applicationContext.xml"/>
+
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="com.xiangshui.util.web.converter.DateConverter"/>
+            </set>
+        </property>
+    </bean>
+
+    <mvc:annotation-driven conversion-service="conversionService">
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+                <property name="writeAcceptCharset" value="false"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!--拦截器-->
+    <!--
+    <mvc:interceptors>
+        使用bean定义一个Interceptor，直接定义在mvc:interceptors根下面的Interceptor将拦截所有的请求
+        <bean class="com.host.app.web.interceptor.AllInterceptor"/>
+        <mvc:interceptor>
+            <mvc:mapping path="/**/*"/>
+            定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的
+            <bean class="com.msz.kaoshi.web.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/api/**/*"/>
+            <bean class="com.msz.kaoshi.web.interceptor.AcaoInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/train/**/*"/>
+            <mvc:mapping path="/me/**/*"/>
+            <bean class="com.msz.kaoshi.web.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    -->
+
+
+    <bean id="velocityConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="configLocation" value="/WEB-INF/velocity.properties"/>
+        <property name="resourceLoaderPath" value="/views"/>
+        <property name="velocityProperties">
+            <props>
+                <prop key="input.encoding">UTF-8</prop>
+                <prop key="output.encoding">UTF-8</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="velocityView" class=" org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+        <property name="suffix" value=".html"/>
+        <!--<property name="exposeSpringMacroHelpers" value="true"/>-->
+        <property name="layoutUrl" value="layout/default.html"/>
+        <property name="layoutKey" value="layout"/>
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+        <!--<property name="toolboxConfigLocation" value="WEB-INF/velocity-toolbox.xml"/>-->
+
+        <property name="exposeRequestAttributes" value="true"/>
+        <property name="exposeSessionAttributes" value="true"/>
+        <property name="dateToolAttribute" value="dateTool"/>
+        <!--<property name="numberToolAttribute" value="numberTool"/>-->
+    </bean>
+
+
+    <!--对静态资源文件的访问-->
+    <mvc:resources mapping="/vendor/**" location="/vendor/"/>
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <!--<mvc:resources mapping="/views/**" location="/views/"/>-->
+    <mvc:default-servlet-handler/>
+</beans>

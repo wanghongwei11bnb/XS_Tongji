@@ -13,7 +13,7 @@ public class Booking {
     private int area_id;
     private String area_title;
     private String reserve_token;
-//    private String calculate_rule;
+    //    private String calculate_rule;
     private String bank_type;
     private String phone;
     private int final_price;
@@ -25,6 +25,16 @@ public class Booking {
     private int use_balance;
     private int use_pay;
     private int gate_capsule_id;
+
+    private String timeLengthText;
+
+    public String getTimeLengthText() {
+        return timeLengthText;
+    }
+
+    public void setTimeLengthText(String timeLengthText) {
+        this.timeLengthText = timeLengthText;
+    }
 
     public long getBooking_id() {
         return booking_id;

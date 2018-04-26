@@ -30,8 +30,6 @@ public class DataReceiver {
     BookingTask bookingTask;
     @Autowired
     UsageRateForHourTask usageRateForHourTask;
-
-
     @Autowired
     CumulativeBookingTask cumulativeBookingTask;
     @Autowired
@@ -172,11 +170,11 @@ public class DataReceiver {
                 public void accept(Object k, Object object) {
                     for (TaskEntry taskEntry : taskEntryList) {
                         if (dataManagerClass == AreaDataManager.class) {
-                            taskEntry.getTask().reduce((Area) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceArea((Area) object, taskEntry.getResult());
                         } else if (dataManagerClass == CapsuleDataManager.class) {
-                            taskEntry.getTask().reduce((Capsule) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceCapsule((Capsule) object, taskEntry.getResult());
                         } else if (dataManagerClass == BookingDataManager.class) {
-                            taskEntry.getTask().reduce((Booking) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceBooking((Booking) object, taskEntry.getResult());
                         }
                     }
                 }

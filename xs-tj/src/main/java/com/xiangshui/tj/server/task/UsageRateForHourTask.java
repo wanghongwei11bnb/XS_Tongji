@@ -61,9 +61,9 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     }
 
     @Override
-    public void reduce(Booking booking, Result result) {
+    public void reduceBooking(Booking booking, Result result) {
         Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
-        if (capsule == null) {
+        if (capsule == null || capsule.getIs_downline() == 1) {
             return;
         }
         Area area = areaDataManager.getById(capsule.getArea_id());
@@ -95,16 +95,17 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     }
 
     @Override
-    public void reduce(Capsule capsule, Result result) {
-        Area area = areaDataManager.getById(capsule.getArea_id());
-        if (area != null && area.getStatus() != -1) {
-            result.countCapsule++;
+    public void reduceCapsule(Capsule capsule, Result result) {
+        if (capsule.getIs_downline() != 1) {
+            Area area = areaDataManager.getById(capsule.getArea_id());
+            if (area != null && area.getStatus() != -1) {
+                result.countCapsule++;
+            }
         }
-
     }
 
     @Override
-    public void reduce(Area area, Result result) {
+    public void reduceArea(Area area, Result result) {
 
     }
 

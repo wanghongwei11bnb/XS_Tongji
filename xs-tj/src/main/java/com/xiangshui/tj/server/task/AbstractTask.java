@@ -42,11 +42,11 @@ abstract public class AbstractTask<R> {
 
     abstract public void handDataManager(BookingDataManager bookingDataManager, R r);
 
-    abstract public void reduce(Booking booking, R r);
+    abstract public void reduceBooking(Booking booking, R r);
 
-    abstract public void reduce(Capsule capsule, R r);
+    abstract public void reduceCapsule(Capsule capsule, R r);
 
-    abstract public void reduce(Area area, R r);
+    abstract public void reduceArea(Area area, R r);
 
     public abstract SendMessage toSendMessage(R result);
 }

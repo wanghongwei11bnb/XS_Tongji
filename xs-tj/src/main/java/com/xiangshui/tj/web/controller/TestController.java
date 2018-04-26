@@ -7,6 +7,7 @@ import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.relation.CapsuleRelation;
 import com.xiangshui.tj.server.service.*;
+import com.xiangshui.tj.server.task.LongTimeBookingTask;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.GeneralMessage;
 import com.xiangshui.tj.websocket.message.UsageRateMessage;
@@ -68,6 +69,9 @@ public class TestController {
         capsuleDataManager.foreach(new BiConsumer<Long, Capsule>() {
             @Override
             public void accept(Long aLong, Capsule capsule) {
+                if (capsule.getIs_downline() == 1) {
+                    return;
+                }
                 Area area = areaDataManager.getById(capsule.getArea_id());
                 if (area != null && area.getStatus() != -1) {
 
@@ -96,6 +100,9 @@ public class TestController {
         });
 
         request.setAttribute("orderCapsuleSet", capsuleSet);
+        if (LongTimeBookingTask.Result.lastResult != null) {
+            request.setAttribute("runingBookings", LongTimeBookingTask.Result.lastResult.map.values());
+        }
 
         return "ws";
     }

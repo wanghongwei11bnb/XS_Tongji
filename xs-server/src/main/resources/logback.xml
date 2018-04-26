@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+
+    <define name="user.home" class="com.xiangshui.util.LogbackCustomName"/>
+
+    <!--文件打印-->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.home}/logs/xs-tj.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.home}/logs/xs-tj-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%level] [%-8class{1}:%L] - %m%n%ex{3}</pattern>
+        </encoder>
+        <append>false</append>
+        <prudent>false</prudent>
+    </appender>
+
+    <!--控制台打印-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%level] [%-8class{1}:%L] - %m%n%ex{3}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.xiangshui" level="debug">
+        <appender-ref ref="file"/>
+    </logger>
+
+
+    <root level="debug">
+        <appender-ref ref="console"/>
+    </root>
+
+
+</configuration>
