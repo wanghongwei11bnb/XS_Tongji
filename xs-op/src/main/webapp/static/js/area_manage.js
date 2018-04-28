@@ -1,59 +1,177 @@
-const columns = [
-    {
-        field: 'id', title: '用户编号', width: 100,
-        render: function (value, row, index) {
-            return <a href="javascript:void(0);">{value}</a>;
-        }
-    },
-    {field: 'phone', title: '手机号', width: 100},
-    {
-        field: 'create_time', title: '创建时间', width: 100,
-        render: function (value, row, index) {
-            if (value) {
-                return new Date(value).format('yyyy-MM-dd');
-            }
-        }
-    },
-    {field: 'last_login_time', title: '上次登录时间', width: 100},
-    {
-        field: 'area_list', title: '合作场地', width: 100,
-        render: function (value, row, index) {
-            if (value && value.length > 0) {
-                return value.map(function (item, i) {
-                    return item.title
-                }).join(",");
-            }
-        }
-    },
-    {
-        field: '操作', title: '操作', width: 200,
-        render: function (value, row, index) {
-            return <a href="javascript:void(0);">场地管理</a>;
-        }
-    },
-];
+class AreaForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            area: props.area,
+            cityList: props.cityList || [],
+            modal: !!props.modal,
+        };
+    }
+
+    validate = () => {
+        let formData = this.getFormData();
+
+
+    };
+
+    getFormData = () => {
+        return {
+            area_id: this.refs.area_id.value,
+            title: this.refs.title.value,
+            city: this.refs.city.value,
+            address: this.refs.address.value,
+            status: this.refs.status.value,
+            minute_start: this.refs.minute_start.value,
+            rushHours: this.refs.rushHours.value,
+            location: this.refs.location.value,
+            contact: this.refs.contact.value,
+            notification: this.refs.notification.value,
+            area_img: this.refs.area_img.value,
+            imgs: this.refs.imgs.value,
+        };
+    };
+
+    render() {
+        const {area, cityList, modal} = this.state;
+        return <div>
+            <table className="table table-hover">
+                <tbody>
+                <tr>
+                    <th>场地编号</th>
+                    <td>
+                        <input type="text" disabled={true} readOnly={true} className="form-control"
+                               value={area.area_id}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>标题</th>
+                    <td>
+                        <input type="text" className="form-control" value={area.title}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>城市</th>
+                    <td>
+                        <select className="form-control">
+                            {cityList.map((city) => {
+                                return <option selected={city == area.city} value={city.city}>{city.city}</option>
+                            })}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地址</th>
+                    <td>
+                        <input type="text" className="form-control" value={area.address}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>最少时长</th>
+                    <td>
+                        <input type="text" className="form-control" value={area.minute_start}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>高峰时段</th>
+                    <td>
+                        <input type="text" className="form-control" value={JSON.stringify(area.rushHours)}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>经纬度</th>
+                    <td>
+                        <input type="text" className="form-control" value={JSON.stringify(area.location)}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>联系方式</th>
+                    <td>
+                        <input type="text" className="form-control" value={area.contact}/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>提醒文案</th>
+                    <td>
+                        <textarea className="form-control">{area.notification}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>状态</th>
+                    <td>
+                        <select type="text" className="form-control" value={area.status}>
+                            <option selected={area.status != -1} value="0">正常</option>
+                            <option selected={area.status == -1} value="-1">已下架</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地图</th>
+                    <td>
+                        {area.area_img ? <img src={`${area.area_img}_227`} alt=""/> : null}
+                    </td>
+                </tr>
+                <tr>
+                    <th>图片</th>
+                    <td>
+                        {area.imgs ? area.imgs.map((img) => {
+                            return <img src={`${img}_227`} alt=""/>
+                        }) : null}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        const columns = [
+            {
+                field: 'area_id', title: '场地编号',
+                render: (value, row, index) => {
+                    return <button type="button" className="btn btn-link btn-sm"
+                                   onClick={this.showArea.bind(this, value)}>{value}</button>;
+                }
+            },
+            {field: 'title', title: '标题'},
+            {field: 'city', title: '城市'},
+            {field: 'address', title: '地址'},
+            {
+                field: 'status', title: '状态',
+                render: (value, row, index) => {
+                    return value == -1 ? <span className="text-danger">已下线</span> : '正常';
+                }
+            },
+        ];
+        this.state = {columns};
     }
 
-
-    onSubmit = (event) => {
-        event = event || window.event;
-        event.preventDefault(); // 兼容标准浏览器
-        window.event.returnValue = false; // 兼容IE6~8
-        this.search();
+    showArea = (area_id) => {
+        reqwest({
+            url: '/api/area/' + area_id,
+            success: (resp) => {
+                if (resp.code == 0) {
+                    Modal.panel({
+                        title: '场地信息',
+                        content: <AreaForm area={resp.data.area} cityList={this.state.cityList}></AreaForm>
+                    });
+                } else {
+                }
+            }
+        });
     };
+
 
     search = () => {
         const {grid} = this.refs;
         reqwest({
-            url: '/api/partner/search', method: 'get',
+            url: '/api/area/search', method: 'get',
             data: {
                 city: this.refs.city.value,
-                phone: this.refs.phone.value,
+                status: this.refs.status.value,
             },
             success: (resp) => {
                 if (resp.code == 0) {
@@ -66,25 +184,23 @@ class Page extends React.Component {
     };
 
     render() {
-        const {cityList} = this.state;
+        const {cityList, columns} = this.state;
         return <div className="container-fluid">
             <div className="m-1">
-                <form onSubmit={this.onSubmit} className="form-inline">
-                    <div className="form-group">
-                        <label>城市：</label>
-                        <select ref="city" className="form-control">
-                            <option value=""></option>
-                            {cityList ? cityList.map((city) => {
-                                return <option value={city.city}>{city.city}</option>
-                            }) : null}
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label>手机号：</label>
-                        <input ref="phone" type="text" className="form-control"/>
-                    </div>
-                    <button type="submit" className="btn btn-sm btn-primary ml-1">搜索</button>
-                </form>
+                城市：
+                <select ref="city" className="form-control d-inline-block mx-3 w-auto">
+                    <option value="">-- 全部城市 --</option>
+                    {cityList ? cityList.map((city) => {
+                        return <option value={city.city}>{city.city}</option>
+                    }) : null}
+                </select>
+                状态：
+                <select ref="status" className="form-control d-inline-block mx-3 w-auto">
+                    <option value="">-- 全部 --</option>
+                    <option value="0">正常</option>
+                    <option value="-1">已下线</option>
+                </select>
+                <button type="submit" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
             </div>
 
             <Datagrid ref="grid" columns={columns}></Datagrid>

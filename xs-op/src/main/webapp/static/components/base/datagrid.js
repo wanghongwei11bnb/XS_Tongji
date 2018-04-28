@@ -35,7 +35,7 @@ class Datagrid extends React.Component {
         </tbody>;
 
 
-        return (<table className="table">
+        return (<table className="table table-hover">
             {theadHtml}{tbodyHtml}
         </table>);
     }
@@ -76,43 +76,6 @@ Messager.alert = function (properties) {
     Messager.instance.alert(properties);
 };
 
-
-class Modal extends React.Component {
-    constructor(props) {
-        super(props);
-        Modal.instance = this;
-        this.state = {
-            zIndex: 100,
-            items: [],
-        };
-    }
-
-    render() {
-        const {items} = this.state;
-        return <div className="modals">
-            <div className="modal-layer"></div>
-            {items.map((item) => {
-                return <div key={item.key} className="window">
-                    <div className="window-header">{item.header}</div>
-                    <div className="window-body">{item.body}</div>
-                    <div className="window-footer">{item.footer}</div>
-                </div>
-            })}
-        </div>;
-    }
-
-    panel = (properties) => {
-        this.state.items.push({
-            key: UUID.get(),
-            body: <div>body</div>
-        });
-        this.setState({});
-    };
-}
-
-Modal.panel = function (properties) {
-    Modal.instance.panel(properties);
-};
 
 
 class TextInput extends React.Component {

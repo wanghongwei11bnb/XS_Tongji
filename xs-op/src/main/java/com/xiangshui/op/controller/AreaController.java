@@ -40,22 +40,24 @@ public class AreaController extends BaseController {
     @ResponseBody
     public Result search(String city, Integer area_type_id, Integer status, Integer area_id) {
         ScanSpec scanSpec = new ScanSpec();
+        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
         if (StringUtils.isNotBlank(city)) {
-            scanSpec.withScanFilters(new ScanFilter("city").eq(city));
+            filterList.add(new ScanFilter("city").eq(city));
         }
         if (area_type_id != null) {
-            scanSpec.withScanFilters(new ScanFilter("area_type_id").eq(area_type_id));
+            filterList.add(new ScanFilter("area_type_id").eq(area_type_id));
         }
         if (status != null) {
             if (status == -1) {
-                scanSpec.withScanFilters(new ScanFilter("status").eq(-1));
+                filterList.add(new ScanFilter("status").eq(-1));
             } else {
-                scanSpec.withScanFilters(new ScanFilter("status").ne(-1));
+                filterList.add(new ScanFilter("status").ne(-1));
             }
         }
         if (area_id != null) {
-            scanSpec.withScanFilters(new ScanFilter("area_id").eq(area_id));
+            filterList.add(new ScanFilter("area_id").eq(area_id));
         }
+        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
         List<Area> areaList = areaDao.scan(scanSpec);
         return new Result(CodeMsg.SUCCESS).putData("list", areaList);
     }
@@ -73,7 +75,7 @@ public class AreaController extends BaseController {
     }
 
 
-    @PostMapping("/api/area/{area_id}")
+    @PostMapping("/api/area/{area_id}/edit")
     @ResponseBody
     public Result update(@PathVariable("area_id") Integer area_id, @RequestBody String body) {
         if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {

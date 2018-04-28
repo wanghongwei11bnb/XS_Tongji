@@ -80,7 +80,10 @@ gulp.task('css', function () {
         './src/main/webapp/static/**/*.css',
     ])
         .pipe(plumber())
-        .pipe(autoprefixer())
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(gulp.dest('./src/main/webapp/build'));
 
@@ -89,7 +92,10 @@ gulp.task('css', function () {
     ])
         .pipe(plumber())
         .pipe(less())
-        .pipe(autoprefixer())
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(gulp.dest('./src/main/webapp/build'));
 
@@ -98,7 +104,10 @@ gulp.task('css', function () {
     ])
         .pipe(plumber())
         .pipe(sass())
-        .pipe(autoprefixer())
+        .pipe(autoprefixer({
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(gulp.dest('./src/main/webapp/build'));
 });

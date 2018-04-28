@@ -11,6 +11,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.jsoup.Jsoup;
 
 import java.net.InetAddress;
 import java.util.Date;
@@ -41,22 +42,27 @@ public class Test {
 
     public static void testSelect() throws Exception {
 
-        GetResponse response = esClient().prepareGet("house","house","123").get();
+        GetResponse response = esClient().prepareGet("house", "house", "123").get();
 
         System.out.println(JSON.toJSONString(response));
     }
 
 
-
-    public static void create(){
+    public static void create() {
 
     }
 
 
-
-
     public static void main(String[] args) throws Exception {
 //        testInsert();
-        testSelect();
+//        testSelect();
+
+
+        String result = Jsoup.connect("http://op.xiangshuispace.com/op/capsule_area/list")
+                .cookie("remember_token", "wanghongwei@xiangshuispace.com|b5874b49077477facb40917543f258f61e758ab0e34fe04bed4faedf945382d1837d2886e45416564c9ae3a7421fee927c78816b68a76bc1559837610523d7ab")
+//                .cookie("session", ".eJw1j9FqwjAARX-l5HnIbPWlIKyjrlhIOiVakiESY9YkbVppKtqI_77gtqfLvXAPnDs4fDfMSmFB_HUHwfAbRxCDY7lzPPxo6XqxAI8X8NkIZkXQdFWg2mDoAsa5sDYYpLLBmVViAvaP_YsH9sJKEA_9RfimTiD-I6JyNSchnBNHIp8OpnxGcS5RuRwRThzRVBf4vUauiopyOYVuOVKM6iJNRuR_EDea6GQGcfJKwlwTXEWeEVGzdUWGlN8aaPIaZpuapidJDFI03RhSwhA5PiXlaoRZXhd4p2i2CqmWiuD6SvB2StPcEJzciF7foNk-jQ9n0RvWinb4t7lY0T-NwJW1leza6irU2035YuVF2TPjYsI7Ax4_rppzZw.DcWqcQ.EXAX_xm1Z6P3FKCKqPEdvpSdGyY")
+                .execute().body();
+        System.out.println(result);
+
     }
 }
