@@ -1,12 +1,12 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.Booking;
+import com.xiangshui.tj.server.bean.BookingTj;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BookingDataManager extends DataManager<Long, Booking> {
+public class BookingDataManager extends DataManager<Long, BookingTj> {
     @Override
-    Long getId(Booking booking) {
+    Long getId(BookingTj booking) {
         if (booking == null) {
             return null;
         }

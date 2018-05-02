@@ -1,15 +1,11 @@
 package com.xiangshui.tj.server.task;
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.redis.RedisService;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.BookingTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.websocket.message.SendMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
-import java.util.Iterator;
 
 abstract public class AbstractTask<R> {
 
@@ -42,11 +38,11 @@ abstract public class AbstractTask<R> {
 
     abstract public void handDataManager(BookingDataManager bookingDataManager, R r);
 
-    abstract public void reduceBooking(Booking booking, R r);
+    abstract public void reduceBooking(BookingTj booking, R r);
 
-    abstract public void reduceCapsule(Capsule capsule, R r);
+    abstract public void reduceCapsule(CapsuleTj capsule, R r);
 
-    abstract public void reduceArea(Area area, R r);
+    abstract public void reduceArea(AreaTj area, R r);
 
     public abstract SendMessage toSendMessage(R result);
 }

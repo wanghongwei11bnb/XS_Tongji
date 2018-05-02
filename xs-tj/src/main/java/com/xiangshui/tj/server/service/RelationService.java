@@ -1,8 +1,8 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.bean.City;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
+import com.xiangshui.tj.server.bean.CityTj;
 import com.xiangshui.tj.server.relation.CapsuleRelation;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import org.apache.commons.beanutils.BeanUtils;
@@ -26,17 +26,17 @@ public class RelationService {
     @Autowired
     WebSocketSessionManager sessionManager;
 
-    public CapsuleRelation getRelation(Capsule capsule) {
+    public CapsuleRelation getRelation(CapsuleTj capsule) {
         if (capsule == null) {
             return null;
         }
         try {
             CapsuleRelation capsuleRelation = new CapsuleRelation();
             BeanUtils.copyProperties(capsuleRelation, capsule);
-            Area area = areaDataManager.getById(capsule.getArea_id());
+            AreaTj area = areaDataManager.getById(capsule.getArea_id());
             if (area != null) {
                 capsuleRelation.setAreaObj(area);
-                capsuleRelation.setCityObj(City.cityMap.get(area.getCity()));
+                capsuleRelation.setCityObj(CityTj.cityMap.get(area.getCity()));
             }
             return capsuleRelation;
         } catch (Exception e) {

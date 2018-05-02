@@ -1,24 +1,20 @@
 package com.xiangshui.tj.server.task;
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.BookingTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.relation.BookingRelation;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.SendMessage;
-import com.xiangshui.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.BiConsumer;
 
 @Component
 public class LongTimeBookingTask extends AbstractTask<LongTimeBookingTask.Result> {
@@ -46,7 +42,7 @@ public class LongTimeBookingTask extends AbstractTask<LongTimeBookingTask.Result
     }
 
     @Override
-    public void reduceBooking(Booking booking, Result result) {
+    public void reduceBooking(BookingTj booking, Result result) {
         if (booking.getStatus() == 1) {
             BookingRelation bookingRelation = new BookingRelation();
             BeanUtils.copyProperties(booking, bookingRelation);
@@ -71,12 +67,12 @@ public class LongTimeBookingTask extends AbstractTask<LongTimeBookingTask.Result
     }
 
     @Override
-    public void reduceCapsule(Capsule capsule, Result result) {
+    public void reduceCapsule(CapsuleTj capsule, Result result) {
 
     }
 
     @Override
-    public void reduceArea(Area area, Result result) {
+    public void reduceArea(AreaTj area, Result result) {
 
     }
 

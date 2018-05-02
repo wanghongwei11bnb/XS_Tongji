@@ -1,6 +1,6 @@
 package com.xiangshui.tj.server.bean;
 
-public class Booking {
+public class BookingTj {
     private long booking_id;
     private long status;
     private long pay_type;

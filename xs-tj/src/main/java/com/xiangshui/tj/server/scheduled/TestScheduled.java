@@ -72,8 +72,8 @@ public class TestScheduled implements InitializingBean {
 
     public void initLoad() {
         log.info("start loadUser");
-        dynamoDBService.loadUser(new CallBack<User>() {
-            public void run(User object) {
+        dynamoDBService.loadUser(new CallBack<UserTj>() {
+            public void run(UserTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
@@ -82,8 +82,8 @@ public class TestScheduled implements InitializingBean {
         dynamoDBService.loadCity();
 
         log.info("start loadArea");
-        dynamoDBService.loadArea(new CallBack<Area>() {
-            public void run(Area object) {
+        dynamoDBService.loadArea(new CallBack<AreaTj>() {
+            public void run(AreaTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
 
             }
@@ -91,30 +91,30 @@ public class TestScheduled implements InitializingBean {
 
 
         log.info("start loadArea");
-        dynamoDBService.loadCapsule(new CallBack<Capsule>() {
-            public void run(Capsule object) {
+        dynamoDBService.loadCapsule(new CallBack<CapsuleTj>() {
+            public void run(CapsuleTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
 
         log.info("start loadBooking");
-        dynamoDBService.loadBooking(new CallBack<Booking>() {
-            public void run(Booking object) {
+        dynamoDBService.loadBooking(new CallBack<BookingTj>() {
+            public void run(BookingTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
 
         log.info("start loadAppraise");
-        dynamoDBService.loadAppraise(new CallBack<Appraise>() {
-            public void run(Appraise object) {
+        dynamoDBService.loadAppraise(new CallBack<AppraiseTj>() {
+            public void run(AppraiseTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
 
 
-        City.cityMap.forEach(new BiConsumer<String, City>() {
+        CityTj.cityMap.forEach(new BiConsumer<String, CityTj>() {
             @Override
-            public void accept(String s, City city) {
+            public void accept(String s, CityTj city) {
                 try {
                     String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + city.getProvince() + city.getCity() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
                     JSONObject resp = JSONObject.parseObject(string);
@@ -178,7 +178,7 @@ public class TestScheduled implements InitializingBean {
                 try {
                     String string = object.lpop((debug ? "" : "online_") + "booking");
                     if (StringUtils.isNotBlank(string)) {
-                        Booking booking = JSON.parseObject(string, Booking.class);
+                        BookingTj booking = JSON.parseObject(string, BookingTj.class);
                         if (booking != null) {
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                         }
@@ -197,7 +197,7 @@ public class TestScheduled implements InitializingBean {
                 try {
                     String string = object.lpop((debug ? "" : "online_") + "appraise");
                     if (StringUtils.isNotBlank(string)) {
-                        Appraise appraise = JSON.parseObject(string, Appraise.class);
+                        AppraiseTj appraise = JSON.parseObject(string, AppraiseTj.class);
                         if (appraise != null) {
                             dataReceiver.receive(ReceiveEvent.APPRAISE, appraise);
                         }

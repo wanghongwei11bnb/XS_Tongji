@@ -11,7 +11,7 @@ package com.xiangshui.tj.server.bean;
 //            string out_trade_no = 9;  // 如果没交纳过则没有这个字段
 
 
-public class User {
+public class UserTj {
 
     private int uin;
     private String phone;

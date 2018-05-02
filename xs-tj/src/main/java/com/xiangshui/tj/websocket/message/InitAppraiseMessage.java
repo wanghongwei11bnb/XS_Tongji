@@ -1,18 +1,17 @@
 package com.xiangshui.tj.websocket.message;
 
-import com.xiangshui.tj.server.bean.Appraise;
-import com.xiangshui.tj.server.bean.City;
+import com.xiangshui.tj.server.bean.AppraiseTj;
 
 import java.util.List;
 
 public class InitAppraiseMessage extends SendMessage {
-    private List<Appraise> appraiseList;
+    private List<AppraiseTj> appraiseList;
 
-    public List<Appraise> getAppraiseList() {
+    public List<AppraiseTj> getAppraiseList() {
         return appraiseList;
     }
 
-    public void setAppraiseList(List<Appraise> appraiseList) {
+    public void setAppraiseList(List<AppraiseTj> appraiseList) {
         this.appraiseList = appraiseList;
     }
 }

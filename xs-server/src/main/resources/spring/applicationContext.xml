@@ -28,8 +28,6 @@
     </bean>
 
 
-
-
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
         <property name="driverClassName" value="${mysql.driverClassName}"/>
         <property name="url" value="${mysql.url}"/>
@@ -60,7 +58,14 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <bean id="mongo" class="com.mongodb.Mongo">
+        <constructor-arg index="0" type="java.lang.String" value="dev.xiangshuispace.com"/>
+    </bean>
 
 
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg index="0" type="com.mongodb.Mongo" ref="mongo"/>
+        <constructor-arg index="1" type="java.lang.String" value="capsule"/>
+    </bean>
 
 </beans>

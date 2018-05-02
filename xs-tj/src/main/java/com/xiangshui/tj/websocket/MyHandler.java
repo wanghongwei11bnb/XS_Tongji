@@ -1,8 +1,8 @@
 package com.xiangshui.tj.websocket;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xiangshui.tj.server.bean.Appraise;
-import com.xiangshui.tj.server.bean.City;
+import com.xiangshui.tj.server.bean.AppraiseTj;
+import com.xiangshui.tj.server.bean.CityTj;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
@@ -61,9 +61,9 @@ public class MyHandler extends TextWebSocketHandler {
         List<SendMessage> messageList = new ArrayList<SendMessage>();
         //ContractMessage
         if (!"1".equals(session.getAttributes().get("reconnect"))) {
-            if (City.cityMap != null) {
+            if (CityTj.cityMap != null) {
                 ContractMessage contractMessage = new ContractMessage();
-                contractMessage.setCityList(new ArrayList<City>(City.cityMap.values()));
+                contractMessage.setCityList(new ArrayList<CityTj>(CityTj.cityMap.values()));
                 redisService.set(SendMessagePrefix.cache, contractMessage.getClass().getSimpleName(), contractMessage);
                 messageList.add(contractMessage);
             } else if (redisService.exists(SendMessagePrefix.cache, ContractMessage.class.getSimpleName())) {
@@ -73,7 +73,7 @@ public class MyHandler extends TextWebSocketHandler {
 
         //InitAppraiseMessage
         if (appraiseDataManager.getMap() != null && appraiseDataManager.getMap().size() > 0) {
-            List<Appraise> appraiseList = new ArrayList<Appraise>(appraiseDataManager.getMap().values());
+            List<AppraiseTj> appraiseList = new ArrayList<AppraiseTj>(appraiseDataManager.getMap().values());
             InitAppraiseMessage initAppraiseMessage = new InitAppraiseMessage();
             initAppraiseMessage.setAppraiseList(appraiseList);
             redisService.set(SendMessagePrefix.cache, initAppraiseMessage.getClass().getSimpleName(), initAppraiseMessage);

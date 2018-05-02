@@ -1,8 +1,8 @@
 package com.xiangshui.tj.server.task;
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.BookingTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
@@ -49,7 +49,7 @@ public class CumulativeTimeTask extends AbstractTask<CumulativeTimeTask.Result> 
         return message;
     }
 
-    public void reduceBooking(Booking booking, Result result) {
+    public void reduceBooking(BookingTj booking, Result result) {
         long start_time = booking.getCreate_time();
         long end_time = booking.getEnd_time();
         if (start_time <= 0) {
@@ -86,11 +86,11 @@ public class CumulativeTimeTask extends AbstractTask<CumulativeTimeTask.Result> 
 
     }
 
-    public void reduceCapsule(Capsule capsule, Result result) {
+    public void reduceCapsule(CapsuleTj capsule, Result result) {
 
     }
 
-    public void reduceArea(Area area, Result result) {
+    public void reduceArea(AreaTj area, Result result) {
 
     }
 

@@ -1,12 +1,12 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CapsuleDataManager extends DataManager<Long, Capsule> {
+public class CapsuleDataManager extends DataManager<Long, CapsuleTj> {
     @Override
-    Long getId(Capsule capsule) {
+    Long getId(CapsuleTj capsule) {
         if (capsule == null) {
             return null;
         }

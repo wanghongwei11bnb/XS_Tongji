@@ -2,7 +2,7 @@ package com.xiangshui.tj.server.bean;
 
 import java.util.Date;
 
-public class Capsule {
+public class CapsuleTj {
 
     private long capsule_id;
     private int create_time;

@@ -2,7 +2,7 @@ package com.xiangshui.tj.server.bean;
 
 import java.util.List;
 
-public class Appraise {
+public class AppraiseTj {
 
     private List<String> appraise;
     private int area_id;

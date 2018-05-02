@@ -1,12 +1,12 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.Area;
+import com.xiangshui.tj.server.bean.AreaTj;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AreaDataManager extends DataManager<Integer, Area> {
+public class AreaDataManager extends DataManager<Integer, AreaTj> {
     @Override
-    Integer getId(Area area) {
+    Integer getId(AreaTj area) {
         if (area == null) {
             return null;
         }

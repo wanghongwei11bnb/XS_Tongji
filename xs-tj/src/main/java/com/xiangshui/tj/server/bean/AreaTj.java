@@ -1,8 +1,6 @@
 package com.xiangshui.tj.server.bean;
 
-import java.util.List;
-
-public class Area {
+public class AreaTj {
 
     private int area_id;
 
@@ -17,7 +15,7 @@ public class Area {
 
 
 
-    private Location location;
+    private LocationTj location;
 
 //    private List<String> imgs;
 
@@ -86,11 +84,11 @@ public class Area {
         this.contact = contact;
     }
 
-    public Location getLocation() {
+    public LocationTj getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(LocationTj location) {
         this.location = location;
     }
 

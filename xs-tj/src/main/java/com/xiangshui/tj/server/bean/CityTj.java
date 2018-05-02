@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class City {
+public class CityTj {
     private String city;
     private int code;
     private String province;
@@ -16,9 +16,9 @@ public class City {
     private double lng;
     private double lat;
 
-    public static List<City> cityList;
+    public static List<CityTj> cityList;
 
-    public static Map<String, City> cityMap = new HashMap<>();
+    public static Map<String, CityTj> cityMap = new HashMap<>();
 
 
     public double getLng() {

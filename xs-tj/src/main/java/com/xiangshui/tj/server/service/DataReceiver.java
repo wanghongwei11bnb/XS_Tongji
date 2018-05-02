@@ -53,29 +53,29 @@ public class DataReceiver {
 
     private static final Logger log = LoggerFactory.getLogger(DataReceiver.class);
 
-    public void receive(int event, User user) {
+    public void receive(int event, UserTj user) {
         userDataManager.save(user);
     }
 
-    public void receive(int event, Area area) {
+    public void receive(int event, AreaTj area) {
         areaDataManager.save(area);
         String cityName = area.getCity();
         if (StringUtils.isNotBlank(cityName)) {
-            City city = new City();
+            CityTj city = new CityTj();
             city.setCity(cityName);
-            if (City.cityList != null) {
-                for (City cityItem : City.cityList) {
+            if (CityTj.cityList != null) {
+                for (CityTj cityItem : CityTj.cityList) {
                     if (cityName.equals(cityItem.getCity())) {
                         city.setProvince(cityItem.getProvince());
                         break;
                     }
                 }
             }
-            City.cityMap.put(cityName, city);
+            CityTj.cityMap.put(cityName, city);
         }
     }
 
-    public void receive(int event, Capsule capsule) {
+    public void receive(int event, CapsuleTj capsule) {
         if (capsule.getCreate_time() > 0) {
             capsule.setCreate_time_date(new Date(capsule.getCreate_time() * 1000l));
         }
@@ -85,9 +85,9 @@ public class DataReceiver {
         capsuleDataManager.save(capsule);
     }
 
-    public void receive(int event, Booking booking) {
+    public void receive(int event, BookingTj booking) {
         bookingDataManager.save(booking);
-        Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
+        CapsuleTj capsule = capsuleDataManager.getById(booking.getCapsule_id());
         if (capsule != null) {
             if (capsule.getLastBookingTime() == null || booking.getCreate_time() * 1000 > capsule.getLastBookingTime().getTime()) {
                 capsule.setLastBookingTime(new Date(booking.getCreate_time() * 1000));
@@ -105,7 +105,7 @@ public class DataReceiver {
             pushBookingMessage.setBooking(booking);
             pushBookingMessage.setArea(areaDataManager.getById(booking.getArea_id()));
             pushBookingMessage.setCapsule(capsuleDataManager.getById(booking.getCapsule_id()));
-            User user = userDataManager.getById(booking.getUin());
+            UserTj user = userDataManager.getById(booking.getUin());
             if (user != null) {
                 booking.setNick_name(user.getNick_name());
                 booking.setPhone(user.getPhone());
@@ -117,7 +117,7 @@ public class DataReceiver {
 //        }
     }
 
-    public void receive(int event, Appraise appraise) {
+    public void receive(int event, AppraiseTj appraise) {
 
         if (
                 StringUtils.isBlank(appraise.getSuggest()) && (
@@ -132,7 +132,7 @@ public class DataReceiver {
         }
 
 
-        User user = userDataManager.getById(appraise.getUin());
+        UserTj user = userDataManager.getById(appraise.getUin());
         if (user != null) {
             appraise.setPhone(user.getPhone());
             appraise.setNick_name(user.getNick_name());
@@ -170,11 +170,11 @@ public class DataReceiver {
                 public void accept(Object k, Object object) {
                     for (TaskEntry taskEntry : taskEntryList) {
                         if (dataManagerClass == AreaDataManager.class) {
-                            taskEntry.getTask().reduceArea((Area) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceArea((AreaTj) object, taskEntry.getResult());
                         } else if (dataManagerClass == CapsuleDataManager.class) {
-                            taskEntry.getTask().reduceCapsule((Capsule) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceCapsule((CapsuleTj) object, taskEntry.getResult());
                         } else if (dataManagerClass == BookingDataManager.class) {
-                            taskEntry.getTask().reduceBooking((Booking) object, taskEntry.getResult());
+                            taskEntry.getTask().reduceBooking((BookingTj) object, taskEntry.getResult());
                         }
                     }
                 }

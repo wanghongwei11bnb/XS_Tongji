@@ -41,7 +41,7 @@ public class DynamoDBService {
         return debug ? "dev_" : "";
     }
 
-    public void loadUser(CallBack<User> callBack) {
+    public void loadUser(CallBack<UserTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "user_info");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -49,7 +49,7 @@ public class DynamoDBService {
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                User user = JSON.parseObject(item.toJSON(), User.class);
+                UserTj user = JSON.parseObject(item.toJSON(), UserTj.class);
                 callBack.run(user);
             } catch (Exception e) {
                 log.error("", e);
@@ -58,17 +58,17 @@ public class DynamoDBService {
     }
 
 
-    public User getUserByUin(int uin) {
+    public UserTj getUserByUin(int uin) {
         Table table = dynamoDB.getTable(prefix() + "user_info");
         Item item = table.getItem(new PrimaryKey("uin", uin));
         if (item != null) {
-            return JSON.parseObject(item.toJSON(), User.class);
+            return JSON.parseObject(item.toJSON(), UserTj.class);
         }
         return null;
     }
 
 
-    public void loadArea(CallBack<Area> callBack) {
+    public void loadArea(CallBack<AreaTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "area");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -76,7 +76,7 @@ public class DynamoDBService {
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                Area area = JSON.parseObject(item.toJSON(), Area.class);
+                AreaTj area = JSON.parseObject(item.toJSON(), AreaTj.class);
                 callBack.run(area);
             } catch (Exception e) {
                 log.error("", e);
@@ -85,7 +85,7 @@ public class DynamoDBService {
     }
 
 
-    public void loadCapsule(CallBack<Capsule> callBack) {
+    public void loadCapsule(CallBack<CapsuleTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "device");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -93,7 +93,7 @@ public class DynamoDBService {
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                Capsule capsule = JSON.parseObject(item.toJSON(), Capsule.class);
+                CapsuleTj capsule = JSON.parseObject(item.toJSON(), CapsuleTj.class);
                 callBack.run(capsule);
             } catch (Exception e) {
                 log.error("", e);
@@ -102,7 +102,7 @@ public class DynamoDBService {
     }
 
 
-    public void loadBooking(CallBack<Booking> callBack) {
+    public void loadBooking(CallBack<BookingTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "booking");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -110,7 +110,7 @@ public class DynamoDBService {
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                Booking booking = JSON.parseObject(item.toJSON(), Booking.class);
+                BookingTj booking = JSON.parseObject(item.toJSON(), BookingTj.class);
                 callBack.run(booking);
             } catch (Exception e) {
                 log.error("", e);
@@ -119,7 +119,7 @@ public class DynamoDBService {
     }
 
 
-    public void loadAppraise(CallBack<Appraise> callBack) {
+    public void loadAppraise(CallBack<AppraiseTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "booking_appraise");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -127,7 +127,7 @@ public class DynamoDBService {
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                Appraise appraise = JSON.parseObject(item.toJSON(), Appraise.class);
+                AppraiseTj appraise = JSON.parseObject(item.toJSON(), AppraiseTj.class);
                 callBack.run(appraise);
             } catch (Exception e) {
                 log.error("", e);
@@ -141,18 +141,18 @@ public class DynamoDBService {
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();
-        List<City> cityList = new ArrayList();
+        List<CityTj> cityList = new ArrayList();
         while (iter.hasNext()) {
             try {
                 Item item = iter.next();
-                City city = JSON.parseObject(item.toJSON(), City.class);
+                CityTj city = JSON.parseObject(item.toJSON(), CityTj.class);
                 cityList.add(city);
             } catch (Exception e) {
                 log.error("", e);
             }
         }
 
-        City.cityList = cityList;
+        CityTj.cityList = cityList;
 
     }
 

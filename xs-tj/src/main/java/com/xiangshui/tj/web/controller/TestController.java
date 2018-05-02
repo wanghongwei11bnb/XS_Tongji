@@ -1,8 +1,8 @@
 package com.xiangshui.tj.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
 import com.xiangshui.tj.server.relation.CapsuleRelation;
@@ -66,13 +66,13 @@ public class TestController {
             }
         });
 
-        capsuleDataManager.foreach(new BiConsumer<Long, Capsule>() {
+        capsuleDataManager.foreach(new BiConsumer<Long, CapsuleTj>() {
             @Override
-            public void accept(Long aLong, Capsule capsule) {
+            public void accept(Long aLong, CapsuleTj capsule) {
                 if (capsule.getIs_downline() == 1) {
                     return;
                 }
-                Area area = areaDataManager.getById(capsule.getArea_id());
+                AreaTj area = areaDataManager.getById(capsule.getArea_id());
                 if (area != null && area.getStatus() != -1) {
 
                     capsule.setLastBookingTimeText("未使用过");
@@ -149,8 +149,8 @@ public class TestController {
 
 
         if ("capsule".equals(type)) {
-            Capsule capsule = capsuleDataManager.getById(Long.valueOf(id));
-            Area area = null;
+            CapsuleTj capsule = capsuleDataManager.getById(Long.valueOf(id));
+            AreaTj area = null;
             if (capsule != null) {
                 area = areaDataManager.getById(capsule.getArea_id());
             }

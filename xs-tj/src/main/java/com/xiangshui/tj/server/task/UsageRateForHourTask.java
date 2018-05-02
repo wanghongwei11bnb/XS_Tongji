@@ -1,8 +1,8 @@
 package com.xiangshui.tj.server.task;
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.BookingTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
@@ -61,12 +61,12 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     }
 
     @Override
-    public void reduceBooking(Booking booking, Result result) {
-        Capsule capsule = capsuleDataManager.getById(booking.getCapsule_id());
+    public void reduceBooking(BookingTj booking, Result result) {
+        CapsuleTj capsule = capsuleDataManager.getById(booking.getCapsule_id());
         if (capsule == null || capsule.getIs_downline() == 1) {
             return;
         }
-        Area area = areaDataManager.getById(capsule.getArea_id());
+        AreaTj area = areaDataManager.getById(capsule.getArea_id());
         if (area != null && area.getStatus() != -1) {
 
             long start_time = booking.getCreate_time();
@@ -95,9 +95,9 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     }
 
     @Override
-    public void reduceCapsule(Capsule capsule, Result result) {
+    public void reduceCapsule(CapsuleTj capsule, Result result) {
         if (capsule.getIs_downline() != 1) {
-            Area area = areaDataManager.getById(capsule.getArea_id());
+            AreaTj area = areaDataManager.getById(capsule.getArea_id());
             if (area != null && area.getStatus() != -1) {
                 result.countCapsule++;
             }
@@ -105,7 +105,7 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     }
 
     @Override
-    public void reduceArea(Area area, Result result) {
+    public void reduceArea(AreaTj area, Result result) {
 
     }
 

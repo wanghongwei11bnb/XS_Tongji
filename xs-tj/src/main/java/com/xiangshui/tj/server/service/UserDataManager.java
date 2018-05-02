@@ -1,18 +1,18 @@
 package com.xiangshui.tj.server.service;
 
-import com.xiangshui.tj.server.bean.User;
+import com.xiangshui.tj.server.bean.UserTj;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserDataManager extends DataManager<Integer, User> {
+public class UserDataManager extends DataManager<Integer, UserTj> {
 
     @Autowired
     DynamoDBService dynamoDBService;
 
     @Override
-    Integer getId(User user) {
+    Integer getId(UserTj user) {
         if (user == null) {
             return null;
         }
@@ -21,8 +21,8 @@ public class UserDataManager extends DataManager<Integer, User> {
 
 
     @Override
-    public User getById(Integer id) {
-        User user = super.getById(id);
+    public UserTj getById(Integer id) {
+        UserTj user = super.getById(id);
         if (user == null) {
             user = dynamoDBService.getUserByUin(id);
             if (user != null) {

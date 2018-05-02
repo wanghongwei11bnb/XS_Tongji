@@ -1,10 +1,12 @@
 package com.xiangshui.server.domain;
 
+import org.springframework.data.annotation.Id;
+
 public class City {
+    @Id
     private String city;
     private Integer code;
     private String province;
-
 
     private Integer visible;
 

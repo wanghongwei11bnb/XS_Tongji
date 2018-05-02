@@ -1,38 +1,37 @@
 package com.xiangshui.tj.websocket.message;
 
 
-import com.xiangshui.tj.server.bean.Area;
-import com.xiangshui.tj.server.bean.Booking;
-import com.xiangshui.tj.server.bean.Capsule;
-import com.xiangshui.tj.server.bean.User;
+import com.xiangshui.tj.server.bean.AreaTj;
+import com.xiangshui.tj.server.bean.BookingTj;
+import com.xiangshui.tj.server.bean.CapsuleTj;
 
 public class PushBookingMessage extends SendMessage {
-    private Booking booking;
+    private BookingTj booking;
 
-    private Capsule capsule;
-    private Area area;
+    private CapsuleTj capsule;
+    private AreaTj area;
 
-    public Capsule getCapsule() {
+    public CapsuleTj getCapsule() {
         return capsule;
     }
 
-    public void setCapsule(Capsule capsule) {
+    public void setCapsule(CapsuleTj capsule) {
         this.capsule = capsule;
     }
 
-    public Area getArea() {
+    public AreaTj getArea() {
         return area;
     }
 
-    public void setArea(Area area) {
+    public void setArea(AreaTj area) {
         this.area = area;
     }
 
-    public Booking getBooking() {
+    public BookingTj getBooking() {
         return booking;
     }
 
-    public void setBooking(Booking booking) {
+    public void setBooking(BookingTj booking) {
         this.booking = booking;
     }
 

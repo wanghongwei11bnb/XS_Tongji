@@ -1,16 +1,15 @@
 package com.xiangshui.tj.websocket.message;
 
-import com.xiangshui.tj.server.bean.Appraise;
-import com.xiangshui.tj.server.bean.User;
+import com.xiangshui.tj.server.bean.AppraiseTj;
 
 public class PushAppraiseMessage extends SendMessage {
-    private Appraise appraise;
+    private AppraiseTj appraise;
 
-    public Appraise getAppraise() {
+    public AppraiseTj getAppraise() {
         return appraise;
     }
 
-    public void setAppraise(Appraise appraise) {
+    public void setAppraise(AppraiseTj appraise) {
         this.appraise = appraise;
     }
 }

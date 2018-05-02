@@ -1,6 +1,6 @@
 package com.xiangshui.tj.server.bean;
 
-public class Location {
+public class LocationTj {
     private int longitude;
     private int latitude;
 
