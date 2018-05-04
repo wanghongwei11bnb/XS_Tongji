@@ -18,7 +18,7 @@ public interface PartnerMapper {
 
     List<Partner> selectByExample(PartnerExample example);
 
-    Partner selectByPrimaryKey(@Param("id") Integer id, @Param("columnList") String columnList);
+    Partner selectByPrimaryKey(@Param("id") Integer id, @Param("fields") String fields);
 
     int updateByExampleSelective(@Param("record") Partner record, @Param("example") PartnerExample example);
 

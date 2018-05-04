@@ -73,10 +73,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    <if test="columnList != null" >
-      ${columnList}
+    <if test="fields != null" >
+      ${fields}
     </if>
-    <if test="columnList == null" >
+    <if test="fields == null" >
       id, phone, city, email, passwd, remark, address, theme, create_time, update_time, 
       last_login_time
     </if>

@@ -18,7 +18,7 @@ public interface OpMapper {
 
     List<Op> selectByExample(OpExample example);
 
-    Op selectByPrimaryKey(@Param("id") String username, @Param("columnList") String columnList);
+    Op selectByPrimaryKey(@Param("username") String username, @Param("fields") String fields);
 
     int updateByExampleSelective(@Param("record") Op record, @Param("example") OpExample example);
 

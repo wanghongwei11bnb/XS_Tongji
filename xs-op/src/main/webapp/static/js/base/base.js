@@ -58,3 +58,68 @@ let areaColumns = [
         gridField: true, formField: true,
     },
 ];
+
+window.Message = {
+    id: 'message',
+    msg: function (text, ms) {
+        this.clear();
+        let div = document.createElement('div');
+        div.id = this.id;
+        div.innerHTML = text;
+        document.body.appendChild(div);
+        this.sto_msg = setTimeout(() => {
+            this.clear();
+        }, ms || 2000);
+    },
+    error: function (text, ms) {
+        this.msg(text, ms || 3000);
+    },
+    clear: function () {
+        clearTimeout(this.sto_msg);
+        let div = document.getElementById(this.id);
+        if (div) {
+            document.body.removeChild(div)
+        }
+    }
+};
+window.Loading = {
+    id: 'loading',
+    open: function () {
+        this.close();
+        let div = document.createElement('div');
+        div.id = this.id;
+        document.body.appendChild(div);
+    },
+    close: function () {
+        let div = document.getElementById(this.id);
+        if (div) {
+            document.body.removeChild(div)
+        }
+    }
+};
+
+
+function request(opt) {
+    if (opt.loading) Loading.open();
+    reqwest({
+        url: opt.url,
+        method: opt.method || 'get',
+        data: opt.data,
+        contentType: opt.contentType,
+        dataType: opt.dataType || "json",
+        success: (resp) => {
+            if (resp.code == 0) {
+                if (opt.success) opt.success(resp);
+            } else {
+                if (opt.error) opt.error(resp); else Message.error(resp.msg);
+            }
+        },
+        error: (err) => {
+            Message.error(err.message);
+        },
+        complete: function (resp) {
+            if (opt.loading) Loading.close();
+        }
+
+    });
+}

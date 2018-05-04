@@ -70,18 +70,47 @@ public class AreaController extends BaseController {
         if (area != null) {
             return new Result(CodeMsg.SUCCESS).putData("area", area);
         } else {
-            return new Result(CodeMsg.NOT_FOUND);
+            return new Result(CodeMsg.NO_FOUND);
         }
     }
 
 
-    @PostMapping("/api/area/{area_id}/edit")
+    @PostMapping("/api/area/{area_id}/update")
     @ResponseBody
-    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody String body) {
+    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area area) {
         if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
-            return new Result(CodeMsg.NOT_FOUND);
+            return new Result(CodeMsg.NO_FOUND);
         }
-        JSONObject json = JSONObject.parseObject(body);
+
+        JSONObject json = (JSONObject) JSONObject.toJSON(area);
+
+//        if(StringUtils.isNotBlank(area.getTitle())){
+//            json.put("title",area.getTitle());
+//        }
+//
+//        if(StringUtils.isNotBlank(area.getCity())){
+//            json.put("city",area.getCity());
+//        }
+//
+//
+//        if(StringUtils.isNotBlank(area.getAddress())){
+//            json.put("address",area.getAddress());
+//        }
+//
+//
+//        if(StringUtils.isNotBlank(area.getArea_img())){
+//            json.put("area_img",area.getArea_img());
+//        }
+//
+//        if(StringUtils.isNotBlank(area.getContact())){
+//            json.put("contact",area.getContact());
+//        }
+//
+//        if(StringUtils.isNotBlank(area.getNotification())){
+//            json.put("notification",area.getNotification());
+//        }
+
+
         areaService.update(area_id, json);
         return new Result(CodeMsg.SUCCESS);
     }

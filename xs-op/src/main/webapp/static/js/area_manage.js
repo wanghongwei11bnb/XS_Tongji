@@ -1,172 +1,98 @@
-class AreaForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            area: props.area,
-            cityList: props.cityList || [],
-            modal: !!props.modal,
-        };
-    }
-
-    validate = () => {
-        let formData = this.getFormData();
-    };
-
-    getFormData = () => {
-        return {
-            area_id: this.refs.area_id.value,
-            title: this.refs.title.value,
-            city: this.refs.city.value,
-            address: this.refs.address.value,
-            status: this.refs.status.value,
-            minute_start: this.refs.minute_start.value,
-            rushHours: this.refs.rushHours.value,
-            location: this.refs.location.value,
-            contact: this.refs.contact.value,
-            notification: this.refs.notification.value,
-            area_img: this.refs.area_img.value,
-            imgs: this.refs.imgs.value,
-        };
-    };
-
-    render() {
-        const {area, cityList, modal} = this.state;
-        return <div>
-            <table className="table table-hover">
-                <tbody>
-                <tr>
-                    <th>场地编号</th>
-                    <td>
-                        <input type="text" disabled={true} readOnly={true} className="form-control"
-                               value={area.area_id}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>标题</th>
-                    <td>
-                        <input type="text" className="form-control" value={area.title}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>城市</th>
-                    <td>
-                        <select className="form-control">
-                            {cityList.map((city) => {
-                                return <option selected={city == area.city} value={city.city}>{city.city}</option>
-                            })}
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>地址</th>
-                    <td>
-                        <input type="text" className="form-control" value={area.address}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>最少时长</th>
-                    <td>
-                        <input type="text" className="form-control" value={area.minute_start}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>高峰时段</th>
-                    <td>
-                        <input type="text" className="form-control" value={JSON.stringify(area.rushHours)}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>经纬度</th>
-                    <td>
-                        <input type="text" className="form-control" value={JSON.stringify(area.location)}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>联系方式</th>
-                    <td>
-                        <input type="text" className="form-control" value={area.contact}/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>提醒文案</th>
-                    <td>
-                        <textarea className="form-control">{area.notification}</textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <th>状态</th>
-                    <td>
-                        <select type="text" className="form-control" value={area.status}>
-                            <option selected={area.status != -1} value="0">正常</option>
-                            <option selected={area.status == -1} value="-1">已下架</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>地图</th>
-                    <td>
-                        {area.area_img ? <img src={`${area.area_img}_227`} alt=""/> : null}
-                    </td>
-                </tr>
-                <tr>
-                    <th>图片</th>
-                    <td>
-                        {area.imgs ? area.imgs.map((img) => {
-                            return <img src={`${img}_227`} alt=""/>
-                        }) : null}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    }
-}
-
-
 class AreaModal extends Modal {
     constructor(props) {
         super(props);
         this.state = {
+            area_id: props.area_id,
             area: props.area,
+            onSuccess: props.onSuccess,
             cityList: props.cityList || [],
         };
     }
 
+    onSubmit = () => {
+        const {area_id, onSuccess} = this.state;
+        let data = {
+            area_id: this.refs.area_id.value,
+            title: this.refs.title.value,
+            city: this.refs.city.value,
+            address: this.refs.address.value,
+            contact: this.refs.contact.value,
+            notification: this.refs.notification.value,
+            minute_start: this.refs.minute_start.value,
+            // rushHours: this.refs.rushHours.value,
+            location: {
+                latitude: this.refs.latitude.value,
+                longitude: this.refs.longitude.value,
+            },
+            area_img: this.refs.area_img.value,
+            imgs: this.refs.imgs.getData(),
+            // types: this.refs.types.value,
+            status: this.refs.status.value - 0,
+        };
+        if (area_id) {
+            request({
+                url: `/api/area/${area_id}/update`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
+                }
+            });
+        } else {
+            request({
+                url: `/api/area/add`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
+                }
+            });
+        }
+
+
+    };
+
 
     renderHeader = () => {
-        return [
-            '场地信息',
-            <span className="cy right-0">
-                <button type="button" className="btn btn-link text-primary">保存</button>
+        return '场地信息';
+    };
+    renderFooter = () => {
+        return <span className="float-right">
+                <button type="button" className="btn btn-link text-primary" onClick={this.onSubmit}>保存</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
-            </span>,
-        ];
+            </span>;
     };
     renderBody = () => {
         const area = this.state.area || {};
         const cityList = this.props.cityList || [];
         return <div>
-            <table className="table table-hover">
+            <table className="table">
                 <tbody>
                 <tr>
                     <th>场地编号</th>
                     <td>
-                        <input type="text" disabled={true} readOnly={true} className="form-control"
-                               value={area.area_id}/>
+                        <input ref="area_id" type="text" disabled={true} readOnly={true} className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>标题</th>
                     <td>
-                        <input type="text" className="form-control" value={area.title}/>
+                        <input ref="title" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>城市</th>
                     <td>
-                        <select className="form-control">
+                        <select ref="city" className="form-control">
+                            <option value=""></option>
                             {cityList.map((city) => {
-                                return <option selected={city == area.city} value={city.city}>{city.city}</option>
+                                return <option value={city.city}>{city.city}</option>
                             })}
                         </select>
                     </td>
@@ -174,66 +100,102 @@ class AreaModal extends Modal {
                 <tr>
                     <th>地址</th>
                     <td>
-                        <input type="text" className="form-control" value={area.address}/>
+                        <input ref="address" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>最少时长</th>
                     <td>
-                        <input type="text" className="form-control" value={area.minute_start}/>
+                        <input ref="minute_start" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>高峰时段</th>
                     <td>
-                        <input type="text" className="form-control" value={JSON.stringify(area.rushHours)}/>
+                        <input ref="rushHours" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>经纬度</th>
                     <td>
-                        <input type="text" className="form-control" value={JSON.stringify(area.location)}/>
+                        <div className="row">
+                            <div className="col">
+                                longitude
+                                <input ref="longitude" type="text" className="form-control"/>
+                            </div>
+                            <div className="col">
+                                latitude
+                                <input ref="latitude" type="text" className="form-control"/>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 <tr>
                     <th>联系方式</th>
                     <td>
-                        <input type="text" className="form-control" value={area.contact}/>
+                        <input ref="contact" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>提醒文案</th>
                     <td>
-                        <textarea className="form-control">{area.notification}</textarea>
+                        <textarea ref="notification" className="form-control"></textarea>
                     </td>
                 </tr>
                 <tr>
                     <th>状态</th>
                     <td>
-                        <select type="text" className="form-control" value={area.status}>
-                            <option selected={area.status != -1} value="0">正常</option>
-                            <option selected={area.status == -1} value="-1">已下架</option>
+                        <select ref="status" className="form-control">
+                            <option value="0">正常</option>
+                            <option value="-1">已下架</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th>地图</th>
+                    <th>地图URL</th>
                     <td>
-                        {area.area_img ? <img src={`${area.area_img}_227`} alt=""/> : null}
+                        <input ref="area_img" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>图片</th>
+                    <th>图片URL</th>
                     <td>
-                        {area.imgs ? area.imgs.map((img) => {
-                            return <img src={`${img}_227`} alt=""/>
-                        }) : null}
+                        <ListEditor ref="imgs" itemRender={(item, index, itemUpdate) => {
+                            return [<img src={`${item}_227`} alt=""/>,
+                                <input type="text" className="form-control" value={item} onChange={(e) => {
+                                    itemUpdate(e.target.value)
+                                }}/>];
+                        }}></ListEditor>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>;
     };
+
+    componentDidMount() {
+        const {area} = this.state;
+        if (area) {
+            area.status = area.status || 0;
+            this.refs.area_id.value = area.area_id;
+            this.refs.title.value = area.title;
+            this.refs.city.value = area.city;
+            this.refs.address.value = area.address;
+            this.refs.status.value = area.status;
+            this.refs.rushHours.value = area.rushHours ? JSON.stringify(area.rushHours) : null;
+            this.refs.contact.value = area.contact;
+            this.refs.notification.value = area.notification;
+
+            this.refs.area_img.value = area.area_img;
+            this.refs.minute_start.value = area.minute_start;
+            this.refs.imgs.setData(area.imgs);
+
+            if (area.location) {
+                this.refs.longitude.value = area.location.longitude;
+                this.refs.latitude.value = area.location.latitude;
+            }
+        }
+    }
 }
 
 
@@ -262,18 +224,18 @@ class Page extends React.Component {
     }
 
     newArea = () => {
-        ModalContainer.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
+        ModalContainer.modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
     };
 
     showArea = (area_id) => {
-        reqwest({
-            url: '/api/area/' + area_id,
+        request({
+            url: '/api/area/' + area_id, loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
-                    Modal.panel({
-                        title: '场地信息',
-                        content: <AreaForm area={resp.data.area} cityList={this.state.cityList}></AreaForm>
-                    });
+                    ModalContainer.modal.open(
+                        <AreaModal area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
+                                   onSuccess={this.load}></AreaModal>
+                    );
                 } else {
                 }
             }
@@ -282,15 +244,23 @@ class Page extends React.Component {
 
 
     search = () => {
+        this.state.queryParams = {
+            city: this.refs.city.value,
+            status: this.refs.status.value,
+        };
+        this.load();
+    };
+    load = () => {
         const {grid} = this.refs;
-        reqwest({
-            url: '/api/area/search', method: 'get',
+        request({
+            url: '/api/area/search', loading: true,
             data: {
                 city: this.refs.city.value,
                 status: this.refs.status.value,
             },
             success: (resp) => {
                 if (resp.code == 0) {
+                    this.state.data = resp.data.list;
                     grid.state.data = resp.data.list;
                     grid.setState({});
                 } else {
@@ -300,8 +270,8 @@ class Page extends React.Component {
     };
 
     render() {
-        const {cityList, columns} = this.state;
-        return <div className="container-fluid">
+        const {cityList, columns, data} = this.state;
+        return <div className="container-fluid my-3">
             <div className="m-1">
                 城市：
                 <select ref="city" className="form-control d-inline-block mx-3 w-auto">
@@ -317,12 +287,13 @@ class Page extends React.Component {
                     <option value="-1">已下线</option>
                 </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.newArea}>添加场地</button>
+                <button type="button" className="btn btn-sm btn-success ml-1 float-right" onClick={this.newArea}>添加场地
+                </button>
             </div>
 
             <Datagrid ref="grid" columns={columns}></Datagrid>
-            <Messager></Messager>
-            <ModalContainer></ModalContainer>
+            查询结果条数：{data ? data.length : null}
+            <ModalContainer id="modal"></ModalContainer>
         </div>;
     }
 

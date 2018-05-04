@@ -1,23 +1,7 @@
-<div id="datagrid"></div>
+#set($layout='layout/default_react.html')
 
-<script>
-    $(document).ready(function () {
 
-        var columns = [[
-            {field: 'code', title: '城市编号', width: 100},
-            {field: 'city', title: '城市名称', width: 100},
-            {field: 'province', title: '省份', width: 100},
-            {field: 'lng', title: '经度（lng）', width: 100},
-            {field: 'lat', title: '纬度（lng）', width: 100},
-        ]];
+<div id="root"></div>
 
-        $('#datagrid').datagrid({
-            url: '/api/jv/cityList', method: 'get',
-            singleSelect: true,
-            columns: columns,
-            loadFilter: function (resp) {
-                return {rows: resp.data.cityList, total: resp.data.cityList.length}
-            }
-        });
-    });
-</script>
+
+<script src="/build/js/city_manage.js"></script>

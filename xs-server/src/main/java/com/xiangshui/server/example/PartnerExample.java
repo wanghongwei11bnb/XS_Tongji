@@ -15,7 +15,7 @@ public class PartnerExample {
 
     private int limit = 5000;
 
-    private String columnList;
+    private String fields;
 
     public PartnerExample() {
         oredCriteria = new ArrayList<Criteria>();
@@ -86,12 +86,12 @@ public class PartnerExample {
         return this.limit;
     }
 
-    public void setColumnList(String columnList) {
-        this.columnList=columnList;
+    public void setFields(String fields) {
+        this.fields=fields;
     }
 
-    public String getColumnList() {
-        return this.columnList;
+    public String getFields() {
+        return this.fields;
     }
 
     protected abstract static class GeneratedCriteria {

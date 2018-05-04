@@ -16,7 +16,7 @@ import java.util.Date;
 
 @Service
 public class RedisService implements InitializingBean {
-    private static final Logger log = LoggerFactory.getLogger(RedisService.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Value("${redis.host}")
     private String host;
@@ -31,16 +31,9 @@ public class RedisService implements InitializingBean {
 
     public JedisPool jedisPool;
 
-    private boolean inited;
-
-    public void init() {
-        if (!inited) {
-            GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-            jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
-            inited = true;
-        }
+    public String ambientPrefix() {
+        return debug ? "dev_" : "online_";
     }
-
 
     private <T> String beanToString(T value) {
         if (value == null) {
@@ -89,7 +82,7 @@ public class RedisService implements InitializingBean {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = keyPrefix.getRealKey(key);
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
             return jedis.exists(realKey);
         } finally {
             if (jedis != null) {
@@ -102,7 +95,7 @@ public class RedisService implements InitializingBean {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = keyPrefix.getRealKey(key);
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
             return jedis.expire(realKey, keyPrefix.expiry);
         } finally {
             if (jedis != null) {
@@ -115,7 +108,7 @@ public class RedisService implements InitializingBean {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = keyPrefix.getRealKey(key);
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
             String str = beanToString(value);
             if (keyPrefix.expiry > 0) {
                 jedis.setex(realKey, keyPrefix.expiry, str);
@@ -136,7 +129,7 @@ public class RedisService implements InitializingBean {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = keyPrefix.getRealKey(key);
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
             String str = jedis.get(realKey);
             T obj = stringToBean(str, clazz);
             return obj;
@@ -152,7 +145,7 @@ public class RedisService implements InitializingBean {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String realKey = keyPrefix.getRealKey(key);
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
             return jedis.incr(realKey);
         } finally {
             if (jedis != null) {
@@ -176,6 +169,7 @@ public class RedisService implements InitializingBean {
 
 
     public void afterPropertiesSet() throws Exception {
-        init();
+        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+        jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
     }
 }

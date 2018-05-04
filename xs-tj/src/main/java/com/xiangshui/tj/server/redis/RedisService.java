@@ -2,6 +2,7 @@ package com.xiangshui.tj.server.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.CallBackForResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
@@ -166,6 +167,18 @@ public class RedisService {
         try {
             jedis = jedisPool.getResource();
             callBack.run(jedis);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public <R> R run(CallBackForResult<Jedis, R> callBackForResult) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return callBackForResult.run(jedis);
         } finally {
             if (jedis != null) {
                 jedis.close();

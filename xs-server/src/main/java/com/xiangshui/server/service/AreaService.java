@@ -71,6 +71,9 @@ public class AreaService {
         if (json.containsKey("contact")) {
             attributeUpdateList.add(new AttributeUpdate("contact").put(json.getString("contact")));
         }
+        if (json.containsKey("status")) {
+            attributeUpdateList.add(new AttributeUpdate("status").put(json.getString("status")));
+        }
 
         areaDao.updateItem(new PrimaryKey("area_id", area_id), attributeUpdateList.toArray(new AttributeUpdate[]{}));
     }

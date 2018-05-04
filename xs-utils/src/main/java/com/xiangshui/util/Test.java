@@ -58,11 +58,15 @@ public class Test {
 //        testSelect();
 
 
-        String result = Jsoup.connect("http://op.xiangshuispace.com/op/capsule_area/list")
-                .cookie("remember_token", "wanghongwei@xiangshuispace.com|b5874b49077477facb40917543f258f61e758ab0e34fe04bed4faedf945382d1837d2886e45416564c9ae3a7421fee927c78816b68a76bc1559837610523d7ab")
-//                .cookie("session", ".eJw1j9FqwjAARX-l5HnIbPWlIKyjrlhIOiVakiESY9YkbVppKtqI_77gtqfLvXAPnDs4fDfMSmFB_HUHwfAbRxCDY7lzPPxo6XqxAI8X8NkIZkXQdFWg2mDoAsa5sDYYpLLBmVViAvaP_YsH9sJKEA_9RfimTiD-I6JyNSchnBNHIp8OpnxGcS5RuRwRThzRVBf4vUauiopyOYVuOVKM6iJNRuR_EDea6GQGcfJKwlwTXEWeEVGzdUWGlN8aaPIaZpuapidJDFI03RhSwhA5PiXlaoRZXhd4p2i2CqmWiuD6SvB2StPcEJzciF7foNk-jQ9n0RvWinb4t7lY0T-NwJW1leza6irU2035YuVF2TPjYsI7Ax4_rppzZw.DcWqcQ.EXAX_xm1Z6P3FKCKqPEdvpSdGyY")
-                .execute().body();
-        System.out.println(result);
+//        String result = Jsoup.connect("http://op.xiangshuispace.com/op/capsule_area/list")
+//                .cookie("remember_token", "wanghongwei@xiangshuispace.com|b5874b49077477facb40917543f258f61e758ab0e34fe04bed4faedf945382d1837d2886e45416564c9ae3a7421fee927c78816b68a76bc1559837610523d7ab")
+////                .cookie("session", ".eJw1j9FqwjAARX-l5HnIbPWlIKyjrlhIOiVakiESY9YkbVppKtqI_77gtqfLvXAPnDs4fDfMSmFB_HUHwfAbRxCDY7lzPPxo6XqxAI8X8NkIZkXQdFWg2mDoAsa5sDYYpLLBmVViAvaP_YsH9sJKEA_9RfimTiD-I6JyNSchnBNHIp8OpnxGcS5RuRwRThzRVBf4vUauiopyOYVuOVKM6iJNRuR_EDea6GQGcfJKwlwTXEWeEVGzdUWGlN8aaPIaZpuapidJDFI03RhSwhA5PiXlaoRZXhd4p2i2CqmWiuD6SvB2StPcEJzciF7foNk-jQ9n0RvWinb4t7lY0T-NwJW1leza6irU2035YuVF2TPjYsI7Ax4_rppzZw.DcWqcQ.EXAX_xm1Z6P3FKCKqPEdvpSdGyY")
+//                .execute().body();
+//        System.out.println(result);
+
+        System.out.println(MD5.getMD5("11bnb_opsc" + "1q2w3e4r5t").toLowerCase());
+        System.out.println("2e7e677e06366527a7eedfc3b82852ce");
+//        2e7e677e06366527a7eedfc3b82852ce
 
     }
 }

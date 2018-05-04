@@ -24,14 +24,22 @@
         </encoder>
     </appender>
 
-    <logger name="com.xiangshui" level="debug">
+
+    <root level="info">
+        <appender-ref ref="console"/>
+    </root>
+
+    <logger name="org.springframework.web.servlet.view.AbstractTemplateView" level="info">
+        <appender-ref ref="file"/>
+    </logger>
+    <logger name="org.mybatis" level="debug">
         <appender-ref ref="file"/>
     </logger>
 
 
-    <root level="debug">
-        <appender-ref ref="console"/>
-    </root>
+    <logger name="com.xiangshui" level="debug">
+        <appender-ref ref="file"/>
+    </logger>
 
 
 </configuration>

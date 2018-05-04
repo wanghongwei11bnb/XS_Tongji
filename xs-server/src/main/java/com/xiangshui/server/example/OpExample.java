@@ -14,7 +14,7 @@ public class OpExample {
 
     private int limit = 5000;
 
-    private String columnList;
+    private String fields;
 
     public OpExample() {
         oredCriteria = new ArrayList<Criteria>();
@@ -85,12 +85,12 @@ public class OpExample {
         return this.limit;
     }
 
-    public void setColumnList(String columnList) {
-        this.columnList=columnList;
+    public void setFields(String fields) {
+        this.fields=fields;
     }
 
-    public String getColumnList() {
-        return this.columnList;
+    public String getFields() {
+        return this.fields;
     }
 
     protected abstract static class GeneratedCriteria {
