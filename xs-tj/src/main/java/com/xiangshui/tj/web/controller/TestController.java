@@ -130,7 +130,7 @@ public class TestController {
         if ("booking".equals(type)) {
             return new Result(CodeMsg.SUCCESS).putData("size", bookingDataManager.size());
         }
-        return new Result(CodeMsg.NOT_FOUND);
+        return new Result(CodeMsg.NO_FOUND);
     }
 
 
@@ -161,7 +161,7 @@ public class TestController {
         if ("booking".equals(type)) {
             return new Result(CodeMsg.SUCCESS).putData("booking", bookingDataManager.getById(Long.valueOf(id)));
         }
-        return new Result(CodeMsg.NOT_FOUND);
+        return new Result(CodeMsg.NO_FOUND);
     }
 
     @GetMapping("{type:.+}/map")
@@ -186,7 +186,7 @@ public class TestController {
         if ("booking".equals(type)) {
             return new Result(CodeMsg.SUCCESS).putData("map", bookingDataManager.getMap());
         }
-        return new Result(CodeMsg.NOT_FOUND);
+        return new Result(CodeMsg.NO_FOUND);
     }
 
 
