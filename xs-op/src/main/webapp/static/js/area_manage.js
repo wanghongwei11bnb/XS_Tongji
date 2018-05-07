@@ -19,7 +19,7 @@ class AreaModal extends Modal {
             contact: this.refs.contact.value,
             notification: this.refs.notification.value,
             minute_start: this.refs.minute_start.value,
-            // rushHours: this.refs.rushHours.value,
+            rushHours: this.refs.rushHours.getData(),
             location: {
                 latitude: this.refs.latitude.value,
                 longitude: this.refs.longitude.value,
@@ -72,7 +72,7 @@ class AreaModal extends Modal {
         const area = this.state.area || {};
         const cityList = this.props.cityList || [];
         return <div>
-            <table className="table">
+            <table className="table table-bordered">
                 <tbody>
                 <tr>
                     <th>场地编号</th>
@@ -110,27 +110,6 @@ class AreaModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <th>高峰时段</th>
-                    <td>
-                        <input ref="rushHours" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>经纬度</th>
-                    <td>
-                        <div className="row">
-                            <div className="col">
-                                longitude
-                                <input ref="longitude" type="text" className="form-control"/>
-                            </div>
-                            <div className="col">
-                                latitude
-                                <input ref="latitude" type="text" className="form-control"/>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
                     <th>联系方式</th>
                     <td>
                         <input ref="contact" type="text" className="form-control"/>
@@ -140,15 +119,6 @@ class AreaModal extends Modal {
                     <th>提醒文案</th>
                     <td>
                         <textarea ref="notification" className="form-control"></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <th>状态</th>
-                    <td>
-                        <select ref="status" className="form-control">
-                            <option value="0">正常</option>
-                            <option value="-1">已下架</option>
-                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -168,6 +138,49 @@ class AreaModal extends Modal {
                         }}></ListEditor>
                     </td>
                 </tr>
+                <tr>
+                    <th>经纬度</th>
+                    <td>
+                        <div className="row">
+                            <div className="col">
+                                longitude
+                                <input ref="longitude" type="text" className="form-control"/>
+                            </div>
+                            <div className="col">
+                                latitude
+                                <input ref="latitude" type="text" className="form-control"/>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>高峰时段</th>
+                    <td>
+                        <ListEditor ref="rushHours" itemRender={(item, index, itemUpdate) => {
+                            return <div>
+                                开始时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.start_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({start_time: e.target.value, end_time: item.end_time})
+                                            }}/>
+                                结束时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.end_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({end_time: e.target.value, start_time: item.start_time})
+                                            }}/>
+                            </div>;
+                        }}></ListEditor>
+                    </td>
+                </tr>
+                <tr>
+                    <th>状态</th>
+                    <td>
+                        <select ref="status" className="form-control">
+                            <option value="0">正常</option>
+                            <option value="-1">已下架</option>
+                        </select>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>;
@@ -182,7 +195,7 @@ class AreaModal extends Modal {
             this.refs.city.value = area.city;
             this.refs.address.value = area.address;
             this.refs.status.value = area.status;
-            this.refs.rushHours.value = area.rushHours ? JSON.stringify(area.rushHours) : null;
+
             this.refs.contact.value = area.contact;
             this.refs.notification.value = area.notification;
 
@@ -194,6 +207,13 @@ class AreaModal extends Modal {
                 this.refs.longitude.value = area.location.longitude;
                 this.refs.latitude.value = area.location.latitude;
             }
+
+
+            if (area.rushHours) {
+                this.refs.rushHours.setData(area.rushHours);
+            }
+
+
         }
     }
 }

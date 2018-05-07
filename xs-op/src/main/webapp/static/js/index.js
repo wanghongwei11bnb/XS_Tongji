@@ -67,7 +67,7 @@ class Tabs extends React.Component {
     render() {
         const {tabs, activeIndex, height} = this.state;
         return <div className="position-relative d-block ">
-            <ul ref="nav" className="nav nav-tabs">
+            <ul ref="nav" className="nav nav-tabs p-1">
                 {tabs ? tabs.map((tab, index) => {
                     return <li key={`tab-bar-${index}`} className="nav-item">
                         <div
@@ -82,7 +82,7 @@ class Tabs extends React.Component {
                 }) : null}
             </ul>
             {tabs ? tabs.map((tab, index) => {
-                return <div key={`tab-content-${index}`}
+                return <div key={`tab-content-${tab.title}`}
                             className={`position-relative w-100 h-100 ${activeIndex == index ? 'show' : 'hide'}`}>
                     {tab.content}
                 </div>
@@ -138,8 +138,7 @@ class Page extends React.Component {
     render() {
         const {} = this.state;
         return <div className="container-fluid">
-            <ul className="nav nav-pills mb-3 bg-secondary">
-
+            <ul className="nav nav-pills  mb-3 bg-secondary">
                 <li className="nav-item">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</a>
@@ -156,7 +155,6 @@ class Page extends React.Component {
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</a>
                 </li>
-
             </ul>
 
             <Tabs ref="tabs"></Tabs>

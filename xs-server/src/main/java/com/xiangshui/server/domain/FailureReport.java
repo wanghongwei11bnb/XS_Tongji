@@ -12,14 +12,23 @@ public class FailureReport {
     private String client_type;
     private String client_version;
     private String description;
-    private String op_description;
     private List<String> imgs;
     private String phone;
     private String req_from;
     private List<String> tags;
     private Integer uin;
 
+    private String op_description;
     private Integer op_status;
+    private String create_from_role;
+
+    public String getCreate_from_role() {
+        return create_from_role;
+    }
+
+    public void setCreate_from_role(String create_from_role) {
+        this.create_from_role = create_from_role;
+    }
 
     public String getOp_description() {
         return op_description;

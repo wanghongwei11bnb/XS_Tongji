@@ -72,7 +72,21 @@ public class AreaService {
             attributeUpdateList.add(new AttributeUpdate("contact").put(json.getString("contact")));
         }
         if (json.containsKey("status")) {
-            attributeUpdateList.add(new AttributeUpdate("status").put(json.getString("status")));
+            attributeUpdateList.add(new AttributeUpdate("status").put(json.getIntValue("status")));
+        }
+        if (json.containsKey("location")) {
+            attributeUpdateList.add(new AttributeUpdate("location").put(json.getJSONObject("location")));
+        }
+        if (json.containsKey("minute_start")) {
+            attributeUpdateList.add(new AttributeUpdate("minute_start").put(json.getIntValue("minute_start")));
+        }
+
+        if (json.containsKey("imgs")) {
+            attributeUpdateList.add(new AttributeUpdate("imgs").put(json.getJSONArray("imgs")));
+        }
+
+        if (json.containsKey("rushHours")) {
+            attributeUpdateList.add(new AttributeUpdate("rushHours").put(json.getJSONArray("rushHours")));
         }
 
         areaDao.updateItem(new PrimaryKey("area_id", area_id), attributeUpdateList.toArray(new AttributeUpdate[]{}));

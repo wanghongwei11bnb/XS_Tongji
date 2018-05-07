@@ -11,6 +11,16 @@ public class Capsule {
 
     private String device_id;
 
+    private Integer is_downline;
+
+    public Integer getIs_downline() {
+        return is_downline;
+    }
+
+    public void setIs_downline(Integer is_downline) {
+        this.is_downline = is_downline;
+    }
+
     public Long getCapsule_id() {
         return capsule_id;
     }
@@ -66,4 +76,6 @@ public class Capsule {
     public void setDevice_id(String device_id) {
         this.device_id = device_id;
     }
+
+
 }

@@ -46,7 +46,7 @@ class ListEditor extends React.Component {
         const {data, itemType, itemRender, modalId} = this.state;
         return <div>
             {data.map((item, index) => {
-                return <div className="row my-3 border-bottom">
+                return <div className="row m-1 p-1 border">
                     <div className="col">{itemRender(item, index, this.itemUpdate.bind(this, index))}</div>
                     <span><button type="button" className="btn btn-sm btn-danger mx-3"
                                   onClick={this.del.bind(this, index)}>删除</button></span>

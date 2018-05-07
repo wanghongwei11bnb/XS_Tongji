@@ -4,9 +4,28 @@ public class CapsuleType {
     private Integer type_id;
     private Integer size;
     private Integer day_max_price;
+    private Integer price;
+    private Integer rush_hour_price;
     private String price_rule_text;
     private String typeDesc;
     private String typeTitle;
+
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public Integer getRush_hour_price() {
+        return rush_hour_price;
+    }
+
+    public void setRush_hour_price(Integer rush_hour_price) {
+        this.rush_hour_price = rush_hour_price;
+    }
 
     public Integer getType_id() {
         return type_id;

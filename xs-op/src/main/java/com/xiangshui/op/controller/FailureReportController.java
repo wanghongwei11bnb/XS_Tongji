@@ -133,4 +133,16 @@ public class FailureReportController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+
+    @PostMapping("/api/failure/{capsule_id:\\d+}/create")
+    @ResponseBody
+    public Result create(@PathVariable("capsule_id") long capsule_id, @RequestBody FailureReport failureReport) throws Exception {
+        Date now = new Date();
+        failureReport.setCapsule_id(capsule_id);
+        failureReport.setCreate_time(now.getTime() / 1000);
+        failureReport.setCreate_from_role("op");
+        failureReportDao.putItem(failureReport);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
 }
