@@ -29,6 +29,15 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>aws-java-sdk</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../aws-java-sdk.jar</systemPath>
+        </dependency>
+
+
         <!-- spring-web -->
         <dependency>
             <groupId>org.springframework</groupId>
