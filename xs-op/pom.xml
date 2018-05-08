@@ -59,7 +59,6 @@
             <version>2.0</version>
         </dependency>
 
-
         <dependency>
             <groupId>aws-java-sdk</groupId>
             <artifactId>aws-java-sdk</artifactId>
@@ -67,6 +66,8 @@
             <scope>system</scope>
             <systemPath>${basedir}/../../aws-java-sdk.jar</systemPath>
         </dependency>
+
+
     </dependencies>
 
     <build>
@@ -90,29 +91,8 @@
                             <includeScope>system</includeScope>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-system</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>
-                                ${project.build.directory}/${project.build.finalName}/WEB-INF/lib
-                            </outputDirectory>
-                            <includeScope>compile</includeScope>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-compiler-plugin</artifactId>-->
-            <!--<configuration>-->
-            <!--<source>1.8</source>-->
-            <!--<target>1.8</target>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 </project>
