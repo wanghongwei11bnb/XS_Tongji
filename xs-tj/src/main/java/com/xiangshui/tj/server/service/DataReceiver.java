@@ -2,6 +2,7 @@ package com.xiangshui.tj.server.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.*;
+import com.xiangshui.tj.server.constant.GoodAppraiseCache;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
@@ -131,20 +132,22 @@ public class DataReceiver {
     }
 
     public void receive(int event, AppraiseTj appraise) {
-
         if (
-                StringUtils.isBlank(appraise.getSuggest())
-                        && (
-                        appraise.getAppraise() == null
-                                || appraise.getAppraise().size() == 0
-                                || (
-                                appraise.getAppraise().size() == 1
-                                        && (StringUtils.isBlank(appraise.getAppraise().get(0)) || appraise.getAppraise().get(0).trim().equals("无"))))
+                appraise.getAppraise() == null
+                        || appraise.getAppraise().size() == 0
+                        || (
+                        appraise.getAppraise().size() == 1
+                                && (StringUtils.isBlank(appraise.getAppraise().get(0)) || appraise.getAppraise().get(0).trim().equals("无")))
                 ) {
-            return;
+            appraise.setAppraise(null);
         }
-
-
+        if (StringUtils.isNotBlank(appraise.getSuggest()) && appraise.getAppraise() == null) {
+            if (appraise.getScore() < 5) {
+                return;
+            } else {
+                appraise.setSuggest(GoodAppraiseCache.random());
+            }
+        }
         UserTj user = userDataManager.getById(appraise.getUin());
         if (user != null) {
             appraise.setPhone(user.getPhone());
