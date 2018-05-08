@@ -2,6 +2,8 @@ package com.xiangshui.tj.server.scheduled;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
@@ -70,67 +72,68 @@ public class TestScheduled implements InitializingBean {
     CountBookingForDaysTask countBookingForDaysTask;
 
 
-    public void initLoad() {
+    public void loadUser(ScanSpec scanSpec) {
         log.info("start loadUser");
-        dynamoDBService.loadUser(new CallBack<UserTj>() {
+        if (scanSpec == null) {
+            scanSpec = new ScanSpec();
+        }
+        dynamoDBService.loadUser(scanSpec, new CallBack<UserTj>() {
+            @Override
             public void run(UserTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+    }
 
-        log.info("start reloadCity");
-        dynamoDBService.loadCity();
-
+    public void loadArea(ScanSpec scanSpec) {
         log.info("start loadArea");
-        dynamoDBService.loadArea(new CallBack<AreaTj>() {
+        if (scanSpec == null) {
+            scanSpec = new ScanSpec();
+        }
+        dynamoDBService.loadArea(scanSpec, new CallBack<AreaTj>() {
             public void run(AreaTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
-
             }
         });
+    }
 
-
-        log.info("start loadArea");
-        dynamoDBService.loadCapsule(new CallBack<CapsuleTj>() {
+    public void loadCapsule(ScanSpec scanSpec) {
+        log.info("start loadCapsule");
+        if (scanSpec == null) {
+            scanSpec = new ScanSpec();
+        }
+        dynamoDBService.loadCapsule(scanSpec, new CallBack<CapsuleTj>() {
             public void run(CapsuleTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+    }
 
+    public void loadBooking(ScanSpec scanSpec) {
         log.info("start loadBooking");
-        dynamoDBService.loadBooking(new CallBack<BookingTj>() {
+        if (scanSpec == null) {
+            scanSpec = new ScanSpec();
+        }
+        dynamoDBService.loadBooking(scanSpec, new CallBack<BookingTj>() {
             public void run(BookingTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
+    }
 
-        log.info("start loadAppraise");
+    public void initLoad() {
+        dynamoDBService.loadCity();
+        loadUser(null);
+        loadArea(null);
+        loadCapsule(null);
+        loadBooking(null);
         dynamoDBService.loadAppraise(new CallBack<AppraiseTj>() {
             public void run(AppraiseTj object) {
                 dataReceiver.receive(ReceiveEvent.HISTORY_DATA, object);
             }
         });
-
-
-        CityTj.cityMap.forEach(new BiConsumer<String, CityTj>() {
-            @Override
-            public void accept(String s, CityTj city) {
-                try {
-                    String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + city.getProvince() + city.getCity() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
-                    JSONObject resp = JSONObject.parseObject(string);
-                    if (resp.getIntValue("status") == 0) {
-                        JSONObject location = resp.getJSONObject("result").getJSONObject("location");
-                        city.setLat(location.getFloatValue("lat"));
-                        city.setLng(location.getFloatValue("lng"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
     }
+
 
     public void afterPropertiesSet() throws Exception {
 
@@ -154,6 +157,15 @@ public class TestScheduled implements InitializingBean {
         });
     }
 
+
+    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 30)
+    public void updateLoad() {
+        long now = System.currentTimeMillis();
+        dynamoDBService.loadCity();
+        loadUser(new ScanSpec().withScanFilters(new ScanFilter("create_time").gt((now - 1000 * 60 * 60 * 24) / 1000)));
+        loadArea(null);
+        loadCapsule(new ScanSpec().withScanFilters(new ScanFilter("create_time").gt((now - 1000 * 60 * 60 * 24) / 1000)));
+    }
 
     @Scheduled(fixedDelay = 1000 * 60 * 5, initialDelay = 1000 * 10)
     public void doTask() {

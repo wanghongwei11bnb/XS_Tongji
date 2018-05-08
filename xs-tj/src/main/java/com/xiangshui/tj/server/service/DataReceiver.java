@@ -1,5 +1,6 @@
 package com.xiangshui.tj.server.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.*;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.redis.RedisService;
@@ -8,6 +9,7 @@ import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.*;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +62,7 @@ public class DataReceiver {
     public void receive(int event, AreaTj area) {
         areaDataManager.save(area);
         String cityName = area.getCity();
-        if (StringUtils.isNotBlank(cityName)) {
+        if (StringUtils.isNotBlank(cityName) && !CityTj.cityMap.containsKey(cityName)) {
             CityTj city = new CityTj();
             city.setCity(cityName);
             if (CityTj.cityList != null) {
@@ -70,6 +72,17 @@ public class DataReceiver {
                         break;
                     }
                 }
+            }
+            try {
+                String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + city.getProvince() + city.getCity() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
+                JSONObject resp = JSONObject.parseObject(string);
+                if (resp.getIntValue("status") == 0) {
+                    JSONObject location = resp.getJSONObject("result").getJSONObject("location");
+                    city.setLat(location.getFloatValue("lat"));
+                    city.setLng(location.getFloatValue("lng"));
+                }
+            } catch (Exception e) {
+                log.error("", e);
             }
             CityTj.cityMap.put(cityName, city);
         }
@@ -120,13 +133,13 @@ public class DataReceiver {
     public void receive(int event, AppraiseTj appraise) {
 
         if (
-                StringUtils.isBlank(appraise.getSuggest()) && (
+                StringUtils.isBlank(appraise.getSuggest())
+                        && (
                         appraise.getAppraise() == null
                                 || appraise.getAppraise().size() == 0
                                 || (
                                 appraise.getAppraise().size() == 1
-                                        && (StringUtils.isBlank(appraise.getAppraise().get(0)) || appraise.getAppraise().get(0).trim().equals("无")))
-                )
+                                        && (StringUtils.isBlank(appraise.getAppraise().get(0)) || appraise.getAppraise().get(0).trim().equals("无"))))
                 ) {
             return;
         }

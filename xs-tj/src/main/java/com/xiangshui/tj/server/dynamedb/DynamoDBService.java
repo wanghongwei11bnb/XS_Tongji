@@ -42,8 +42,11 @@ public class DynamoDBService {
     }
 
     public void loadUser(CallBack<UserTj> callBack) {
+        loadUser(new ScanSpec(), callBack);
+    }
+
+    public void loadUser(ScanSpec scanSpec, CallBack<UserTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "user_info");
-        ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();
         while (iter.hasNext()) {
@@ -69,8 +72,12 @@ public class DynamoDBService {
 
 
     public void loadArea(CallBack<AreaTj> callBack) {
+        loadArea(new ScanSpec(), callBack);
+    }
+
+
+    public void loadArea(ScanSpec scanSpec, CallBack<AreaTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "area");
-        ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();
         while (iter.hasNext()) {
@@ -86,8 +93,11 @@ public class DynamoDBService {
 
 
     public void loadCapsule(CallBack<CapsuleTj> callBack) {
+        loadCapsule(new ScanSpec(), callBack);
+    }
+
+    public void loadCapsule(ScanSpec scanSpec, CallBack<CapsuleTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "device");
-        ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();
         while (iter.hasNext()) {
@@ -103,8 +113,11 @@ public class DynamoDBService {
 
 
     public void loadBooking(CallBack<BookingTj> callBack) {
+        loadBooking(new ScanSpec(), callBack);
+    }
+
+    public void loadBooking(ScanSpec scanSpec, CallBack<BookingTj> callBack) {
         Table table = dynamoDB.getTable(prefix() + "booking");
-        ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();
         while (iter.hasNext()) {
@@ -120,6 +133,7 @@ public class DynamoDBService {
 
 
     public void loadAppraise(CallBack<AppraiseTj> callBack) {
+        log.info("start loadAppraise");
         Table table = dynamoDB.getTable(prefix() + "booking_appraise");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -137,6 +151,7 @@ public class DynamoDBService {
 
 
     public void loadCity() {
+        log.info("start reloadCity");
         Table table = dynamoDB.getTable("city");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -151,9 +166,7 @@ public class DynamoDBService {
                 log.error("", e);
             }
         }
-
         CityTj.cityList = cityList;
-
     }
 
 
