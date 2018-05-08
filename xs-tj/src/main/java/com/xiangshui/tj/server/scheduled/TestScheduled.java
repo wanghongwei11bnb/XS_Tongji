@@ -158,7 +158,7 @@ public class TestScheduled implements InitializingBean {
     }
 
 
-    @Scheduled(fixedDelay = 1000 * 30, initialDelay = 1000 * 30)
+    @Scheduled(fixedDelay = 1000 * 60 * 10, initialDelay = 1000 * 60 * 10)
     public void updateLoad() {
         long now = System.currentTimeMillis();
         dynamoDBService.loadCity();
