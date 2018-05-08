@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 abstract public class DataManager<K, V> {
     private static final Logger log = LoggerFactory.getLogger(DataManager.class);
 
-    private volatile Map<K, V> map = new HashMap<>();
+    protected volatile Map<K, V> map = new HashMap<>();
 
     public synchronized V getById(K id) {
         return map.get(id);

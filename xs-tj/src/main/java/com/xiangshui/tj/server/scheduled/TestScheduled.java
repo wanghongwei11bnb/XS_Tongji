@@ -9,14 +9,18 @@ import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.dynamedb.DynamoDBService;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
+import com.xiangshui.tj.server.relation.CapsuleRelation;
 import com.xiangshui.tj.server.service.*;
 import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
+import com.xiangshui.tj.websocket.message.PushBookingMessage;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +28,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 @Component
@@ -47,6 +55,8 @@ public class TestScheduled implements InitializingBean {
 
 
     @Autowired
+    UserDataManager userDataManager;
+    @Autowired
     AreaDataManager areaDataManager;
     @Autowired
     CapsuleDataManager capsuleDataManager;
@@ -55,6 +65,8 @@ public class TestScheduled implements InitializingBean {
     @Autowired
     AppraiseDataManager appraiseDataManager;
 
+    @Autowired
+    RelationService relationService;
 
     @Autowired
     BaseTask baseTask;
@@ -70,6 +82,11 @@ public class TestScheduled implements InitializingBean {
     CumulativeTimeTask cumulativeTimeTask;
     @Autowired
     CountBookingForDaysTask countBookingForDaysTask;
+
+
+    private volatile long planBookingTime;
+    private volatile long lastBookingTime;
+    private volatile long lastBookingCapsuleId;
 
 
     public void loadUser(ScanSpec scanSpec) {
@@ -192,6 +209,8 @@ public class TestScheduled implements InitializingBean {
                     if (StringUtils.isNotBlank(string)) {
                         BookingTj booking = JSON.parseObject(string, BookingTj.class);
                         if (booking != null) {
+                            lastBookingTime = System.currentTimeMillis();
+                            lastBookingCapsuleId = booking.getCapsule_id();
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                         }
                     }
@@ -221,5 +240,32 @@ public class TestScheduled implements InitializingBean {
         });
     }
 
-
+    @Scheduled(fixedDelay = 1000, initialDelay = 1000 * 30)
+    public void planPushBooking() {
+        Date now = new Date();
+        if (now.getTime() >= planBookingTime) {
+            if (lastBookingTime >= planBookingTime) {
+                planBookingTime = (long) (now.getTime() + (Math.random() * 1000 * 30 + 1000 * 10));
+            } else {
+                BookingTj booking = bookingDataManager.random(lastBookingCapsuleId);
+                if (booking != null) {
+                    BookingTj bookingCp = new BookingTj();
+                    BeanUtils.copyProperties(booking, bookingCp);
+                    booking.setCreate_time(now.getTime() / 1000);
+                    PushBookingMessage pushBookingMessage = new PushBookingMessage();
+                    pushBookingMessage.setBooking(bookingCp);
+                    pushBookingMessage.setArea(areaDataManager.getById(bookingCp.getArea_id()));
+                    pushBookingMessage.setCapsule(capsuleDataManager.getById(bookingCp.getCapsule_id()));
+                    UserTj user = userDataManager.getById(bookingCp.getUin());
+                    if (user != null) {
+                        bookingCp.setNick_name(user.getNick_name());
+                        bookingCp.setPhone(user.getPhone());
+                    }
+                    sessionManager.sendMessage(pushBookingMessage);
+                    lastBookingTime = now.getTime();
+                    lastBookingCapsuleId = bookingCp.getCapsule_id();
+                }
+            }
+        }
+    }
 }
