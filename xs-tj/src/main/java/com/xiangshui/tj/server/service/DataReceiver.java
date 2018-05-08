@@ -141,7 +141,7 @@ public class DataReceiver {
                 ) {
             appraise.setAppraise(null);
         }
-        if (StringUtils.isNotBlank(appraise.getSuggest()) && appraise.getAppraise() == null) {
+        if (StringUtils.isBlank(appraise.getSuggest()) && appraise.getAppraise() == null) {
             if (appraise.getScore() < 5) {
                 return;
             } else {
