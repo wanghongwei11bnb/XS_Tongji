@@ -15,12 +15,10 @@ public class BookingDataManager extends DataManager<Long, BookingTj> {
 
 
     public synchronized BookingTj random(long lastBookingCapsuleId) {
-
-        int n = (int) (Math.random() * 10 + 10);
+        int n = (int) (Math.random() * 100 + 100);
         int i = 0;
-
         for (long booking_id : map.keySet()) {
-            if (++i > n) {
+            if (++i < n) {
                 continue;
             }
             BookingTj bookingTj = map.get(booking_id);

@@ -28,10 +28,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 @Component
@@ -84,9 +81,9 @@ public class TestScheduled implements InitializingBean {
     CountBookingForDaysTask countBookingForDaysTask;
 
 
-    private volatile long planBookingTime;
-    private volatile long lastBookingTime;
     private volatile long lastBookingCapsuleId;
+    private final Timer planPushBookingTimer = new Timer("planPushBookingTimer");
+    private volatile TimerTask planPushBookingTask;
 
 
     public void loadUser(ScanSpec scanSpec) {
@@ -172,6 +169,9 @@ public class TestScheduled implements InitializingBean {
                 object.del((debug ? "" : "online_") + "appraise");
             }
         });
+
+
+        planBooking();
     }
 
 
@@ -209,9 +209,9 @@ public class TestScheduled implements InitializingBean {
                     if (StringUtils.isNotBlank(string)) {
                         BookingTj booking = JSON.parseObject(string, BookingTj.class);
                         if (booking != null) {
-                            lastBookingTime = System.currentTimeMillis();
-                            lastBookingCapsuleId = booking.getCapsule_id();
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
+                            lastBookingCapsuleId = booking.getCapsule_id();
+                            planBooking();
                         }
                     }
                 } catch (Exception e) {
@@ -240,13 +240,25 @@ public class TestScheduled implements InitializingBean {
         });
     }
 
-    @Scheduled(fixedDelay = 1000, initialDelay = 1000 * 30)
-    public void planPushBooking() {
+
+    public void planBooking() {
+        if (planPushBookingTask != null) {
+            planPushBookingTask.cancel();
+        }
         Date now = new Date();
-        if (now.getTime() >= planBookingTime) {
-            if (lastBookingTime >= planBookingTime) {
-                planBookingTime = (long) (now.getTime() + (Math.random() * 1000 * 30 + 1000 * 10));
-            } else {
+        long delay = 0;
+        if (11 <= now.getHours() && now.getHours() <= 14) {
+            delay = (long) (Math.random() * 1000 * 60 + 1000 * 15);
+        } else if (17 <= now.getHours() && now.getHours() <= 20) {
+            delay = (long) (Math.random() * 1000 * 60 + 1000 * 15);
+        } else {
+            delay = (long) (Math.random() * 1000 * 60 * 30 + 1000 * 60 * 30);
+        }
+//        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+
+        planPushBookingTask = new TimerTask() {
+            @Override
+            public void run() {
                 BookingTj booking = bookingDataManager.random(lastBookingCapsuleId);
                 if (booking != null) {
                     BookingTj bookingCp = new BookingTj();
@@ -262,10 +274,14 @@ public class TestScheduled implements InitializingBean {
                         bookingCp.setPhone(user.getPhone());
                     }
                     sessionManager.sendMessage(pushBookingMessage);
-                    lastBookingTime = now.getTime();
                     lastBookingCapsuleId = bookingCp.getCapsule_id();
+                    planBooking();
                 }
             }
-        }
+        };
+        planPushBookingTimer.schedule(planPushBookingTask, delay);
+        log.debug("计划{}秒后推送订单", delay / 1000);
     }
+
+
 }
