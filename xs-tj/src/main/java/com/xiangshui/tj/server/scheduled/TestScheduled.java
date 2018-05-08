@@ -251,7 +251,7 @@ public class TestScheduled implements InitializingBean {
                 if (booking != null) {
                     BookingTj bookingCp = new BookingTj();
                     BeanUtils.copyProperties(booking, bookingCp);
-                    booking.setCreate_time(now.getTime() / 1000);
+                    bookingCp.setCreate_time(now.getTime() / 1000);
                     PushBookingMessage pushBookingMessage = new PushBookingMessage();
                     pushBookingMessage.setBooking(bookingCp);
                     pushBookingMessage.setArea(areaDataManager.getById(bookingCp.getArea_id()));
