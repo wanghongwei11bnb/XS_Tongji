@@ -9,6 +9,7 @@ import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.GeneralMessage;
 import com.xiangshui.tj.websocket.message.SendMessage;
+import com.xiangshui.util.CallBack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,35 +55,25 @@ public class GeneralTask extends AbstractTask<GeneralTask.Result> {
     }
 
     public void reduceCapsule(CapsuleTj capsule, Result result) {
-        if (capsule.getIs_downline() == 1) {
-            return;
-        }
-        AreaTj area = areaDataManager.getById(capsule.getArea_id());
-
-        if (area == null || area.getStatus() == -1) {
-            return;
-        }
-        result.countCapsule++;
-        if (area == null) {
-            return;
-        }
-        String cityName = area.getCity();
-        if (result.countCapsuleForCity.containsKey(cityName)) {
-            result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
-        }
+        isOnline(capsule, new CallBack<AreaTj>() {
+            @Override
+            public void run(AreaTj object) {
+                result.countCapsule++;
+                String cityName = object.getCity();
+                if (result.countCapsuleForCity.containsKey(cityName)) {
+                    result.countCapsuleForCity.put(cityName, result.countCapsuleForCity.get(cityName) + 1);
+                }
+            }
+        });
     }
 
-
     public void reduceArea(AreaTj area, Result result) {
-        if (area.getStatus() == -1) {
-            return;
-        }
-
-        result.countArea++;
-
-        String cityName = area.getCity();
-        if (result.countAreaForCity.containsKey(cityName)) {
-            result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
+        if (isOnline(area)) {
+            result.countArea++;
+            String cityName = area.getCity();
+            if (result.countAreaForCity.containsKey(cityName)) {
+                result.countAreaForCity.put(cityName, result.countAreaForCity.get(cityName) + 1);
+            }
         }
     }
 

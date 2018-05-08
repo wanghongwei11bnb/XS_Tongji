@@ -8,6 +8,7 @@ import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
 import com.xiangshui.tj.websocket.message.SendMessage;
 import com.xiangshui.tj.websocket.message.UsageRateMessage;
+import com.xiangshui.util.CallBack;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.NumberUtils;
 import org.springframework.stereotype.Component;
@@ -63,45 +64,49 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     @Override
     public void reduceBooking(BookingTj booking, Result result) {
         CapsuleTj capsule = capsuleDataManager.getById(booking.getCapsule_id());
-        if (capsule == null || capsule.getIs_downline() == 1) {
-            return;
-        }
-        AreaTj area = areaDataManager.getById(capsule.getArea_id());
-        if (area != null && area.getStatus() != -1) {
 
-            long start_time = booking.getCreate_time();
-            long end_time = booking.getEnd_time();
-            if (start_time <= 0) {
-                return;
-            }
-            start_time *= 1000;
-            if (end_time <= 0) {
-                end_time = result.end_hour.getTime();
-            } else {
-                end_time *= 1000;
-            }
-            if (end_time < result.start_hour.getTime()) {
-                return;
-            }
-
-            for (long ts : result.usageCumuMap.keySet()) {
-
-                if (end_time < ts || start_time >= ts + 1000 * 60 * 60) {
-                    continue;
+        isOnline(capsule, new CallBack<AreaTj>() {
+            @Override
+            public void run(AreaTj object) {
+                if (capsule.getLastBookingTime() != null && result.now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 24 * 2) {
+                    long start_time = booking.getCreate_time();
+                    long end_time = booking.getEnd_time();
+                    if (start_time <= 0) {
+                        return;
+                    }
+                    start_time *= 1000;
+                    if (end_time <= 0) {
+                        end_time = result.end_hour.getTime();
+                    } else {
+                        end_time *= 1000;
+                    }
+                    if (end_time < result.start_hour.getTime()) {
+                        return;
+                    }
+                    for (long ts : result.usageCumuMap.keySet()) {
+                        if (end_time < ts || start_time >= ts + 1000 * 60 * 60) {
+                            continue;
+                        }
+                        result.usageCumuMap.get(ts).add(booking.getCapsule_id());
+                    }
                 }
-                result.usageCumuMap.get(ts).add(booking.getCapsule_id());
+
             }
-        }
+        });
+
+
     }
 
     @Override
     public void reduceCapsule(CapsuleTj capsule, Result result) {
-        if (capsule.getIs_downline() != 1) {
-            AreaTj area = areaDataManager.getById(capsule.getArea_id());
-            if (area != null && area.getStatus() != -1) {
-                result.countCapsule++;
+        isOnline(capsule, new CallBack<AreaTj>() {
+            @Override
+            public void run(AreaTj object) {
+                if (capsule.getLastBookingTime() != null && result.now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 24 * 2) {
+                    result.countCapsule++;
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -113,9 +118,7 @@ public class UsageRateForHourTask extends AbstractTask<UsageRateForHourTask.Resu
     public static class Result {
 
         public int countCapsule;
-
         public Date now;
-
         public Date start_hour;
         public Date end_hour;
         public Map<Long, Set<Long>> usageCumuMap;

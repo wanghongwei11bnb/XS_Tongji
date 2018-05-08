@@ -176,9 +176,9 @@ public class TestScheduled implements InitializingBean {
                 cumulativeTimeTask,
                 countBookingForDaysTask
         }, new DataManager[]{
-                areaDataManager,
+                bookingDataManager,
                 capsuleDataManager,
-                bookingDataManager
+                areaDataManager,
         });
     }
 
