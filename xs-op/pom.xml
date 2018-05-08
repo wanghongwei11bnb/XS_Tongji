@@ -82,7 +82,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-dependencies</id>
+                        <id>copy-system</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
