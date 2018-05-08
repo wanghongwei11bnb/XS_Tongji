@@ -169,6 +169,14 @@
         </dependency>
 
 
+        <!-- spring-tx -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>4.3.13.RELEASE</version>
+        </dependency>
+
+
         <!-- elasticsearch -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
