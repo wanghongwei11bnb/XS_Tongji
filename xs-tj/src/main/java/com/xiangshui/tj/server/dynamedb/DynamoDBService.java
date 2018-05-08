@@ -151,7 +151,7 @@ public class DynamoDBService {
 
 
     public void loadCity() {
-        log.info("start reloadCity");
+        log.info("start loadCity");
         Table table = dynamoDB.getTable("city");
         ScanSpec scanSpec = new ScanSpec();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
