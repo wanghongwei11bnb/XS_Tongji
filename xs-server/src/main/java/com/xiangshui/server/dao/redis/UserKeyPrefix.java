@@ -10,8 +10,8 @@ public class UserKeyPrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix user_token = new UserKeyPrefix("user_token", 1000 * 60 * 60 * 24 * 7);
-    public static final KeyPrefix tech_article = new UserKeyPrefix("tech_article", 1000 * 60 * 10);
+    public static final KeyPrefix user_token = new UserKeyPrefix("user_token", 60 * 60 * 24 * 7);
+    public static final KeyPrefix tech_article = new UserKeyPrefix("tech_article", 60 * 10);
 
 
     public static void main(String[] args) {

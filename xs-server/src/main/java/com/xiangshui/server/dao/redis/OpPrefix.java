@@ -10,5 +10,5 @@ public class OpPrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix op_token = new OpPrefix("op_token", 1000 * 60 * 60 * 24);
+    public static final KeyPrefix op_token = new OpPrefix("op_token", 60 * 60 * 24);
 }

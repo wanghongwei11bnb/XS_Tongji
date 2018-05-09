@@ -11,6 +11,10 @@ var UUID = {
     }
 };
 
+function nullStringReplacer(k, v) {
+    return v === '' ? undefined : v;
+}
+
 
 Date.prototype.format = function (fmt) {
     if (!fmt) fmt = "yyyy-MM-dd hh:mm:ss";

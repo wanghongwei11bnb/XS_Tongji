@@ -5,6 +5,6 @@ public class SendMessagePrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix cache = new SendMessagePrefix("cache", 1000 * 60 * 60);
+    public static final KeyPrefix cache = new SendMessagePrefix("cache", 60 * 60);
 
 }

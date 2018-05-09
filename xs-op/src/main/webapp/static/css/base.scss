@@ -88,15 +88,15 @@
     }
     .modal-dialog {
       position: absolute;
-      top: 15px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       z-index: 2;
       width: 950px;
+      min-width: 70%;
       max-width: 95%;
       .modal-body {
         min-height: 100px;
-        max-height: 500px;
         overflow: auto;
       }
     }

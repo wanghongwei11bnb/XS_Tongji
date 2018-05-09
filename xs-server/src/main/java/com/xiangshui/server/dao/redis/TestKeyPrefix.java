@@ -10,6 +10,6 @@ public class TestKeyPrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix test = new TestKeyPrefix("test", 1000 * 60 * 1);
+    public static final KeyPrefix test = new TestKeyPrefix("test", 60 * 1);
 
 }

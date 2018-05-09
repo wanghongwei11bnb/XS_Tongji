@@ -119,6 +119,7 @@ class FailureModal extends Modal {
                             <option value="0">未处理</option>
                             <option value="1">已解决</option>
                             <option value="-1">未解决</option>
+                            <option value="2">处理中</option>
                         </select>
                     </td>
                 </tr>
@@ -129,6 +130,7 @@ class FailureModal extends Modal {
     };
 
     componentDidMount() {
+        super.componentDidMount();
         const {failure} = this.state;
         this.refs.op_description.value = failure.op_description;
         if (failure.op_status == 1) {

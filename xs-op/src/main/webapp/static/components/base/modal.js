@@ -1,10 +1,10 @@
 class ModalContainer extends React.Component {
     constructor(props) {
         super(props);
-        ModalContainer[props.id] = this;
-        this.state = {
-            zIndex: 100,
-        };
+        if (props.id) {
+            ModalContainer[props.id] = this;
+        }
+        this.state = {};
     }
 
     render() {
@@ -46,20 +46,32 @@ class Modal extends React.Component {
         }
     };
 
+    reViewSize = () => {
+        this.refs.body.style.maxHeight = window.innerHeight - this.refs.header.offsetHeight - this.refs.footer.offsetHeight - 50 + 'px';
+    };
+
     render() {
         const header = this.renderHeader();
         const body = this.renderBody();
         const footer = this.renderFooter();
-        return <div className="modal show clearfix">
-            <div className="modal-layer"/>
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    {header ? <div className="modal-header ">{header}</div> : null}
-                    {body ? <div className="modal-body">{body}</div> : null}
-                    {footer ? <div className="modal-footer ">{footer}</div> : null}
+        return <div ref="modal" className="modal show clearfix">
+            <div ref="layer" className="modal-layer"/>
+            <div ref="dialog" className="modal-dialog m-0">
+                <div ref="dialog" className="modal-content">
+                    <div ref="header" className="modal-header ">{header}</div>
+                    <div ref="body" className="modal-body">{body}</div>
+                    <div ref="footer" className="modal-footer ">{footer}</div>
                 </div>
             </div>
         </div>
+    }
+
+    componentDidMount() {
+        this.reViewSize();
+    }
+
+    componentDidUpdate() {
+        this.reViewSize();
     }
 }
 

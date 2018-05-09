@@ -2,6 +2,8 @@ package com.xiangshui.server.dao;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -10,13 +12,17 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.xiangshui.util.CallBack;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,10 +30,8 @@ abstract public class BaseDynamoDao<T> {
 
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     private static AmazonDynamoDB client;
     private static DynamoDB dynamoDB;
-
     private static boolean inited;
 
     static {
@@ -37,7 +41,6 @@ abstract public class BaseDynamoDao<T> {
             inited = true;
         }
     }
-
 
     @Value("${isdebug}")
     protected boolean debug;
@@ -70,18 +73,6 @@ abstract public class BaseDynamoDao<T> {
     public boolean deleteItem(PrimaryKey primaryKey) {
         Table table = getTable();
         DeleteItemOutcome outcome = table.deleteItem(primaryKey);
-        return true;
-    }
-
-    public boolean updateItem(PrimaryKey primaryKey, AttributeUpdate... attributeUpdates) {
-        Table table = getTable();
-        UpdateItemOutcome outcome = table.updateItem(primaryKey, attributeUpdates);
-        return true;
-    }
-
-    public boolean updateItem(UpdateItemSpec updateItemSpec) {
-        Table table = getTable();
-        UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
         return true;
     }
 
@@ -152,4 +143,61 @@ abstract public class BaseDynamoDao<T> {
         }
     }
 
+
+    public boolean updateItem(PrimaryKey primaryKey, AttributeUpdate... attributeUpdates) {
+        Table table = getTable();
+        UpdateItemOutcome outcome = table.updateItem(primaryKey, attributeUpdates);
+        return true;
+    }
+
+    public boolean updateItem(UpdateItemSpec updateItemSpec) {
+        Table table = getTable();
+        UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
+        return true;
+    }
+
+    public void updateItem(PrimaryKey primaryKey, T example, String[] fields) throws Exception {
+        List<AttributeUpdate> updateList = new ArrayList<AttributeUpdate>();
+        for (String fieldName : fields) {
+            Field field = tClass.getDeclaredField(fieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                Class<?> type = field.getType();
+                if (type == String.class) {
+                    if (StringUtils.isNotBlank((CharSequence) field.get(example))) {
+                        updateList.add(new AttributeUpdate(fieldName).put(field.get(example)));
+                    } else {
+                        updateList.add(new AttributeUpdate(fieldName).delete());
+                    }
+                } else if (type == byte.class || type == Byte.class
+                        || type == short.class || type == Short.class
+                        || type == int.class || type == Integer.class
+                        || type == long.class || type == Long.class
+                        || type == float.class || type == Float.class
+                        || type == double.class || type == Double.class
+                        || type == boolean.class || type == Boolean.class
+                        || type == char.class || type == Character.class) {
+                    if (field.get(example) == null) {
+                        updateList.add(new AttributeUpdate(fieldName).delete());
+                    } else {
+                        updateList.add(new AttributeUpdate(fieldName).put(field.get(example)));
+                    }
+                } else if (type == Date.class) {
+                    if (field.get(example) == null) {
+                        updateList.add(new AttributeUpdate(fieldName).delete());
+                    } else {
+                        updateList.add(new AttributeUpdate(fieldName).put(((Date) (field.get(example))).getTime()));
+                    }
+                } else {
+                    if (field.get(example) == null) {
+                        updateList.add(new AttributeUpdate(fieldName).delete());
+                    } else {
+                        updateList.add(new AttributeUpdate(fieldName).put(JSON.toJSON(field.get(example),new SerializeConfig())));
+                    }
+                }
+            }
+        }
+        Table table = getTable();
+        table.updateItem(primaryKey, updateList.toArray(new AttributeUpdate[0]));
+    }
 }

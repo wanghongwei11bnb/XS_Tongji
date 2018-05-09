@@ -10,5 +10,5 @@ public class CityKeyPrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix cache = new CityKeyPrefix("cache", 1000 * 60);
+    public static final KeyPrefix cache = new CityKeyPrefix("cache", 60);
 }

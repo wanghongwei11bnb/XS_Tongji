@@ -26,8 +26,8 @@ class AreaModal extends Modal {
             },
             area_img: this.refs.area_img.value,
             imgs: this.refs.imgs.getData(),
-            // types: this.refs.types.value,
             status: this.refs.status.value - 0,
+            is_external: this.refs.is_external.value - 0,
         };
         if (area_id) {
             request({
@@ -57,8 +57,6 @@ class AreaModal extends Modal {
 
 
     };
-
-
     renderHeader = () => {
         return '场地信息';
     };
@@ -173,6 +171,15 @@ class AreaModal extends Modal {
                     </td>
                 </tr>
                 <tr>
+                    <th>是否场地对外开放</th>
+                    <td>
+                        <select ref="is_external" className="form-control">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <th>状态</th>
                     <td>
                         <select ref="status" className="form-control">
@@ -187,14 +194,17 @@ class AreaModal extends Modal {
     };
 
     componentDidMount() {
+        super.componentDidMount();
         const {area} = this.state;
         if (area) {
             area.status = area.status || 0;
+            area.is_external = area.is_external || 0;
             this.refs.area_id.value = area.area_id;
             this.refs.title.value = area.title;
             this.refs.city.value = area.city;
             this.refs.address.value = area.address;
             this.refs.status.value = area.status;
+            this.refs.is_external.value = area.is_external;
 
             this.refs.contact.value = area.contact;
             this.refs.notification.value = area.notification;
@@ -234,17 +244,113 @@ class Page extends React.Component {
             {field: 'city', title: '城市'},
             {field: 'address', title: '地址'},
             {
+                field: 'is_external', title: '是否对外开放', render: (value, row, index) => {
+                    return value == 1 ? <span className="text-success">是</span> :
+                        <span className="text-danger">否</span>;
+                }
+            },
+            {field: 'contact', title: '联系方式'},
+            {field: 'minute_start', title: '最少时长'},
+            {
+                field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
+                    return value ? value.map((item) => {
+                        return <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div>
+                    }) : null;
+                }
+            },
+            {
+                field: 'location', title: '经纬度', render: (value, row, index) => {
+                    return value ?
+                        <div>经度：{value.longitude}，纬度：{value.latitude}</div>
+                        : null;
+                }
+            },
+            {
                 field: 'status', title: '状态',
                 render: (value, row, index) => {
-                    return value == -1 ? <span className="text-danger">已下线</span> : '正常';
+                    if (value == -1) {
+                        return <span className="text-danger">已下线</span>;
+                    } else if (value == -2) {
+                        return <span className="text-warning">待运营</span>;
+                    } else {
+                        return <span className="text-success">正常</span>;
+                    }
+                }
+            },
+            {
+                render: (value, row, index) => {
+                    return [
+                        <button type="button" className="btn btn-sm btn-primary"
+                                onClick={this.showCapsuleModal.bind(this, row.area_id)}>查看头等舱</button>,
+                        <button type="button" className="btn btn-sm btn-primary"
+                                onClick={this.editTypes.bind(this, row)}>编辑类型</button>
+                    ];
                 }
             },
         ];
         this.state = {columns};
     }
 
+    showCapsuleModal = (area_id) => {
+
+        const columns = [
+            {field: 'capsule_id', title: '头等舱编号'},
+            {field: 'device_id', title: '设备id'},
+            {field: 'area_id', title: '店铺id'},
+            {field: 'type', title: '设备类型'},
+            {
+                field: 'status', title: '设备状态', render: (value) => {
+                    switch (value) {
+                        case 1:
+                            return <span className="text-success">空闲</span>;
+                        case 2:
+                            return <span className="text-danger">占用</span>;
+                        default:
+                            break;
+                    }
+                }
+            },
+            {
+                field: 'create_time', title: '创建时间', render: (value) => {
+                    return value ? new Date(value * 1000).format('yyyy-MM-dd') : null;
+                }
+            },
+            {
+                field: 'update_time', title: '更新时间', render: (value) => {
+                    return value ? new Date(value * 1000).format('yyyy-MM-dd') : null;
+                }
+            },
+            {
+                render: (value) => {
+                    return [
+                        <button type="button" className="btn btn-sm m-1 btn-success">一键报修</button>,
+
+                    ];
+                }
+            },
+        ];
+
+        request({
+            url: `/api/capsule/search`, loading: true,
+            data: {area_id},
+            success: (resp) => {
+                if (resp.code == 0) {
+                    this.refs.modal.open(<AlertModal
+                        message={<Datagrid columns={columns} data={resp.data.list}></Datagrid>}></AlertModal>);
+                }
+            }
+        });
+
+
+    };
+
+    editTypes = (area) => {
+        this.refs.modal.open(<CapsuleTypeGridModal area_id={area.area_id} capsuleTypeList={area.types}
+                                                   onSuccess={this.load}></CapsuleTypeGridModal>);
+    };
+
     newArea = () => {
-        ModalContainer.modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
+        this.refs.modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
     };
 
     showArea = (area_id) => {
@@ -252,7 +358,7 @@ class Page extends React.Component {
             url: '/api/area/' + area_id, loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
-                    ModalContainer.modal.open(
+                    this.refs.modal.open(
                         <AreaModal area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
                                    onSuccess={this.load}></AreaModal>
                     );
@@ -282,6 +388,7 @@ class Page extends React.Component {
                 if (resp.code == 0) {
                     this.state.data = resp.data.list;
                     grid.state.data = resp.data.list;
+                    this.setState({});
                     grid.setState({});
                 } else {
                 }
@@ -294,26 +401,32 @@ class Page extends React.Component {
         return <div className="container-fluid my-3">
             <div className="m-1">
                 城市：
-                <select ref="city" className="form-control d-inline-block mx-3 w-auto">
+                <select ref="city" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value="">-- 全部城市 --</option>
                     {cityList ? cityList.map((city) => {
                         return <option value={city.city}>{city.city}</option>
                     }) : null}
                 </select>
                 状态：
-                <select ref="status" className="form-control d-inline-block mx-3 w-auto">
+                <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value="">-- 全部 --</option>
                     <option value="0">正常</option>
                     <option value="-1">已下线</option>
+                </select>
+                是否对外开放：
+                <select ref="is_external" className="form-control form-control-sm d-inline-block mx-3 w-auto">
+                    <option value="">-- 全部 --</option>
+                    <option value="0">否</option>
+                    <option value="1">是</option>
                 </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 <button type="button" className="btn btn-sm btn-success ml-1 float-right" onClick={this.newArea}>添加场地
                 </button>
             </div>
-
+            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回500条数据）</div>
             <Datagrid ref="grid" columns={columns}></Datagrid>
-            查询结果条数：{data ? data.length : null}
-            <ModalContainer id="modal"></ModalContainer>
+            <ModalContainer ref="modal"></ModalContainer>
+            <ModalContainer id="sub"></ModalContainer>
         </div>;
     }
 

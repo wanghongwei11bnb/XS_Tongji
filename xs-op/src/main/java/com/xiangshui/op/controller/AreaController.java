@@ -58,6 +58,7 @@ public class AreaController extends BaseController {
             filterList.add(new ScanFilter("area_id").eq(area_id));
         }
         scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
+        scanSpec.setMaxResultSize(500);
         List<Area> areaList = areaDao.scan(scanSpec);
         return new Result(CodeMsg.SUCCESS).putData("list", areaList);
     }
@@ -77,43 +78,43 @@ public class AreaController extends BaseController {
 
     @PostMapping("/api/area/{area_id}/update")
     @ResponseBody
-    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area area) {
+    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area area) throws Exception {
         if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
 
-        JSONObject json = (JSONObject) JSONObject.toJSON(area);
 
-//        if(StringUtils.isNotBlank(area.getTitle())){
-//            json.put("title",area.getTitle());
-//        }
-//
-//        if(StringUtils.isNotBlank(area.getCity())){
-//            json.put("city",area.getCity());
-//        }
-//
-//
-//        if(StringUtils.isNotBlank(area.getAddress())){
-//            json.put("address",area.getAddress());
-//        }
-//
-//
-//        if(StringUtils.isNotBlank(area.getArea_img())){
-//            json.put("area_img",area.getArea_img());
-//        }
-//
-//        if(StringUtils.isNotBlank(area.getContact())){
-//            json.put("contact",area.getContact());
-//        }
-//
-//        if(StringUtils.isNotBlank(area.getNotification())){
-//            json.put("notification",area.getNotification());
-//        }
-
-
-        areaService.update(area_id, json);
+        areaDao.updateItem(new PrimaryKey("area_id", area_id), area, new String[]{
+                "title",
+                "city",
+                "address",
+                "contact",
+                "notification",
+                "area_img",
+                "status",
+                "minute_start",
+                "imgs",
+                "location",
+                "rushHours",
+                "is_external",
+        });
         return new Result(CodeMsg.SUCCESS);
     }
 
+    @PostMapping("/api/area/{area_id}/update/types")
+    @ResponseBody
+    public Result update_types(@PathVariable("area_id") Integer area_id, @RequestBody Area area) throws Exception {
+        if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
 
+        if (area.getTypes() == null || area.getTypes().size() == 0) {
+            return new Result(-1, "头等舱类型不能为空");
+        }
+
+        areaDao.updateItem(new PrimaryKey("area_id", area_id), area, new String[]{
+                "types",
+        });
+        return new Result(CodeMsg.SUCCESS);
+    }
 }

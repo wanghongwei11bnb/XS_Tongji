@@ -22,12 +22,22 @@ public class Area {
     private List<RushHour> rushHours;
     private Integer minute_start;
 
+    private Integer is_external;
+
 
     private Location location;
 
     private List<String> imgs;
 
     private List<CapsuleType> types;
+
+    public Integer getIs_external() {
+        return is_external;
+    }
+
+    public void setIs_external(Integer is_external) {
+        this.is_external = is_external;
+    }
 
     public Integer getArea_id() {
         return area_id;

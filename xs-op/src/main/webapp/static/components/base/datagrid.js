@@ -1,3 +1,38 @@
+class Table extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    render() {
+        const {columns, data} = this.props;
+        const theadHtml = <thead>
+        <tr>{columns.map((column) => {
+            return <th width={column.width}>{column.title || column.field}</th>
+        })}</tr>
+        </thead>;
+        const tbodyHtml = <tbody>
+        {data ? data.map((row, index) => {
+            return <tr>
+                {columns.map((column, cIndex) => {
+                    let value = column.field ? row[column.field] : null;
+                    if (column.render) {
+                        return <td>{column.render(value, row, index)}</td>
+                    } else {
+                        return <td>{value}</td>;
+                    }
+                })}
+            </tr>
+        }) : null}
+        </tbody>;
+
+
+        return (<table className="table table-hover table-bordered">
+            {theadHtml}{tbodyHtml}
+        </table>);
+    }
+}
+
 class Datagrid extends React.Component {
     constructor(props) {
         super(props);

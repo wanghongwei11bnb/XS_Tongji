@@ -22,6 +22,7 @@ public class OpAuthInterceptor implements HandlerInterceptor {
     RedisService redisService;
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+        httpServletRequest.setAttribute("ts", System.currentTimeMillis());
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

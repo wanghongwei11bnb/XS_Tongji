@@ -11,22 +11,6 @@ public class CapsuleType {
     private String typeTitle;
 
 
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getRush_hour_price() {
-        return rush_hour_price;
-    }
-
-    public void setRush_hour_price(Integer rush_hour_price) {
-        this.rush_hour_price = rush_hour_price;
-    }
-
     public Integer getType_id() {
         return type_id;
     }
@@ -49,6 +33,22 @@ public class CapsuleType {
 
     public void setDay_max_price(Integer day_max_price) {
         this.day_max_price = day_max_price;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public Integer getRush_hour_price() {
+        return rush_hour_price;
+    }
+
+    public void setRush_hour_price(Integer rush_hour_price) {
+        this.rush_hour_price = rush_hour_price;
     }
 
     public String getPrice_rule_text() {

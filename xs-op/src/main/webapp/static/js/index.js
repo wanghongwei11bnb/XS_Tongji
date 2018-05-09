@@ -66,12 +66,12 @@ class Tabs extends React.Component {
 
     render() {
         const {tabs, activeIndex, height} = this.state;
-        return <div className="position-relative d-block ">
+        return <div className="position-relative d-block">
             <ul ref="nav" className="nav nav-tabs p-1">
                 {tabs ? tabs.map((tab, index) => {
                     return <li key={`tab-bar-${index}`} className="nav-item">
                         <div
-                            className={`nav-link d-inline-block ${activeIndex == index ? "active" : ""}`}>
+                            className={`nav-link d-inline-block p-1 ${activeIndex == index ? "active bg-primary text-white" : ""}`}>
                         <span className="hm d-inline-block" onClick={this.checkIndex.bind(this, index)}>
                             {tab.title}
                         </span>
@@ -108,7 +108,7 @@ class Iframe extends React.Component {
 
     componentDidMount() {
         // this.interval = setInterval(() => {
-        this.refs.iframe.height = window.innerHeight - 150;
+        this.refs.iframe.height = window.innerHeight - 120;
         // }, 100);
     }
 
@@ -139,6 +139,14 @@ class Page extends React.Component {
         const {} = this.state;
         return <div className="container-fluid">
             <ul className="nav nav-pills  mb-3 bg-secondary">
+                <li className="nav-item">
+                    <a className="nav-link text-white" href="javascript:void(0);"
+                       onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</a>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link text-white" href="javascript:void(0);"
+                       onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</a>
+                </li>
                 <li className="nav-item">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</a>

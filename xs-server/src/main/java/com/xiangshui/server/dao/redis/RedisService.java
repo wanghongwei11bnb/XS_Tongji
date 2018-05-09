@@ -78,6 +78,20 @@ public class RedisService implements InitializingBean {
     }
 
 
+    public long del(KeyPrefix keyPrefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
+            return jedis.del(realKey);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+
     public boolean exists(KeyPrefix keyPrefix, String key) {
         Jedis jedis = null;
         try {
@@ -171,5 +185,6 @@ public class RedisService implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+        this.del(CityKeyPrefix.cache, "list");
     }
 }
