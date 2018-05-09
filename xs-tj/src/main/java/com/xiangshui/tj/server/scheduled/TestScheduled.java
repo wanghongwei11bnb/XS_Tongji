@@ -249,14 +249,16 @@ public class TestScheduled implements InitializingBean {
         }
         Date now = new Date();
         long delay = 0;
-        if (11 <= now.getHours() && now.getHours() <= 14) {
-            delay = (long) (Math.random() * 1000 * 60 + 1000 * 15);
-        } else if (17 <= now.getHours() && now.getHours() <= 20) {
-            delay = (long) (Math.random() * 1000 * 60 + 1000 * 15);
-        } else {
+        if (11 <= now.getHours() && now.getHours() <= 14) {//午高峰
+            delay = (long) (Math.random() * 1000 * 30 + 1000 * 10);
+        } else if (17 <= now.getHours() && now.getHours() <= 20) {//晚高峰
+            delay = (long) (Math.random() * 1000 * 30 + 1000 * 10);
+        } else if ((22 <= now.getHours() && now.getHours() <= 23) || (0 <= now.getHours() && now.getHours() <= 6)) {//凌晨深夜
             delay = (long) (Math.random() * 1000 * 60 * 30 + 1000 * 60 * 30);
+        } else {//其他时段
+            delay = (long) (Math.random() * 1000 * 60 + 1000 * 60);
         }
-        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+//        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
 
         planPushBookingTask = new TimerTask() {
             @Override
