@@ -15,6 +15,7 @@ import com.xiangshui.tj.server.task.*;
 import com.xiangshui.tj.websocket.WebSocketSessionManager;
 import com.xiangshui.tj.websocket.message.PushBookingMessage;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -28,6 +29,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 
+import java.awt.geom.Area;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -254,29 +256,41 @@ public class TestScheduled implements InitializingBean {
         } else {
             delay = (long) (Math.random() * 1000 * 60 * 30 + 1000 * 60 * 30);
         }
-//        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
 
         planPushBookingTask = new TimerTask() {
             @Override
             public void run() {
-                BookingTj booking = bookingDataManager.random(lastBookingCapsuleId);
-                if (booking != null) {
-                    BookingTj bookingCp = new BookingTj();
-                    BeanUtils.copyProperties(booking, bookingCp);
-                    bookingCp.setCreate_time(now.getTime() / 1000);
-                    PushBookingMessage pushBookingMessage = new PushBookingMessage();
-                    pushBookingMessage.setBooking(bookingCp);
-                    pushBookingMessage.setArea(areaDataManager.getById(bookingCp.getArea_id()));
-                    pushBookingMessage.setCapsule(capsuleDataManager.getById(bookingCp.getCapsule_id()));
-                    UserTj user = userDataManager.getById(bookingCp.getUin());
-                    if (user != null) {
-                        bookingCp.setNick_name(user.getNick_name());
-                        bookingCp.setPhone(user.getPhone());
+                bookingDataManager.random(lastBookingCapsuleId, new CallBackForResult<BookingTj, Boolean>() {
+                    @Override
+                    public Boolean run(BookingTj booking) {
+                        CapsuleTj capsule = capsuleDataManager.getById(booking.getCapsule_id());
+                        if (capsule == null || capsule.getIs_downline() == 1) {
+                            return false;
+                        }
+                        AreaTj area = areaDataManager.getById(capsule.getArea_id());
+                        if (area == null || area.getStatus() == -1 || area.getTitle().indexOf("待运营") > -1 || area.getTitle().indexOf("已下线") > -1) {
+                            return false;
+                        }
+                        BookingTj bookingCp = new BookingTj();
+                        BeanUtils.copyProperties(booking, bookingCp);
+                        bookingCp.setCreate_time(now.getTime() / 1000);
+                        PushBookingMessage pushBookingMessage = new PushBookingMessage();
+                        pushBookingMessage.setBooking(bookingCp);
+                        pushBookingMessage.setArea(area);
+                        pushBookingMessage.setCapsule(capsule);
+                        UserTj user = userDataManager.getById(bookingCp.getUin());
+                        if (user != null) {
+                            bookingCp.setNick_name(user.getNick_name());
+                            bookingCp.setPhone(user.getPhone());
+                        }
+                        sessionManager.sendMessage(pushBookingMessage);
+                        lastBookingCapsuleId = bookingCp.getCapsule_id();
+                        planBooking();
+                        return true;
                     }
-                    sessionManager.sendMessage(pushBookingMessage);
-                    lastBookingCapsuleId = bookingCp.getCapsule_id();
-                    planBooking();
-                }
+                });
+
             }
         };
         planPushBookingTimer.schedule(planPushBookingTask, delay);
