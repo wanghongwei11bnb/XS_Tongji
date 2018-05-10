@@ -82,17 +82,25 @@ public class TestController {
                         long t = DateUtils.copyDateEndDate(now).getTime();
                         long ct = DateUtils.copyDateEndDate(capsule.getLastBookingTime()).getTime();
                         long c = (t - ct) / (1000 * 60 * 60 * 24);
-                        if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 1) {
-                            capsule.setLastBookingTimeText("1小时内");
-                        } else if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 12) {
-                            capsule.setLastBookingTimeText("12小时内");
-                        } else if (c <= 0) {
-                            capsule.setLastBookingTimeText("今天");
-                        } else if (c <= 1) {
+
+                        if (c > 1) {
+                            capsule.setLastBookingTimeText(c - 1 + "天前");
+                        } else if (c == 1) {
                             capsule.setLastBookingTimeText("昨天");
                         } else {
-                            capsule.setLastBookingTimeText(c + "天前");
+                            capsule.setLastBookingTimeText(DateUtils.format(capsule.getLastBookingTime(), "hh:mm"));
                         }
+//                        if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 1) {
+//                            capsule.setLastBookingTimeText("1小时内");
+//                        } else if (now.getTime() - capsule.getLastBookingTime().getTime() <= 1000 * 60 * 60 * 12) {
+//                            capsule.setLastBookingTimeText("12小时内");
+//                        } else if (c <= 0) {
+//                            capsule.setLastBookingTimeText("今天");
+//                        } else if (c <= 1) {
+//                            capsule.setLastBookingTimeText("昨天");
+//                        } else {
+//                            capsule.setLastBookingTimeText(c + "天前");
+//                        }
                     }
                     capsuleSet.add(relationService.getRelation(capsule));
                 }
