@@ -213,7 +213,9 @@ public class TestScheduled implements InitializingBean {
                         if (booking != null) {
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                             lastBookingCapsuleId = booking.getCapsule_id();
-                            planBooking();
+                            if (booking.getStatus() == 1) {
+                                planBooking();
+                            }
                         }
                     }
                 } catch (Exception e) {
