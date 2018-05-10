@@ -143,7 +143,7 @@ class Page extends React.Component {
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</a>
                 </li>
-                <li className="nav-item">
+                <li className="nav-item hide">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</a>
                 </li>
@@ -163,11 +163,23 @@ class Page extends React.Component {
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</a>
                 </li>
+                <li className="nav-item float-right">
+                    <a className="nav-link text-white" href="javascript:void(0);"
+                       onClick={this.logout}>推出</a>
+                </li>
             </ul>
 
             <Tabs ref="tabs"></Tabs>
         </div>;
     }
+
+    logout = () => {
+        request({
+            url: '/api/logout', method: 'post', success: () => {
+                location.reload();
+            }
+        });
+    };
 
     componentDidMount() {
     }

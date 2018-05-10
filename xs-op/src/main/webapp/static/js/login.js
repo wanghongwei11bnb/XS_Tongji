@@ -14,10 +14,10 @@ class Page extends React.Component {
             return;
         }
         request({
-            url: '/api/login', method: 'post',loading: true,
-            data:{
-                username:this.refs.username.value,
-                password:this.refs.password.value,
+            url: '/api/login', method: 'post', loading: true,
+            data: {
+                username: this.refs.username.value,
+                password: this.refs.password.value,
             },
             success: (resp) => {
                 if (resp.code == 0) {
@@ -28,7 +28,7 @@ class Page extends React.Component {
                         } else {
                             location.reload();
                         }
-                    }, 1000 * 2);
+                    }, 1000);
                 }
             }
         });
@@ -38,7 +38,7 @@ class Page extends React.Component {
         const {cityList, columns, data} = this.state;
         return <div className="cxy position-fixed">
             <input ref="username" type="text" className="form-control my-3" placeholder="用户名"/>
-            <input ref="password" type="text" className="form-control my-3" placeholder="密码"/>
+            <input ref="password" type="password" className="form-control my-3" placeholder="密码"/>
             <div className="text-right my-3">
                 <button type="button" className="btn btn-primary" onClick={this.onSubmit}>登录</button>
             </div>

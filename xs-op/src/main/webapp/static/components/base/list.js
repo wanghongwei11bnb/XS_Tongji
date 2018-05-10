@@ -31,7 +31,7 @@ class ListEditor extends React.Component {
 
     show = () => {
         let message = <pre><code>{JSON.stringify(this.state.data, 2, 2)}</code></pre>;
-        ModalContainer[this.state.modalId].open(<AlertModal message={message}></AlertModal>);
+        Modal.open(<AlertModal message={message}></AlertModal>);
     };
 
     getData = () => {
@@ -60,7 +60,6 @@ class ListEditor extends React.Component {
             {!!readOnly || <button type="button" className="btn btn-sm btn-primary mx-3" onClick={this.add}>添加</button>}
             {!!readOnly ||
             <button type="button" className="btn btn-sm btn-success mx-3" onClick={this.show}>查看</button>}
-            <ModalContainer id={modalId}></ModalContainer>
         </div>
     }
 }

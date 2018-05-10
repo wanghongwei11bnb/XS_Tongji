@@ -1,5 +1,3 @@
-
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -87,11 +85,11 @@ class Page extends React.Component {
     }
 
     edit = (failure) => {
-        ModalContainer.modal.open(<FailureModal failure={failure} onSuccess={this.load}></FailureModal>);
+        Modal.open(<FailureModal failure={failure} onSuccess={this.load}></FailureModal>);
     };
 
     addNew = () => {
-        ModalContainer.modal.open(<FailureModal isNew={true} onSuccess={this.load}></FailureModal>);
+        Modal.open(<FailureModal isNew={true} onSuccess={this.load}></FailureModal>);
     };
 
     search = () => {
@@ -133,7 +131,6 @@ class Page extends React.Component {
                 OP处理状态：
                 <select ref="op_status" className="form-control form-control-sm  d-inline-block mx-3 w-auto">
                     <option value=""></option>
-                    <option value="0">未处理</option>
                     <option value="1">处理中</option>
                     <option value="2">已解决</option>
                     <option value="-1">未解决</option>
@@ -152,7 +149,7 @@ class Page extends React.Component {
             <div className="table-responsive">
                 <Datagrid ref="grid" columns={columns}></Datagrid>
             </div>
-            <ModalContainer id="modal"></ModalContainer>
+            <ModalContainer></ModalContainer>
         </div>;
     }
 

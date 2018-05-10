@@ -151,7 +151,7 @@ class CapsuleTypeGridModal extends Modal {
 
 
     editRow = (index, row) => {
-        ModalContainer['sub'].open(<CapsuleTypeModal capsuleType={row} onSuccess={(data) => {
+        Modal.open(<CapsuleTypeModal capsuleType={row} onSuccess={(data) => {
             this.refs.grid.state.data[index] = data;
             this.refs.grid.setState({});
         }}></CapsuleTypeModal>);

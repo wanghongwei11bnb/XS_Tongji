@@ -336,7 +336,7 @@ class Page extends React.Component {
             data: {area_id},
             success: (resp) => {
                 if (resp.code == 0) {
-                    this.refs.modal.open(<AlertModal
+                    Modal.open(<AlertModal
                         message={<Datagrid columns={columns} data={resp.data.list}></Datagrid>}></AlertModal>);
                 }
             }
@@ -347,16 +347,16 @@ class Page extends React.Component {
 
 
     makeFailureByCapsule = (capsule_id) => {
-        ModalContainer.sub.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
+        Modal.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
     };
 
     editTypes = (area) => {
-        this.refs.modal.open(<CapsuleTypeGridModal area_id={area.area_id} capsuleTypeList={area.types}
-                                                   onSuccess={this.load}></CapsuleTypeGridModal>);
+        Modal.open(<CapsuleTypeGridModal area_id={area.area_id} capsuleTypeList={area.types}
+                                         onSuccess={this.load}></CapsuleTypeGridModal>);
     };
 
     newArea = () => {
-        this.refs.modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
+        Modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
     };
 
     showArea = (area_id) => {
@@ -364,7 +364,7 @@ class Page extends React.Component {
             url: '/api/area/' + area_id, loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
-                    this.refs.modal.open(
+                    Modal.open(
                         <AreaModal area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
                                    onSuccess={this.load}></AreaModal>
                     );
@@ -432,8 +432,7 @@ class Page extends React.Component {
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回500条数据）</div>
             <Datagrid ref="grid" columns={columns}></Datagrid>
-            <ModalContainer ref="modal"></ModalContainer>
-            <ModalContainer id="sub"></ModalContainer>
+            <ModalContainer></ModalContainer>
         </div>;
     }
 

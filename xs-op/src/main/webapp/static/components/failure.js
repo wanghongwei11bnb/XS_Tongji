@@ -157,9 +157,6 @@ class FailureModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <td colSpan={2} className="text-center">订单信息</td>
-                </tr>
-                <tr>
                     <th>订单编号</th>
                     <td>
                         <input ref="booking_id" readOnly={readOnly} disabled={disabled} type="text"
@@ -167,9 +164,19 @@ class FailureModal extends Modal {
                     </td>
                 </tr>
                 <tr>
+                    <td colSpan={2} className="text-center">报修信息</td>
+                </tr>
+                <tr>
                     <th>报修时间</th>
                     <td>
                         <input ref="create_time" readOnly={true} disabled={true} type="datetime"
+                               className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>req_from</th>
+                    <td>
+                        <input ref="req_from" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>
@@ -191,13 +198,6 @@ class FailureModal extends Modal {
                     <th>client_version</th>
                     <td>
                         <input ref="client_version" readOnly={readOnly} disabled={disabled} type="text"
-                               className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>req_from</th>
-                    <td>
-                        <input ref="req_from" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>

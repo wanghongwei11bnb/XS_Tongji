@@ -3,28 +3,35 @@ class ModalContainer extends React.Component {
         super(props);
         if (props.id) {
             ModalContainer[props.id] = this;
+        } else {
+            ModalContainer.default = this;
         }
-        this.state = {};
+        this.state = {
+            modalMap: {},
+            zIndex: 1000,
+        };
     }
 
     render() {
-        const {modal} = this.state;
-        return <div
-            className="modal-container">{modal ? React.cloneElement(modal, {modalContainer: this}) : null}</div>;
+        const {modalMap} = this.state;
+        const modals = [];
+        for (let id in modalMap) {
+            let modal = modalMap[id];
+            modals.push(modal);
+        }
+        return <div className="modal-container">{modals}</div>;
     }
 
     open = (modal) => {
-        this.state.modal = modal;
+        let id = UUID.get();
+        this.state.modalMap[id] = React.cloneElement(modal, {id, zIndex: ++this.state.zIndex, modalContainer: this});
         this.setState({});
     };
-    close = () => {
-        this.state.modal = null;
+    close = (id) => {
+        delete this.state.modalMap[id];
         this.setState({});
     };
 }
-
-
-
 
 
 class Modal extends React.Component {
@@ -46,7 +53,7 @@ class Modal extends React.Component {
     close = () => {
         const {modalContainer} = this.props;
         if (modalContainer) {
-            modalContainer.close();
+            modalContainer.close(this.props.id);
         }
     };
 
@@ -58,7 +65,7 @@ class Modal extends React.Component {
         const header = this.renderHeader();
         const body = this.renderBody();
         const footer = this.renderFooter();
-        return <div ref="modal" className="modal show clearfix">
+        return <div ref="modal" className="modal show clearfix" style={{zIndex: this.props.zIndex}}>
             <div ref="layer" className="modal-layer"/>
             <div ref="dialog" className="modal-dialog m-0">
                 <div ref="dialog" className="modal-content">
@@ -78,6 +85,10 @@ class Modal extends React.Component {
         this.reViewSize();
     }
 }
+
+Modal.open = function (modal) {
+    ModalContainer.default.open(modal);
+};
 
 class AlertModal extends Modal {
 
