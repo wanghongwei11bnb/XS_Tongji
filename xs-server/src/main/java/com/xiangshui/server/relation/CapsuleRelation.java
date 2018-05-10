@@ -5,4 +5,12 @@ import com.xiangshui.server.domain.Capsule;
 
 public class CapsuleRelation extends Capsule {
     private Area areaObj;
+
+    public Area getAreaObj() {
+        return areaObj;
+    }
+
+    public void setAreaObj(Area areaObj) {
+        this.areaObj = areaObj;
+    }
 }

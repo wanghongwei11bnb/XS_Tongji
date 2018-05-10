@@ -139,7 +139,7 @@ class Page extends React.Component {
         const {} = this.state;
         return <div className="container-fluid">
             <ul className="nav nav-pills  mb-3 bg-secondary">
-                <li className="nav-item">
+                <li className="nav-item hide">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</a>
                 </li>
@@ -147,7 +147,7 @@ class Page extends React.Component {
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</a>
                 </li>
-                <li className="nav-item">
+                <li className="nav-item hide">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</a>
                 </li>
@@ -159,7 +159,7 @@ class Page extends React.Component {
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</a>
                 </li>
-                <li className="nav-item">
+                <li className="nav-item hide">
                     <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</a>
                 </li>

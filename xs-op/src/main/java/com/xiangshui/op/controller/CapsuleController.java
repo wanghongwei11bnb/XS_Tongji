@@ -7,11 +7,13 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.CapsuleDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CityService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +46,26 @@ public class CapsuleController extends BaseController {
         scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
         scanSpec.setMaxResultSize(500);
         List<Capsule> capsuleList = capsuleDao.scan(scanSpec);
-
         return new Result(CodeMsg.SUCCESS).putData("list", capsuleList);
+    }
+
+
+    @GetMapping("/api/capsule/{capsule_id:\\d+}")
+    @ResponseBody
+    public Result get(@PathVariable("capsule_id") Long capsule_id) {
+        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+        if (capsule == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
+        if (area != null) {
+            CapsuleRelation capsuleRelation = new CapsuleRelation();
+            BeanUtils.copyProperties(capsule, capsuleRelation);
+            capsuleRelation.setAreaObj(area);
+            return new Result(CodeMsg.SUCCESS).putData("capsule", capsuleRelation);
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("capsule", capsule);
+        }
     }
 
 

@@ -62,7 +62,7 @@ class AreaModal extends Modal {
     };
     renderFooter = () => {
         return <span className="float-right">
-                <button type="button" className="btn btn-link text-primary" onClick={this.onSubmit}>保存</button>
+                <button type="button" className="btn btn-link text-primary hide" onClick={this.onSubmit}>保存</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
             </span>;
     };
@@ -282,7 +282,7 @@ class Page extends React.Component {
                     return [
                         <button type="button" className="btn btn-sm btn-primary"
                                 onClick={this.showCapsuleModal.bind(this, row.area_id)}>查看头等舱</button>,
-                        <button type="button" className="btn btn-sm btn-primary"
+                        <button type="button" className="btn btn-sm btn-primary hide"
                                 onClick={this.editTypes.bind(this, row)}>编辑类型</button>
                     ];
                 }
@@ -321,9 +321,10 @@ class Page extends React.Component {
                 }
             },
             {
-                render: (value) => {
+                render: (value, row, index) => {
                     return [
-                        <button type="button" className="btn btn-sm m-1 btn-success">一键报修</button>,
+                        <button type="button" className="btn btn-sm m-1 btn-success"
+                                onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>一键报修</button>,
 
                     ];
                 }
@@ -342,6 +343,11 @@ class Page extends React.Component {
         });
 
 
+    };
+
+
+    makeFailureByCapsule = (capsule_id) => {
+        ModalContainer.sub.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
     };
 
     editTypes = (area) => {
@@ -420,7 +426,8 @@ class Page extends React.Component {
                     <option value="1">是</option>
                 </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                <button type="button" className="btn btn-sm btn-success ml-1 float-right" onClick={this.newArea}>添加场地
+                <button type="button" className="btn btn-sm btn-success ml-1 float-right hide"
+                        onClick={this.newArea}>添加场地
                 </button>
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回500条数据）</div>
