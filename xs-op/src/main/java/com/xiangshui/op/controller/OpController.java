@@ -61,6 +61,7 @@ public class OpController extends BaseController {
             for (Cookie cookie : cookies) {
                 if ("op_token".equals(cookie.getName())) {
                     cookie.setMaxAge(0);
+                    response.addCookie(cookie);
                     redisService.del(OpPrefix.op_token, cookie.getValue());
                     break;
                 }
