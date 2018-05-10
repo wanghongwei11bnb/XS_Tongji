@@ -439,7 +439,7 @@ class Page extends React.Component {
     componentDidMount() {
         this.search();
         reqwest({
-            url: '/api/cityList',
+            url: '/api/activeCityList',
             success: (resp) => {
                 if (resp.code == 0) {
                     this.setState({cityList: resp.data.cityList});

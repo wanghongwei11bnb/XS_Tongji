@@ -286,7 +286,7 @@ class Page extends React.Component {
     componentDidMount() {
         this.search();
         request({
-            url: '/api/cityList', loading: true,
+            url: '/api/activeCityList', loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
                     this.setState({cityList: resp.data.cityList});

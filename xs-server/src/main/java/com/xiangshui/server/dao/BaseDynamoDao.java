@@ -1,30 +1,25 @@
 package com.xiangshui.server.dao;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.search.highlight.QueryScorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 abstract public class BaseDynamoDao<T> {
 
@@ -192,12 +187,36 @@ abstract public class BaseDynamoDao<T> {
                     if (field.get(example) == null) {
                         updateList.add(new AttributeUpdate(fieldName).delete());
                     } else {
-                        updateList.add(new AttributeUpdate(fieldName).put(JSON.toJSON(field.get(example),new SerializeConfig())));
+                        updateList.add(new AttributeUpdate(fieldName).put(JSON.toJSON(field.get(example), new SerializeConfig())));
                     }
                 }
             }
         }
         Table table = getTable();
         table.updateItem(primaryKey, updateList.toArray(new AttributeUpdate[0]));
+    }
+
+    public List<T> batchGetItem(String hashKeyName, Object[] hashKeyValues, String[] attributeNames) {
+        TableKeysAndAttributes tableKeysAndAttributes = new TableKeysAndAttributes(getFullTableName());
+        tableKeysAndAttributes.addHashOnlyPrimaryKeys(hashKeyName, hashKeyValues);
+        if (attributeNames != null) {
+            tableKeysAndAttributes.withAttributeNames(attributeNames);
+        }
+        BatchGetItemOutcome outcome = dynamoDB.batchGetItem(ReturnConsumedCapacity.TOTAL, tableKeysAndAttributes);
+        Map<String, List<Item>> tableItems = outcome.getTableItems();
+        for (Map.Entry<String, List<Item>> entry : tableItems.entrySet()) {
+            if (getFullTableName().equals(entry.getKey())) {
+                List<T> list = new ArrayList();
+                for (Item item : entry.getValue()) {
+                    list.add(JSON.parseObject(item.toJSON(), tClass));
+                }
+                return list;
+            }
+        }
+        return null;
+    }
+
+    public List<T> batchGetItem(String hashKeyName, Object[] hashKeyValues) {
+        return batchGetItem(hashKeyName, hashKeyValues, null);
     }
 }

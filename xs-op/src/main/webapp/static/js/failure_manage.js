@@ -158,8 +158,8 @@ class Page extends React.Component {
         this.refs.start_date.value = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7).format('yyyy-MM-dd');
         this.refs.end_date.value = now.format('yyyy-MM-dd');
         this.search();
-        reqwest({
-            url: '/api/cityList',
+        request({
+            url: '/api/activeCityList',
             success: (resp) => {
                 if (resp.code == 0) {
                     this.setState({cityList: resp.data.cityList});

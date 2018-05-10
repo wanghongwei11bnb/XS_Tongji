@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class CityController extends BaseController{
+public class CityController extends BaseController {
 
     @Autowired
     CityService cityService;
@@ -23,5 +23,11 @@ public class CityController extends BaseController{
     @ResponseBody
     public Result cityList() {
         return new Result(CodeMsg.SUCCESS).putData("cityList", cityService.getCityList());
+    }
+
+    @GetMapping("/api/activeCityList")
+    @ResponseBody
+    public Result activeCityList() {
+        return new Result(CodeMsg.SUCCESS).putData("cityList", cityService.getActiveCityList());
     }
 }

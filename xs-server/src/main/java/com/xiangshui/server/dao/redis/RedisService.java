@@ -91,12 +91,38 @@ public class RedisService implements InitializingBean {
         }
     }
 
+    public long del(KeyPrefix keyPrefix) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
+            return jedis.del(realKey);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
 
     public boolean exists(KeyPrefix keyPrefix, String key) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
             String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
+            return jedis.exists(realKey);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public boolean exists(KeyPrefix keyPrefix) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
             return jedis.exists(realKey);
         } finally {
             if (jedis != null) {
@@ -118,11 +144,45 @@ public class RedisService implements InitializingBean {
         }
     }
 
+    public long expire(KeyPrefix keyPrefix) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
+            return jedis.expire(realKey, keyPrefix.expiry);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
     public <T> boolean set(KeyPrefix keyPrefix, String key, T value) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
             String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
+            String str = beanToString(value);
+            if (keyPrefix.expiry > 0) {
+                jedis.setex(realKey, keyPrefix.expiry, str);
+            } else {
+                jedis.set(realKey, str);
+            }
+            jedis.set(realKey, str);
+
+            return true;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public <T> boolean set(KeyPrefix keyPrefix, T value) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
             String str = beanToString(value);
             if (keyPrefix.expiry > 0) {
                 jedis.setex(realKey, keyPrefix.expiry, str);
@@ -154,12 +214,38 @@ public class RedisService implements InitializingBean {
         }
     }
 
+    public <T> T get(KeyPrefix keyPrefix, Class<T> clazz) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
+            String str = jedis.get(realKey);
+            T obj = stringToBean(str, clazz);
+            return obj;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
 
     public Long incr(KeyPrefix keyPrefix, String key) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
             String realKey = ambientPrefix() + keyPrefix.getRealKey(key);
+            return jedis.incr(realKey);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+    public Long incr(KeyPrefix keyPrefix) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = ambientPrefix() + keyPrefix.getRealKey();
             return jedis.incr(realKey);
         } finally {
             if (jedis != null) {
@@ -185,6 +271,7 @@ public class RedisService implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
-        this.del(CityKeyPrefix.cache, "list");
+        this.del(CityKeyPrefix.list_active);
+        this.del(CityKeyPrefix.list_all);
     }
 }
