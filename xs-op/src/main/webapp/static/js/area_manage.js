@@ -14,7 +14,7 @@ class AreaModal extends Modal {
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
-            city: this.refs.city.value,
+            // city: this.refs.city.value,
             address: this.refs.address.value,
             contact: this.refs.contact.value,
             notification: this.refs.notification.value,
@@ -87,7 +87,7 @@ class AreaModal extends Modal {
                 <tr>
                     <th>城市</th>
                     <td>
-                        <select ref="city" className="form-control">
+                        <select ref="city" disabled={true} className="form-control">
                             <option value=""></option>
                             {cityList.map((city) => {
                                 return <option value={city.city}>{city.city}</option>
@@ -237,8 +237,7 @@ class Page extends React.Component {
             {
                 field: 'area_id', title: '场地编号',
                 render: (value, row, index) => {
-                    return <button type="button" className="btn btn-link btn-sm"
-                                   onClick={this.showArea.bind(this, value)}>{value}</button>;
+                    return <A onClick={this.showArea.bind(this, value)}>{value}</A>;
                 }
             },
             {field: 'title', title: '标题'},
@@ -342,8 +341,6 @@ class Page extends React.Component {
                 }
             }
         });
-
-
     };
 
 
@@ -390,11 +387,12 @@ class Page extends React.Component {
             data: {
                 city: this.refs.city.value,
                 status: this.refs.status.value,
+                is_external: this.refs.is_external.value,
             },
             success: (resp) => {
                 if (resp.code == 0) {
-                    this.state.data = resp.data.list;
-                    grid.state.data = resp.data.list;
+                    this.state.data = resp.data.areaList;
+                    grid.state.data = resp.data.areaList;
                     this.setState({});
                     grid.setState({});
                 } else {

@@ -38,31 +38,31 @@ public class AreaController extends BaseController {
 
     @GetMapping("/api/area/search")
     @ResponseBody
-    public Result search(String city, Integer area_type_id, Integer status, Integer area_id) {
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-        if (StringUtils.isNotBlank(city)) {
-            filterList.add(new ScanFilter("city").eq(city));
+    public Result search(Area criteria) throws NoSuchFieldException, IllegalAccessException {
+
+        if (criteria.getArea_id() != null) {
+            Area area = areaService.getAreaById(criteria.getArea_id());
+            if (area == null) {
+                return new Result(CodeMsg.SUCCESS);
+            } else {
+                return new Result(CodeMsg.SUCCESS).putData("areaList", new Area[]{area});
+            }
+        } else {
+
+            ScanSpec scanSpec = new ScanSpec();
+            List<ScanFilter> filterList = areaDao.makeScanFilterList(criteria, new String[]{
+                    "city", "status", "is_external",
+            });
+            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
+            List<Area> areaList = areaDao.scan(scanSpec);
+            return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
         }
-        if (area_type_id != null) {
-            filterList.add(new ScanFilter("area_type_id").eq(area_type_id));
-        }
-        if (status != null) {
-            filterList.add(new ScanFilter("status").eq(status));
-        }
-        if (area_id != null) {
-            filterList.add(new ScanFilter("area_id").eq(area_id));
-        }
-        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
-        scanSpec.setMaxResultSize(500);
-        List<Area> areaList = areaDao.scan(scanSpec);
-        return new Result(CodeMsg.SUCCESS).putData("list", areaList);
     }
 
 
     @GetMapping("/api/area/{area_id}")
     @ResponseBody
-    public Result area(@PathVariable("area_id") Integer area_id) {
+    public Result get(@PathVariable("area_id") Integer area_id) {
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
         if (area != null) {
             return new Result(CodeMsg.SUCCESS).putData("area", area);
@@ -74,15 +74,15 @@ public class AreaController extends BaseController {
 
     @PostMapping("/api/area/{area_id}/update")
     @ResponseBody
-    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area area) throws Exception {
+    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
         if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
 
 
-        areaDao.updateItem(new PrimaryKey("area_id", area_id), area, new String[]{
+        areaDao.updateItem(new PrimaryKey("area_id", area_id), criteria, new String[]{
                 "title",
-                "city",
+//                "city",
                 "address",
                 "contact",
                 "notification",
