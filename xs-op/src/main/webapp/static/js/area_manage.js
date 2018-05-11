@@ -26,7 +26,7 @@ class AreaModal extends Modal {
             },
             area_img: this.refs.area_img.value,
             imgs: this.refs.imgs.getData(),
-            status: this.refs.status.value - 0,
+            status: this.refs.status.value ? this.refs.status.value - 0 : null,
             is_external: this.refs.is_external.value - 0,
         };
         if (area_id) {
@@ -183,8 +183,9 @@ class AreaModal extends Modal {
                     <th>状态</th>
                     <td>
                         <select ref="status" className="form-control">
-                            <option value="0">正常</option>
+                            <option value="">正常</option>
                             <option value="-1">已下架</option>
+                            <option value="-2">待运营</option>
                         </select>
                     </td>
                 </tr>
@@ -416,8 +417,8 @@ class Page extends React.Component {
                 状态：
                 <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value="">-- 全部 --</option>
-                    <option value="0">正常</option>
                     <option value="-1">已下线</option>
+                    <option value="-2">待运营</option>
                 </select>
                 是否对外开放：
                 <select ref="is_external" className="form-control form-control-sm d-inline-block mx-3 w-auto">

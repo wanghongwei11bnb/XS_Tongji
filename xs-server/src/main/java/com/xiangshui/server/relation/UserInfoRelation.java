@@ -7,31 +7,32 @@ import com.xiangshui.server.domain.UserWallet;
 
 public class UserInfoRelation extends UserInfo {
 
-    private UserWallet userWalletObj;
-    private UserRegister userRegisterObj;
-    private UserFace userFaceObj;
+    private UserWallet _userWallet;
+    private UserRegister _userRegister;
 
-    public UserWallet getUserWalletObj() {
-        return userWalletObj;
+    private UserFace _userFace;
+
+    public UserWallet get_userWallet() {
+        return _userWallet;
     }
 
-    public void setUserWalletObj(UserWallet userWalletObj) {
-        this.userWalletObj = userWalletObj;
+    public void set_userWallet(UserWallet _userWallet) {
+        this._userWallet = _userWallet;
     }
 
-    public UserRegister getUserRegisterObj() {
-        return userRegisterObj;
+    public UserRegister get_userRegister() {
+        return _userRegister;
     }
 
-    public void setUserRegisterObj(UserRegister userRegisterObj) {
-        this.userRegisterObj = userRegisterObj;
+    public void set_userRegister(UserRegister _userRegister) {
+        this._userRegister = _userRegister;
     }
 
-    public UserFace getUserFaceObj() {
-        return userFaceObj;
+    public UserFace get_userFace() {
+        return _userFace;
     }
 
-    public void setUserFaceObj(UserFace userFaceObj) {
-        this.userFaceObj = userFaceObj;
+    public void set_userFace(UserFace _userFace) {
+        this._userFace = _userFace;
     }
 }

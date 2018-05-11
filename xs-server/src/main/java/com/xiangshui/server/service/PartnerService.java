@@ -176,7 +176,7 @@ public class PartnerService {
         }
         PartnerRelation partnerRelation = new PartnerRelation();
         BeanUtils.copyProperties(partner, partnerRelation);
-        partnerRelation.setAreaList(getAreaListByPartner(partner, new String[]{"area_id", "title", "address"}));
+        partnerRelation.set_areaList(getAreaListByPartner(partner, new String[]{"area_id", "title", "address"}));
         return partnerRelation;
     }
 

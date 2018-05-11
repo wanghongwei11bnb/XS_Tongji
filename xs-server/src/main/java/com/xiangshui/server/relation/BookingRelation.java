@@ -6,31 +6,31 @@ import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.UserInfo;
 
 public class BookingRelation extends Booking {
-    private UserInfo userInfoObj;
-    private Capsule capsuleObj;
-    private Area areaObj;
+    private UserInfo _userInfo;
+    private Capsule _capsule;
+    private Area _area;
 
-    public UserInfo getUserInfoObj() {
-        return userInfoObj;
+    public UserInfo get_userInfo() {
+        return _userInfo;
     }
 
-    public void setUserInfoObj(UserInfo userInfoObj) {
-        this.userInfoObj = userInfoObj;
+    public void set_userInfo(UserInfo _userInfo) {
+        this._userInfo = _userInfo;
     }
 
-    public Capsule getCapsuleObj() {
-        return capsuleObj;
+    public Capsule get_capsule() {
+        return _capsule;
     }
 
-    public void setCapsuleObj(Capsule capsuleObj) {
-        this.capsuleObj = capsuleObj;
+    public void set_capsule(Capsule _capsule) {
+        this._capsule = _capsule;
     }
 
-    public Area getAreaObj() {
-        return areaObj;
+    public Area get_area() {
+        return _area;
     }
 
-    public void setAreaObj(Area areaObj) {
-        this.areaObj = areaObj;
+    public void set_area(Area _area) {
+        this._area = _area;
     }
 }

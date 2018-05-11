@@ -71,7 +71,7 @@ class Tabs extends React.Component {
                 {tabs ? tabs.map((tab, index) => {
                     return <li key={`tab-bar-${index}`} className="nav-item">
                         <div
-                            className={`nav-link d-inline-block p-1 ${activeIndex == index ? "active bg-primary text-white" : ""}`}>
+                            className={`nav-link d-inline-block p-1 ${activeIndex == index ? "active btn-primary text-white" : ""}`}>
                         <span className="hm d-inline-block" onClick={this.checkIndex.bind(this, index)}>
                             {tab.title}
                         </span>
@@ -157,6 +157,10 @@ class Page extends React.Component {
                 </li>
                 <li className="nav-item">
                     <a className="nav-link text-white" href="javascript:void(0);"
+                       onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</a>
+                </li>
+                <li className="nav-item">
+                    <a className="nav-link text-white" href="javascript:void(0);"
                        onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</a>
                 </li>
                 <li className="nav-item hide">
@@ -165,7 +169,7 @@ class Page extends React.Component {
                 </li>
                 <li className="nav-item float-right">
                     <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.logout}>推出</a>
+                       onClick={this.logout}>安全退出</a>
                 </li>
             </ul>
 

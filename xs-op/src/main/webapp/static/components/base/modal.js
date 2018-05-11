@@ -47,7 +47,9 @@ class Modal extends React.Component {
         return this.state.body || null;
     };
     renderFooter = () => {
-        return this.state.footer || null;
+        return <span className="float-right">
+                <button type="button" className="btn btn-link text-secondary" onClick={this.close}>关闭</button>
+            </span>;
     };
 
     close = () => {

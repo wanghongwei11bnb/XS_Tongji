@@ -61,7 +61,7 @@ public class CapsuleController extends BaseController {
         if (area != null) {
             CapsuleRelation capsuleRelation = new CapsuleRelation();
             BeanUtils.copyProperties(capsule, capsuleRelation);
-            capsuleRelation.setAreaObj(area);
+            capsuleRelation.set_area(area);
             return new Result(CodeMsg.SUCCESS).putData("capsule", capsuleRelation);
         } else {
             return new Result(CodeMsg.SUCCESS).putData("capsule", capsule);

@@ -201,7 +201,7 @@ public class FailureReportController extends BaseController {
         }
         FailureReportRelation failureReportRelation = new FailureReportRelation();
         failureReportRelation.setArea_id(area_id);
-        failureReportRelation.setAreaObj(area);
+        failureReportRelation.set_area(area);
         return new Result(CodeMsg.SUCCESS).putData("failure", failureReportRelation);
     }
 
@@ -218,7 +218,7 @@ public class FailureReportController extends BaseController {
         Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
         if (area != null) {
             failureReportRelation.setArea_id(capsule.getArea_id());
-            failureReportRelation.setAreaObj(area);
+            failureReportRelation.set_area(area);
         }
         return new Result(CodeMsg.SUCCESS).putData("failure", failureReportRelation);
     }
@@ -238,7 +238,7 @@ public class FailureReportController extends BaseController {
         Area area = areaDao.getItem(new PrimaryKey("area_id", booking.getArea_id()));
         if (area != null) {
             failureReportRelation.setArea_id(booking.getArea_id());
-            failureReportRelation.setAreaObj(area);
+            failureReportRelation.set_area(area);
         }
         return new Result(CodeMsg.SUCCESS).putData("failure", failureReportRelation);
     }

@@ -34,6 +34,13 @@
                 </property>
                 <property name="writeAcceptCharset" value="false"/>
             </bean>
+            <!--<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">-->
+                <!--<property name="supportedMediaTypes">-->
+                    <!--<list>-->
+                        <!--<value>application/json;charset=UTF-8</value>-->
+                    <!--</list>-->
+                <!--</property>-->
+            <!--</bean>-->
         </mvc:message-converters>
     </mvc:annotation-driven>
 

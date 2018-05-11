@@ -24,8 +24,8 @@ class FailureModal extends Modal {
                 if (resp.data.capsule) {
                     let capsule = resp.data.capsule;
                     this.refs.area_id.value = capsule.area_id;
-                    if (capsule.areaObj) {
-                        let area = capsule.areaObj;
+                    if (capsule._area) {
+                        let area = capsule._area;
                         this.refs.area_title.value = area.title;
                         this.refs.area_city.value = area.city;
                         this.refs.area_address.value = area.address;
@@ -36,7 +36,7 @@ class FailureModal extends Modal {
     };
 
     renderHeader = () => {
-        return '故障保修审批处理';
+        return '故障报修';
     };
     renderFooter = () => {
         return <span className="float-right">
@@ -249,11 +249,11 @@ class FailureModal extends Modal {
             this.refs.capsule_id.value = failure.capsule_id;
             this.refs.area_id.value = failure.area_id;
 
-            if (failure.areaObj) {
+            if (failure._area) {
 
-                this.refs.area_title.value = failure.areaObj.title;
-                this.refs.area_city.value = failure.areaObj.city;
-                this.refs.area_address.value = failure.areaObj.address;
+                this.refs.area_title.value = failure._area.title;
+                this.refs.area_city.value = failure._area.city;
+                this.refs.area_address.value = failure._area.address;
             }
             this.refs.uin.value = failure.uin;
             this.refs.phone.value = failure.phone;

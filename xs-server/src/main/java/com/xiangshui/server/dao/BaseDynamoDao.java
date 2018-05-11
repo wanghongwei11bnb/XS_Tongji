@@ -12,6 +12,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,9 @@ abstract public class BaseDynamoDao<T> {
 
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private static AmazonDynamoDB client;
-    private static DynamoDB dynamoDB;
-    private static boolean inited;
+    protected static AmazonDynamoDB client;
+    protected static DynamoDB dynamoDB;
+    protected static boolean inited;
 
     static {
         if (!inited) {
@@ -93,6 +94,9 @@ abstract public class BaseDynamoDao<T> {
 
 
     public List<T> scan(ScanSpec scanSpec) {
+        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() == 0 || scanSpec.getMaxResultSize() > 500) {
+            scanSpec.setMaxResultSize(500);
+        }
         Table table = getTable();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         List<T> list = new ArrayList();
@@ -219,4 +223,36 @@ abstract public class BaseDynamoDao<T> {
     public List<T> batchGetItem(String hashKeyName, Object[] hashKeyValues) {
         return batchGetItem(hashKeyName, hashKeyValues, null);
     }
+
+
+    public List<ScanFilter> makeScanFilterList(T t, String... fields) throws NoSuchFieldException, IllegalAccessException {
+        Set<String> fieldSet = new HashSet<String>();
+        if (fields == null || fields.length == 0) {
+            for (Field field : tClass.getDeclaredFields()) {
+                fieldSet.add(field.getName());
+            }
+        } else {
+            for (String fieldName : fields) {
+                fieldSet.add(fieldName);
+            }
+        }
+        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
+        for (String fieldName : fieldSet) {
+            Field field = tClass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            Class<?> type = field.getType();
+            if (type == String.class) {
+                if (StringUtils.isNotBlank((CharSequence) field.get(t))) {
+                    filterList.add(new ScanFilter(fieldName).eq(field.get(t)));
+                }
+            } else {
+                if (field.get(t) != null) {
+                    filterList.add(new ScanFilter(fieldName).eq(field.get(t)));
+                }
+            }
+        }
+        return filterList;
+    }
+
+
 }

@@ -48,11 +48,7 @@ public class AreaController extends BaseController {
             filterList.add(new ScanFilter("area_type_id").eq(area_type_id));
         }
         if (status != null) {
-            if (status == -1) {
-                filterList.add(new ScanFilter("status").eq(-1));
-            } else {
-                filterList.add(new ScanFilter("status").ne(-1));
-            }
+            filterList.add(new ScanFilter("status").eq(status));
         }
         if (area_id != null) {
             filterList.add(new ScanFilter("area_id").eq(area_id));

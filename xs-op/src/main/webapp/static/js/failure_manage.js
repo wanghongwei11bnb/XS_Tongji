@@ -15,7 +15,7 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: 'areaObj', title: '场地标题', render: (value, row, index) => {
+                    field: '_area', title: '场地标题', render: (value, row, index) => {
                         if (value) {
                             return value.title;
                         } else {
@@ -24,7 +24,7 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: 'areaObj', title: '城市/地址', width: 200, render: (value, row, index) => {
+                    field: '_area', title: '城市/地址', width: 200, render: (value, row, index) => {
                         if (value) {
                             return [value.city, <br/>, value.address];
                         } else {
