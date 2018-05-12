@@ -180,7 +180,7 @@ class CapsuleTypeGridModal extends Modal {
     };
 
     addNew = (index, row) => {
-        ModalContainer['sub'].open(<CapsuleTypeModal onSuccess={(data) => {
+        Modal.open(<CapsuleTypeModal onSuccess={(data) => {
             this.refs.grid.state.data.push(data);
             this.refs.grid.setState({});
         }}></CapsuleTypeModal>);

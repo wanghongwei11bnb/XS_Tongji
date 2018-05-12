@@ -124,6 +124,34 @@ function request(opt) {
         complete: function (resp) {
             if (opt.loading) Loading.close();
         }
-
     });
 }
+
+
+window.eventUtil = {
+    addHandler: function (element, type, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(type, handler, false);
+        }
+        else if (element.attachEvent) {
+            element.attachEvent('on' + type, handler);
+        }
+        else {
+            element["on" + type] = handler
+            /*直接赋给事件*/
+        }
+
+    },
+    removeHandler: function (element, type, handler) {
+        if (element.removeEventListener) {
+            /*Chrome*/
+            element.removeEventListener(type, handler, false);
+        } else if (element.deattachEvent) {
+            /*IE*/
+            element.deattachEvent('on' + type, handler);
+        } else {
+            /*直接赋给事件*/
+            element["on" + type] = null;
+        }
+    }
+};

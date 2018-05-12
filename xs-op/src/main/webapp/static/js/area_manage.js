@@ -62,7 +62,8 @@ class AreaModal extends Modal {
     };
     renderFooter = () => {
         return <span className="float-right">
-                <button type="button" className="btn btn-link text-primary hide" onClick={this.onSubmit}>保存</button>
+                <button disabled={true} type="button" className="btn btn-link text-primary"
+                        onClick={this.onSubmit}>保存（暂缓开放）</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
             </span>;
     };
@@ -280,9 +281,9 @@ class Page extends React.Component {
             {
                 render: (value, row, index) => {
                     return [
-                        <button type="button" className="btn btn-sm btn-primary"
+                        <button type="button" className="btn btn-sm btn-primary m-1"
                                 onClick={this.showCapsuleModal.bind(this, row.area_id)}>查看头等舱</button>,
-                        <button type="button" className="btn btn-sm btn-primary hide"
+                        <button type="button" className="btn btn-sm btn-primary m-1"
                                 onClick={this.editTypes.bind(this, row)}>编辑类型</button>
                     ];
                 }
@@ -321,6 +322,13 @@ class Page extends React.Component {
                 }
             },
             {
+                field: 'is_downline', title: '是否标记下线', render: (value) => {
+                    return value == 1 ? <span className="text-danger">已下线</span> : null;
+                }
+            },
+            {
+                title: <button disabled={true} type="button"
+                               className="btn btn-sm m-1 btn-success">创建头等舱（暂缓开放）</button>,
                 render: (value, row, index) => {
                     return [
                         <button type="button" className="btn btn-sm m-1 btn-success"

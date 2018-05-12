@@ -81,10 +81,11 @@ class Modal extends React.Component {
 
     componentDidMount() {
         this.reViewSize();
+        eventUtil.addHandler(window, 'resize', this.reViewSize);
     }
 
-    componentDidUpdate() {
-        this.reViewSize();
+    componentWillUnmount() {
+        eventUtil.removeHandler(window, 'resize', this.reViewSize);
     }
 }
 
