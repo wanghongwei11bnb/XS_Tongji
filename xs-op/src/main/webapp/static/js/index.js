@@ -125,7 +125,7 @@ class Page extends React.Component {
         super(props);
         this.state = {
             showMenu: true,
-            menuWidth: '120px',
+            menuWidth: '150px',
 
         };
     }
@@ -166,6 +166,10 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</A>
                     </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '用户管理', '/user_manage')}>用户管理</A>
+                    </li>
                     <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</A>
@@ -174,32 +178,39 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
                     </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '用户评论', '/appraise_manage')}>用户评论</A>
+                    </li>
                     <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</A>
                     </li>
-                    <li className="nav-item hide">
+                    <li className="nav-item ">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</A>
                     </li>
                     <li className="nav-item float-right">
                         <A className="nav-link"
-                           onClick={this.logout}>安全退出</A>
+                           onClick={this.logout}>退出</A>
                     </li>
                 </ul>
             </div>
             <div className="position-absolute top-0 bottom-0 right-0" style={{left: showMenu ? menuWidth : '50px'}}>
                 <Tabs ref="tabs"></Tabs>
             </div>
+            <ModalContainer></ModalContainer>
         </div>;
     }
 
     logout = () => {
-        request({
-            url: '/api/logout', method: 'post', success: () => {
-                location.reload();
-            }
-        });
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: '/api/logout', method: 'post', success: () => {
+                    location.reload();
+                }
+            });
+        }}>是否推出？</ConfirmModal>);
     };
 
     componentDidMount() {

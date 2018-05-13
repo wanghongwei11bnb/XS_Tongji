@@ -95,7 +95,7 @@ class FailureModal extends Modal {
             <table className="table table-bordered">
                 <tbody>
                 <tr>
-                    <td colSpan={2} className="text-center">头等舱信息</td>
+                    <td colSpan={2} className="text-center text-danger">头等舱信息</td>
                 </tr>
                 <tr>
                     <th>头等舱编号</th>
@@ -141,7 +141,7 @@ class FailureModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <td colSpan={2} className="text-center">用户信息</td>
+                    <td colSpan={2} className="text-center text-danger">用户信息</td>
                 </tr>
                 <tr>
                     <th>用户uin</th>
@@ -164,7 +164,7 @@ class FailureModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <td colSpan={2} className="text-center">报修信息</td>
+                    <td colSpan={2} className="text-center text-danger">报修信息</td>
                 </tr>
                 <tr>
                     <th>报修时间</th>
@@ -220,6 +220,9 @@ class FailureModal extends Modal {
                         <textarea ref="description" readOnly={readOnly} disabled={disabled}
                                   className="form-control"></textarea>
                     </td>
+                </tr>
+                <tr>
+                    <td colSpan={2} className="text-center text-danger">处理结果</td>
                 </tr>
                 <tr>
                     <th>处理结果</th>

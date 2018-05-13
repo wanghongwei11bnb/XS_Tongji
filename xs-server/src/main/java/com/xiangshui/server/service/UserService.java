@@ -148,4 +148,22 @@ public class UserService {
         }
         return null;
     }
+
+
+    public UserInfoRelation toRelation(UserInfo userInfo) {
+        if (userInfo == null) return null;
+        UserInfoRelation userInfoRelation = new UserInfoRelation();
+        BeanUtils.copyProperties(userInfo, userInfoRelation);
+        return userInfoRelation;
+    }
+
+    public List<UserInfoRelation> toRelation(List<UserInfo> userInfoList) {
+        if (userInfoList == null) return null;
+        List<UserInfoRelation> userInfoRelationList = new ArrayList<UserInfoRelation>(userInfoList.size());
+        for (UserInfo userInfo : userInfoList) {
+            UserInfoRelation userInfoRelation = toRelation(userInfo);
+            userInfoRelationList.add(userInfoRelation);
+        }
+        return userInfoRelationList;
+    }
 }

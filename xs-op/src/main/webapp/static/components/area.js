@@ -107,8 +107,6 @@ class CapsuleTypeModal extends Modal {
 
 
 class CapsuleTypeGridModal extends Modal {
-
-
     constructor(props) {
         super(props);
         this.state = {
@@ -135,13 +133,13 @@ class CapsuleTypeGridModal extends Modal {
                 },
             ],
             area_id: props.area_id,
-            capsuleTypeList: props.capsuleTypeList || [],
+            types: props.types,
         };
     }
 
 
-    setData = (capsuleTypeList) => {
-        this.refs.grid.state.data = capsuleTypeList;
+    setData = (types) => {
+        this.refs.grid.state.data = types;
         this.refs.grid.setState({});
     };
 
@@ -205,9 +203,20 @@ class CapsuleTypeGridModal extends Modal {
 
     componentDidMount() {
         super.componentDidMount();
-        const {capsuleTypeList} = this.state;
-        this.refs.grid.state.data = capsuleTypeList;
-        this.refs.grid.setState({});
+        const {area_id, types} = this.state;
+        this.setData(types);
+
+        if (!types && area_id) {
+            request({
+                url: `/api/area/${area_id}/types`, loading: true,
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        this.setData(resp.data.types);
+                    }
+                }
+            });
+
+        }
 
     }
 }

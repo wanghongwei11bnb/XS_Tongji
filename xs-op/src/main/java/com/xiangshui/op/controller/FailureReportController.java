@@ -232,13 +232,17 @@ public class FailureReportController extends BaseController {
         }
         FailureReportRelation failureReportRelation = new FailureReportRelation();
         failureReportRelation.setBooking_id(booking_id);
-        failureReportRelation.setUin(booking.getUin());
         failureReportRelation.setCapsule_id(booking.getCapsule_id());
         failureReportRelation.setArea_id(booking.getArea_id());
+        failureReportRelation.setUin(booking.getUin());
         Area area = areaDao.getItem(new PrimaryKey("area_id", booking.getArea_id()));
         if (area != null) {
             failureReportRelation.setArea_id(booking.getArea_id());
             failureReportRelation.set_area(area);
+        }
+        UserInfo userInfo = userService.getUserInfoByUin(booking.getUin());
+        if (userInfo != null) {
+            failureReportRelation.setPhone(userInfo.getPhone());
         }
         return new Result(CodeMsg.SUCCESS).putData("failure", failureReportRelation);
     }

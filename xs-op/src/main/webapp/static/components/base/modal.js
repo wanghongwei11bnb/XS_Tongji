@@ -22,14 +22,24 @@ class ModalContainer extends React.Component {
         return <div className="modal-container">{modals}</div>;
     }
 
+    checkScroll = () => {
+        for (let id in this.state.modalMap) {
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+        document.body.style.overflow = 'auto';
+    };
+
     open = (modal) => {
         let id = UUID.get();
         this.state.modalMap[id] = React.cloneElement(modal, {id, zIndex: ++this.state.zIndex, modalContainer: this});
         this.setState({});
+        this.checkScroll();
     };
     close = (id) => {
         delete this.state.modalMap[id];
         this.setState({});
+        this.checkScroll();
     };
 }
 
@@ -47,9 +57,7 @@ class Modal extends React.Component {
         return this.state.body || null;
     };
     renderFooter = () => {
-        return <span className="float-right">
-                <button type="button" className="btn btn-link text-secondary" onClick={this.close}>关闭</button>
-            </span>;
+        return <A className="btn btn-link text-secondary float-right" onClick={this.close}>关闭</A>;
     };
 
     close = () => {
@@ -104,17 +112,49 @@ class AlertModal extends Modal {
     }
 
     renderHeader = () => {
-        return this.state.title || null;
+        return this.props.title || null;
     };
 
 
     renderBody = () => {
-        return this.state.message || null;
+        return this.props.children;
     };
 
     renderFooter = () => {
-        return <button type="button" className="btn btn-link text-secondary float-right"
-                       onClick={this.close}>确定</button>;
+        return <A className="btn btn-link text-secondary float-right" onClick={this.close}>确定</A>;
+    };
+
+}
+
+class ConfirmModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    renderHeader = () => {
+        return this.props.title || null;
+    };
+
+
+    renderBody = () => {
+        return this.props.children;
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.cancel}>取消</A>,
+        ];
+    };
+
+    ok = () => {
+        this.close();
+        if (this.props.ok) this.props.ok();
+    };
+    cancel = () => {
+        this.close();
+        if (this.props.cancel) this.props.cancel();
     };
 
 }

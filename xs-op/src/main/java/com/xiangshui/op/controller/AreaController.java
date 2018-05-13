@@ -71,6 +71,17 @@ public class AreaController extends BaseController {
         }
     }
 
+    @GetMapping("/api/area/{area_id}/types")
+    @ResponseBody
+    public Result getTypes(@PathVariable("area_id") Integer area_id) {
+        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+        if (area == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("types", area.getTypes());
+        }
+    }
+
 
     @PostMapping("/api/area/{area_id}/update")
     @ResponseBody

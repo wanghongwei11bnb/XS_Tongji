@@ -73,10 +73,11 @@ class Page extends React.Component {
                     }
                 },
                 {
+                    title: <A className="btn btn-sm btn-success ml-1 float-right" onClick={this.addNew}>创建报修</A>,
                     width: 80, render: (value, row, index) => {
                         return [
                             <button type="button" className="btn btn-sm bg-primary text-white"
-                                    onClick={this.edit.bind(this, row)}>编辑</button>
+                                    onClick={this.edit.bind(this, row)}>编辑处理结果</button>
                         ];
                     }
                 },
@@ -142,8 +143,7 @@ class Page extends React.Component {
                 <input ref="booking_id" type="text"
                        className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                <button type="button" className="btn btn-sm btn-success ml-1 float-right" onClick={this.addNew}>创建报修
-                </button>
+
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回100条）</div>
             <div className="table-responsive">
