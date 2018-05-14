@@ -38,7 +38,7 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: 'create_time', title: '保修时间', width: 120, render: (value, row, index) => {
+                    field: 'create_time', title: '报修时间', width: 120, render: (value, row, index) => {
                         if (value) {
                             let create_date = new Date(value * 1000);
                             return create_date.format('yyyy-MM-dd hh:mm');
@@ -125,7 +125,7 @@ class Page extends React.Component {
         const {cityList, columns, data, now} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
-                保修时间：
+                报修时间：
                 <input ref="start_date" type="date"
                        className="form-control  form-control-sm d-inline-block mx-3 w-auto"/>
                 <input ref="end_date" type="date" className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>

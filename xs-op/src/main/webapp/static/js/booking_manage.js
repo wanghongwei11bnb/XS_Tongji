@@ -97,9 +97,7 @@ class Page extends React.Component {
         this.state = {
             columns: [
                 {
-                    field: 'booking_id', title: '订单编号', render: (value, row, index) => {
-                        return <A onClick={this.showBooking.bind(this, value)}>{value}</A>
-                    }
+                    field: 'booking_id', title: '订单编号'
                 },
                 {
                     field: 'create_time', title: '创建时间', render: (value, row, index) => {
@@ -128,14 +126,10 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: 'capsule_id', title: '头等舱编号', render: (value, row, index) => {
-                        return <A onClick={this.showBooking.bind(this, value)}>{value}</A>
-                    }
+                    field: 'capsule_id', title: '头等舱编号'
                 },
                 {
-                    field: 'area_id', title: '场地编号', render: (value, row, index) => {
-                        return <A onClick={this.showBooking.bind(this, value)}>{value}</A>
-                    }
+                    field: 'area_id', title: '场地编号'
                 },
                 {
                     field: '_area', title: '场地名称', render: (value, row, index) => {

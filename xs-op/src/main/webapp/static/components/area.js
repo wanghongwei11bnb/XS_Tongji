@@ -1,87 +1,201 @@
-class CapsuleTypeModal extends Modal {
+class AreaModal extends Modal {
     constructor(props) {
         super(props);
         this.state = {
-            capsuleType: props.capsuleType,
+            action: props.action,
+            area_id: props.area_id,
+            area: props.area,
             onSuccess: props.onSuccess,
+            cityList: props.cityList || [],
         };
     }
 
     onSubmit = () => {
-        const {onSuccess} = this.state;
+        const {action, area_id, onSuccess} = this.state;
         let data = {
-            type_id: this.refs.type_id.value,
-            size: this.refs.size.value,
-            day_max_price: this.refs.day_max_price.value,
-            price: this.refs.price.value,
-            rush_hour_price: this.refs.rush_hour_price.value,
-            price_rule_text: this.refs.price_rule_text.value,
-            typeDesc: this.refs.typeDesc.value,
-            typeTitle: this.refs.typeTitle.value,
-
+            area_id: this.refs.area_id.value,
+            title: this.refs.title.value,
+            // city: this.refs.city.value,
+            address: this.refs.address.value,
+            contact: this.refs.contact.value,
+            notification: this.refs.notification.value,
+            minute_start: this.refs.minute_start.value,
+            rushHours: this.refs.rushHours.getData(),
+            location: {
+                latitude: this.refs.latitude.value,
+                longitude: this.refs.longitude.value,
+            },
+            area_img: this.refs.area_img.value,
+            imgs: this.refs.imgs.getData(),
+            status: this.refs.status.value ? this.refs.status.value - 0 : null,
+            is_external: this.refs.is_external.value - 0,
         };
-        if (onSuccess) onSuccess(data);
-        this.close();
+        if (area_id) {
+            request({
+                url: `/api/area/${area_id}/update`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
+                }
+            });
+        } else {
+            request({
+                url: `/api/area/add`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
+                }
+            });
+        }
+
+
     };
     renderHeader = () => {
-        return '头等舱类型信息';
+        return '场地信息';
     };
     renderFooter = () => {
         return <span className="float-right">
-                <button type="button" className="btn btn-link text-primary" onClick={this.onSubmit}>确定</button>
+                <button type="button" className="btn btn-link text-primary"
+                        onClick={this.onSubmit}>保存</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
             </span>;
     };
     renderBody = () => {
+        const {action} = this.state;
+        const area = this.state.area || {};
+        const cityList = this.props.cityList || [];
         return <div>
             <table className="table table-bordered">
                 <tbody>
                 <tr>
-                    <th>类型id</th>
+                    <th>场地编号</th>
                     <td>
-                        <input ref="type_id" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>价格</th>
-                    <td>
-                        <input ref="price" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>高峰期价格</th>
-                    <td>
-                        <input ref="rush_hour_price" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>每日最高费用</th>
-                    <td>
-                        <input ref="day_max_price" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>价格文案</th>
-                    <td>
-                        <input ref="price_rule_text" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>面积</th>
-                    <td>
-                        <input ref="size" type="text" className="form-control"/>
+                        <input ref="area_id" type="text" disabled={true} readOnly={true} className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>标题</th>
                     <td>
-                        <input ref="typeTitle" type="text" className="form-control"/>
+                        <input ref="title" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>描述</th>
+                    <th>城市</th>
                     <td>
-                        <input ref="typeDesc" type="text" className="form-control"/>
+                        <select ref="city" disabled={true} className="form-control">
+                            <option value=""></option>
+                            {cityList.map((city) => {
+                                return <option value={city.city}>{city.city}</option>
+                            })}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地址</th>
+                    <td>
+                        <input ref="address" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>最少时长</th>
+                    <td>
+                        <input ref="minute_start" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>联系方式</th>
+                    <td>
+                        <input ref="contact" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>提醒文案</th>
+                    <td>
+                        <textarea ref="notification" className="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地图URL</th>
+                    <td>
+                        <input ref="area_img" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>图片URL</th>
+                    <td>
+                        <ListEditor ref="imgs" itemRender={(item, index, itemUpdate) => {
+                            return [<img src={`${item}_227`} alt=""/>,
+                                <input type="text" className="form-control" value={item} onChange={(e) => {
+                                    itemUpdate(e.target.value)
+                                }}/>];
+                        }}></ListEditor>
+                    </td>
+                </tr>
+                <tr>
+                    <th>经纬度</th>
+                    <td>
+                        <div className="row">
+                            <div className="col">
+                                longitude
+                                <input ref="longitude" type="text" className="form-control"/>
+                            </div>
+                            <div className="col">
+                                latitude
+                                <input ref="latitude" type="text" className="form-control"/>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>高峰时段</th>
+                    <td>
+                        <ListEditor ref="rushHours" itemRender={(item, index, itemUpdate) => {
+                            return <div>
+                                开始时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.start_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({
+                                                    start_time: e.target.value,
+                                                    end_time: (item || {}).end_time
+                                                })
+                                            }}/>
+                                结束时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.end_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({
+                                                    end_time: e.target.value,
+                                                    start_time: (item || {}).start_time
+                                                })
+                                            }}/>
+                            </div>;
+                        }}></ListEditor>
+                    </td>
+                </tr>
+                <tr>
+                    <th>是否场地对外开放</th>
+                    <td>
+                        <select ref="is_external" className="form-control">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>状态</th>
+                    <td>
+                        <select ref="status" className="form-control">
+                            <option value="">正常</option>
+                            <option value="-1">已下架</option>
+                            <option value="-2">待运营</option>
+                        </select>
                     </td>
                 </tr>
                 </tbody>
@@ -91,135 +205,274 @@ class CapsuleTypeModal extends Modal {
 
     componentDidMount() {
         super.componentDidMount();
-        const {capsuleType} = this.state;
-        if (capsuleType) {
-            this.refs.type_id.value = capsuleType.type_id;
-            this.refs.size.value = capsuleType.size;
-            this.refs.day_max_price.value = capsuleType.day_max_price;
-            this.refs.price.value = capsuleType.price;
-            this.refs.rush_hour_price.value = capsuleType.rush_hour_price;
-            this.refs.price_rule_text.value = capsuleType.price_rule_text;
-            this.refs.typeDesc.value = capsuleType.typeDesc;
-            this.refs.typeTitle.value = capsuleType.typeTitle;
+        const {area} = this.state;
+        if (area) {
+            area.status = area.status || 0;
+            area.is_external = area.is_external || 0;
+            this.refs.area_id.value = area.area_id;
+            this.refs.title.value = area.title;
+            this.refs.city.value = area.city;
+            this.refs.address.value = area.address;
+            this.refs.status.value = area.status;
+            this.refs.is_external.value = area.is_external;
+
+            this.refs.contact.value = area.contact;
+            this.refs.notification.value = area.notification;
+
+            this.refs.area_img.value = area.area_img;
+            this.refs.minute_start.value = area.minute_start;
+            this.refs.imgs.setData(area.imgs);
+
+            if (area.location) {
+                this.refs.longitude.value = area.location.longitude;
+                this.refs.latitude.value = area.location.latitude;
+            }
+
+
+            if (area.rushHours) {
+                this.refs.rushHours.setData(area.rushHours);
+            }
+
+
         }
     }
 }
 
-
-class CapsuleTypeGridModal extends Modal {
+class AreaCreateModal extends Modal {
     constructor(props) {
         super(props);
         this.state = {
-            columns: [
-                {field: 'type_id', title: '类型id'},
-                {field: 'size', title: '面积'},
-                {field: 'day_max_price', title: '每日最高费用'},
-                {field: 'price', title: '价格'},
-                {field: 'rush_hour_price', title: '高峰期价格'},
-                {field: 'price_rule_text', title: '价格文案'},
-                {field: 'typeDesc', title: '描述'},
-                {field: 'typeTitle', title: '标题'},
-                {
-                    title: <button type="button" className="btn btn-sm btn-success"
-                                   onClick={this.addNew}>新建类型</button>,
-                    render: (value, row, index) => {
-                        return [
-                            <button type="button" className="btn btn-sm btn-primary"
-                                    onClick={this.editRow.bind(this, index, row)}>修改</button>,
-                            <button type="button" className="btn btn-sm btn-danger ml-2"
-                                    onClick={this.removeRow.bind(this, index, row)}>删除</button>,
-                        ]
-                    }
-                },
-            ],
             area_id: props.area_id,
-            types: props.types,
+            area: props.area,
+            onSuccess: props.onSuccess,
+            cityList: props.cityList || [],
         };
     }
 
-
-    setData = (types) => {
-        this.refs.grid.state.data = types;
-        this.refs.grid.setState({});
-    };
-
-    getData = () => {
-        return this.refs.grid.state.data;
-    };
-
-
-    editRow = (index, row) => {
-        Modal.open(<CapsuleTypeModal capsuleType={row} onSuccess={(data) => {
-            this.refs.grid.state.data[index] = data;
-            this.refs.grid.setState({});
-        }}></CapsuleTypeModal>);
-    };
-
     onSubmit = () => {
-        const {area_id, onSuccess} = this.state;
-        request({
-            url: `/api/area/${area_id}/update/types`, method: 'post', contentType: 'application/json', loading: true,
-            data: JSON.stringify({
-                types: this.refs.grid.state.data
-            }, nullStringReplacer),
-            success: (resp) => {
-                if (resp.code == 0) {
-                    Message.msg('保存成功');
-                    this.close();
-                    if (onSuccess) onSuccess();
+        const { area_id, onSuccess} = this.state;
+        let data = {
+            area_id: this.refs.area_id.value,
+            title: this.refs.title.value,
+            // city: this.refs.city.value,
+            address: this.refs.address.value,
+            contact: this.refs.contact.value,
+            notification: this.refs.notification.value,
+            minute_start: this.refs.minute_start.value,
+            rushHours: this.refs.rushHours.getData(),
+            location: {
+                latitude: this.refs.latitude.value,
+                longitude: this.refs.longitude.value,
+            },
+            area_img: this.refs.area_img.value,
+            imgs: this.refs.imgs.getData(),
+            status: this.refs.status.value ? this.refs.status.value - 0 : null,
+            is_external: this.refs.is_external.value - 0,
+        };
+        if (area_id) {
+            request({
+                url: `/api/area/${area_id}/update`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
                 }
-            }
-        });
-    };
+            });
+        } else {
+            request({
+                url: `/api/area/add`, method: 'post', contentType: 'application/json', loading: true,
+                data: JSON.stringify(data),
+                success: (resp) => {
+                    if (resp.code == 0) {
+                        Message.msg('保存成功');
+                        this.close();
+                        if (onSuccess) onSuccess();
+                    }
+                }
+            });
+        }
 
-    removeRow = (index, row) => {
-        this.refs.grid.state.data.splice(index, 1);
-        this.refs.grid.setState({});
-    };
 
-    addNew = (index, row) => {
-        Modal.open(<CapsuleTypeModal onSuccess={(data) => {
-            this.refs.grid.state.data.push(data);
-            this.refs.grid.setState({});
-        }}></CapsuleTypeModal>);
     };
-
     renderHeader = () => {
-        return '头等舱类型信息';
+        return '新建场地';
     };
     renderFooter = () => {
         return <span className="float-right">
-                <button type="button" className="btn btn-link text-primary" onClick={this.onSubmit}>保存</button>
+                <button type="button" className="btn btn-link text-primary"
+                        onClick={this.onSubmit}>保存</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
             </span>;
     };
-
     renderBody = () => {
-        const {columns} = this.state;
+        const {action} = this.state;
+        const area = this.state.area || {};
+        const cityList = this.props.cityList || [];
         return <div>
-            <Datagrid ref="grid" columns={columns}></Datagrid>
-        </div>
+            <table className="table table-bordered">
+                <tbody>
+                <tr>
+                    <th>场地编号</th>
+                    <td>
+                        <input ref="area_id" type="text" disabled={true} readOnly={true} className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>标题</th>
+                    <td>
+                        <input ref="title" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>城市</th>
+                    <td>
+                        <select ref="city" disabled={true} className="form-control">
+                            <option value=""></option>
+                            {cityList.map((city) => {
+                                return <option value={city.city}>{city.city}</option>
+                            })}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地址</th>
+                    <td>
+                        <input ref="address" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>最少时长</th>
+                    <td>
+                        <input ref="minute_start" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>联系方式</th>
+                    <td>
+                        <input ref="contact" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>提醒文案</th>
+                    <td>
+                        <textarea ref="notification" className="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>地图URL</th>
+                    <td>
+                        <input ref="area_img" type="text" className="form-control"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>图片URL</th>
+                    <td>
+                        <ListEditor ref="imgs" itemRender={(item, index, itemUpdate) => {
+                            return [<img src={`${item}_227`} alt=""/>,
+                                <input type="text" className="form-control" value={item} onChange={(e) => {
+                                    itemUpdate(e.target.value)
+                                }}/>];
+                        }}></ListEditor>
+                    </td>
+                </tr>
+                <tr>
+                    <th>经纬度</th>
+                    <td>
+                        <div className="row">
+                            <div className="col">
+                                longitude
+                                <input ref="longitude" type="text" className="form-control"/>
+                            </div>
+                            <div className="col">
+                                latitude
+                                <input ref="latitude" type="text" className="form-control"/>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>高峰时段</th>
+                    <td>
+                        <ListEditor ref="rushHours" itemRender={(item, index, itemUpdate) => {
+                            return <div>
+                                开始时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.start_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({
+                                                    start_time: e.target.value,
+                                                    end_time: (item || {}).end_time
+                                                })
+                                            }}/>
+                                结束时间：<input type="text" className="form-control d-inline-block w-auto"
+                                            value={item ? item.end_time : null}
+                                            onChange={(e) => {
+                                                itemUpdate({
+                                                    end_time: e.target.value,
+                                                    start_time: (item || {}).start_time
+                                                })
+                                            }}/>
+                            </div>;
+                        }}></ListEditor>
+                    </td>
+                </tr>
+                <tr>
+                    <th>是否场地对外开放</th>
+                    <td>
+                        <select ref="is_external" className="form-control">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>状态</th>
+                    <td>
+                        <select ref="status" className="form-control">
+                            <option value="">正常</option>
+                            <option value="-1">已下架</option>
+                            <option value="-2">待运营</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>;
     };
 
     componentDidMount() {
         super.componentDidMount();
-        const {area_id, types} = this.state;
-        this.setData(types);
+        const {area} = this.state;
+        if (area) {
+            area.status = area.status || 0;
+            area.is_external = area.is_external || 0;
+            this.refs.area_id.value = area.area_id;
+            this.refs.title.value = area.title;
+            this.refs.city.value = area.city;
+            this.refs.address.value = area.address;
+            this.refs.status.value = area.status;
+            this.refs.is_external.value = area.is_external;
 
-        if (!types && area_id) {
-            request({
-                url: `/api/area/${area_id}/types`, loading: true,
-                success: (resp) => {
-                    if (resp.code == 0) {
-                        this.setData(resp.data.types);
-                    }
-                }
-            });
+            this.refs.contact.value = area.contact;
+            this.refs.notification.value = area.notification;
+
+            this.refs.area_img.value = area.area_img;
+            this.refs.minute_start.value = area.minute_start;
+            this.refs.imgs.setData(area.imgs);
+
+            if (area.location) {
+                this.refs.longitude.value = area.location.longitude;
+                this.refs.latitude.value = area.location.latitude;
+            }
+
+
+            if (area.rushHours) {
+                this.refs.rushHours.setData(area.rushHours);
+            }
+
 
         }
-
     }
 }
-
-
-

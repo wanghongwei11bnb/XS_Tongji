@@ -87,7 +87,6 @@ public class CapsuleController extends BaseController {
         capsuleDao.updateItem(new PrimaryKey("capsule_id", capsule_id), criteria, new String[]{
                 "update_time",
                 "status",
-                "type",
                 "device_id",
                 "is_downline",
         });
@@ -117,6 +116,7 @@ public class CapsuleController extends BaseController {
         criteria.setUpdate_time(now.getTime() / 1000);
         criteria.setStatus(0);
         criteria.setIs_downline(0);
+        criteria.setType(1);
         capsuleDao.putItem(criteria);
         return new Result(CodeMsg.SUCCESS);
     }

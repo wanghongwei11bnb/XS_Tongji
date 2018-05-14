@@ -30,8 +30,9 @@ class ListEditor extends React.Component {
     };
 
     show = () => {
-        let message = <pre><code>{JSON.stringify(this.state.data, 2, 2)}</code></pre>;
-        Modal.open(<AlertModal message={message}></AlertModal>);
+        Modal.open(<AlertModal>
+            <pre><code>{JSON.stringify(this.state.data, 2, 2)}</code></pre>
+        </AlertModal>);
     };
 
     getData = () => {

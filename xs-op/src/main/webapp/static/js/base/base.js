@@ -155,3 +155,95 @@ window.eventUtil = {
         }
     }
 };
+
+
+class ListOptions {
+    constructor() {
+        this.optionList = [];
+    }
+
+    getId(option) {
+        return option.id;
+    }
+
+    insertOption(option) {
+        if (this.getOptionById(this.getId(option)) == null) {
+            this.optionList.push(option);
+        }
+    }
+
+    deleteOption(option) {
+        let id = this.getId(option);
+        this.removeOptionById(id);
+    }
+
+    deleteOptionById(id) {
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    updateOption(option) {
+        let id = this.getId(option);
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList[i] = option;
+                return;
+            }
+        }
+    }
+
+    saveOption(option) {
+        let id = this.getId(option);
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList[i] = option;
+                return;
+            }
+        }
+        this.optionList.push(option);
+    }
+
+    selectOptionById(id) {
+        for (let i = 0; i < this.optionList.length; i++) {
+            let option = this.optionList[i];
+            if (this.getId(option) == id) {
+                return option;
+            }
+        }
+    }
+}
+
+
+class MapOptions {
+    constructor() {
+        this.optionMap = {};
+    }
+
+
+    getId(option) {
+        return option ? option.id || null : null;
+    }
+
+    put(option) {
+        let id = this.getId(option);
+        this.optionMap[id] = option;
+    }
+
+    remove(option) {
+        let id = this.getId(option);
+        delete this.optionMap[id];
+    }
+
+    get(id) {
+        return this.optionMap[id];
+    }
+
+
+}
+
+
+
