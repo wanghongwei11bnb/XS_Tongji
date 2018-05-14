@@ -62,8 +62,8 @@ class AreaModal extends Modal {
     };
     renderFooter = () => {
         return <span className="float-right">
-                <button disabled={true} type="button" className="btn btn-link text-primary"
-                        onClick={this.onSubmit}>保存（暂缓开放）</button>
+                <button type="button" className="btn btn-link text-primary"
+                        onClick={this.onSubmit}>保存</button>
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
             </span>;
     };
