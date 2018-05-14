@@ -160,12 +160,18 @@ class AreaModal extends Modal {
                                 开始时间：<input type="text" className="form-control d-inline-block w-auto"
                                             value={item ? item.start_time : null}
                                             onChange={(e) => {
-                                                itemUpdate({start_time: e.target.value, end_time: item.end_time})
+                                                itemUpdate({
+                                                    start_time: e.target.value,
+                                                    end_time: (item || {}).end_time
+                                                })
                                             }}/>
                                 结束时间：<input type="text" className="form-control d-inline-block w-auto"
                                             value={item ? item.end_time : null}
                                             onChange={(e) => {
-                                                itemUpdate({end_time: e.target.value, start_time: item.start_time})
+                                                itemUpdate({
+                                                    end_time: e.target.value,
+                                                    start_time: (item || {}).start_time
+                                                })
                                             }}/>
                             </div>;
                         }}></ListEditor>
@@ -507,7 +513,7 @@ class Page extends React.Component {
             {
                 field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
                     return value ? value.map((item) => {
-                        return <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div>
+                        return item ? <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div> : null;
                     }) : null;
                 }
             },

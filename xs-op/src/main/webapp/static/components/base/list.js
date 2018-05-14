@@ -59,7 +59,7 @@ class ListEditor extends React.Component {
             })}
             {!!readOnly || <button type="button" className="btn btn-sm btn-primary mx-3" onClick={this.add}>添加</button>}
             {!!readOnly ||
-            <button type="button" className="btn btn-sm btn-success mx-3" onClick={this.show}>查看</button>}
+            <button type="button" className="btn btn-sm btn-success mx-3 hide" onClick={this.show}>查看</button>}
         </div>
     }
 }
