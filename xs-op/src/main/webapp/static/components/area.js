@@ -1,8 +1,7 @@
-class AreaModal extends Modal {
+class AreaUpdateModal extends Modal {
     constructor(props) {
         super(props);
         this.state = {
-            action: props.action,
             area_id: props.area_id,
             area: props.area,
             onSuccess: props.onSuccess,
@@ -11,11 +10,10 @@ class AreaModal extends Modal {
     }
 
     onSubmit = () => {
-        const {action, area_id, onSuccess} = this.state;
+        const {area_id, onSuccess} = this.state;
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
-            // city: this.refs.city.value,
             address: this.refs.address.value,
             contact: this.refs.contact.value,
             notification: this.refs.notification.value,
@@ -30,47 +28,28 @@ class AreaModal extends Modal {
             status: this.refs.status.value ? this.refs.status.value - 0 : null,
             is_external: this.refs.is_external.value - 0,
         };
-        if (area_id) {
-            request({
-                url: `/api/area/${area_id}/update`, method: 'post', contentType: 'application/json', loading: true,
-                data: JSON.stringify(data),
-                success: (resp) => {
-                    if (resp.code == 0) {
-                        Message.msg('保存成功');
-                        this.close();
-                        if (onSuccess) onSuccess();
-                    }
+        request({
+            url: `/api/area/${area_id}/update`, method: 'post', contentType: 'application/json', loading: true,
+            data: JSON.stringify(data),
+            success: (resp) => {
+                if (resp.code == 0) {
+                    Message.msg('保存成功');
+                    this.close();
+                    if (onSuccess) onSuccess();
                 }
-            });
-        } else {
-            request({
-                url: `/api/area/add`, method: 'post', contentType: 'application/json', loading: true,
-                data: JSON.stringify(data),
-                success: (resp) => {
-                    if (resp.code == 0) {
-                        Message.msg('保存成功');
-                        this.close();
-                        if (onSuccess) onSuccess();
-                    }
-                }
-            });
-        }
-
-
+            }
+        });
     };
     renderHeader = () => {
         return '场地信息';
     };
     renderFooter = () => {
-        return <span className="float-right">
-                <button type="button" className="btn btn-link text-primary"
-                        onClick={this.onSubmit}>保存</button>
-                <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>
-            </span>;
+        return [
+            <button type="button" className="btn btn-link text-primary" onClick={this.onSubmit}>保存</button>,
+            <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>,
+        ];
     };
     renderBody = () => {
-        const {action} = this.state;
-        const area = this.state.area || {};
         const cityList = this.props.cityList || [];
         return <div>
             <table className="table table-bordered">
@@ -250,7 +229,7 @@ class AreaCreateModal extends Modal {
     }
 
     onSubmit = () => {
-        const { area_id, onSuccess} = this.state;
+        const {area_id, onSuccess} = this.state;
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,

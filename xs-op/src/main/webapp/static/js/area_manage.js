@@ -70,7 +70,7 @@ class Page extends React.Component {
     };
 
     newArea = () => {
-        Modal.open(<AreaModal cityList={this.state.cityList}></AreaModal>);
+        Modal.open(<AreaCreateModal cityList={this.state.cityList}></AreaCreateModal>);
     };
 
     showArea = (area_id) => {
@@ -79,8 +79,8 @@ class Page extends React.Component {
             success: (resp) => {
                 if (resp.code == 0) {
                     Modal.open(
-                        <AreaModal update area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
-                                   onSuccess={this.load}></AreaModal>
+                        <AreaUpdateModal update area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
+                                         onSuccess={this.load}></AreaUpdateModal>
                     );
                 } else {
                 }
