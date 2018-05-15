@@ -124,10 +124,10 @@ function request(opt) {
                 if (opt.error) opt.error(resp); else Message.error(resp.msg);
             }
         },
-        error: (err) => {
-            Message.error(err.message);
+        error: () => {
+            Message.error('网络异常');
         },
-        complete: function (resp) {
+        complete: function () {
             if (opt.loading) Loading.close();
         }
     });
