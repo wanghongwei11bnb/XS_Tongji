@@ -16,6 +16,12 @@ function nullStringReplacer(k, v) {
 }
 
 
+function type(o) {
+    if (o !== o) return 'NaN';
+    let typeStr = Object.prototype.toString.call(o);
+    return typeStr.substring(8, typeStr.length - 1);
+}
+
 Date.prototype.format = function (fmt) {
     if (!fmt) fmt = "yyyy-MM-dd hh:mm:ss";
     var o = {
