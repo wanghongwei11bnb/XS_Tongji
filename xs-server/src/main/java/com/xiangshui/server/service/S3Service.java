@@ -6,9 +6,13 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
+import com.xiangshui.util.MD5;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.UUID;
 
 @Service
@@ -19,31 +23,30 @@ public class S3Service {
 
 
     public static void main(String[] args) throws Exception {
-
         AWSCredentials credentials = null;
-
-
         try {
             credentials = new ProfileCredentialsProvider().getCredentials();
         } catch (Exception e) {
-            throw new AmazonClientException(
-                    "Cannot load the credentials from the credential profiles file. " +
-                            "Please make sure that your credentials file is at the correct " +
-                            "location (~/.aws/credentials), and is in valid format.",
-                    e);
+            e.printStackTrace();
         }
         AmazonS3 s3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion("us-west-2")
+                .withRegion("cn-north-1")
                 .build();
 
 
-        String bucketName = "my-first-s3-bucket-" + UUID.randomUUID();
-        String key = "MyObjectKey";
+        String bucketName = "areaimgs";
+        File file = new File("/Users/whw/Downloads/vivo应用商店展示图.jpg");
+        byte[] bs = FileUtils.readFileToByteArray(file);
+        String key = MD5.getMD5(bs);
+        System.out.println(key);
 
 
-//        s3.putObject(new PutObjectRequest(bucketName, key, createSampleFile()));
+        s3.putObject(new PutObjectRequest(bucketName, key, file).withAccessControlList(new AccessControlList()));
 
+//        s3.putObject(bucketName, key, file);
+
+//        s3.deleteObject(bucketName, key);
 
     }
 
