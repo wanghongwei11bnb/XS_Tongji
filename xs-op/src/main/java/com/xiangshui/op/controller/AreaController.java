@@ -95,6 +95,38 @@ public class AreaController extends BaseController {
         }
 
 
+        if (StringUtils.isBlank(criteria.getTitle())) return new Result(-1, "标题不能为空");
+//        if (StringUtils.isBlank(criteria.getCity())) return new Result(-1, "城市不能为空");
+        if (StringUtils.isBlank(criteria.getAddress())) return new Result(-1, "地址不能为空");
+        if (StringUtils.isBlank(criteria.getContact())) return new Result(-1, "联系方式不能为空");
+        if (StringUtils.isBlank(criteria.getNotification())) return new Result(-1, "提醒文案不能为空");
+        if (criteria.getMinute_start() == null || criteria.getMinute_start() <= 0) return new Result(-1, "最少时长不能小于1");
+        if (criteria.getRushHours() != null && criteria.getRushHours().size() > 0) {
+            for (RushHour rushHour : criteria.getRushHours()) {
+                if (rushHour == null || rushHour.getStart_time() <= 0 || rushHour.getEnd_time() <= 0) {
+                    return new Result(-1, "高峰时段输入有误");
+                }
+            }
+        }
+        String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + criteria.getCity() + " " + criteria.getAddress() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
+        JSONObject resp = JSONObject.parseObject(string);
+        if (resp.getIntValue("status") == 0) {
+            JSONObject location = resp.getJSONObject("result").getJSONObject("location");
+            float lat = location.getFloatValue("lat");
+            float lng = location.getFloatValue("lng");
+            if (lat > 0 && lng > 0) {
+                Location location1 = new Location();
+                location1.setLatitude((int) (lat * 1000000));
+                location1.setLongitude((int) (lng * 1000000));
+                criteria.setLocation(location1);
+            } else {
+                return new Result(-1, "获取经纬度失败，请修改地址重试");
+            }
+        } else {
+            return new Result(-1, "获取经纬度失败，请修改地址重试");
+        }
+
+
         areaDao.updateItem(new PrimaryKey("area_id", area_id), criteria, new String[]{
                 "title",
 //                "city",
@@ -117,7 +149,6 @@ public class AreaController extends BaseController {
     public Result create(@RequestBody Area criteria) throws Exception {
         if (criteria.getArea_id() == null || criteria.getArea_id() == 0) {
             return new Result(-1, "场地编号不能为空");
-
         }
         if (areaDao.getItem(new PrimaryKey("area_id", criteria.getArea_id())) != null) {
             return new Result(-1, "场地编号已存在");
@@ -136,15 +167,12 @@ public class AreaController extends BaseController {
                 }
             }
         }
-
         String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + criteria.getCity() + " " + criteria.getAddress() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
         JSONObject resp = JSONObject.parseObject(string);
         if (resp.getIntValue("status") == 0) {
             JSONObject location = resp.getJSONObject("result").getJSONObject("location");
-
             float lat = location.getFloatValue("lat");
             float lng = location.getFloatValue("lng");
-
             if (lat > 0 && lng > 0) {
                 Location location1 = new Location();
                 location1.setLatitude((int) (lat * 1000000));

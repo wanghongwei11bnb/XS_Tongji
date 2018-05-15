@@ -260,7 +260,9 @@ public class TestScheduled implements InitializingBean {
         } else {//其他时段
             delay = (long) (Math.random() * 1000 * 60 + 1000 * 60);
         }
-//        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+        if (debug) {
+            delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+        }
 
         planPushBookingTask = new TimerTask() {
             @Override
