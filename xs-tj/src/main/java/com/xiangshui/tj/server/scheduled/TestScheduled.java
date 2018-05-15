@@ -284,10 +284,10 @@ public class TestScheduled implements InitializingBean {
                             bookingCp.setStatus(1);
                             bookingCp.setCreate_time(now.getTime() / 1000);
                             bookingCp.setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd")));
-                        } else if ((17 <= now.getHours() && now.getHours() <= 20) && Math.random() > 0.2) {
-                            bookingCp.setStatus(1);
-                            bookingCp.setCreate_time(now.getTime() / 1000);
-                            bookingCp.setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd")));
+//                        } else if ((17 <= now.getHours() && now.getHours() <= 20) && Math.random() > 0.2) {
+//                            bookingCp.setStatus(1);
+//                            bookingCp.setCreate_time(now.getTime() / 1000);
+//                            bookingCp.setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd")));
                         } else if (Math.random() > 0.5) {
                             bookingCp.setStatus(1);
                             bookingCp.setCreate_time(now.getTime() / 1000);
