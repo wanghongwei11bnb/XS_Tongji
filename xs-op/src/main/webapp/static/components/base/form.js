@@ -83,11 +83,3 @@ class NumberInput extends React.Component {
     }
 }
 
-
-class Date extends React.Component {
-
-
-
-
-
-}

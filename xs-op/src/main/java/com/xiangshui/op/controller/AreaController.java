@@ -13,14 +13,24 @@ import com.xiangshui.server.domain.fragment.Location;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CityService;
+import com.xiangshui.server.service.S3Service;
+import com.xiangshui.util.EasyImage;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +43,8 @@ public class AreaController extends BaseController {
     AreaService areaService;
     @Autowired
     AreaDao areaDao;
+    @Autowired
+    S3Service s3Service;
 
 
     @GetMapping("/area_manage")
@@ -119,6 +131,9 @@ public class AreaController extends BaseController {
                 location1.setLatitude((int) (lat * 1000000));
                 location1.setLongitude((int) (lng * 1000000));
                 criteria.setLocation(location1);
+                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=14&markerStyles=s,A,0xff0000";
+                String imgurl = s3Service.uploadImageToAreaimgs(IOUtils.toByteArray(new URL(mapImgUrl)));
+                criteria.setArea_img(imgurl);
             } else {
                 return new Result(-1, "获取经纬度失败，请修改地址重试");
             }
@@ -178,6 +193,9 @@ public class AreaController extends BaseController {
                 location1.setLatitude((int) (lat * 1000000));
                 location1.setLongitude((int) (lng * 1000000));
                 criteria.setLocation(location1);
+                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=14&markerStyles=s,A,0xff0000";
+                String imgurl = s3Service.uploadImageToAreaimgs(Jsoup.connect(mapImgUrl).execute().bodyAsBytes());
+                criteria.setArea_img(imgurl);
                 areaDao.putItem(criteria);
                 return new Result(CodeMsg.SUCCESS);
             } else {

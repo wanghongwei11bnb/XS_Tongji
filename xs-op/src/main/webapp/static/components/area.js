@@ -14,16 +14,12 @@ class AreaUpdateModal extends Modal {
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
+            city: this.refs.city.value,
             address: this.refs.address.value,
             contact: this.refs.contact.value,
             notification: this.refs.notification.value,
             minute_start: this.refs.minute_start.value,
             rushHours: this.refs.rushHours.getData(),
-            location: {
-                latitude: this.refs.latitude.value,
-                longitude: this.refs.longitude.value,
-            },
-            area_img: this.refs.area_img.value,
             imgs: this.refs.imgs.getData(),
             status: this.refs.status.value ? this.refs.status.value - 0 : null,
             is_external: this.refs.is_external.value - 0,
@@ -102,12 +98,6 @@ class AreaUpdateModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <th>地图URL</th>
-                    <td>
-                        <input ref="area_img" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
                     <th>图片URL</th>
                     <td>
                         <ListEditor ref="imgs" itemRender={(item, index, itemUpdate) => {
@@ -116,21 +106,6 @@ class AreaUpdateModal extends Modal {
                                     itemUpdate(e.target.value)
                                 }}/>];
                         }}></ListEditor>
-                    </td>
-                </tr>
-                <tr>
-                    <th>经纬度</th>
-                    <td>
-                        <div className="row">
-                            <div className="col">
-                                longitude
-                                <input ref="longitude" type="text" className="form-control"/>
-                            </div>
-                            <div className="col">
-                                latitude
-                                <input ref="latitude" type="text" className="form-control"/>
-                            </div>
-                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -198,15 +173,8 @@ class AreaUpdateModal extends Modal {
             this.refs.contact.value = area.contact;
             this.refs.notification.value = area.notification;
 
-            this.refs.area_img.value = area.area_img;
             this.refs.minute_start.value = area.minute_start;
             this.refs.imgs.setData(area.imgs);
-
-            if (area.location) {
-                this.refs.longitude.value = area.location.longitude;
-                this.refs.latitude.value = area.location.latitude;
-            }
-
 
             if (area.rushHours) {
                 this.refs.rushHours.setData(area.rushHours);
@@ -233,17 +201,12 @@ class AreaCreateModal extends Modal {
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
-            // city: this.refs.city.value,
+            city: this.refs.city.value,
             address: this.refs.address.value,
             contact: this.refs.contact.value,
             notification: this.refs.notification.value,
             minute_start: this.refs.minute_start.value,
             rushHours: this.refs.rushHours.getData(),
-            location: {
-                latitude: this.refs.latitude.value,
-                longitude: this.refs.longitude.value,
-            },
-            area_img: this.refs.area_img.value,
             imgs: this.refs.imgs.getData(),
             status: this.refs.status.value ? this.refs.status.value - 0 : null,
             is_external: this.refs.is_external.value - 0,
@@ -341,12 +304,6 @@ class AreaCreateModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <th>地图URL</th>
-                    <td>
-                        <input ref="area_img" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
                     <th>图片URL</th>
                     <td>
                         <ListEditor ref="imgs" itemRender={(item, index, itemUpdate) => {
@@ -355,21 +312,6 @@ class AreaCreateModal extends Modal {
                                     itemUpdate(e.target.value)
                                 }}/>];
                         }}></ListEditor>
-                    </td>
-                </tr>
-                <tr>
-                    <th>经纬度</th>
-                    <td>
-                        <div className="row">
-                            <div className="col">
-                                longitude
-                                <input ref="longitude" type="text" className="form-control"/>
-                            </div>
-                            <div className="col">
-                                latitude
-                                <input ref="latitude" type="text" className="form-control"/>
-                            </div>
-                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -437,14 +379,8 @@ class AreaCreateModal extends Modal {
             this.refs.contact.value = area.contact;
             this.refs.notification.value = area.notification;
 
-            this.refs.area_img.value = area.area_img;
             this.refs.minute_start.value = area.minute_start;
             this.refs.imgs.setData(area.imgs);
-
-            if (area.location) {
-                this.refs.longitude.value = area.location.longitude;
-                this.refs.latitude.value = area.location.latitude;
-            }
 
 
             if (area.rushHours) {
