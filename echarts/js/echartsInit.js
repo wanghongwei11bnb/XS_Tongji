@@ -15,7 +15,7 @@ $(document).ready(function(){
 
     document.getElementById('appraise_list').style.width = document.getElementsByClassName('appraise')[0].clientWidth-50+'px';
 
-    document.getElementsByClassName('service_people_wrap')[0].style.height = document.getElementsByClassName('appraise_service_wrap')[0].style.height - document.getElementsByClassName('appraise')[0].style.height
+    document.getElementsByClassName('service_people_wrap')[0].style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight + 'px';
 
     $(".switch_wrap").click(function(e){    //这种点击方式怎么排除父元素？？？？
         var $clicked = $(e.target);    //e.target 捕捉到触发的元素
@@ -51,11 +51,9 @@ function occupyChartDraw(dateList,valueList,valueList2){
     var minValue = Math.floor(Math.min.apply(null, valueList));
     var minValue2 = Math.floor(Math.min.apply(null, valueList2));
     var min = minValue < minValue2 ? minValue : minValue2;
-    console.log(min,max)
     if(max-min < 5){
         max = min+5
     }
-
     occupyChart.setOption(option = {
         tooltip: {
             trigger: 'axis'
