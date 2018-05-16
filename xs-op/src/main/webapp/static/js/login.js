@@ -22,13 +22,11 @@ class Page extends React.Component {
             success: (resp) => {
                 if (resp.code == 0) {
                     Message.msg('登录成功');
-                    setTimeout(() => {
-                        if (location.pathname == '/login') {
-                            location.replace('/');
-                        } else {
-                            location.reload();
-                        }
-                    }, 1000);
+                    if (location.pathname == '/login') {
+                        location.replace('/');
+                    } else {
+                        location.reload();
+                    }
                 }
             }
         });

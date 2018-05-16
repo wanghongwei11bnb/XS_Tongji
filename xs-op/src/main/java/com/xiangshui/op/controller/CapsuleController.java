@@ -69,6 +69,17 @@ public class CapsuleController extends BaseController {
         }
     }
 
+    @GetMapping("/api/capsule/{capsule_id:\\d+}/validateForCreate")
+    @ResponseBody
+    public Result validateForCreate(@PathVariable("capsule_id") Long capsule_id) {
+        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+        if (capsule == null) {
+            return new Result(CodeMsg.SUCCESS);
+        } else {
+            return new Result(-1, "头等舱编号已存在");
+        }
+    }
+
     @PostMapping("/api/capsule/{capsule_id:\\d+}/update")
     @ResponseBody
     public Result update(@PathVariable("capsule_id") Long capsule_id, @RequestBody Capsule criteria) throws Exception {
@@ -114,7 +125,6 @@ public class CapsuleController extends BaseController {
         Date now = new Date();
         criteria.setCreate_time(now.getTime() / 1000);
         criteria.setUpdate_time(now.getTime() / 1000);
-        criteria.setStatus(0);
         criteria.setIs_downline(0);
         criteria.setType(1);
         capsuleDao.putItem(criteria);

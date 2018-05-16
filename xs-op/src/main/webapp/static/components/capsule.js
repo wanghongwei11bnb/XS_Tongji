@@ -65,7 +65,7 @@ class CapsuleModal extends Modal {
             <tr>
                 <th>头等舱编号</th>
                 <td>
-                    <input ref="capsule_id" readOnly={!create} disabled={!create} type="text" className="form-control"/>
+                    <input ref="capsule_id" readOnly={true} disabled={true} type="text" className="form-control"/>
                 </td>
             </tr>
             <tr>
@@ -226,7 +226,9 @@ class CapsuleManageModal extends Modal {
 
     openCreateModal = () => {
         const {area_id} = this.state;
-        Modal.open(<CapsuleModal create capsule={{area_id}} onSuccess={this.load}></CapsuleModal>);
+        Modal.open(<CapsuleIdCreateModal area_id={area_id} onSuccess={(capsule) => {
+            Modal.open(<CapsuleModal create capsule={capsule} onSuccess={this.load}></CapsuleModal>);
+        }}></CapsuleIdCreateModal>);
     };
     openUpdateModal = (capsule_id) => {
         Modal.open(<CapsuleModal capsule_id={capsule_id} update onSuccess={this.load}></CapsuleModal>);
@@ -275,7 +277,8 @@ class CapsuleIdCreateModal extends Modal {
             <tr>
                 <th>场地编号</th>
                 <td>
-                    <input ref="area_id" readOnly={true} disabled={true} type="text" className="form-control"/>
+                    <input readOnly={true} disabled={true} type="text" className="form-control"
+                           value={this.state.area_id}/>
                 </td>
             </tr>
             <tr>
@@ -295,33 +298,22 @@ class CapsuleIdCreateModal extends Modal {
         ];
     };
 
-    selectCity = (all) => {
-        Modal.open(<SelectCityModal all={all} onSuccess={this.setCity}></SelectCityModal>);
-    };
-
-    setCity = (city) => {
-        this.refs.city.value = city.city;
-        this.refs.area_id_4.value = city.code;
-    };
-
     submit = () => {
 
-        if (!this.refs.city.value) return Message.msg('请选择城市');
-        if (!this.refs.area_id_4.value) return Message.msg('请选择城市');
-        if (!this.refs.area_id_3.value) return Message.msg('请输入场地编号后三位');
-        if (!/^\d{3}$/.test(this.refs.area_id_3.value)) return Message.msg('地编号后三位输入有误');
+        if (!this.refs.capsule_id_3.value) return Message.msg('请输入头等舱编号后三位');
+        if (!/^\d{3}$/.test(this.refs.capsule_id_3.value)) return Message.msg('头等舱编号后三位输入有误');
 
-        let area_id = `${this.refs.area_id_4.value}${this.refs.area_id_3.value}` - 0;
+        let capsule_id = `${this.state.area_id}${this.refs.capsule_id_3.value}` - 0;
         request({
-            url: `/api/area/${area_id}/validateForCreate`, loading: true,
+            url: `/api/capsule/${capsule_id}/validateForCreate`, loading: true,
             success: () => {
-                let area = {
-                    area_id,
-                    city: this.refs.city.value,
+                let capsule = {
+                    area_id: this.state.area_id,
+                    capsule_id,
                 };
                 this.close();
                 if (this.props.onSuccess) {
-                    this.props.onSuccess(area);
+                    this.props.onSuccess(capsule);
                 }
             }
         });
