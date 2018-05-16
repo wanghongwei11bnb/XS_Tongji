@@ -42,8 +42,6 @@ $(document).ready(function(){
 });
 
 function occupyChartDraw(dateList,valueList,valueList2){
-    console.log(valueList)
-    console.log(valueList2)
     var maxValue = Math.ceil(Math.max.apply(null, valueList));
     var maxValue2 = Math.ceil(Math.max.apply(null, valueList2));
     var max =  maxValue> maxValue2 ? maxValue : maxValue2;
@@ -92,7 +90,7 @@ function occupyChartDraw(dateList,valueList,valueList2){
         legend: {
             show: true,
             left: 'center',
-            top:'4%',
+            top:'12',
             data: [{name: '实时日使用率',
                 icon: 'circle',
                 textStyle: {
