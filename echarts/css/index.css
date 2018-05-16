@@ -176,6 +176,7 @@ body,html{
 .time_wrap{
     flex: 1;
     margin-left: 8%;
+    height: 100%;
 }
 .time_wrap_container{
     position: relative;
