@@ -15,7 +15,7 @@ $(document).ready(function(){
 
     document.getElementById('appraise_list').style.width = document.getElementsByClassName('appraise')[0].clientWidth-50+'px';
 
-    document.getElementsByClassName('service_people_wrap')[0].style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight + 'px';
+    //document.getElementsByClassName('service_people_wrap')[0].style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight + 'px';
 
     $(".switch_wrap").click(function(e){    //这种点击方式怎么排除父元素？？？？
         var $clicked = $(e.target);    //e.target 捕捉到触发的元素
