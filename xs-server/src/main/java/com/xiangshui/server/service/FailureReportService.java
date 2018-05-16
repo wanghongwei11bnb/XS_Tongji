@@ -37,12 +37,12 @@ public class FailureReportService {
             BeanUtils.copyProperties(failureReport, failureReportRelation);
             if (failureReport.getArea_id() != null) {
                 if (areaMap.containsKey(failureReport.getArea_id())) {
-                    failureReportRelation.setAreaObj(areaMap.get(failureReport.getArea_id()));
+                    failureReportRelation.set_area(areaMap.get(failureReport.getArea_id()));
                 } else {
                     Area area = areaService.getAreaById(failureReport.getArea_id());
                     if (area != null) {
                         areaMap.put(area.getArea_id(), area);
-                        failureReportRelation.setAreaObj(area);
+                        failureReportRelation.set_area(area);
                     }
                 }
             }
@@ -56,7 +56,7 @@ public class FailureReportService {
         if (failureReport.getArea_id() != null) {
             Area area = areaService.getAreaById(failureReport.getArea_id());
             if (area != null) {
-                failureReportRelation.setAreaObj(area);
+                failureReportRelation.set_area(area);
             }
         }
         return failureReportRelation;

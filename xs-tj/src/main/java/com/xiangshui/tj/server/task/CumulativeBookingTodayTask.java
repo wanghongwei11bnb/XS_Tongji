@@ -6,13 +6,13 @@ import com.xiangshui.tj.server.bean.CapsuleTj;
 import com.xiangshui.tj.server.service.AreaDataManager;
 import com.xiangshui.tj.server.service.BookingDataManager;
 import com.xiangshui.tj.server.service.CapsuleDataManager;
+import com.xiangshui.tj.websocket.message.CumulativeBookingMessage;
+import com.xiangshui.tj.websocket.message.CumulativeBookingTodayMessage;
 import com.xiangshui.tj.websocket.message.SendMessage;
 import com.xiangshui.util.DateUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Component
 public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTodayTask.Result> {
@@ -36,7 +36,15 @@ public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTo
 
 
     public SendMessage toSendMessage(Result result) {
-        return null;
+        List<Object[]> data = new ArrayList();
+        int cumulative = 0;
+        for (long key : result.data.keySet()) {
+            cumulative += result.data.get(key);
+            data.add(new Object[]{key, cumulative});
+        }
+        CumulativeBookingTodayMessage message = new CumulativeBookingTodayMessage();
+        message.setData(data);
+        return message;
     }
 
     public void reduceBooking(BookingTj booking, Result result) {
@@ -46,7 +54,10 @@ public class CumulativeBookingTodayTask extends AbstractTask<CumulativeBookingTo
             return;
         }
         create_time *= 1000;
-        if (!(result.start_hour.getTime() <= create_time && create_time <= result.end_hour.getTime())) {
+        if (create_time <= result.start_hour.getTime()) {
+            result.data.put(result.start_hour.getTime(), result.data.get(result.start_hour.getTime()) + 1);
+            return;
+        } else if (!(result.start_hour.getTime() <= create_time && create_time <= result.end_hour.getTime())) {
             return;
         }
 

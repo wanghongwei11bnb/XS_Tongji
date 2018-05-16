@@ -2,6 +2,7 @@ class ListEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            readOnly: props.readOnly,
             itemType: props.itemType,
             itemRender: props.itemRender,
             data: props.initialData || [],
@@ -29,8 +30,9 @@ class ListEditor extends React.Component {
     };
 
     show = () => {
-        let message = <pre><code>{JSON.stringify(this.state.data, 2, 2)}</code></pre>;
-        ModalContainer[this.state.modalId].open(<AlertModal message={message}></AlertModal>);
+        Modal.open(<AlertModal>
+            <pre><code>{JSON.stringify(this.state.data, 2, 2)}</code></pre>
+        </AlertModal>);
     };
 
     getData = () => {
@@ -43,18 +45,22 @@ class ListEditor extends React.Component {
     };
 
     render() {
-        const {data, itemType, itemRender, modalId} = this.state;
+        const {readOnly, data, itemType, itemRender, modalId} = this.state;
         return <div>
             {data.map((item, index) => {
                 return <div className="row m-1 p-1 border">
                     <div className="col">{itemRender(item, index, this.itemUpdate.bind(this, index))}</div>
-                    <span><button type="button" className="btn btn-sm btn-danger mx-3"
-                                  onClick={this.del.bind(this, index)}>删除</button></span>
+                    {!!readOnly ||
+                    <span>
+                        <button type="button" className="btn btn-sm btn-danger mx-3"
+                                onClick={this.del.bind(this, index)}>删除</button>
+                    </span>}
+
                 </div>;
             })}
-            <button type="button" className="btn btn-sm btn-primary mx-3" onClick={this.add}>添加</button>
-            <button type="button" className="btn btn-sm btn-success mx-3" onClick={this.show}>查看</button>
-            <ModalContainer id={modalId}></ModalContainer>
+            {!!readOnly || <button type="button" className="btn btn-sm btn-primary mx-3" onClick={this.add}>添加</button>}
+            {!!readOnly ||
+            <button type="button" className="btn btn-sm btn-success mx-3 hide" onClick={this.show}>查看</button>}
         </div>
     }
 }

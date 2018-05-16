@@ -89,6 +89,10 @@ public class MyHandler extends TextWebSocketHandler {
         if (redisService.exists(SendMessagePrefix.cache, CumulativeBookingMessage.class.getSimpleName())) {
             messageList.add(redisService.get(SendMessagePrefix.cache, CumulativeBookingMessage.class.getSimpleName(), CumulativeBookingMessage.class));
         }
+        //CumulativeBookingTodayMessage
+        if (redisService.exists(SendMessagePrefix.cache, CumulativeBookingTodayMessage.class.getSimpleName())) {
+            messageList.add(redisService.get(SendMessagePrefix.cache, CumulativeBookingTodayMessage.class.getSimpleName(), CumulativeBookingTodayMessage.class));
+        }
         //CumulativeTimeMessage
         if (redisService.exists(SendMessagePrefix.cache, CumulativeTimeMessage.class.getSimpleName())) {
             messageList.add(redisService.get(SendMessagePrefix.cache, CumulativeTimeMessage.class.getSimpleName(), CumulativeTimeMessage.class));

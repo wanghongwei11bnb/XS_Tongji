@@ -7,6 +7,7 @@ import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.MD5;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,5 +51,22 @@ public class OpController extends BaseController {
         } else {
             return new Result(CodeMsg.AUTH_FAIL);
         }
+    }
+
+    @PostMapping("/api/logout")
+    @ResponseBody
+    public Result logout(HttpServletRequest request, HttpServletResponse response, String username, String password) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("op_token".equals(cookie.getName())) {
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                    redisService.del(OpPrefix.op_token, cookie.getValue());
+                    break;
+                }
+            }
+        }
+        return new Result(CodeMsg.SUCCESS);
     }
 }

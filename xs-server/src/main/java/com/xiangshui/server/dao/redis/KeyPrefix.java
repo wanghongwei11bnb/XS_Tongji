@@ -13,6 +13,10 @@ abstract public class KeyPrefix {
         this.expiry = expiry;
     }
 
+    public String getRealKey() {
+        return this.getClass().getSimpleName() + ":" + this.prefix;
+    }
+
     public String getRealKey(String key) {
         return this.getClass().getSimpleName() + ":" + this.prefix + ":" + key;
     }

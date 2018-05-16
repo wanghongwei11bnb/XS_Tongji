@@ -12,16 +12,33 @@ public class Area {
 
     private String address;
     private String city;
+    /**
+     * 百度定位图片url
+     */
     private String area_img;
     private String title;
+    /**
+     * 提示文案
+     */
     private String notification;
+    /**
+     * 联系方式
+     */
     private String contact;
-
+    /**
+     * 场地状态
+     * null:正常
+     * -1:已下线
+     * -2:待运营
+     */
     private Integer status;
 
     private List<RushHour> rushHours;
     private Integer minute_start;
-
+    /**
+     * 场地是否对外开放
+     * 空或0:否，1:是
+     */
     private Integer is_external;
 
 
@@ -30,6 +47,7 @@ public class Area {
     private List<String> imgs;
 
     private List<CapsuleType> types;
+
 
     public Integer getIs_external() {
         return is_external;

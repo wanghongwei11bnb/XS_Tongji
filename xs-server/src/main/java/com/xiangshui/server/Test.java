@@ -7,9 +7,11 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.dao.AreaDao;
+import com.xiangshui.server.dao.CapsuleDao;
 import com.xiangshui.server.dao.CityDao;
 import com.xiangshui.server.dao.UserInfoDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.City;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.service.PartnerService;
@@ -32,6 +34,9 @@ public class Test {
     UserInfoDao userInfoDao;
     @Autowired
     AreaDao areaDao;
+
+    @Autowired
+    CapsuleDao capsuleDao;
 
     @Autowired
     PartnerService partnerService;
@@ -63,15 +68,9 @@ public class Test {
 
     public void test() throws Exception {
 
+        List<Capsule> capsuleList = capsuleDao.batchGetItem("capsule_id", new Object[]{1100002005});
 
-        cityDao.scan(new ScanSpec(), new CallBack<City>() {
-            public void run(City object) {
-                mongoTemplate.save(object);
-            }
-        });
-
-
-
+        log.debug(JSON.toJSONString(capsuleList));
     }
 
 

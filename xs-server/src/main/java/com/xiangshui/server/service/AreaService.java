@@ -3,43 +3,39 @@ package com.xiangshui.server.service;
 import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.fragment.Location;
+import com.xiangshui.server.domain.fragment.RushHour;
+import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.relation.BookingRelation;
+import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 
 @Component
 public class AreaService {
 
     @Autowired
     AreaDao areaDao;
-
+    @Autowired
+    S3Service s3Service;
 
     public Area getAreaById(int area_id) {
         return areaDao.getItem(new PrimaryKey("area_id", area_id));
-    }
-
-    public List<Area> getAreaListByCity(String city) {
-        if (StringUtils.isBlank(city)) {
-            return new ArrayList<Area>();
-        }
-        return areaDao.scan(new ScanSpec().withFilterExpression("city = :city").withValueMap(new ValueMap().withString(":city", city)));
-    }
-
-
-    public List<Area> getAreaListByCy(String city) {
-        if (StringUtils.isBlank(city)) {
-            return new ArrayList<Area>();
-        }
-        return areaDao.scan(new ScanSpec().withFilterExpression("city = :city").withValueMap(new ValueMap().withString(":city", city)));
     }
 
 
@@ -91,4 +87,292 @@ public class AreaService {
 
         areaDao.updateItem(new PrimaryKey("area_id", area_id), attributeUpdateList.toArray(new AttributeUpdate[]{}));
     }
+
+    public List<Integer> getAreaIdListByCity(String city) {
+        if (StringUtils.isBlank(city)) {
+            return null;
+        }
+
+        List<Area> areaList = getAreaListByCity(city, new String[]{"area_id"});
+        if (areaList == null) {
+            return null;
+        }
+
+        List<Integer> areaIdList = new ArrayList<Integer>(areaList.size());
+        for (Area area : areaList) {
+            areaIdList.add(area.getArea_id());
+        }
+        return areaIdList;
+    }
+
+    public List<Area> getAreaListByCity(String city, String[] attributes) {
+        if (StringUtils.isBlank(city)) {
+            return null;
+        }
+        return areaDao.scan(new ScanSpec().withScanFilters(new ScanFilter("city").eq(city)).withAttributesToGet(attributes));
+    }
+
+    public List<Area> getAreaListByIds(Integer... areaIds) {
+        return areaDao.batchGetItem("area_id", areaIds);
+    }
+
+    public Map<Integer, Area> getAreaMapByIds(Integer[] areaIds) {
+        List<Area> areaList = getAreaListByIds(areaIds);
+        if (areaList == null || areaList.size() == 0) {
+            return null;
+        }
+        Map<Integer, Area> areaMap = new HashMap<Integer, Area>(areaList.size());
+        for (Area area : areaList) {
+            areaMap.put(area.getArea_id(), area);
+        }
+        return areaMap;
+    }
+
+
+    public void matchAreaForCapsule(CapsuleRelation capsuleRelation) {
+        if (capsuleRelation == null || capsuleRelation.getArea_id() == null) {
+            return;
+        }
+        capsuleRelation.set_area(getAreaById(capsuleRelation.getArea_id()));
+    }
+
+    public void matchAreaForCapsule(List<CapsuleRelation> capsuleRelationList) {
+        if (capsuleRelationList == null || capsuleRelationList.size() == 0) {
+            return;
+        }
+        Set<Integer> areaIdSet = new HashSet<Integer>();
+        for (CapsuleRelation capsuleRelation : capsuleRelationList) {
+            if (capsuleRelation.getArea_id() != null) {
+                areaIdSet.add(capsuleRelation.getArea_id());
+            }
+        }
+        Map<Integer, Area> areaMap = getAreaMapByIds(areaIdSet.toArray(new Integer[0]));
+        for (CapsuleRelation capsuleRelation : capsuleRelationList) {
+            if (areaMap.containsKey(capsuleRelation.getArea_id())) {
+                capsuleRelation.set_area(areaMap.get(capsuleRelation.getArea_id()));
+            }
+        }
+    }
+
+    public void matchAreaForBooking(BookingRelation bookingRelation) {
+        if (bookingRelation == null) {
+            return;
+        }
+        bookingRelation.set_area(getAreaById(bookingRelation.getArea_id()));
+    }
+
+    public void matchAreaForBooking(List<BookingRelation> bookingRelationList) {
+        if (bookingRelationList == null || bookingRelationList.size() == 0) {
+            return;
+        }
+        Set<Integer> areaIdSet = new HashSet<Integer>();
+        for (BookingRelation bookingRelation : bookingRelationList) {
+            if (bookingRelation.getArea_id() != null) {
+                areaIdSet.add(bookingRelation.getArea_id());
+            }
+        }
+        Map<Integer, Area> areaMap = getAreaMapByIds(areaIdSet.toArray(new Integer[0]));
+        for (BookingRelation bookingRelation : bookingRelationList) {
+            if (areaMap.containsKey(bookingRelation.getArea_id())) {
+                bookingRelation.set_area(areaMap.get(bookingRelation.getArea_id()));
+            }
+        }
+    }
+
+
+    public void fillLocation(Area area) throws IOException {
+        if (area == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + area.getCity() + " " + area.getAddress() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
+        JSONObject resp = JSONObject.parseObject(string);
+        if (resp.getIntValue("status") == 0) {
+            JSONObject locationJson = resp.getJSONObject("result").getJSONObject("location");
+            float lat = locationJson.getFloatValue("lat");
+            float lng = locationJson.getFloatValue("lng");
+            if (lat > 0 && lng > 0) {
+                Location location = new Location();
+                location.setLatitude((int) (lat * 1000000));
+                location.setLongitude((int) (lng * 1000000));
+                area.setLocation(location);
+                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=14&markerStyles=s,A,0xff0000";
+                String imgurl = s3Service.uploadImageToAreaimgs(IOUtils.toByteArray(new URL(mapImgUrl)));
+                area.setArea_img(imgurl);
+            } else {
+                throw new XiangShuiException("获取经纬度失败，请修改地址重试");
+            }
+        } else {
+            throw new XiangShuiException("获取经纬度失败，请修改地址重试");
+        }
+    }
+
+    public boolean validateRushHours(Area criteria) {
+        if (criteria != null) {
+            if (criteria.getRushHours() != null && criteria.getRushHours().size() > 0) {
+                for (RushHour rushHour : criteria.getRushHours()) {
+                    if (rushHour == null || rushHour.getStart_time() <= 0 || rushHour.getEnd_time() <= 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    public void updateArea(Area criteria) throws Exception {
+        if (criteria == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        if (criteria.getArea_id() == null || criteria.getArea_id() <= 0) {
+            throw new XiangShuiException("场地编号不能为空并且大于0");
+        }
+
+        Area area = getAreaById(criteria.getArea_id());
+        if (area == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+
+        if (StringUtils.isBlank(criteria.getTitle())) {
+            throw new XiangShuiException("场地名称不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getAddress())) {
+            throw new XiangShuiException("地址不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getContact())) {
+            throw new XiangShuiException("联系方式不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getNotification())) {
+            throw new XiangShuiException("注意事项不能为空");
+        }
+        if (criteria.getMinute_start() == null || criteria.getMinute_start() < 1) {
+            throw new XiangShuiException("最少时长不能小于1");
+        }
+
+        if (!validateRushHours(criteria)) {
+            throw new XiangShuiException("高峰时段输入有误");
+        }
+        if (!(criteria.getCity().endsWith(area.getCity()) && criteria.getAddress().endsWith(area.getAddress()))) {
+            fillLocation(criteria);
+            areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                    "title",
+                    "address",
+                    "contact",
+                    "notification",
+                    "area_img",
+                    "status",
+                    "minute_start",
+                    "imgs",
+                    "location",
+                    "rushHours",
+                    "is_external",
+            });
+        } else {
+            areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                    "title",
+                    "address",
+                    "contact",
+                    "notification",
+                    "status",
+                    "minute_start",
+                    "imgs",
+                    "rushHours",
+                    "is_external",
+            });
+        }
+
+    }
+
+
+    public void createArea(Area criteria) throws IOException {
+        if (criteria == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        if (criteria.getArea_id() == null || criteria.getArea_id() <= 0) {
+            throw new XiangShuiException("场地编号不能为空并且大于0");
+        }
+
+        Area area = getAreaById(criteria.getArea_id());
+        if (area != null) {
+            throw new XiangShuiException("场地编号已存在");
+        }
+
+        if (StringUtils.isBlank(criteria.getTitle())) {
+            throw new XiangShuiException("场地名称不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getCity())) {
+            throw new XiangShuiException("城市不能为空");
+        }
+        if (StringUtils.isBlank(criteria.getAddress())) {
+            throw new XiangShuiException("地址不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getContact())) {
+            throw new XiangShuiException("联系方式不能为空");
+        }
+
+        if (StringUtils.isBlank(criteria.getNotification())) {
+            throw new XiangShuiException("注意事项不能为空");
+        }
+        if (criteria.getMinute_start() == null || criteria.getMinute_start() < 1) {
+            throw new XiangShuiException("最少时长不能小于1");
+        }
+
+        if (!validateRushHours(criteria)) {
+            throw new XiangShuiException("高峰时段输入有误");
+        }
+        fillLocation(criteria);
+        areaDao.putItem(criteria);
+    }
+
+
+    public void updateTypes(Area criteria) throws Exception {
+        if (criteria == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        if (criteria.getArea_id() == null || criteria.getArea_id() <= 0) {
+            throw new XiangShuiException("场地编号不能为空并且大于0");
+        }
+        Area area = getAreaById(criteria.getArea_id());
+        if (area == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+
+        if (criteria.getTypes() == null || criteria.getTypes().size() == 0) {
+            throw new XiangShuiException("头等舱类型不能为空");
+        }
+        areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                "types",
+        });
+    }
+
+    public List<Area> search(Area criteria, String[] attributes) throws NoSuchFieldException, IllegalAccessException {
+        if (criteria == null) {
+            return areaDao.scan();
+        }
+        if (criteria.getArea_id() != null) {
+            List<Area> areaList = new ArrayList<Area>();
+            Area area = getAreaById(criteria.getArea_id());
+            if (area != null) {
+                areaList.add(area);
+            }
+            return areaList;
+        } else {
+            ScanSpec scanSpec = new ScanSpec();
+            List<ScanFilter> filterList = areaDao.makeScanFilterList(criteria, new String[]{
+                    "city", "status", "is_external",
+            });
+            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
+            List<Area> areaList = areaDao.scan(scanSpec);
+            return areaList;
+        }
+
+    }
+
+
 }

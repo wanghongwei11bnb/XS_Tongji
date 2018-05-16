@@ -6,17 +6,31 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.xspec.L;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.fragment.Location;
+import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CityService;
+import com.xiangshui.server.service.S3Service;
+import com.xiangshui.util.EasyImage;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIUtils;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +43,8 @@ public class AreaController extends BaseController {
     AreaService areaService;
     @Autowired
     AreaDao areaDao;
+    @Autowired
+    S3Service s3Service;
 
 
     @GetMapping("/area_manage")
@@ -38,35 +54,29 @@ public class AreaController extends BaseController {
 
     @GetMapping("/api/area/search")
     @ResponseBody
-    public Result search(String city, Integer area_type_id, Integer status, Integer area_id) {
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-        if (StringUtils.isNotBlank(city)) {
-            filterList.add(new ScanFilter("city").eq(city));
+    public Result search(Area criteria) throws NoSuchFieldException, IllegalAccessException {
+
+        List<Area> areaList = areaService.search(criteria, null);
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
+
+    }
+
+
+    @GetMapping("/api/area/{area_id}/validateForCreate")
+    @ResponseBody
+    public Result validateForCreate(@PathVariable("area_id") Integer area_id) {
+        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+        if (area == null) {
+            return new Result(CodeMsg.SUCCESS);
+        } else {
+            return new Result(-1, "场地编号已存在");
         }
-        if (area_type_id != null) {
-            filterList.add(new ScanFilter("area_type_id").eq(area_type_id));
-        }
-        if (status != null) {
-            if (status == -1) {
-                filterList.add(new ScanFilter("status").eq(-1));
-            } else {
-                filterList.add(new ScanFilter("status").ne(-1));
-            }
-        }
-        if (area_id != null) {
-            filterList.add(new ScanFilter("area_id").eq(area_id));
-        }
-        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
-        scanSpec.setMaxResultSize(500);
-        List<Area> areaList = areaDao.scan(scanSpec);
-        return new Result(CodeMsg.SUCCESS).putData("list", areaList);
     }
 
 
     @GetMapping("/api/area/{area_id}")
     @ResponseBody
-    public Result area(@PathVariable("area_id") Integer area_id) {
+    public Result get(@PathVariable("area_id") Integer area_id) {
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
         if (area != null) {
             return new Result(CodeMsg.SUCCESS).putData("area", area);
@@ -75,46 +85,47 @@ public class AreaController extends BaseController {
         }
     }
 
-
-    @PostMapping("/api/area/{area_id}/update")
+    @GetMapping("/api/area/{area_id}/types")
     @ResponseBody
-    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area area) throws Exception {
-        if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
+    public Result getTypes(@PathVariable("area_id") Integer area_id) {
+        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+        if (area == null) {
             return new Result(CodeMsg.NO_FOUND);
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("types", area.getTypes());
         }
+    }
 
 
-        areaDao.updateItem(new PrimaryKey("area_id", area_id), area, new String[]{
-                "title",
-                "city",
-                "address",
-                "contact",
-                "notification",
-                "area_img",
-                "status",
-                "minute_start",
-                "imgs",
-                "location",
-                "rushHours",
-                "is_external",
-        });
+    @PostMapping("/api/area/{area_id:\\d+}/update")
+    @ResponseBody
+    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+        if (area_id == null || area_id < 1) {
+            return new Result(-1, "场地编号不能小于1");
+        }
+        criteria.setArea_id(area_id);
+        areaService.updateArea(criteria);
         return new Result(CodeMsg.SUCCESS);
     }
 
-    @PostMapping("/api/area/{area_id}/update/types")
+    @PostMapping("/api/area/create")
     @ResponseBody
-    public Result update_types(@PathVariable("area_id") Integer area_id, @RequestBody Area area) throws Exception {
-        if (areaDao.getItem(new PrimaryKey("area_id", area_id)) == null) {
-            return new Result(CodeMsg.NO_FOUND);
-        }
+    public Result create(@RequestBody Area criteria) throws Exception {
+        areaService.createArea(criteria);
+        return new Result(CodeMsg.SUCCESS);
+    }
 
-        if (area.getTypes() == null || area.getTypes().size() == 0) {
-            return new Result(-1, "头等舱类型不能为空");
+    @PostMapping("/api/area/{area_id:\\d+}/update/types")
+    @ResponseBody
+    public Result update_types(@PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+        if (area_id == null || area_id < 1) {
+            return new Result(-1, "场地编号不能小于1");
         }
-
-        areaDao.updateItem(new PrimaryKey("area_id", area_id), area, new String[]{
-                "types",
-        });
+        if (criteria == null) {
+            return new Result(-1, "参数不能为空");
+        }
+        criteria.setArea_id(area_id);
+        areaService.updateTypes(criteria);
         return new Result(CodeMsg.SUCCESS);
     }
 }

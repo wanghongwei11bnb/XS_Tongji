@@ -25,8 +25,6 @@ class Table extends React.Component {
             </tr>
         }) : null}
         </tbody>;
-
-
         return (<table className="table table-hover table-bordered">
             {theadHtml}{tbodyHtml}
         </table>);

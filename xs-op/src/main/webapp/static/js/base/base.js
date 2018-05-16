@@ -16,6 +16,12 @@ function nullStringReplacer(k, v) {
 }
 
 
+function type(o) {
+    if (o !== o) return 'NaN';
+    let typeStr = Object.prototype.toString.call(o);
+    return typeStr.substring(8, typeStr.length - 1);
+}
+
 Date.prototype.format = function (fmt) {
     if (!fmt) fmt = "yyyy-MM-dd hh:mm:ss";
     var o = {
@@ -118,12 +124,132 @@ function request(opt) {
                 if (opt.error) opt.error(resp); else Message.error(resp.msg);
             }
         },
-        error: (err) => {
-            Message.error(err.message);
+        error: () => {
+            Message.error('网络异常');
         },
-        complete: function (resp) {
+        complete: function () {
             if (opt.loading) Loading.close();
         }
-
     });
 }
+
+
+window.eventUtil = {
+    addHandler: function (element, type, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(type, handler, false);
+        }
+        else if (element.attachEvent) {
+            element.attachEvent('on' + type, handler);
+        }
+        else {
+            element["on" + type] = handler
+            /*直接赋给事件*/
+        }
+
+    },
+    removeHandler: function (element, type, handler) {
+        if (element.removeEventListener) {
+            /*Chrome*/
+            element.removeEventListener(type, handler, false);
+        } else if (element.deattachEvent) {
+            /*IE*/
+            element.deattachEvent('on' + type, handler);
+        } else {
+            /*直接赋给事件*/
+            element["on" + type] = null;
+        }
+    }
+};
+
+
+class ListOptions {
+    constructor() {
+        this.optionList = [];
+    }
+
+    getId(option) {
+        return option.id;
+    }
+
+    insertOption(option) {
+        if (this.getOptionById(this.getId(option)) == null) {
+            this.optionList.push(option);
+        }
+    }
+
+    deleteOption(option) {
+        let id = this.getId(option);
+        this.removeOptionById(id);
+    }
+
+    deleteOptionById(id) {
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    updateOption(option) {
+        let id = this.getId(option);
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList[i] = option;
+                return;
+            }
+        }
+    }
+
+    saveOption(option) {
+        let id = this.getId(option);
+        for (let i = 0; i < this.optionList.length; i++) {
+            if (this.getId(this.optionList[i]) == id) {
+                this.optionList[i] = option;
+                return;
+            }
+        }
+        this.optionList.push(option);
+    }
+
+    selectOptionById(id) {
+        for (let i = 0; i < this.optionList.length; i++) {
+            let option = this.optionList[i];
+            if (this.getId(option) == id) {
+                return option;
+            }
+        }
+    }
+}
+
+
+class MapOptions {
+    constructor() {
+        this.optionMap = {};
+    }
+
+
+    getId(option) {
+        return option ? option.id || null : null;
+    }
+
+    put(option) {
+        let id = this.getId(option);
+        this.optionMap[id] = option;
+    }
+
+    remove(option) {
+        let id = this.getId(option);
+        delete this.optionMap[id];
+    }
+
+    get(id) {
+        return this.optionMap[id];
+    }
+
+
+}
+
+
+

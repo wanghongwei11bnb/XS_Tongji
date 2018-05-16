@@ -163,6 +163,7 @@ class PartnerModal extends Modal {
     };
 
     componentDidMount() {
+        super.componentDidMount();
         const {partner_id, partner} = this.state;
         if (partner) {
             initForm(partner);
@@ -197,7 +198,7 @@ class Page extends React.Component {
             {field: 'city', title: '城市', width: 100},
             {field: 'address', title: '地址', width: 100},
             {
-                field: 'create_time', title: '创建时间', width: 100,
+                field: 'createTime', title: '创建时间', width: 100,
                 render: (value, row, index) => {
                     if (value) {
                         return new Date(value).format('yyyy-MM-dd');
@@ -205,7 +206,7 @@ class Page extends React.Component {
                 }
             },
             {
-                field: 'last_login_time', title: '最后登录时间', width: 100,
+                field: 'lastLoginTime', title: '最后登录时间', width: 100,
                 render: (value, row, index) => {
                     if (value) {
                         return new Date(value).format('yyyy-MM-dd');
@@ -225,8 +226,8 @@ class Page extends React.Component {
 
 
     openUpdateModal = (partner_id) => {
-        ModalContainer.modal.open(<PartnerModal cityList={this.state.cityList} partner_id={partner_id}
-                                                onSuccess={this.load}></PartnerModal>);
+        Modal.open(<PartnerModal cityList={this.state.cityList} partner_id={partner_id}
+                                 onSuccess={this.load}></PartnerModal>);
     };
 
 
@@ -279,14 +280,14 @@ class Page extends React.Component {
             <div className="table-responsive">
                 <Datagrid ref="grid" columns={columns}></Datagrid>
             </div>
-            <ModalContainer id="modal"></ModalContainer>
+            <ModalContainer></ModalContainer>
         </div>;
     }
 
     componentDidMount() {
         this.search();
         request({
-            url: '/api/cityList', loading: true,
+            url: '/api/activeCityList', loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
                     this.setState({cityList: resp.data.cityList});

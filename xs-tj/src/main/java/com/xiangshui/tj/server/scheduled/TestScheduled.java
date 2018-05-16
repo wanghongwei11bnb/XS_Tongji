@@ -81,6 +81,8 @@ public class TestScheduled implements InitializingBean {
     CumulativeTimeTask cumulativeTimeTask;
     @Autowired
     CountBookingForDaysTask countBookingForDaysTask;
+    @Autowired
+    CumulativeBookingTodayTask cumulativeBookingTodayTask;
 
 
     private volatile long lastBookingCapsuleId;
@@ -193,7 +195,8 @@ public class TestScheduled implements InitializingBean {
                 usageRateForHourTask,
                 cumulativeBookingTask,
                 cumulativeTimeTask,
-                countBookingForDaysTask
+                countBookingForDaysTask,
+                cumulativeBookingTodayTask,
         }, new DataManager[]{
                 bookingDataManager,
                 capsuleDataManager,
@@ -213,7 +216,9 @@ public class TestScheduled implements InitializingBean {
                         if (booking != null) {
                             dataReceiver.receive(booking.getStatus() == 1 ? ReceiveEvent.BOOKING_START : ReceiveEvent.BOOKING_END, booking);
                             lastBookingCapsuleId = booking.getCapsule_id();
-                            planBooking();
+                            if (booking.getStatus() == 1) {
+                                planBooking();
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -258,7 +263,9 @@ public class TestScheduled implements InitializingBean {
         } else {//其他时段
             delay = (long) (Math.random() * 1000 * 60 + 1000 * 60);
         }
-//        delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+        if (debug) {
+            delay = (long) (Math.random() * 1000 * 5 + 1000 * 5);
+        }
 
         planPushBookingTask = new TimerTask() {
             @Override
@@ -276,7 +283,33 @@ public class TestScheduled implements InitializingBean {
                         }
                         BookingTj bookingCp = new BookingTj();
                         BeanUtils.copyProperties(booking, bookingCp);
-                        bookingCp.setCreate_time(now.getTime() / 1000);
+
+                        if (debug) {
+                            if (Math.random() > 0.5) {
+                                bookingCp.setStatus(1);
+                            } else {
+                                bookingCp.setStatus(4);
+                            }
+                        } else {
+                            if ((11 <= now.getHours() && now.getHours() <= 14) && Math.random() > 0.2) {
+                                bookingCp.setStatus(1);
+                            } else if ((17 <= now.getHours() && now.getHours() <= 20) && Math.random() > 0.2) {
+                                bookingCp.setStatus(1);
+                            } else if (Math.random() > 0.5) {
+                                bookingCp.setStatus(1);
+                            } else {
+                                bookingCp.setStatus(4);
+                            }
+                        }
+
+                        if (bookingCp.getStatus() == 1) {
+                            bookingCp.setCreate_time(now.getTime() / 1000);
+                            bookingCp.setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd")));
+                        } else if (bookingCp.getStatus() == 4) {
+                            bookingCp.setEnd_time(now.getTime() / 1000);
+                            bookingCp.setEnd_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd")));
+                        }
+
                         PushBookingMessage pushBookingMessage = new PushBookingMessage();
                         pushBookingMessage.setBooking(bookingCp);
                         pushBookingMessage.setArea(area);

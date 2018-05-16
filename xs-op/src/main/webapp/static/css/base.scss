@@ -1,10 +1,11 @@
+
 #message {
   display: block;
   position: fixed;
   z-index: 9999;
-  top: 30%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   max-width: 80%;
   background-color: rgba(0, 0, 0, .9);
   color: #fff;
@@ -14,6 +15,7 @@
   text-align: center;
   border-radius: 4px;
 }
+
 #loading {
   display: block;
   position: fixed;
@@ -35,40 +37,58 @@
     height: 100%;
   }
 }
+
 .hm {
   cursor: pointer;
 }
+
 .show {
   display: block !important;
 }
+
 .hide {
   display: none !important;
 }
+
 .top-0 {
   top: 0 !important;
 }
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.left-0 {
+  left: 0;
+}
+
 .right-0 {
   right: 0 !important;
 }
+
 .cx {
   position: absolute;
   transform: translateX(-50%);
   left: 50%;
 }
+
 .cy {
   position: absolute;
   transform: translateY(-50%);
   top: 50%;
 }
+
 .cxy {
   position: absolute;
   transform: translate(-50%, -50%);
   top: 50%;
   left: 50%;
 }
+
 .w-auto {
   width: auto;
 }
+
 .modal-container {
   .modal {
     position: fixed;
@@ -76,7 +96,6 @@
     left: 0;
     bottom: 0;
     right: 0;
-
     .modal-layer {
       position: absolute;
       z-index: 1;

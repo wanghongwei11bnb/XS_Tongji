@@ -71,7 +71,7 @@ class Tabs extends React.Component {
                 {tabs ? tabs.map((tab, index) => {
                     return <li key={`tab-bar-${index}`} className="nav-item">
                         <div
-                            className={`nav-link d-inline-block p-1 ${activeIndex == index ? "active bg-primary text-white" : ""}`}>
+                            className={`nav-link d-inline-block p-1 ${activeIndex == index ? "active btn-primary text-white" : ""}`}>
                         <span className="hm d-inline-block" onClick={this.checkIndex.bind(this, index)}>
                             {tab.title}
                         </span>
@@ -106,22 +106,33 @@ class Iframe extends React.Component {
         return <iframe ref="iframe"   {...this.props}></iframe>
     }
 
+    resize = () => {
+        this.refs.iframe.height = window.innerHeight - 50;
+    };
+
     componentDidMount() {
-        // this.interval = setInterval(() => {
-        this.refs.iframe.height = window.innerHeight - 120;
-        // }, 100);
+        this.resize();
+        eventUtil.addHandler(window, 'resize', this.resize);
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval);
+        eventUtil.removeHandler(window, 'resize', this.resize);
     }
 }
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            showMenu: true,
+            menuWidth: '150px',
+
+        };
     }
+
+    toggleMenu = () => {
+        this.setState({showMenu: !this.state.showMenu});
+    };
 
 
     checkTab = (title, url) => {
@@ -136,38 +147,73 @@ class Page extends React.Component {
 
 
     render() {
-        const {} = this.state;
-        return <div className="container-fluid">
-            <ul className="nav nav-pills  mb-3 bg-secondary">
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</a>
-                </li>
-                <li className="nav-item">
-                    <a className="nav-link text-white" href="javascript:void(0);"
-                       onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</a>
-                </li>
-            </ul>
+        const {showMenu, menuWidth} = this.state;
+        return <div className="position-fixed w-100 h-100">
+            <div className="position-absolute top-0 bottom-0 left-0 border-right"
+                 style={{width: showMenu ? menuWidth : '50px'}}>
+                <A className="d-block text-center" onClick={this.toggleMenu}>{showMenu ? '<<' : '>>'}</A>
+                {showMenu ? null : <A className="d-block text-center" onClick={this.logout}>退出</A>}
+                <ul className={`nav flex-column ${showMenu ? '' : 'hide'}`}>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</A>
+                    </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</A>
+                    </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</A>
+                    </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '用户管理', '/user_manage')}>用户管理</A>
+                    </li>
+                    <li className="nav-item">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</A>
+                    </li>
+                    <li className="nav-item">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
+                    </li>
+                    <li className="nav-item hide">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '用户评论', '/appraise_manage')}>用户评论</A>
+                    </li>
+                    <li className="nav-item">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</A>
+                    </li>
+                    <li className="nav-item ">
+                        <A className="nav-link"
+                           onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</A>
+                    </li>
+                    <li className="nav-item float-right">
+                        <A className="nav-link"
+                           onClick={this.logout}>退出</A>
+                    </li>
+                </ul>
 
-            <Tabs ref="tabs"></Tabs>
+
+            </div>
+            <div className="position-absolute top-0 bottom-0 right-0" style={{left: showMenu ? menuWidth : '50px'}}>
+                <Tabs ref="tabs"></Tabs>
+            </div>
+            <ModalContainer></ModalContainer>
         </div>;
     }
+
+    logout = () => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: '/api/logout', method: 'post', success: () => {
+                    location.reload();
+                }
+            });
+        }}>是否推出？</ConfirmModal>);
+    };
 
     componentDidMount() {
     }
