@@ -21,13 +21,17 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }
 
+var orderList = [];
+var CumulativeBookingTodayMessage = [];
+var CumulativeBookingMessage = [];
+
 //处理部分相似的message
 function handleApartMessage(data,type){
-    var dateList;
+    var dataList;
     var valueList;
     var valueList2;
     if(type === 'UsageRateMessage'){
-        dateList = data.map(function (item) {
+        dataList = data.map(function (item) {
             return dateUtil('m-d h:i',item[0]/1000);
         });
         valueList = data.map(function (item) {
@@ -36,23 +40,37 @@ function handleApartMessage(data,type){
         valueList2 = data.map(function (item) {
             return (item[2] * 100).toFixed(2);
         });
-        occupyChartDraw(dateList,valueList,valueList2);
+        occupyChartDraw(dataList,valueList,valueList2);
     }else if(type === 'CumulativeBookingMessage'){
-        dateList = data.map(function (item) {
-            return dateUtil('m-d',item[0]/1000);
-        });
-        valueList = data.map(function (item) {
-            return item[1];
-        });
-        servicePeopleChartDraw(dateList,valueList);
+        CumulativeBookingMessage = data;
+        if(servicePeopleType === 'week'){
+            dataList = data.map(function (item) {
+                return dateUtil('m-d',item[0]/1000);
+            });
+            valueList = data.map(function (item) {
+                return item[1];
+            });
+            servicePeopleChartDraw(dataList,valueList);
+        }
     }else if(type === 'CumulativeTimeMessage'){
-        dateList = data.map(function (item) {
+        dataList = data.map(function (item) {
             return dateUtil('m-d',item[0]/1000);
         });
         valueList = data.map(function (item) {
             return (item[1]/1000/60/60).toFixed(2);
         });
-        timeChartDraw(dateList,valueList);
+        timeChartDraw(dataList,valueList);
+    }else if(type === 'CumulativeBookingTodayMessage'){
+        CumulativeBookingTodayMessage = data;
+        if(servicePeopleType === 'day'){
+            dataList = data.map(function (item) {
+                return dateUtil('h:i',item[0]/1000);
+            });
+            valueList = data.map(function (item) {
+                return item[1];
+            });
+            servicePeopleChartDraw(dataList,valueList);
+        }
     }
 }
 
@@ -94,7 +112,7 @@ function handleContractMessage(message){
             mapData.push({
                 name: provinceOrigin.substring(0,provinceOrigin.length-1),
                 value: 1
-            })
+            });
             newGeoCoordMap[cityList[key].city] = [cityList[key].lng,cityList[key].lat]
         }
         areaData = newAreaData;
@@ -113,6 +131,44 @@ function handleContractMessage(message){
     }
 }
 
+//展示订单推送
+function innerOrder(id,data){
+    var orderStatus  = data.status
+    $('#'+id).parent('.order_item').css({opacity: 0});
+    if(orderList.length > 2){
+        if(id === 'order_item_three'){
+            $('.order_one').css({opacity: 0});
+        }
+        if(id === 'order_item_one'){
+            $('.order_two').css({opacity: 0});
+        }
+        if(id === 'order_item_two'){
+            $('.order_three').css({opacity: 0});
+        }
+    }
+    if($('#'+id).parent('.order_item').hasClass('order_item_end')){
+        $('#'+id).parent('.order_item').removeClass('order_item_end');
+    }
+    if(orderStatus == 4){
+        $('#'+id).parent('.order_item').addClass('order_item_end');
+    }
+    setTimeout(function () {
+        $('#'+id).html("<span>城市: " + data.city + "</span><br/>" +
+            "<span>用户名: " + data.user_name + "</span><br/>" +
+            "<span>店铺: " + data.title+"</span><br/>" +
+            "<span>" + (orderStatus != 4 ? "下单时间: " : "结束时间: ")+ (orderStatus != 4 ? data.booking_time : data.end_time) + "</span>");
+        $('#'+id).parent('.order_item').css({opacity: 1});
+        if($('#'+id).hasClass('tipAnimate')){
+            $('#'+id).removeClass('tipAnimate');
+            setTimeout(function () {
+                $('#'+id).addClass('tipAnimate');
+            },1000/60);
+        }else{
+            $('#'+id).addClass('tipAnimate');
+        }
+    },200);
+}
+
 //处理 订单推送
 function handlePushBookingMessage(message){
     var orderIndex;
@@ -123,12 +179,45 @@ function handlePushBookingMessage(message){
     }
     var province = cityList[orderIndex].province;
     province = province.substring(0,province.length-1);
-    areaData[orderIndex].value={
+
+    var lastedOrder = {
         'city' : message.area.city,
         'user_name': '用户'+ (message.booking.phone ? subLastStringUtil(message.booking.phone,4) : subLastStringUtil(message.booking.uin,4)),
         'title': message.area.title,
-        'booking_time': dateUtil('Y-m-d h:i:s',message.booking.create_time)
+        'booking_time': dateUtil('Y-m-d h:i',message.booking.create_time),
+        'create_time': message.booking.create_time,
+        'status': message.booking.status,
+        'end_time': dateUtil('Y-m-d h:i',message.booking.end_time),
+        'time_stamp': new Date().getTime()
     };
+    if(orderList.length < 3){
+        orderList.push(lastedOrder);
+        if(orderList.length == 1){
+            innerOrder('order_item_one',orderList[0])
+        }else if(orderList.length == 2){
+            innerOrder('order_item_two',orderList[1])
+        }else if(orderList.length == 3){
+            innerOrder('order_item_three',orderList[2])
+        }
+        //innerOrder('order_item_' + orderList.length == 1 ? 'one' : orderList.length == 2 ? 'two' : 'three',orderList[orderList.length-1])
+    }else{
+        var minTimeStamp = orderList[0].time_stamp;
+        var minKey= 0;
+        for(var key in orderList){
+            if(orderList[key].time_stamp < minTimeStamp){
+                minTimeStamp = orderList[key].time_stamp;
+                minKey = key;
+            }
+        }
+        orderList[minKey] = lastedOrder;
+        innerOrder(minKey==0 ? 'order_item_one' : minKey==1 ? 'order_item_two' : 'order_item_three',orderList[minKey])
+    }
+    //areaData[orderIndex].value={
+    //    'city' : message.area.city,
+    //    'user_name': '用户'+ (message.booking.phone ? subLastStringUtil(message.booking.phone,4) : subLastStringUtil(message.booking.uin,4)),
+    //    'title': message.area.title,
+    //    'booking_time': dateUtil('Y-m-d h:i',message.booking.create_time)
+    //};
     orderChart.dispatchAction({
         type: 'mapToggleSelect',
         // 可选，系列 index，可以是一个数组指定多个系列
@@ -149,11 +238,15 @@ function handlePushBookingMessage(message){
             }]
         }
     });
-    orderChart.dispatchAction({
-        type: 'showTip',
-        seriesIndex: 0,
-        dataIndex: orderIndex
-    });
+    //orderChart.dispatchAction({
+    //    type: 'showTip',
+    //    seriesIndex: 0,
+    //    dataIndex: orderIndex
+    //});
+    var audio = document.getElementById('music'); 
+    if(audio!==null && audio.readyState === 4){
+        audio.play();//audio.play();// 这个就是播放  
+    } 
 }
 
 //处理 评论推送
@@ -182,6 +275,7 @@ function handlePushAppraiseMessage(message){
         },2000);
     }, 2000);
 }
+
 //处理推送信息
 function doMessage(message){
     switch (message.messageType){
@@ -210,6 +304,11 @@ function doMessage(message){
         case "CumulativeBookingMessage":
             if(message.data && message.data.length > 0){
                 handleApartMessage(message.data,"CumulativeBookingMessage");
+            }
+            break;
+        case "CumulativeBookingTodayMessage":
+            if(message.data && message.data.length > 0){
+                handleApartMessage(message.data,"CumulativeBookingTodayMessage");
             }
             break;
         case "CumulativeTimeMessage":
@@ -274,7 +373,6 @@ function reconnect(url) {
     }, 2000);
 }
 
-
 //心跳检测
 var heartCheck = {
     timeout: 60000,//60秒
@@ -299,4 +397,6 @@ var heartCheck = {
 };
 
 createWebSocket(wsUrl);
+
+$('')
 

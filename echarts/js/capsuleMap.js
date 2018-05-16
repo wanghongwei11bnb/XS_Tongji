@@ -14,7 +14,7 @@ var areaData = [
     {name: "北京"},
     {name: "杭州"},
     {name: "南京"},
-    {name: "武汉"},
+    {name: "武汉"}
 ];
 
 var mapData = [];
@@ -51,10 +51,12 @@ option = {
             var tooltpText ='';
             if(params.data && params.data.value[2]){
                 var data = params.data.value[2];
-                tooltpText = "<span>城市: " + data.city + "</span><br/>" +
+                tooltpText = "<div id='tipAnimate'>"+
+                    "<span>城市: " + data.city + "</span><br/>" +
                     "<span>用户名: " + data.user_name + "</span><br/>" +
                     "<span>店铺: " + data.title+"</span><br/>" +
-                    "<span>下单时间: " + data.booking_time + "</span>";
+                    "<span>下单时间: " + data.booking_time + "</span>"+
+                "</div>";
             }else{
                 tooltpText = params.name
             }
@@ -92,10 +94,9 @@ option = {
             normal: {
                 areaColor: '#52b2fd',
                 borderColor: '#ddd'
-
             },
             emphasis: {
-                areaColor: '#2452df'
+                areaColor: '#ffca00'
             }
         }
     },
@@ -123,7 +124,12 @@ option = {
                 }
             },
             itemStyle: {
-                normal: {
+                color: '#c60fff',
+                shadowBlur: 10,
+                shadowColor: '#333'
+            },
+            emphasis: {
+                itemStyle: {
                     color: '#c60fff',
                     shadowBlur: 10,
                     shadowColor: '#333'
