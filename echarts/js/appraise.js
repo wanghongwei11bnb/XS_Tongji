@@ -73,11 +73,11 @@ function createDom(sTxt,idName)
     var aLi=oUl.getElementsByTagName("li");
     var oLi=document.createElement("li");
     var iHeight=0;
-    var appraise_text_width = (window.innerWidth-document.getElementById('order').clientWidth)*0.9;
+    var appraise_text_width = document.getElementById('appraise_list').clientWidth*0.95;
     var userName = '用户'+ (sTxt.phone ? subLastStringUtil(sTxt.phone,4) : subLastStringUtil(sTxt.uin,4));
     if(sTxt.appraise || sTxt.suggest){
         var appraiseText = sTxt.suggest ? sTxt.suggest : sTxt.appraise.join('、');
-        oLi.innerHTML = "<div class='appraise_text' style='width: "+appraise_text_width +"px'>"+userName+' : &nbsp;&nbsp;'+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
+        oLi.innerHTML = "<div class='appraise_text' style='width: " + appraise_text_width +"px'>"+userName+' : &nbsp;&nbsp;'+appraiseText+"</div><div style='float: right'>"+ dateUtil('Y-m-d h:i:s',sTxt.createtime) +"</div>";
     }else{
         oLi.innerHTML = ""
     }

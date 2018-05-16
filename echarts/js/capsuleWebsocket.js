@@ -278,7 +278,6 @@ function handlePushAppraiseMessage(message){
 
 //处理推送信息
 function doMessage(message){
-    console.log(message)
     switch (message.messageType){
         case "ListMessage":
             for(var key in message.messageList){
