@@ -93,6 +93,20 @@ abstract public class BaseDynamoDao<T> {
     }
 
 
+    public List<T> scan() {
+        ScanSpec scanSpec = new ScanSpec();
+        scanSpec.withMaxResultSize(500);
+        Table table = getTable();
+        ItemCollection<ScanOutcome> items = table.scan(scanSpec);
+        List<T> list = new ArrayList();
+        Iterator<Item> iter = items.iterator();
+        while (iter.hasNext()) {
+            Item item = iter.next();
+            list.add(JSON.parseObject(item.toJSON(), tClass));
+        }
+        return list;
+    }
+
     public List<T> scan(ScanSpec scanSpec) {
         if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() == 0 || scanSpec.getMaxResultSize() > 500) {
             scanSpec.setMaxResultSize(500);

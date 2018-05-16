@@ -217,7 +217,7 @@ class CapsuleTypeGridModal extends Modal {
                 url: `/api/area/${area_id}/types`, loading: true,
                 success: (resp) => {
                     if (resp.code == 0) {
-                        this.setData(resp.data.types);
+                        this.setData(resp.data.types || []);
                     }
                 }
             });

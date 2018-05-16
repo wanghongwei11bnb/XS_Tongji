@@ -11,7 +11,6 @@ class CapsuleModal extends Modal {
         };
     }
 
-
     submit = () => {
         const {capsule_id, create, update, show} = this.state;
         if (update) {
@@ -185,6 +184,8 @@ class CapsuleManageModal extends Modal {
                     title: <A className="btn btn-sm m-1 btn-success" onClick={this.openCreateModal}>创建头等舱</A>,
                     render: (value, row, index) => {
                         return [
+                            <button type="button" className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showQrcode.bind(this, row.capsule_id)}>查看二维码</button>,
                             <button type="button" className="btn btn-sm m-1 btn-primary"
                                     onClick={this.openUpdateModal.bind(this, row.capsule_id)}>编辑</button>,
                             <button type="button" className="btn btn-sm m-1 btn-success"
@@ -200,6 +201,24 @@ class CapsuleManageModal extends Modal {
     }
 
 
+    showQrcode = (capsule_id) => {
+        let qrid = UUID.get();
+        Modal.open(<AlertModal>
+            <Fixed onDidMount={() => {
+                new QRCode(document.getElementById(qrid), {
+                    text: `https://www.xiangshuispace.com/www/index.html?id=${capsule_id}`,
+                    width: 300,
+                    height: 300,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }}>
+                <div id={qrid}></div>
+            </Fixed>
+        </AlertModal>);
+
+    };
     makeFailureByCapsule = (capsule_id) => {
         Modal.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
     };
@@ -237,3 +256,75 @@ class CapsuleManageModal extends Modal {
     }
 }
 
+
+class CapsuleIdCreateModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            area_id: props.area_id,
+        };
+    }
+
+    renderHeader = () => {
+        return '创建头等舱';
+    };
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>场地编号</th>
+                <td>
+                    <input ref="area_id" readOnly={true} disabled={true} type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>头等舱编号后三位</th>
+                <td>
+                    <input ref="capsule_id_3" type="text" className="form-control"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+    renderFooter = () => {
+        return [
+            <button type="button" className="btn btn-link text-primary float-right" onClick={this.submit}>确定</button>,
+            <button type="button" className="btn btn-link text-secondary float-right" onClick={this.close}>取消</button>,
+        ];
+    };
+
+    selectCity = (all) => {
+        Modal.open(<SelectCityModal all={all} onSuccess={this.setCity}></SelectCityModal>);
+    };
+
+    setCity = (city) => {
+        this.refs.city.value = city.city;
+        this.refs.area_id_4.value = city.code;
+    };
+
+    submit = () => {
+
+        if (!this.refs.city.value) return Message.msg('请选择城市');
+        if (!this.refs.area_id_4.value) return Message.msg('请选择城市');
+        if (!this.refs.area_id_3.value) return Message.msg('请输入场地编号后三位');
+        if (!/^\d{3}$/.test(this.refs.area_id_3.value)) return Message.msg('地编号后三位输入有误');
+
+        let area_id = `${this.refs.area_id_4.value}${this.refs.area_id_3.value}` - 0;
+        request({
+            url: `/api/area/${area_id}/validateForCreate`, loading: true,
+            success: () => {
+                let area = {
+                    area_id,
+                    city: this.refs.city.value,
+                };
+                this.close();
+                if (this.props.onSuccess) {
+                    this.props.onSuccess(area);
+                }
+            }
+        });
+    };
+
+}

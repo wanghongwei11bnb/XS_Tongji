@@ -18,7 +18,7 @@ class Page extends React.Component {
                 }
             },
             {field: 'contact', title: '联系方式'},
-            {field: 'minute_start', title: '最少时长'},
+            {field: 'minute_start', title: '最少时长（分钟）'},
             {
                 field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
                     return value ? value.map((item) => {
@@ -46,19 +46,21 @@ class Page extends React.Component {
                 }
             },
             {
-                title: <button type="button" className="btn btn-sm btn-success m-1">新建场地</button>,
+                title: <button type="button" className="btn btn-sm btn-success m-1"
+                               onClick={this.newArea}>新建场地</button>,
                 render: (value, row, index) => {
                     return [
                         <button type="button" className="btn btn-sm btn-primary m-1"
                                 onClick={this.showCapsuleModal.bind(this, row.area_id)}>管理头等舱</button>,
                         <button type="button" className="btn btn-sm btn-primary m-1"
-                                onClick={this.editTypes.bind(this, row)}>编辑类型</button>
+                                onClick={this.editTypes.bind(this, row)}>编辑类型</button>,
                     ];
                 }
             },
         ];
         this.state = {columns};
     }
+
 
     showCapsuleModal = (area_id) => {
         Modal.open(<CapsuleManageModal area_id={area_id}></CapsuleManageModal>);
@@ -70,7 +72,9 @@ class Page extends React.Component {
     };
 
     newArea = () => {
-        Modal.open(<AreaCreateModal cityList={this.state.cityList}></AreaCreateModal>);
+        Modal.open(<AreaIdCreateModal onSuccess={(area) => {
+            Modal.open(<AreaCreateModal area={area} onSuccess={this.load}></AreaCreateModal>);
+        }}></AreaIdCreateModal>);
     };
 
     showArea = (area_id) => {

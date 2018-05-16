@@ -15,10 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 @Service
 public class S3Service implements InitializingBean {
@@ -29,7 +26,7 @@ public class S3Service implements InitializingBean {
 
     private final int[] sizes = {227, 383, 640, 750, 957, 1080, 1615};
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         try {
             credentials = new ProfileCredentialsProvider().getCredentials();
         } catch (Exception e) {
@@ -39,17 +36,8 @@ public class S3Service implements InitializingBean {
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion("cn-north-1")
                 .build();
-//        String bucketName = "areaimgs";
-//        File file = new File("/Users/whw/Downloads/vivo应用商店展示图.jpg");
-//        byte[] bs = FileUtils.readFileToByteArray(file);
-//        String key = MD5.getMD5(bs);
-//        System.out.println(key);
-//        AccessControlList accessControlList = new AccessControlList();
-//        accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
-//        s3.putObject(new PutObjectRequest(bucketName, key, file).withAccessControlList(accessControlList));
-//        s3.putObject(bucketName, key, file);
-//        s3.deleteObject(bucketName, key);
     }
+
 
     public String uploadImageToAreaimgs(byte[] bs) throws IOException {
         String key = MD5.getMD5(bs);
@@ -79,6 +67,20 @@ public class S3Service implements InitializingBean {
             s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key + "_" + size, new ByteArrayInputStream(out.toByteArray()), new ObjectMetadata()).withAccessControlList(accessControlList));
         }
         return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
+    }
+
+    public void upload(String bucketName, String key, InputStream inputStream, String contentType) {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(contentType);
+        AccessControlList accessControlList = new AccessControlList();
+        accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        s3.putObject(new PutObjectRequest(bucketName, key, inputStream, metadata).withAccessControlList(accessControlList));
+    }
+
+    public void upload(String bucketName, String key, File file) {
+        AccessControlList accessControlList = new AccessControlList();
+        accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        s3.putObject(new PutObjectRequest(bucketName, key, file).withAccessControlList(accessControlList));
     }
 
 

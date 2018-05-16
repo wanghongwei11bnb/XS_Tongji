@@ -81,6 +81,8 @@ public class TestScheduled implements InitializingBean {
     CumulativeTimeTask cumulativeTimeTask;
     @Autowired
     CountBookingForDaysTask countBookingForDaysTask;
+    @Autowired
+    CumulativeBookingTodayTask cumulativeBookingTodayTask;
 
 
     private volatile long lastBookingCapsuleId;
@@ -193,7 +195,8 @@ public class TestScheduled implements InitializingBean {
                 usageRateForHourTask,
                 cumulativeBookingTask,
                 cumulativeTimeTask,
-                countBookingForDaysTask
+                countBookingForDaysTask,
+                cumulativeBookingTodayTask,
         }, new DataManager[]{
                 bookingDataManager,
                 capsuleDataManager,

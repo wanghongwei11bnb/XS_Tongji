@@ -195,6 +195,8 @@ class Page extends React.Component {
                            onClick={this.logout}>退出</A>
                     </li>
                 </ul>
+
+
             </div>
             <div className="position-absolute top-0 bottom-0 right-0" style={{left: showMenu ? menuWidth : '50px'}}>
                 <Tabs ref="tabs"></Tabs>
