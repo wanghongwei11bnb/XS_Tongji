@@ -195,7 +195,7 @@ public class AreaService {
                 location.setLatitude((int) (lat * 1000000));
                 location.setLongitude((int) (lng * 1000000));
                 area.setLocation(location);
-                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=14&markerStyles=s,A,0xff0000";
+                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=15&markerStyles=s,A,0xff0000";
                 String imgurl = s3Service.uploadImageToAreaimgs(IOUtils.toByteArray(new URL(mapImgUrl)));
                 area.setArea_img(imgurl);
             } else {

@@ -21,8 +21,4 @@ public class ReceiveEvent {
     public static final int AREA_DEL = 32;
     public static int APPRAISE = 40;
 
-    public static void main(String[] args) {
-        System.out.println(ClassUtils.getStaticJSON(ReceiveEvent.class));
-    }
-
 }

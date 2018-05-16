@@ -14,6 +14,7 @@ import java.util.Map;
 public class ClassUtils {
     private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
+
     public static Map<String, Object> getStatic(Class<?> clazz) {
         if (clazz == null) {
             return null;

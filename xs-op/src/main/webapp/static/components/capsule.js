@@ -246,7 +246,7 @@ class CapsuleManageModal extends Modal {
             data: {area_id},
             success: (resp) => {
                 if (resp.code == 0) {
-                    this.setState({data: resp.data.list || []});
+                    this.setState({data: resp.data.capsuleList || []});
                 }
             }
         });

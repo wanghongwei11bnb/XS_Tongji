@@ -9,6 +9,7 @@ import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.AreaService;
+import com.xiangshui.server.service.CapsuleService;
 import com.xiangshui.server.service.CityService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -33,28 +34,22 @@ public class CapsuleController extends BaseController {
     AreaDao areaDao;
     @Autowired
     CapsuleDao capsuleDao;
+    @Autowired
+    CapsuleService capsuleService;
 
 
     @GetMapping("/api/capsule/search")
     @ResponseBody
-    public Result search(Integer area_id) {
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-
-        if (area_id != null) {
-            filterList.add(new ScanFilter("area_id").eq(area_id));
-        }
-        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
-        scanSpec.setMaxResultSize(500);
-        List<Capsule> capsuleList = capsuleDao.scan(scanSpec);
-        return new Result(CodeMsg.SUCCESS).putData("list", capsuleList);
+    public Result search(Capsule criteria) throws NoSuchFieldException, IllegalAccessException {
+        return new Result(CodeMsg.SUCCESS).putData("capsuleList", capsuleService.search(criteria, null));
     }
 
 
     @GetMapping("/api/capsule/{capsule_id:\\d+}")
     @ResponseBody
     public Result get(@PathVariable("capsule_id") Long capsule_id) {
-        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+
+        Capsule capsule = capsuleService.getCapsuleById(capsule_id);
         if (capsule == null) {
             return new Result(CodeMsg.NO_FOUND);
         }

@@ -6,10 +6,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
-import com.amazonaws.services.dynamodbv2.document.spec.BatchGetItemSpec;
-import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.*;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
 import com.xiangshui.util.spring.SpringUtils;
@@ -76,6 +73,15 @@ abstract public class BaseDynamoDao<T> {
     public T getItem(PrimaryKey primaryKey) {
         Table table = getTable();
         Item item = table.getItem(primaryKey);
+        if (item != null) {
+            return JSON.parseObject(item.toJSON(), tClass);
+        }
+        return null;
+    }
+
+    public T getItem(GetItemSpec getItemSpec) {
+        Table table = getTable();
+        Item item = table.getItem(getItemSpec);
         if (item != null) {
             return JSON.parseObject(item.toJSON(), tClass);
         }
