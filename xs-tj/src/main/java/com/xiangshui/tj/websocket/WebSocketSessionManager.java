@@ -45,7 +45,7 @@ public class WebSocketSessionManager {
             for (WebSocketSession session : sessionSet) {
                 try {
                     session.sendMessage(new TextMessage(msg));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.error("", e);
                 }
             }
