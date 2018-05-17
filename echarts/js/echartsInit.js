@@ -3,6 +3,10 @@
  */
 var servicePeopleType = 'day'; //服务人次 类型 日/周
 
+document.getElementById('appraise_list').style.width = document.getElementsByClassName('appraise')[0].clientWidth-50+'px';
+
+document.getElementById('service_people').style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight - 50 + 'px';
+
 // 基于准备好的dom，初始化echarts实例
 var occupyChart = echarts.init(document.getElementById('occupy'));
 
@@ -11,36 +15,29 @@ var servicePeopleChart = echarts.init(document.getElementById('service_people'))
 
 var timeChart = echarts.init(document.getElementById('time'));
 
-$(document).ready(function(){
-
-    document.getElementById('appraise_list').style.width = document.getElementsByClassName('appraise')[0].clientWidth-50+'px';
-
-    document.getElementById('service_people').style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight + 'px';
-
-    $(".switch_wrap").click(function(e){    //这种点击方式怎么排除父元素？？？？
-        var $clicked = $(e.target);    //e.target 捕捉到触发的元素
-        var choice = $(e.target).attr('choice');
-        servicePeopleType = choice;
-        $clicked.addClass('active').siblings().removeClass('active');
-        if(servicePeopleType === 'week'){
-            var dataList = CumulativeBookingMessage.map(function (item) {
-                return dateUtil('m-d',item[0]/1000);
-            });
-            var valueList = CumulativeBookingMessage.map(function (item) {
-                return item[1];
-            });
-            servicePeopleChartDraw(dataList,valueList);
-        }
-        if(servicePeopleType === 'day'){
-            var dataList = CumulativeBookingTodayMessage.map(function (item) {
-                return dateUtil('h:i',item[0]/1000);
-            });
-            var valueList = CumulativeBookingTodayMessage.map(function (item) {
-                return item[1];
-            });
-            servicePeopleChartDraw(dataList,valueList);
-        }
-    });
+$(".switch_wrap").click(function(e){    //这种点击方式怎么排除父元素？？？？
+    var $clicked = $(e.target);    //e.target 捕捉到触发的元素
+    var choice = $(e.target).attr('choice');
+    servicePeopleType = choice;
+    $clicked.addClass('active').siblings().removeClass('active');
+    if(servicePeopleType === 'week'){
+        var dataList = CumulativeBookingMessage.map(function (item) {
+            return dateUtil('m-d',item[0]/1000);
+        });
+        var valueList = CumulativeBookingMessage.map(function (item) {
+            return item[1];
+        });
+        servicePeopleChartDraw(dataList,valueList);
+    }
+    if(servicePeopleType === 'day'){
+        var dataList = CumulativeBookingTodayMessage.map(function (item) {
+            return dateUtil('h:i',item[0]/1000);
+        });
+        var valueList = CumulativeBookingTodayMessage.map(function (item) {
+            return item[1];
+        });
+        servicePeopleChartDraw(dataList,valueList);
+    }
 });
 
 function occupyChartDraw(dateList,valueList,valueList2){
