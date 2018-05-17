@@ -29,7 +29,8 @@ public class OpController extends BaseController {
     RedisService redisService;
 
     @GetMapping("/login")
-    public String loginView() {
+    public String loginView(HttpServletRequest request) {
+        setClient(request);
         return "login";
     }
 

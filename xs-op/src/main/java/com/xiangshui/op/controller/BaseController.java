@@ -1,5 +1,9 @@
 package com.xiangshui.op.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.xiangshui.server.constant.AreaStatusOption;
+import com.xiangshui.server.constant.CapsuleStatusOption;
+import com.xiangshui.server.constant.DeviceVersionOption;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -17,6 +21,8 @@ public class BaseController {
 
     public void setClient(HttpServletRequest request) {
         request.setAttribute("DateUtils", DateUtils.class);
+        request.setAttribute("JSON", JSON.class);
+        setOptions(request);
     }
 
 
@@ -28,6 +34,12 @@ public class BaseController {
     public Result exp(HttpServletRequest request, Exception e) {
         log.error("", e);
         return new Result(CodeMsg.SERVER_ERROR.code, e.getMessage());
+    }
+
+    public void setOptions(HttpServletRequest request) {
+        request.setAttribute("AreaStatusOption", JSON.toJSONString(AreaStatusOption.options));
+        request.setAttribute("CapsuleStatusOption", JSON.toJSONString(CapsuleStatusOption.options));
+        request.setAttribute("DeviceVersionOption", JSON.toJSONString(DeviceVersionOption.options));
     }
 
 

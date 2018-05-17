@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class CityController extends BaseController {
 
@@ -15,7 +17,8 @@ public class CityController extends BaseController {
     CityService cityService;
 
     @GetMapping("/city_manage")
-    public String city_manage() {
+    public String city_manage(HttpServletRequest request) {
+        setClient(request);
         return "city_manage";
     }
 

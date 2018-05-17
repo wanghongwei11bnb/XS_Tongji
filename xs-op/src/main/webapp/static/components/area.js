@@ -21,7 +21,7 @@ class AreaUpdateModal extends Modal {
             minute_start: this.refs.minute_start.value,
             rushHours: this.refs.rushHours.getData(),
             imgs: this.refs.imgs.getData(),
-            status: this.refs.status.value ? this.refs.status.value - 0 : null,
+            status: this.refs.status.value || 0,
             is_external: this.refs.is_external.value - 0,
         };
         request({
@@ -65,12 +65,7 @@ class AreaUpdateModal extends Modal {
                 <tr>
                     <th>城市</th>
                     <td>
-                        <select ref="city" disabled={true} className="form-control">
-                            <option value=""></option>
-                            {cityList.map((city) => {
-                                return <option value={city.city}>{city.city}</option>
-                            })}
-                        </select>
+                        <input ref="city" type="text" readOnly={true} disabled={true} className="form-control"/>
                     </td>
                 </tr>
                 <tr>
@@ -146,9 +141,9 @@ class AreaUpdateModal extends Modal {
                     <th>状态</th>
                     <td>
                         <select ref="status" className="form-control">
-                            <option value="">正常</option>
-                            <option value="-1">已下架</option>
-                            <option value="-2">待运营</option>
+                            {AreaStatusOption.map((option) => {
+                                return <option value={option.value}>{option.text}</option>;
+                            })}
                         </select>
                     </td>
                 </tr>
@@ -332,9 +327,9 @@ class AreaCreateModal extends Modal {
                     <th>状态</th>
                     <td>
                         <select ref="status" className="form-control">
-                            <option value="">正常</option>
-                            <option value="-1">已下架</option>
-                            <option value="-2">待运营</option>
+                            {AreaStatusOption.map((option) => {
+                                return <option value={option.value}>{option.text}</option>;
+                            })}
                         </select>
                     </td>
                 </tr>
@@ -424,7 +419,7 @@ class AreaIdCreateModal extends Modal {
 
     renderFooter = () => {
         return [
-            <button type="button" className="btn btn-link text-primary float-right" onClick={this.submit}>确定</button>,
+            <button type="button" className="btn btn-link text-primary float-right" onClick={this.submit}>下一步</button>,
             <button type="button" className="btn btn-link text-secondary float-right" onClick={this.close}>取消</button>,
         ];
     };

@@ -117,12 +117,12 @@ class CapsuleModal extends Modal {
     reViewData = (capsule) => {
         if (capsule) {
             this.refs.capsule_id.value = capsule.capsule_id || null;
-            this.refs.area_id.value = capsule.area_id || null;
+            this.refs.area_id.value = capsule.area_id;
             this.refs.create_time.value = capsule.create_time ? new Date(capsule.create_time * 1000).format('yyyy-MM-dd') : null;
             this.refs.update_time.value = capsule.update_time ? new Date(capsule.update_time * 1000).format('yyyy-MM-dd') : null;
-            this.refs.status.value = capsule.status || null;
-            this.refs.device_id.value = capsule.device_id || null;
-            this.refs.is_downline.value = capsule.is_downline || null;
+            this.refs.status.value = capsule.status;
+            this.refs.device_id.value = capsule.device_id;
+            this.refs.is_downline.value = capsule.is_downline;
         }
     };
 
@@ -293,7 +293,7 @@ class CapsuleIdCreateModal extends Modal {
 
     renderFooter = () => {
         return [
-            <button type="button" className="btn btn-link text-primary float-right" onClick={this.submit}>确定</button>,
+            <button type="button" className="btn btn-link text-primary float-right" onClick={this.submit}>下一步</button>,
             <button type="button" className="btn btn-link text-secondary float-right" onClick={this.close}>取消</button>,
         ];
     };

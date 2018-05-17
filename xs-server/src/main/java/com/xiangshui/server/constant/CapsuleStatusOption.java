@@ -9,8 +9,8 @@ public class CapsuleStatusOption extends Option<Integer> {
         super(value, text);
     }
 
-    public static final CapsuleStatusOption kongxian = new CapsuleStatusOption(1, "空闲");
-    public static final CapsuleStatusOption zhanyong = new CapsuleStatusOption(2, "占用");
+    public static final CapsuleStatusOption free = new CapsuleStatusOption(1, "空闲");
+    public static final CapsuleStatusOption employ = new CapsuleStatusOption(2, "占用");
 
     public static final List<Option> options = getOptions(CapsuleStatusOption.class);
 }

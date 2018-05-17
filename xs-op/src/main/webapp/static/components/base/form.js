@@ -83,3 +83,40 @@ class NumberInput extends React.Component {
     }
 }
 
+
+class IntInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: props.initialValue || null,
+        };
+    }
+
+    setValue = (value) => {
+        if (value) {
+            if (/^\d+$/.test(value) && type(value - 0) == 'Number') {
+                this.setState({value: value - 0});
+            } else {
+                this.setState({});
+            }
+        } else {
+            this.setState({value: null});
+        }
+    };
+
+    onChange = (e) => {
+        let newValue = e.target.value;
+        this.setValue(newValue);
+    };
+
+    render() {
+        const {value} = this.state;
+        return <input ref="input" type="text"
+                      className={this.props.className}
+                      placeholder={this.props.placeholder}
+                      onChange={this.onChange}
+                      value={value}/>
+    }
+}
+
+

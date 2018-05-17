@@ -13,6 +13,10 @@ public class Capsule {
 
     private Integer is_downline;
 
+    // 版本 ：200:第二代产品，300第三代产品，
+    //301第三代人体感应，311第三代人体感应，按摩沙发
+    private Integer device_version;
+
     public Integer getIs_downline() {
         return is_downline;
     }
@@ -43,6 +47,14 @@ public class Capsule {
 
     public void setUpdate_time(Long update_time) {
         this.update_time = update_time;
+    }
+
+    public Integer getDevice_version() {
+        return device_version;
+    }
+
+    public void setDevice_version(Integer device_version) {
+        this.device_version = device_version;
     }
 
     public Integer getStatus() {

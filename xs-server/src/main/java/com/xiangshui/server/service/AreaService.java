@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
@@ -327,6 +328,7 @@ public class AreaService {
             throw new XiangShuiException("高峰时段输入有误");
         }
         fillLocation(criteria);
+        criteria.setStatus(AreaStatusOption.stay.value);
         areaDao.putItem(criteria);
     }
 
