@@ -12,17 +12,23 @@ import com.xiangshui.server.domain.*;
 import com.xiangshui.server.relation.FailureReportRelation;
 import com.xiangshui.server.service.FailureReportService;
 import com.xiangshui.server.service.UserService;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Controller
 public class FailureReportController extends BaseController {
@@ -45,7 +51,6 @@ public class FailureReportController extends BaseController {
     @Autowired
     UserService userService;
 
-
     @GetMapping("/failure_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
@@ -55,71 +60,78 @@ public class FailureReportController extends BaseController {
 
     @GetMapping("/api/failure/search")
     @ResponseBody
-    public Result search(String req_from, String phone, Integer uin, Long booking_id, Integer area_id, Long capsule_id, Integer op_status, Date start_date, Date end_date, String app_version, String client_type, String client_version) {
-
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-
-
-        if (start_date != null && end_date != null) {
-            filterList.add(new ScanFilter("create_time").between(start_date.getTime() / 1000, (end_date.getTime() + 1000 * 60 * 60 * 24) / 1000));
-        } else if (start_date != null && end_date == null) {
-            filterList.add(new ScanFilter("create_time").gt(start_date.getTime() / 1000 - 1));
-        } else if (start_date == null && end_date != null) {
-            filterList.add(new ScanFilter("create_time").lt((end_date.getTime() + 1000 * 60 * 60 * 24) / 1000));
+    public Result search(HttpServletRequest request, HttpServletResponse response,
+                         FailureReport criteria, Date start_date, Date end_date, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
+        if (download == null) {
+            download = false;
         }
-
-
-        if (StringUtils.isNotBlank(req_from)) {
-            filterList.add(new ScanFilter("req_from").eq(req_from));
-        }
-        if (StringUtils.isNotBlank(phone)) {
-            filterList.add(new ScanFilter("phone").eq(phone));
-        }
-
-        if (booking_id != null) {
-            filterList.add(new ScanFilter("booking_id").eq(booking_id));
-        }
-
-        if (area_id != null) {
-            filterList.add(new ScanFilter("area_id").eq(area_id));
-        }
-
-        if (capsule_id != null) {
-            filterList.add(new ScanFilter("capsule_id").eq(capsule_id));
-        }
-
-        if (uin != null) {
-            filterList.add(new ScanFilter("uin").eq(uin));
-        }
-
-        if (StringUtils.isNotBlank(app_version)) {
-            filterList.add(new ScanFilter("app_version").eq(app_version));
-        }
-
-        if (StringUtils.isNotBlank(client_type)) {
-            filterList.add(new ScanFilter("client_type").eq(client_type));
-        }
-
-        if (StringUtils.isNotBlank(client_version)) {
-            filterList.add(new ScanFilter("client_version").eq(client_version));
-        }
-
-
-        if (op_status != null) {
-            filterList.add(new ScanFilter("op_status").eq(op_status));
-        }
-
-        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
-
-        scanSpec.withMaxResultSize(100);
-
-        List<FailureReport> failureReportList = failureReportDao.scan(scanSpec);
-
+        List<FailureReport> failureReportList = failureReportService.search(criteria, start_date, end_date, download ? 5000 : null);
+        List<FailureReportRelation> failureReportRelationList;
         if (failureReportList != null) {
-            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportService.mapperArea(failureReportList));
+            failureReportRelationList = failureReportService.mapperArea(failureReportList);
         } else {
-            return new Result(CodeMsg.SUCCESS).putData("failureList", new FailureReport[0]);
+            failureReportRelationList = new ArrayList<FailureReportRelation>();
+        }
+        if (download) {
+            List<List<String>> data = new ArrayList<List<String>>(failureReportRelationList.size() + 1);
+            List<String> headRow = new ArrayList<String>();
+            headRow.add("头等舱编号");
+            headRow.add("场地编号	");
+            headRow.add("场地名称	");
+            headRow.add("城市");
+            headRow.add("地址");
+            headRow.add("用户uin	");
+            headRow.add("用户手机号");
+            headRow.add("订单编号	");
+            headRow.add("报修时间	");
+            headRow.add("req_from");
+            headRow.add("app_version");
+            headRow.add("client_type");
+            headRow.add("client_version");
+            headRow.add("tags");
+            headRow.add("用户描述");
+            headRow.add("处理结果	");
+            headRow.add("处理状态	");
+            data.add(headRow);
+            failureReportRelationList.forEach(new Consumer<FailureReportRelation>() {
+                public void accept(FailureReportRelation failureReportRelation) {
+                    List<String> row = new ArrayList<String>();
+                    row.add(failureReportRelation.getCapsule_id() + "");
+                    row.add(failureReportRelation.getArea_id() + "");
+                    if (failureReportRelation.get_area() != null) {
+                        row.add(failureReportRelation.get_area().getTitle() + "");
+                        row.add(failureReportRelation.get_area().getCity() + "");
+                        row.add(failureReportRelation.get_area().getAddress() + "");
+                    } else {
+                        row.add("");
+                        row.add("");
+                        row.add("");
+                    }
+                    row.add(failureReportRelation.getUin() + "");
+                    row.add(failureReportRelation.getPhone() + "");
+                    row.add(failureReportRelation.getBooking_id() + "");
+                    row.add(failureReportRelation.getCreate_time() + "");
+                    row.add(failureReportRelation.getReq_from() + "");
+                    row.add(failureReportRelation.getApp_version() + "");
+                    row.add(failureReportRelation.getClient_type() + "");
+                    row.add(failureReportRelation.getClient_version() + "");
+                    row.add(failureReportRelation.getTags() + "");
+                    row.add(failureReportRelation.getDescription() + "");
+                    row.add(failureReportRelation.getOp_description() + "");
+                    row.add(failureReportRelation.getOp_status() + "");
+                    data.add(row);
+                }
+            });
+            HSSFWorkbook workbook = ExcelUtils.export(data);
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String("故障报修.xlsx".getBytes()));
+            ServletOutputStream outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            outputStream.flush();
+            outputStream.close();
+            workbook.close();
+            return null;
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportRelationList);
         }
     }
 
