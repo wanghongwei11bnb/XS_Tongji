@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -41,7 +42,8 @@ public class PartnerController extends BaseController {
 
 
     @GetMapping("/partner_manage")
-    public String index() {
+    public String index(HttpServletRequest request) {
+        setClient(request);
         return "partner_manage";
     }
 

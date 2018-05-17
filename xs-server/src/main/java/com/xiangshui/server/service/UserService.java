@@ -54,6 +54,20 @@ public class UserService {
         return userRegisterDao.getItem(new PrimaryKey("uin", uin));
     }
 
+
+    public UserInfo getUserInfoByPhone(String phone) {
+        if (StringUtils.isBlank(phone)) {
+            return null;
+        }
+        List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withScanFilters(new ScanFilter("phone").eq(phone)));
+        if (userInfoList != null && userInfoList.size() > 0) {
+            return userInfoList.get(0);
+        } else {
+            return null;
+        }
+
+    }
+
     public List<UserFace> getUserFaceListByUin(int uin) {
         return userFaceDao.scan(new ScanSpec().withFilterExpression("uin = :uin").withValueMap(new ValueMap().withInt(":uin", uin)));
     }
@@ -139,14 +153,6 @@ public class UserService {
                 bookingRelation.set_userInfo(userInfoMap.get(bookingRelation.getUin()));
             }
         }
-    }
-
-    public UserInfo getUserInfoByPhone(String phone) {
-        List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withScanFilters(new ScanFilter("phone").eq(phone)));
-        if (userInfoList != null && userInfoList.size() >= 1) {
-            return userInfoList.get(0);
-        }
-        return null;
     }
 
 

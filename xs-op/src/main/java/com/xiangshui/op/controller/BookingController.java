@@ -56,7 +56,8 @@ public class BookingController extends BaseController {
 
 
     @GetMapping("/booking_manage")
-    public String index() {
+    public String index(HttpServletRequest request) {
+        setClient(request);
         return "booking_manage";
     }
 

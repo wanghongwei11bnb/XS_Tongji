@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +49,8 @@ public class AreaController extends BaseController {
 
 
     @GetMapping("/area_manage")
-    public String area_manage() {
+    public String area_manage(HttpServletRequest request) {
+        setClient(request);
         return "area_manage";
     }
 

@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +44,8 @@ public class UserController extends BaseController {
     UserService userService;
 
     @GetMapping("/user_manage")
-    public String index() {
+    public String index(HttpServletRequest request) {
+        setClient(request);
         return "user_manage";
     }
 
@@ -86,4 +89,27 @@ public class UserController extends BaseController {
             return new Result(CodeMsg.SUCCESS).putData("userInfoList", userInfoRelationList);
         }
     }
+
+
+    @GetMapping("/api/user/getByUin/{uin:\\d+}")
+    public Result getByUin(@PathVariable("uin") int uin) {
+        UserInfo userInfo = userService.getUserInfoByUin(uin);
+        if (userInfo != null) {
+            return new Result(CodeMsg.SUCCESS).putData("userInfo", userInfo);
+        } else {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+    }
+
+    @GetMapping("/api/user/getByPhone/{phone:\\d+}")
+    public Result getByPhone(@PathVariable("phone") String phone) {
+        UserInfo userInfo = userService.getUserInfoByPhone(phone);
+        if (userInfo != null) {
+            return new Result(CodeMsg.SUCCESS).putData("userInfo", userInfo);
+        } else {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+    }
+
+
 }

@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.CapsuleDao;
 import com.xiangshui.server.domain.Area;
@@ -122,6 +123,7 @@ public class CapsuleController extends BaseController {
         criteria.setUpdate_time(now.getTime() / 1000);
         criteria.setIs_downline(0);
         criteria.setType(1);
+        criteria.setStatus(CapsuleStatusOption.free.value);
         capsuleDao.putItem(criteria);
         return new Result(CodeMsg.SUCCESS);
     }

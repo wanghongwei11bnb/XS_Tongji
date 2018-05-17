@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
                         "http://h5.xiangshuispace.com", "http://dev.h5.xiangshuispace.com",
                         "http://tj.xiangshuispace.com", "http://dev.tj.xiangshuispace.com",
                         "http://localhost:8081", "http://localhost:8080",
+                        "http://192.168.1.92:8081", "http://192.168.1.92:8080",
                         "http://*:*",
                         "file://"
                 );

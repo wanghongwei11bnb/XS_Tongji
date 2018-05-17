@@ -35,11 +35,12 @@ public class Area {
 
     private List<RushHour> rushHours;
     private Integer minute_start;
-    /**
-     * 场地是否对外开放
-     * 空或0:否，1:是
-     */
+
+    //是否对外开放。0不开放，1开放
     private Integer is_external;
+
+    //限时标记： 0 不限时，1 通用限时，2特殊限时
+    private Integer is_time_limit;
 
 
     private Location location;
@@ -63,6 +64,14 @@ public class Area {
 
     public void setArea_id(Integer area_id) {
         this.area_id = area_id;
+    }
+
+    public Integer getIs_time_limit() {
+        return is_time_limit;
+    }
+
+    public void setIs_time_limit(Integer is_time_limit) {
+        this.is_time_limit = is_time_limit;
     }
 
     public String getAddress() {
