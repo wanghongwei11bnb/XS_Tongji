@@ -4,14 +4,20 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.dao.CapsuleDao;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.util.web.result.CodeMsg;
+import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -75,8 +81,68 @@ public class CapsuleService {
         return capsuleDao.scan(scanSpec);
     }
 
+    public void createCapsule(Capsule criteria) {
+        if (criteria == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        if (criteria.getCapsule_id() == null || criteria.getCapsule_id() == 0) {
+            throw new XiangShuiException("头等舱编号不能为空");
+        }
+        if (criteria.getArea_id() == null || criteria.getArea_id() == 0) {
+            throw new XiangShuiException("场地编号不能为空");
+        }
+        if (criteria.getStatus() == null) {
+            throw new XiangShuiException("设备状态不能为空");
+        }
+        if (StringUtils.isBlank(criteria.getDevice_id())) {
+            throw new XiangShuiException("设备ID不能为空");
+        }
+        if (criteria.getDevice_version() == null) {
+            throw new XiangShuiException("头等舱版本不能为空");
+        }
+        if (capsuleDao.getItem(new PrimaryKey("capsule_id", criteria.getCapsule_id())) != null) {
+            throw new XiangShuiException("头等舱编号已存在");
+        }
+        Date now = new Date();
+        criteria.setCreate_time(now.getTime() / 1000);
+        criteria.setUpdate_time(now.getTime() / 1000);
+        criteria.setIs_downline(0);
+        criteria.setType(1);
+        criteria.setStatus(CapsuleStatusOption.free.value);
+        capsuleDao.putItem(criteria);
+    }
 
 
+    public void updateCapsule(Capsule criteria) throws Exception {
+        if (criteria == null) {
+            throw new XiangShuiException("方法参数不能为空");
+        }
+        if (criteria.getCapsule_id() == null || criteria.getCapsule_id() == 0) {
+            throw new XiangShuiException("头等舱编号不能为空");
+        }
+        Capsule capsule = getCapsuleById(criteria.getCapsule_id());
+        if (capsule == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND.msg);
+        }
+        if (criteria.getStatus() == null) {
+            throw new XiangShuiException("设备状态不能为空");
+        }
+        if (StringUtils.isBlank(criteria.getDevice_id())) {
+            throw new XiangShuiException("设备ID不能为空");
+        }
+        if (criteria.getDevice_version() == null) {
+            throw new XiangShuiException("头等舱版本不能为空");
+        }
+
+        criteria.setUpdate_time(System.currentTimeMillis() / 1000);
+        capsuleDao.updateItem(new PrimaryKey("capsule_id", criteria.getCapsule_id()), criteria, new String[]{
+                "update_time",
+                "status",
+                "device_id",
+                "is_downline",
+                "device_version",
+        });
+    }
 
 
 }

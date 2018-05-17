@@ -21,6 +21,7 @@ class CapsuleModal extends Modal {
                 contentType: 'application/json',
                 data: JSON.stringify({
                     device_id: this.refs.device_id.value,
+                    device_version: this.refs.device_version.value,
                     is_downline: this.refs.is_downline.value,
                     status: this.refs.status.value,
                 }, nullStringReplacer),
@@ -37,6 +38,7 @@ class CapsuleModal extends Modal {
                     capsule_id: this.refs.capsule_id.value,
                     area_id: this.refs.area_id.value,
                     device_id: this.refs.device_id.value,
+                    device_version: this.refs.device_version.value,
                     is_downline: this.refs.is_downline.value,
                     status: this.refs.status.value,
                 }, nullStringReplacer),
@@ -81,6 +83,16 @@ class CapsuleModal extends Modal {
                 </td>
             </tr>
             <tr>
+                <th>设备ID</th>
+                <td>
+                    <select ref="device_version" className="form-control">
+                        {DeviceVersionOption.map((option) => {
+                            return <option value={option.value}>{option.text}</option>
+                        })}
+                    </select>
+                </td>
+            </tr>
+            <tr>
                 <th>设备状态</th>
                 <td>
                     <select ref="status" disabled={show} className="form-control">
@@ -121,7 +133,8 @@ class CapsuleModal extends Modal {
             this.refs.create_time.value = capsule.create_time ? new Date(capsule.create_time * 1000).format('yyyy-MM-dd') : null;
             this.refs.update_time.value = capsule.update_time ? new Date(capsule.update_time * 1000).format('yyyy-MM-dd') : null;
             this.refs.status.value = capsule.status;
-            this.refs.device_id.value = capsule.device_id;
+            this.refs.device_id.value = capsule.device_id || null;
+            this.refs.device_version.value = capsule.device_version;
             this.refs.is_downline.value = capsule.is_downline;
         }
     };
@@ -152,6 +165,15 @@ class CapsuleManageModal extends Modal {
             columns: [
                 {field: 'capsule_id', title: '头等舱编号'},
                 {field: 'device_id', title: '设备id'},
+                {
+                    field: 'device_version', title: '设备版本', render: (value) => {
+                        for (let i = 0; i < DeviceVersionOption.length; i++) {
+                            if (DeviceVersionOption[i].value == value) {
+                                return DeviceVersionOption[i].text;
+                            }
+                        }
+                    }
+                },
                 {field: 'area_id', title: '店铺id'},
                 {
                     field: 'status', title: '设备状态', render: (value) => {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.constant.DeviceVersionOption;
+import com.xiangshui.server.constant.TimeLimitOption;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -40,6 +41,7 @@ public class BaseController {
         request.setAttribute("AreaStatusOption", JSON.toJSONString(AreaStatusOption.options));
         request.setAttribute("CapsuleStatusOption", JSON.toJSONString(CapsuleStatusOption.options));
         request.setAttribute("DeviceVersionOption", JSON.toJSONString(DeviceVersionOption.options));
+        request.setAttribute("TimeLimitOption", JSON.toJSONString(TimeLimitOption.options));
     }
 
 

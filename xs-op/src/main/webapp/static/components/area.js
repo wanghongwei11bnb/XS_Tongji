@@ -17,6 +17,7 @@ class AreaUpdateModal extends Modal {
             city: this.refs.city.value,
             address: this.refs.address.value,
             contact: this.refs.contact.value,
+            is_time_limit: this.refs.is_time_limit.value,
             notification: this.refs.notification.value,
             minute_start: this.refs.minute_start.value,
             rushHours: this.refs.rushHours.getData(),
@@ -90,6 +91,16 @@ class AreaUpdateModal extends Modal {
                     <th>提醒文案</th>
                     <td>
                         <textarea ref="notification" className="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>限时标记</th>
+                    <td>
+                        <select ref="is_time_limit" className="form-control">
+                            {TimeLimitOption.map((option) => {
+                                return <option value={option.value}>{option.text}</option>
+                            })}
+                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -167,6 +178,7 @@ class AreaUpdateModal extends Modal {
 
             this.refs.contact.value = area.contact;
             this.refs.notification.value = area.notification;
+            this.refs.is_time_limit.value = area.is_time_limit || 0;
 
             this.refs.minute_start.value = area.minute_start;
             this.refs.imgs.setData(area.imgs);

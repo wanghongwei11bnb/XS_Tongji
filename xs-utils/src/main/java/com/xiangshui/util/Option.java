@@ -1,7 +1,5 @@
 package com.xiangshui.util;
 
-import com.alibaba.fastjson.JSON;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -10,6 +8,9 @@ import java.util.List;
 public class Option<T> {
     public final T value;
     public final String text;
+
+    public String color;
+
 
     public Option(T value, String text) {
         this.value = value;

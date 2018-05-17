@@ -248,8 +248,5 @@ class MapOptions {
         return this.optionMap[id];
     }
 
-
 }
-
-
 

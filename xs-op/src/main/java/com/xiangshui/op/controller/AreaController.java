@@ -1,38 +1,18 @@
 package com.xiangshui.op.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
-import com.amazonaws.services.dynamodbv2.document.ScanFilter;
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
-import com.amazonaws.services.dynamodbv2.xspec.L;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.fragment.Location;
-import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CityService;
 import com.xiangshui.server.service.S3Service;
-import com.xiangshui.util.EasyImage;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIUtils;
-import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -128,6 +108,13 @@ public class AreaController extends BaseController {
         }
         criteria.setArea_id(area_id);
         areaService.updateTypes(criteria);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+    @PostMapping("/api/clean_area_cache_notification")
+    @ResponseBody
+    public Result clean_area_cache_notification() {
+        areaService.clean_area_cache_notification();
         return new Result(CodeMsg.SUCCESS);
     }
 }

@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.*;
 import com.xiangshui.util.EasyImage;
 import com.xiangshui.util.MD5;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,6 +39,29 @@ public class S3Service implements InitializingBean {
                 .build();
     }
 
+
+    public String uploadAreaImg(byte[] bytes, String contentType) throws IOException {
+        String key = MD5.getMD5(bytes);
+        AccessControlList accessControlList = new AccessControlList();
+        accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(contentType);
+        String formatName;
+        if (StringUtils.isNotBlank(contentType) && contentType.indexOf("/") > -1 && contentType.indexOf("/") < contentType.length() - 1) {
+            formatName = contentType.substring(contentType.indexOf("/") + 1);
+        } else {
+            formatName = "jpg";
+        }
+        for (int size : sizes) {
+            EasyImage easyImage = new EasyImage(bytes);
+            easyImage.resize((int) (size * 1f / easyImage.getWidth() * 100));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
+            s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key + "_" + size, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
+        }
+        return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
+    }
 
     public String uploadImageToAreaimgs(byte[] bs) throws IOException {
         String key = MD5.getMD5(bs);
@@ -76,6 +100,7 @@ public class S3Service implements InitializingBean {
         accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
         s3.putObject(new PutObjectRequest(bucketName, key, inputStream, metadata).withAccessControlList(accessControlList));
     }
+
 
     public void upload(String bucketName, String key, File file) {
         AccessControlList accessControlList = new AccessControlList();

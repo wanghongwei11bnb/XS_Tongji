@@ -10,6 +10,7 @@ import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.Location;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
@@ -21,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,6 +31,9 @@ import java.util.*;
 
 @Component
 public class AreaService {
+
+    @Value("${isdebug}")
+    protected boolean debug;
 
     @Autowired
     AreaDao areaDao;
@@ -196,7 +201,7 @@ public class AreaService {
                 location.setLatitude((int) (lat * 1000000));
                 location.setLongitude((int) (lng * 1000000));
                 area.setLocation(location);
-                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=15&markerStyles=s,A,0xff0000";
+                String mapImgUrl = "http://api.map.baidu.com/staticimage/v2?ak=71UPECanchHaS66O2KsxPBSetZkCV7wW&width=800&height=500&markers=" + lng + "," + lat + "&zoom=15&markerStyles=l,|l,";
                 String imgurl = s3Service.uploadImageToAreaimgs(IOUtils.toByteArray(new URL(mapImgUrl)));
                 area.setArea_img(imgurl);
             } else {
@@ -221,6 +226,22 @@ public class AreaService {
         return false;
     }
 
+    public boolean validateImgs(Area criteria) {
+        if (criteria == null) {
+            return false;
+        } else {
+            if (criteria.getImgs() == null || criteria.getImgs().size() == 0) {
+                return false;
+            }
+            for (String img : criteria.getImgs()) {
+                if (StringUtils.isBlank(img)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
 
     public void updateArea(Area criteria) throws Exception {
         if (criteria == null) {
@@ -241,6 +262,10 @@ public class AreaService {
 
         if (StringUtils.isBlank(criteria.getAddress())) {
             throw new XiangShuiException("地址不能为空");
+        }
+
+        if (!validateImgs(criteria)) {
+            throw new XiangShuiException("图片Url不能为空");
         }
 
         if (StringUtils.isBlank(criteria.getContact())) {
@@ -271,6 +296,7 @@ public class AreaService {
                     "location",
                     "rushHours",
                     "is_external",
+                    "is_time_limit",
             });
         } else {
             areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
@@ -283,9 +309,10 @@ public class AreaService {
                     "imgs",
                     "rushHours",
                     "is_external",
+                    "is_time_limit",
             });
         }
-
+        clean_area_cache_notification();
     }
 
 
@@ -313,6 +340,9 @@ public class AreaService {
             throw new XiangShuiException("地址不能为空");
         }
 
+        if (!validateImgs(criteria)) {
+            throw new XiangShuiException("图片Url不能为空");
+        }
         if (StringUtils.isBlank(criteria.getContact())) {
             throw new XiangShuiException("联系方式不能为空");
         }
@@ -330,6 +360,7 @@ public class AreaService {
         fillLocation(criteria);
         criteria.setStatus(AreaStatusOption.stay.value);
         areaDao.putItem(criteria);
+        clean_area_cache_notification();
     }
 
 
@@ -347,6 +378,39 @@ public class AreaService {
 
         if (criteria.getTypes() == null || criteria.getTypes().size() == 0) {
             throw new XiangShuiException("头等舱类型不能为空");
+        }
+
+        for (CapsuleType capsuleType : criteria.getTypes()) {
+
+            if (capsuleType.getType_id() == null || capsuleType.getType_id() < 1) {
+                throw new XiangShuiException("类型ID不能小于1");
+            }
+
+            if (capsuleType.getPrice() == null || capsuleType.getPrice() <= 0) {
+                throw new XiangShuiException("价格必须大于0");
+            }
+
+            if (capsuleType.getDay_max_price() == null || capsuleType.getDay_max_price() <= 0) {
+                throw new XiangShuiException("每日最高费用必须大于0");
+            }
+
+            if (capsuleType.getRush_hour_price() == null || capsuleType.getRush_hour_price() <= 0) {
+                throw new XiangShuiException("高峰期价格必须大于0");
+            }
+
+            if (StringUtils.isBlank(capsuleType.getTypeTitle())) {
+                throw new XiangShuiException("标题不能为空");
+            }
+
+
+            if (StringUtils.isBlank(capsuleType.getTypeDesc())) {
+                throw new XiangShuiException("描述不能为空");
+            }
+
+            if (StringUtils.isBlank(capsuleType.getPrice_rule_text())) {
+                throw new XiangShuiException("价格文案不能为空");
+            }
+
         }
         areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
                 "types",
@@ -374,6 +438,13 @@ public class AreaService {
             return areaList;
         }
 
+    }
+
+    public void clean_area_cache_notification() {
+        try {
+            Jsoup.connect(debug ? "http://devop.xiangshuispace.com/op/clean_area_cache_notification" : "http://op.xiangshuispace.com/op/clean_area_cache_notification").execute();
+        } catch (Exception e) {
+        }
     }
 
 

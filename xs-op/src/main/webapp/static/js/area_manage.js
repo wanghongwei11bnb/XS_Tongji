@@ -20,6 +20,17 @@ class Page extends React.Component {
             {field: 'contact', title: '联系方式'},
             {field: 'minute_start', title: '最少时长（分钟）'},
             {
+                field: 'is_time_limit', title: '限时标记', render: (value, row, index) => {
+                    value = value || 0;
+                    for (let i = 0; i < TimeLimitOption.length; i++) {
+                        if (TimeLimitOption[i].value == value) {
+                            return TimeLimitOption[i].text;
+                        }
+                    }
+                    return value;
+                }
+            },
+            {
                 field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
                     return value ? value.map((item) => {
                         return item ? <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div> : null;

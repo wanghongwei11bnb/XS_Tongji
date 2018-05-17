@@ -194,6 +194,9 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.logout}>退出</A>
                     </li>
+                    <li className="nav-item float-right">
+                        <FileUploadButton>图片上传</FileUploadButton>
+                    </li>
                 </ul>
 
 
