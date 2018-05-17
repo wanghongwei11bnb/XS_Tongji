@@ -186,9 +186,28 @@ body,html{
 .tipAnimate{
     width: 100%;
     animation: bgChange 300ms 15;
+    -moz-animation: bgChange 300ms 15;
+    -o-animation: bgChange 300ms 15;
+    -webkit-animation: bgChange 300ms 15;
     border-radius: 4px;
     padding: 3px;
     box-sizing: border-box;
+}
+@-moz-keyframes bgChange{
+    from {background: rgba(0,0,0,.5)}
+    to {background: rgba(255,255,255,.5)}
+}
+@-ms-keyframes  bgChange{
+    from {background: rgba(0,0,0,.5)}
+    to {background: rgba(255,255,255,.5)}
+}
+@-o-keyframes bgChange {
+    from {background: rgba(0,0,0,.5)}
+    to {background: rgba(255,255,255,.5)}
+}
+@-webkit-keyframes bgChange {
+    from {background: rgba(0,0,0,.5)}
+    to {background: rgba(255,255,255,.5)}
 }
 @keyframes bgChange
 {
