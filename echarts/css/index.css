@@ -246,49 +246,40 @@ body,html{
 }
 .order_one{
     left: 50%;
-    top: 0;
-    transform: translateX(-55%);
+    top: 50%;
+    transform: translate(-55%,-250%);
 }
 .order_two{
     left: 2%;
-    bottom: 10%;
+    bottom: 3%;
 }
 .order_three{
     right: 0;
     bottom: 50%;
     transform: translate(42%,50%);
 }
+@media screen and (min-width: 640px) and (max-width: 1000px){
+    .order_two{
+        left: 2%;
+        bottom: 20%;
+    }
+}
 @media screen and (min-width: 1500px){
     .occupy_wrap_contianer{
         width: 80%;
         margin: 0 auto;
     }
+    .order_two{
+        left: 50%;
+        top: 50%;
+        transform: translate(-150%,180%);
+        bottom: inherit;
+    }
+    .order_three{
+        left: 50%;
+        top: 50%;
+        transform: translate(150%,0);
+        right: inherit;
+        bottom: inherit;
+    }
 }
-
-/*@media screen and (max-width: 1080px){*/
-    /*#order,#occupy{*/
-        /*width: 58%;*/
-    /*}*/
-/*}*/
-
-/*@media screen and (min-width: 1081px) and (max-width: 1400px){*/
-    /*#order,#occupy{*/
-        /*width: 700px;*/
-    /*}*/
-/*}*/
-
-/*@media screen and (min-width: 1401px) and (max-width: 1600px){*/
-    /*#order,#occupy{*/
-        /*width: 800px;*/
-    /*}*/
-/*}*/
-/*@media screen and (min-width: 1601px)  and (max-width: 1920px){*/
-    /*#order,#occupy{*/
-        /*width: 900px;*/
-    /*}*/
-/*}*/
-/*@media screen and (min-width: 1920px){*/
-    /*#order,#occupy{*/
-        /*width: 55%;*/
-    /*}*/
-/*}*/

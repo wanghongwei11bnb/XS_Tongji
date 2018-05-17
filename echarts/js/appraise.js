@@ -98,5 +98,5 @@ function createDom(sTxt,idName)
         startMove(oLi,"opacity",1)
     });
     appraiseSave = dateUtil('Y-m-d h:i:s',sTxt.createtime);
-    $("#appraise_list li:gt(4)").remove();
+    $("#appraise_list li:gt(3)").remove();
 }

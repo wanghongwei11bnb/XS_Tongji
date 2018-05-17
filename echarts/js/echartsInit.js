@@ -5,7 +5,7 @@ var servicePeopleType = 'day'; //服务人次 类型 日/周
 
 document.getElementById('appraise_list').style.width = document.getElementsByClassName('appraise')[0].clientWidth-50+'px';
 
-document.getElementById('service_people').style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight - 50 + 'px';
+document.getElementById('service_people').style.height = document.getElementsByClassName('appraise_service_wrap')[0].clientHeight - document.getElementsByClassName('appraise')[0].clientHeight - 70 + 'px';
 
 // 基于准备好的dom，初始化echarts实例
 var occupyChart = echarts.init(document.getElementById('occupy'));
