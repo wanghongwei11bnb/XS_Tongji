@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
 }
 
 var orderList = [];
