@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
 }
 
 var orderList = [];
@@ -243,10 +243,10 @@ function handlePushBookingMessage(message){
     //    seriesIndex: 0,
     //    dataIndex: orderIndex
     //});
-    var audio = document.getElementById('music'); 
-    if(audio!==null && audio.readyState === 4){
-        audio.play();//audio.play();// 这个就是播放  
-    } 
+    //var audio = document.getElementById('music');
+    //if(audio!==null && audio.readyState === 4){
+    //    audio.play();//audio.play();// 这个就是播放
+    //}
 }
 
 //处理 评论推送
