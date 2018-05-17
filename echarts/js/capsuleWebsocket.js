@@ -243,10 +243,10 @@ function handlePushBookingMessage(message){
     //    seriesIndex: 0,
     //    dataIndex: orderIndex
     //});
-    var audio = document.getElementById('music'); 
+    var audio = document.getElementById('music');
     if(audio!==null && audio.readyState === 4){
-        audio.play();//audio.play();// 这个就是播放  
-    } 
+        audio.play();//audio.play();// 这个就是播放
+    }
 }
 
 //处理 评论推送
