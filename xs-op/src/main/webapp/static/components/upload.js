@@ -18,6 +18,18 @@ class FileUploadButton extends React.Component {
             button: this.state.id,
             url: '/api/upload/area_img',
             name: 'uploadFile', responseType: 'json',
+            startXHR: () => {
+                Loading.open();
+            },
+            startNonXHR: () => {
+                Loading.open();
+            },
+            endXHR: () => {
+                Loading.close();
+            },
+            endNonXHR: () => {
+                Loading.close();
+            },
             onComplete: function (filename, resp) {
                 if (!resp) {
                     alert(filename + '上传失败');

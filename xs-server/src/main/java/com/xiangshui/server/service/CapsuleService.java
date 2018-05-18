@@ -103,6 +103,10 @@ public class CapsuleService {
         if (capsuleDao.getItem(new PrimaryKey("capsule_id", criteria.getCapsule_id())) != null) {
             throw new XiangShuiException("头等舱编号已存在");
         }
+
+        if (!validateDeviceIdForSave(criteria.getCapsule_id(), criteria.getDevice_id())) {
+            throw new XiangShuiException("硬件设备ID已占用");
+        }
         Date now = new Date();
         criteria.setCreate_time(now.getTime() / 1000);
         criteria.setUpdate_time(now.getTime() / 1000);
@@ -134,6 +138,10 @@ public class CapsuleService {
             throw new XiangShuiException("头等舱版本不能为空");
         }
 
+        if (!validateDeviceIdForSave(criteria.getCapsule_id(), criteria.getDevice_id())) {
+            throw new XiangShuiException("硬件设备ID已占用");
+        }
+
         criteria.setUpdate_time(System.currentTimeMillis() / 1000);
         capsuleDao.updateItem(new PrimaryKey("capsule_id", criteria.getCapsule_id()), criteria, new String[]{
                 "update_time",
@@ -142,6 +150,15 @@ public class CapsuleService {
                 "is_downline",
                 "device_version",
         });
+    }
+
+    public boolean validateDeviceIdForSave(long capsule_id, String device_id) {
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("device_id").eq(device_id), new ScanFilter("capsule_id").ne(capsule_id)));
+        if (capsuleList == null || capsuleList.size() == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

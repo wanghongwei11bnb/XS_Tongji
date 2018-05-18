@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class CapsuleController extends BaseController {
@@ -73,6 +71,22 @@ public class CapsuleController extends BaseController {
             return new Result(CodeMsg.SUCCESS);
         } else {
             return new Result(-1, "头等舱编号已存在");
+        }
+    }
+
+    @GetMapping("/api/capsule/{capsule_id:\\d+}/validateDeviceIdForSave/{device_id}")
+    @ResponseBody
+    public Result validateDeviceIdForSave(@PathVariable("capsule_id") Long capsule_id, @PathVariable("device_id") String device_id) {
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("device_id").eq(device_id), new ScanFilter("capsule_id").ne(capsule_id)));
+        if (capsuleList == null || capsuleList.size() == 0) {
+            return new Result(CodeMsg.SUCCESS);
+        } else {
+            Set<Integer> areaIdSet = new HashSet<>();
+            for (Capsule capsule : capsuleList) {
+                areaIdSet.add(capsule.getArea_id());
+            }
+            List<Area> areaList = areaDao.batchGetItem("area_id", areaIdSet.toArray(), null);
+            return new Result(-1, "硬件设备ID已占用").putData("capsuleList", capsuleList).putData("areaList", areaList);
         }
     }
 

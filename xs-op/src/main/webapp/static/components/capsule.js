@@ -77,13 +77,13 @@ class CapsuleModal extends Modal {
                 </td>
             </tr>
             <tr>
-                <th>设备ID</th>
+                <th>硬件设备ID</th>
                 <td>
                     <input ref="device_id" readOnly={show} disabled={show} type="text" className="form-control"/>
                 </td>
             </tr>
             <tr>
-                <th>设备ID</th>
+                <th>硬件设备版本</th>
                 <td>
                     <select ref="device_version" className="form-control">
                         {DeviceVersionOption.map((option) => {
@@ -164,9 +164,9 @@ class CapsuleManageModal extends Modal {
         this.state = {
             columns: [
                 {field: 'capsule_id', title: '头等舱编号'},
-                {field: 'device_id', title: '设备id'},
+                {field: 'device_id', title: '硬件设备ID'},
                 {
-                    field: 'device_version', title: '设备版本', render: (value) => {
+                    field: 'device_version', title: '硬件设备版本', render: (value) => {
                         for (let i = 0; i < DeviceVersionOption.length; i++) {
                             if (DeviceVersionOption[i].value == value) {
                                 return DeviceVersionOption[i].text;

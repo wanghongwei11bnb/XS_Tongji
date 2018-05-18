@@ -225,28 +225,60 @@ class ListOptions {
 
 
 class MapOptions {
-    constructor() {
+    constructor(options) {
         this.optionMap = {};
+        this.putAll(options);
     }
 
-
-    getId(option) {
+    getIdByOption(option) {
         return option ? option.id || null : null;
     }
 
     put(option) {
-        let id = this.getId(option);
-        this.optionMap[id] = option;
+        let id = this.getIdByOption(option);
+        if (id || id === 0 || id === false) {
+            this.optionMap[id] = option;
+        }
     }
 
-    remove(option) {
-        let id = this.getId(option);
+    putAll(options) {
+        if (options && options.length > 0) {
+            for (let i = 0; i < options.length; i++) {
+                this.put(options[i]);
+            }
+        }
+    }
+
+    removeById(id) {
         delete this.optionMap[id];
+    }
+
+    removeByOption(option) {
+        let id = this.getIdByOption(option);
+        this.removeById(id);
     }
 
     get(id) {
         return this.optionMap[id];
     }
-
 }
 
+class AreaMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.area_id || null : null;
+    }
+}
+
+class UserInfoMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.uin || null : null;
+    }
+}

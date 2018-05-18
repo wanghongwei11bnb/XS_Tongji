@@ -108,6 +108,7 @@ public class AreaController extends BaseController {
         }
         criteria.setArea_id(area_id);
         areaService.updateTypes(criteria);
+//        areaService.clean_area_cache_notification();
         return new Result(CodeMsg.SUCCESS);
     }
 
