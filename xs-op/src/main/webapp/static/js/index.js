@@ -213,7 +213,7 @@ class Page extends React.Component {
                     location.reload();
                 }
             });
-        }}>是否推出？</ConfirmModal>);
+        }}>是否退出？</ConfirmModal>);
     };
 
     componentDidMount() {

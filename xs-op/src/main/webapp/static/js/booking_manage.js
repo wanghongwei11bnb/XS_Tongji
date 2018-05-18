@@ -1,49 +1,40 @@
-class BookingModal extends Modal {
+class BookingUpdateModal extends Modal {
     constructor(props) {
         super(props);
         this.state = {
             booking_id: props.booking_id,
-            booking: props.booking,
-            isEdit: props.isEdit || false,
-            isNew: props.isNew || false,
         };
     }
 
-
-    renderHeader = () => {
-        return '场地信息';
+    submit = () => {
+        request({
+            url: `/api/booking/${this.state.booking_id}/update/op`, loading: true, method: 'post',
+            data: {
+                final_price: this.refs.final_price.value ? Math.floor(this.refs.final_price.value * 100) : null,
+                status: this.refs.status.value,
+            },
+            success: (resp) => {
+                Message.msg('保存成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
     };
 
     renderBody = () => {
-
-
         return <table className="table table-bordered">
             <tbody>
             <tr>
-                <th colSpan={2} className="text-center text-primary">订单信息</th>
-            </tr>
-            <tr>
-                <th>订单编号</th>
+                <th>订单金额</th>
                 <td>
-                    <input ref="booking_id" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>创建时间</th>
-                <td>
-                    <input ref="create_time" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>结束时间</th>
-                <td>
-                    <input ref="end_time" readOnly={true} disabled={true} type="text" className="form-control"/>
+                    <input ref="final_price" type="text" className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>订单状态</th>
                 <td>
                     <select ref="status" className="form-control">
+                        <option value=""></option>
                         <option value="1">进行中</option>
                         <option value="2">待支付</option>
                         <option value="3">待支付（支付中）</option>
@@ -51,54 +42,40 @@ class BookingModal extends Modal {
                     </select>
                 </td>
             </tr>
-            <tr>
-                <th colSpan={2} className="text-center text-primary">头等舱信息</th>
-            </tr>
-            <tr>
-                <th>头等舱编号</th>
-                <td>
-                    <input ref="capsule_id" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>场地编号</th>
-                <td>
-                    <input ref="area_id" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>场地名称</th>
-                <td>
-                    <input ref="area_title" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>城市</th>
-                <td>
-                    <input ref="area_city" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
-            <tr>
-                <th>地址</th>
-                <td>
-                    <input ref="area_address" readOnly={true} disabled={true} type="text" className="form-control"/>
-                </td>
-            </tr>
             </tbody>
         </table>
     };
 
-}
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
 
+    componentDidMount() {
+        super.componentDidMount();
+        request({
+            url: `/api/booking/${this.state.booking_id}`, loading: true,
+            success: (resp) => {
+                if (resp.code == 0) {
+                    if (resp.data.booking) {
+                        this.refs.final_price.value = resp.data.booking.final_price ? resp.data.booking.final_price / 100 : null;
+                        this.refs.status.value = resp.data.booking.status;
+                    }
+                }
+            }
+        });
+    }
+
+}
 
 class Page extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             columns: [
-                {
-                    field: 'booking_id', title: '订单编号'
-                },
+                {field: 'booking_id', title: '订单编号'},
                 {
                     field: 'create_time', title: '创建时间', render: (value, row, index) => {
                         return value ? new Date(value * 1000).format('yyyy-MM-dd hh:mm') : value;
@@ -125,40 +102,37 @@ class Page extends React.Component {
                         }
                     }
                 },
+                {field: 'final_price', title: '订单总金额', render: value => value ? value / 100 : value},
+                {field: 'capsule_id', title: '头等舱编号'},
+                {field: 'area_id', title: '场地编号'},
                 {
-                    field: 'capsule_id', title: '头等舱编号'
-                },
-                {
-                    field: 'area_id', title: '场地编号'
-                },
-                {
-                    field: '_area', title: '场地名称', render: (value, row, index) => {
-                        return value ? value.title : null;
+                    field: 'area_id', title: '场地名称', render: (value, row, index) => {
+                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null;
                     }
                 },
                 {
-                    field: '_area', title: '城市', render: (value, row, index) => {
-                        return value ? value.city : null;
+                    field: 'area_id', title: '城市', render: (value, row, index) => {
+                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).city : null;
                     }
                 },
                 {
-                    field: '_area', title: '地址', render: (value, row, index) => {
-                        return value ? value.address : null;
+                    field: 'area_id', title: '地址', render: (value, row, index) => {
+                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null;
                     }
                 },
+                {field: 'uin', title: '用户UIN'},
                 {
-                    field: 'uin', title: '用户UIN'
-                },
-                {
-                    field: '_userInfo', title: '用户手机号', render: (value, row, index) => {
-                        return value ? value.phone : null;
+                    field: 'uin', title: '用户手机号', render: (value, row, index) => {
+                        return value && this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null;
                     }
                 },
                 {
                     render: (value, row, index) => {
                         return [
+                            <button type="button" className="btn btn-primary btn-sm m-1"
+                                    onClick={this.update.bind(this, row.booking_id)}>更改订单信息</button>,
                             <button type="button" className="btn btn-success btn-sm m-1"
-                                    onClick={this.makeFailureByBooking.bind(this, row.booking_id)}>一键报修</button>
+                                    onClick={this.makeFailureByBooking.bind(this, row.booking_id)}>创建报修</button>,
                         ]
                     }
                 },
@@ -166,13 +140,14 @@ class Page extends React.Component {
         };
     }
 
+    update = (booking_id) => {
+        Modal.open(<BookingUpdateModal booking_id={booking_id} onSuccess={this.load}></BookingUpdateModal>);
+    };
+
     makeFailureByBooking = (booking_id) => {
         Modal.open(<FailureModal isNew={true} booking_id={booking_id}></FailureModal>);
     };
 
-    showBooking = (booking_id) => {
-        Modal.open(<BookingModal></BookingModal>);
-    };
     search = () => {
         this.state.queryParams = {
             status: this.refs.status.value,
@@ -185,16 +160,17 @@ class Page extends React.Component {
         this.load();
     };
     load = () => {
-        const {grid} = this.refs;
         request({
             url: '/api/booking/search', loading: true,
             data: this.state.queryParams,
             success: (resp) => {
                 if (resp.code == 0) {
-                    this.state.data = resp.data.bookingList;
-                    grid.state.data = resp.data.bookingList;
-                    this.setState({});
-                    grid.setState({});
+                    this.state.bookingList = resp.data.bookingList;
+                    this.setState({
+                        bookingList: resp.data.bookingList,
+                        areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                        userInfoMapOptions: new UserInfoMapOptions(resp.data.userInfoList),
+                    });
                 } else {
                 }
             }
@@ -202,7 +178,7 @@ class Page extends React.Component {
     };
 
     render() {
-        const {cityList, columns, data} = this.state;
+        const {cityList, columns, bookingList} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
                 状态：
@@ -224,10 +200,10 @@ class Page extends React.Component {
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
                 订单创建时间：
-                <input ref="create_date_start" type="date"
-                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
-                <input ref="create_date_end" type="date"
-                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_start"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_end"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
@@ -235,8 +211,8 @@ class Page extends React.Component {
                         onClick={this.newArea}>添加场地
                 </button>
             </div>
-            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回500条数据）</div>
-            <Datagrid ref="grid" columns={columns}></Datagrid>
+            <div className="text-danger">查询结果条数：{bookingList ? bookingList.length : null}（最多返回{maxResultSize}条数据）</div>
+            <Table columns={columns} data={bookingList}></Table>
             <ModalContainer></ModalContainer>
         </div>;
     }

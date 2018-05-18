@@ -49,7 +49,7 @@ class Page extends React.Component {
                         onClick={this.newArea}>添加场地
                 </button>
             </div>
-            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回500条数据）</div>
+            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）</div>
             <Table columns={columns} data={data}></Table>
             <ModalContainer></ModalContainer>
         </div>;

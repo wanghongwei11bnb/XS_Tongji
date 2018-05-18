@@ -211,7 +211,7 @@ class CapsuleManageModal extends Modal {
                             <button type="button" className="btn btn-sm m-1 btn-primary"
                                     onClick={this.openUpdateModal.bind(this, row.capsule_id)}>编辑</button>,
                             <button type="button" className="btn btn-sm m-1 btn-success"
-                                    onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>一键报修</button>,
+                                    onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>创建报修</button>,
 
                         ];
                     }

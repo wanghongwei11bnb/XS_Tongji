@@ -27,6 +27,8 @@ abstract public class BaseDynamoDao<T> {
     protected static DynamoDB dynamoDB;
     protected static boolean inited;
 
+    public static final int maxResultSize = 1000;
+
     static {
         if (!inited) {
             client = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.CN_NORTH_1).build();
@@ -101,7 +103,7 @@ abstract public class BaseDynamoDao<T> {
 
     public List<T> scan() {
         ScanSpec scanSpec = new ScanSpec();
-        scanSpec.withMaxResultSize(500);
+        scanSpec.withMaxResultSize(maxResultSize);
         Table table = getTable();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         List<T> list = new ArrayList();
@@ -114,8 +116,8 @@ abstract public class BaseDynamoDao<T> {
     }
 
     public List<T> scan(ScanSpec scanSpec) {
-        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() == 0 || scanSpec.getMaxResultSize() > 500) {
-            scanSpec.setMaxResultSize(500);
+        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0 || scanSpec.getMaxResultSize() > maxResultSize) {
+            scanSpec.setMaxResultSize(maxResultSize);
         }
         Table table = getTable();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
@@ -129,6 +131,9 @@ abstract public class BaseDynamoDao<T> {
     }
 
     public void scan(ScanSpec scanSpec, CallBack<T> callback) {
+        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0 || scanSpec.getMaxResultSize() > maxResultSize) {
+            scanSpec.setMaxResultSize(maxResultSize);
+        }
         Table table = getTable();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         Iterator<Item> iter = items.iterator();

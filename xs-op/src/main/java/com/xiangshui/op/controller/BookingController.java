@@ -17,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -65,19 +62,14 @@ public class BookingController extends BaseController {
     @GetMapping("/api/booking/search")
     @ResponseBody
     public Result search(Long booking_id, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end) throws Exception {
-
+        List<Booking> bookingList = null;
         if (booking_id != null) {
             Booking booking = bookingService.getBookingById(booking_id);
-            if (booking == null) {
-                return new Result(CodeMsg.SUCCESS);
+            if (booking != null) {
+                bookingList = new ArrayList<>();
+                bookingList.add(booking);
             }
-            BookingRelation bookingRelation = bookingService.toRelation(booking);
-            areaService.matchAreaForBooking(bookingRelation);
-            userService.matchUserInfoForBooking(bookingRelation);
-            return new Result(CodeMsg.SUCCESS).putData("bookingList", new BookingRelation[]{bookingRelation});
-        }
-        List<Booking> bookingList;
-        if (StringUtils.isNotBlank(city)) {
+        } else if (StringUtils.isNotBlank(city)) {
             bookingList = bookingService.getBookingListByCity(city);
         } else {
             List<ScanFilter> filterList = bookingDao.makeScanFilterList(criteria, "area_id", "capsule_id", "uin", "status");
@@ -99,13 +91,16 @@ public class BookingController extends BaseController {
             }
             ScanSpec scanSpec = new ScanSpec();
             scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
-            scanSpec.withMaxResultSize(500);
             bookingList = bookingDao.scan(scanSpec);
         }
-        List<BookingRelation> bookingRelationList = bookingService.toRelation(bookingList);
-        areaService.matchAreaForBooking(bookingRelationList);
-        userService.matchUserInfoForBooking(bookingRelationList);
-        return new Result(CodeMsg.SUCCESS).putData("bookingList", bookingRelationList);
+        if (bookingList == null) {
+            bookingList = new ArrayList<>();
+        }
+        return new Result(CodeMsg.SUCCESS)
+                .putData("bookingList", bookingList)
+                .putData("areaList", areaService.getAreaList(bookingList, null))
+                .putData("userInfoList", userService.getUserInfoList(bookingList, null))
+                ;
     }
 
 
@@ -121,4 +116,26 @@ public class BookingController extends BaseController {
         userService.matchUserInfoForBooking(bookingRelation);
         return new Result(CodeMsg.SUCCESS).putData("booking", bookingRelation);
     }
+
+
+    @PostMapping("/api/booking/{booking_id:\\d+}/update/op")
+    @ResponseBody
+    public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
+        Booking booking = bookingService.getBookingById(booking_id);
+        if (booking == null) return new Result(CodeMsg.NO_FOUND);
+        if (status == null) return new Result(-1, "订单状态不能为空");
+        if (final_price != null && final_price <= 0) return new Result(-1, "订单金额必须大于0");
+        booking.setStatus(status);
+        booking.setFinal_price(final_price);
+        if ((booking.getStatus() == 2 || booking.getStatus() == 3) && (booking.getFinal_price() == null || booking.getFinal_price() <= 0)) {
+            return new Result(-1, "待支付的订单必须填写订单金额");
+        }
+        bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+                "status",
+                "final_price",
+        });
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+
 }

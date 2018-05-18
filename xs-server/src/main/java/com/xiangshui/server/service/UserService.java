@@ -12,7 +12,6 @@ import com.xiangshui.server.dao.UserRegisterDao;
 import com.xiangshui.server.dao.UserWalletDao;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.relation.BookingRelation;
-import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.relation.UserInfoRelation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -172,4 +171,28 @@ public class UserService {
         }
         return userInfoRelationList;
     }
+
+
+    public List<UserInfo> getUserInfoList(Integer[] uins, String[] attributes) {
+        return userInfoDao.batchGetItem("uin", uins, attributes);
+    }
+
+    public Set<Integer> getUinSet(List<Booking> bookingList) {
+        if (bookingList == null) return null;
+        Set<Integer> uinSet = new HashSet<Integer>();
+        for (Booking booking : bookingList) {
+            if (booking != null && booking.getUin() != null) {
+                uinSet.add(booking.getUin());
+            }
+        }
+        return uinSet;
+    }
+
+    public List<UserInfo> getUserInfoList(List<Booking> bookingList, String[] attributes) {
+        if (bookingList == null) return null;
+        Set<Integer> uinSet = getUinSet(bookingList);
+        if (uinSet == null || uinSet.size() == 0) return null;
+        return getUserInfoList(uinSet.toArray(new Integer[0]), attributes);
+    }
+
 }

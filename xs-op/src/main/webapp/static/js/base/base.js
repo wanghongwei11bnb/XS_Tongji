@@ -61,6 +61,10 @@ Date.prototype.format = function (fmt) {
     return fmt;
 };
 
+Date.prototype.year = function () {
+
+};
+
 
 let areaColumns = [
     {
@@ -270,6 +274,16 @@ class AreaMapOptions extends MapOptions {
 
     getIdByOption(option) {
         return option ? option.area_id || null : null;
+    }
+}
+
+class CapsuleMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.capsule_id || null : null;
     }
 }
 

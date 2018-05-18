@@ -5,6 +5,7 @@ import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.constant.DeviceVersionOption;
 import com.xiangshui.server.constant.TimeLimitOption;
+import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -23,6 +24,7 @@ public class BaseController {
     public void setClient(HttpServletRequest request) {
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);
+        request.setAttribute("maxResultSize", BaseDynamoDao.maxResultSize);
         setOptions(request);
     }
 

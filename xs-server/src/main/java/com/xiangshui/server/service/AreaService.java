@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.Location;
@@ -272,9 +273,9 @@ public class AreaService {
             throw new XiangShuiException("联系方式不能为空");
         }
 
-        if (StringUtils.isBlank(criteria.getNotification())) {
-            throw new XiangShuiException("注意事项不能为空");
-        }
+//        if (StringUtils.isBlank(criteria.getNotification())) {
+//            throw new XiangShuiException("注意事项不能为空");
+//        }
         if (criteria.getMinute_start() == null || criteria.getMinute_start() < 1) {
             throw new XiangShuiException("最少时长不能小于1");
         }
@@ -347,9 +348,9 @@ public class AreaService {
             throw new XiangShuiException("联系方式不能为空");
         }
 
-        if (StringUtils.isBlank(criteria.getNotification())) {
-            throw new XiangShuiException("注意事项不能为空");
-        }
+//        if (StringUtils.isBlank(criteria.getNotification())) {
+//            throw new XiangShuiException("注意事项不能为空");
+//        }
         if (criteria.getMinute_start() == null || criteria.getMinute_start() < 1) {
             throw new XiangShuiException("最少时长不能小于1");
         }
@@ -358,7 +359,9 @@ public class AreaService {
             throw new XiangShuiException("高峰时段输入有误");
         }
         fillLocation(criteria);
-        criteria.setStatus(AreaStatusOption.stay.value);
+        if (criteria.getStatus() == null) {
+            criteria.setStatus(AreaStatusOption.stay.value);
+        }
         areaDao.putItem(criteria);
         clean_area_cache_notification();
     }
@@ -447,5 +450,29 @@ public class AreaService {
         }
     }
 
+
+    public Set<Integer> getAreaIdSet(List<Booking> bookingList) {
+        if (bookingList == null) {
+            return null;
+        }
+        Set<Integer> areaIdSet = new HashSet<Integer>();
+        for (Booking booking : bookingList) {
+            if (booking != null && booking.getArea_id() != null) {
+                areaIdSet.add(booking.getArea_id());
+            }
+        }
+        return areaIdSet;
+    }
+
+    public List<Area> getAreaList(List<Booking> bookingList, String[] attributes) {
+        if (bookingList == null) {
+            return null;
+        }
+        Set<Integer> areaIdSet = getAreaIdSet(bookingList);
+        if (areaIdSet == null || areaIdSet.size() == 0) {
+            return null;
+        }
+        return areaDao.batchGetItem("area_id", areaIdSet.toArray(), attributes);
+    }
 
 }

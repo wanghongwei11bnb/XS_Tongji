@@ -126,9 +126,9 @@ class Page extends React.Component {
         return <div className="container-fluid my-3">
             <div className="m-1">
                 报修时间：
-                <input ref="start_date" type="date"
-                       className="form-control  form-control-sm d-inline-block mx-3 w-auto"/>
-                <input ref="end_date" type="date" className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
+                <DateInput ref="start_date"
+                           className="form-control  form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="end_date" className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
                 OP处理状态：
                 <select ref="op_status" className="form-control form-control-sm  d-inline-block mx-3 w-auto">
                     <option value=""></option>
@@ -143,9 +143,8 @@ class Page extends React.Component {
                 <input ref="booking_id" type="text"
                        className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-
             </div>
-            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回100条）</div>
+            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条）</div>
             <div className="table-responsive">
                 <Datagrid ref="grid" columns={columns}></Datagrid>
             </div>
@@ -155,8 +154,8 @@ class Page extends React.Component {
 
     componentDidMount() {
         const {now} = this.state;
-        this.refs.start_date.value = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7).format('yyyy-MM-dd');
-        this.refs.end_date.value = now.format('yyyy-MM-dd');
+        this.refs.start_date.setValue(new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7).format('yyyy-MM-dd'));
+        this.refs.end_date.setValue(now.format('yyyy-MM-dd'));
         this.search();
         request({
             url: '/api/activeCityList',
