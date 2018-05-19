@@ -12,9 +12,15 @@ class Page extends React.Component {
             {field: 'city', title: '城市'},
             {field: 'address', title: '地址'},
             {
-                field: 'is_external', title: '是否对外开放', render: (value, row, index) => {
-                    return value == 1 ? <span className="text-success">是</span> :
-                        <span className="text-danger">否</span>;
+                field: 'status', title: '状态',
+                render: (value, row, index) => {
+                    if (value == -1) {
+                        return <span className="text-danger">已下线</span>;
+                    } else if (value == -2) {
+                        return <span className="text-warning">待运营</span>;
+                    } else {
+                        return <span className="text-success">正常</span>;
+                    }
                 }
             },
             {field: 'contact', title: '联系方式'},
@@ -45,15 +51,9 @@ class Page extends React.Component {
                 }
             },
             {
-                field: 'status', title: '状态',
-                render: (value, row, index) => {
-                    if (value == -1) {
-                        return <span className="text-danger">已下线</span>;
-                    } else if (value == -2) {
-                        return <span className="text-warning">待运营</span>;
-                    } else {
-                        return <span className="text-success">正常</span>;
-                    }
+                field: 'is_external', title: '是否对外开放', render: (value, row, index) => {
+                    return value == 1 ? <span className="text-success">是</span> :
+                        <span className="text-danger">否</span>;
                 }
             },
             {

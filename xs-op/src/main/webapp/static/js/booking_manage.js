@@ -188,7 +188,7 @@ class Page extends React.Component {
                            className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 状态：
                 <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
-                    <option value="">-- 全部 --</option>
+                    <option value=""></option>
                     <option value="1">进行中</option>
                     <option value="2">待支付</option>
                     <option value="3">待支付（支付中）</option>
