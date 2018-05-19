@@ -15,18 +15,19 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: '_area', title: '场地标题', render: (value, row, index) => {
-                        if (value) {
-                            return value.title;
+                    field: 'area_id', title: '场地标题', render: (value, row, index) => {
+                        if (value && this.state.areaMapOptions.get(value)) {
+                            return this.state.areaMapOptions.get(value).title;
                         } else {
                             return null;
                         }
                     }
                 },
                 {
-                    field: '_area', title: '城市/地址', width: 200, render: (value, row, index) => {
-                        if (value) {
-                            return [value.city, <br/>, value.address];
+                    field: 'area_id', title: '城市/地址', width: 200, render: (value, row, index) => {
+                        if (value && this.state.areaMapOptions.get(value)) {
+                            return [this.state.areaMapOptions.get(value).city,
+                                <br/>, this.state.areaMapOptions.get(value).address];
                         } else {
                             return null;
                         }
@@ -106,14 +107,13 @@ class Page extends React.Component {
 
     load = () => {
         const {queryParams} = this.state;
-        const {grid} = this.refs;
         request({
             url: '/api/failure/search', loading: true,
             data: queryParams,
             success: (resp) => {
                 if (resp.code == 0) {
                     this.state.data = resp.data.failureList;
-                    grid.state.data = resp.data.failureList;
+                    this.state.areaMapOptions = new AreaMapOptions(resp.data.areaList);
                     this.setState({});
                 } else {
                 }
@@ -122,7 +122,7 @@ class Page extends React.Component {
     };
 
     render() {
-        const {cityList, columns, data, now} = this.state;
+        const {columns, data} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
                 报修时间：
@@ -146,7 +146,7 @@ class Page extends React.Component {
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条）</div>
             <div className="table-responsive">
-                <Datagrid ref="grid" columns={columns}></Datagrid>
+                <Table columns={columns} data={data}></Table>
             </div>
             <ModalContainer></ModalContainer>
         </div>;

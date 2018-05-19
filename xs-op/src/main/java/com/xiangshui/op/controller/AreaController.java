@@ -3,7 +3,9 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.service.AreaService;
+import com.xiangshui.server.service.CapsuleService;
 import com.xiangshui.server.service.CityService;
 import com.xiangshui.server.service.S3Service;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -27,6 +30,8 @@ public class AreaController extends BaseController {
     @Autowired
     S3Service s3Service;
 
+    @Autowired
+    CapsuleService capsuleService;
 
     @GetMapping("/area_manage")
     public String area_manage(HttpServletRequest request) {
@@ -36,9 +41,26 @@ public class AreaController extends BaseController {
 
     @GetMapping("/api/area/search")
     @ResponseBody
-    public Result search(Area criteria) throws NoSuchFieldException, IllegalAccessException {
+    public Result search(Area criteria, Long capsule_id) throws NoSuchFieldException, IllegalAccessException {
+        if (criteria == null) criteria = new Area();
+        if (capsule_id != null) {
+            Capsule capsule = capsuleService.getCapsuleById(capsule_id);
+            if (capsule == null) {
+                return new Result(-1, "头等舱编号不存在");
+            } else {
+                criteria.setArea_id(capsule.getArea_id());
+            }
+        }
 
         List<Area> areaList = areaService.search(criteria, null);
+        if (areaList != null && areaList.size() > 0) {
+            areaList.sort(new Comparator<Area>() {
+                @Override
+                public int compare(Area o1, Area o2) {
+                    return o1.getCity().compareTo(o2.getCity());
+                }
+            });
+        }
         return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
 
     }

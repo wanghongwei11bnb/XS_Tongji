@@ -96,9 +96,17 @@ public class BookingController extends BaseController {
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
+        if (bookingList != null && bookingList.size() > 0) {
+            Collections.sort(bookingList, new Comparator<Booking>() {
+                @Override
+                public int compare(Booking o1, Booking o2) {
+                    return -(int) (o1.getCreate_time() - o2.getCreate_time());
+                }
+            });
+        }
         return new Result(CodeMsg.SUCCESS)
                 .putData("bookingList", bookingList)
-                .putData("areaList", areaService.getAreaList(bookingList, null))
+                .putData("areaList", areaService.getAreaListByBooking(bookingList, null))
                 .putData("userInfoList", userService.getUserInfoList(bookingList, null))
                 ;
     }

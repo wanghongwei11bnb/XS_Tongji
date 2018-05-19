@@ -167,7 +167,7 @@ class Page extends React.Component {
                 if (resp.code == 0) {
                     this.state.bookingList = resp.data.bookingList;
                     this.setState({
-                        bookingList: resp.data.bookingList,
+                        data: resp.data.bookingList,
                         areaMapOptions: new AreaMapOptions(resp.data.areaList),
                         userInfoMapOptions: new UserInfoMapOptions(resp.data.userInfoList),
                     });
@@ -178,9 +178,14 @@ class Page extends React.Component {
     };
 
     render() {
-        const {cityList, columns, bookingList} = this.state;
+        const {columns, data} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
+                订单创建时间：
+                <DateInput ref="create_date_start"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_end"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 状态：
                 <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value="">-- 全部 --</option>
@@ -199,25 +204,23 @@ class Page extends React.Component {
                 <input ref="capsule_id" type="text"
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
-                订单创建时间：
-                <DateInput ref="create_date_start"
-                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
-                <DateInput ref="create_date_end"
-                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
-
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 <button type="button" className="btn btn-sm btn-success ml-1 float-right hide"
                         onClick={this.newArea}>添加场地
                 </button>
             </div>
-            <div className="text-danger">查询结果条数：{bookingList ? bookingList.length : null}（最多返回{maxResultSize}条数据）</div>
-            <Table columns={columns} data={bookingList}></Table>
+            <div
+                className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）
+            </div>
+            <Table columns={columns} data={data}></Table>
             <ModalContainer></ModalContainer>
         </div>;
     }
 
     componentDidMount() {
+        this.refs.create_date_start.setValue(new Date().format('yyyy-MM-dd'));
+        this.refs.create_date_end.setValue(new Date().format('yyyy-MM-dd'));
         this.search();
         request({
             url: '/api/activeCityList',

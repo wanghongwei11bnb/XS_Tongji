@@ -10,6 +10,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.relation.FailureReportRelation;
+import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.FailureReportService;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.ExcelUtils;
@@ -25,9 +26,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Controller
@@ -50,6 +49,8 @@ public class FailureReportController extends BaseController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    AreaService areaService;
 
     @GetMapping("/failure_manage")
     public String index(HttpServletRequest request) {
@@ -66,14 +67,25 @@ public class FailureReportController extends BaseController {
             download = false;
         }
         List<FailureReport> failureReportList = failureReportService.search(criteria, start_date, end_date, download ? 5000 : null);
-        List<FailureReportRelation> failureReportRelationList;
-        if (failureReportList != null) {
-            failureReportRelationList = failureReportService.mapperArea(failureReportList);
-        } else {
-            failureReportRelationList = new ArrayList<FailureReportRelation>();
+        List<Area> areaList = null;
+        if (failureReportList != null && failureReportList.size() > 0) {
+            failureReportList.sort(new Comparator<FailureReport>() {
+                @Override
+                public int compare(FailureReport o1, FailureReport o2) {
+                    return (int) (o2.getCreate_time() - o1.getCreate_time());
+                }
+            });
+            areaList = areaService.getAreaListByFailure(failureReportList, null);
         }
         if (download) {
-            List<List<String>> data = new ArrayList<List<String>>(failureReportRelationList.size() + 1);
+            Map<Integer, Area> areaMap = new HashMap<>(areaList.size());
+            if (areaList != null) {
+                for (Area area : areaList) {
+                    areaMap.put(area.getArea_id(), area);
+                }
+            }
+
+            List<List<String>> data = new ArrayList<List<String>>(failureReportList.size() + 1);
             List<String> headRow = new ArrayList<String>();
             headRow.add("头等舱编号");
             headRow.add("场地编号	");
@@ -93,32 +105,32 @@ public class FailureReportController extends BaseController {
             headRow.add("处理结果	");
             headRow.add("处理状态	");
             data.add(headRow);
-            failureReportRelationList.forEach(new Consumer<FailureReportRelation>() {
-                public void accept(FailureReportRelation failureReportRelation) {
+            failureReportList.forEach(new Consumer<FailureReport>() {
+                public void accept(FailureReport failureReport) {
                     List<String> row = new ArrayList<String>();
-                    row.add(failureReportRelation.getCapsule_id() + "");
-                    row.add(failureReportRelation.getArea_id() + "");
-                    if (failureReportRelation.get_area() != null) {
-                        row.add(failureReportRelation.get_area().getTitle() + "");
-                        row.add(failureReportRelation.get_area().getCity() + "");
-                        row.add(failureReportRelation.get_area().getAddress() + "");
+                    row.add(failureReport.getCapsule_id() + "");
+                    row.add(failureReport.getArea_id() + "");
+                    if (areaMap.containsKey(failureReport.getArea_id())) {
+                        row.add(areaMap.get(failureReport.getArea_id()).getTitle());
+                        row.add(areaMap.get(failureReport.getArea_id()).getCity());
+                        row.add(areaMap.get(failureReport.getArea_id()).getAddress());
                     } else {
                         row.add("");
                         row.add("");
                         row.add("");
                     }
-                    row.add(failureReportRelation.getUin() + "");
-                    row.add(failureReportRelation.getPhone() + "");
-                    row.add(failureReportRelation.getBooking_id() + "");
-                    row.add(failureReportRelation.getCreate_time() + "");
-                    row.add(failureReportRelation.getReq_from() + "");
-                    row.add(failureReportRelation.getApp_version() + "");
-                    row.add(failureReportRelation.getClient_type() + "");
-                    row.add(failureReportRelation.getClient_version() + "");
-                    row.add(failureReportRelation.getTags() + "");
-                    row.add(failureReportRelation.getDescription() + "");
-                    row.add(failureReportRelation.getOp_description() + "");
-                    row.add(failureReportRelation.getOp_status() + "");
+                    row.add(failureReport.getUin() + "");
+                    row.add(failureReport.getPhone() + "");
+                    row.add(failureReport.getBooking_id() + "");
+                    row.add(failureReport.getCreate_time() + "");
+                    row.add(failureReport.getReq_from() + "");
+                    row.add(failureReport.getApp_version() + "");
+                    row.add(failureReport.getClient_type() + "");
+                    row.add(failureReport.getClient_version() + "");
+                    row.add(failureReport.getTags() + "");
+                    row.add(failureReport.getDescription() + "");
+                    row.add(failureReport.getOp_description() + "");
+                    row.add(failureReport.getOp_status() + "");
                     data.add(row);
                 }
             });
@@ -131,7 +143,7 @@ public class FailureReportController extends BaseController {
             workbook.close();
             return null;
         } else {
-            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportRelationList);
+            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportList).putData("areaList", areaList);
         }
     }
 

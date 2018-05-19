@@ -107,25 +107,22 @@ class Page extends React.Component {
     search = () => {
         this.state.queryParams = {
             city: this.refs.city.value,
+            title: this.refs.title.value,
+            address: this.refs.address.value,
+            area_id: this.refs.area_id.value,
+            capsule_id: this.refs.capsule_id.value,
             status: this.refs.status.value,
         };
         this.load();
     };
     load = () => {
-        const {grid} = this.refs;
         request({
             url: '/api/area/search', loading: true,
-            data: {
-                city: this.refs.city.value,
-                status: this.refs.status.value,
-                is_external: this.refs.is_external.value,
-            },
+            data: this.state.queryParams,
             success: (resp) => {
                 if (resp.code == 0) {
                     this.state.data = resp.data.areaList;
-                    grid.state.data = resp.data.areaList;
                     this.setState({});
-                    grid.setState({});
                 } else {
                 }
             }
@@ -138,29 +135,30 @@ class Page extends React.Component {
             <div className="m-1">
                 城市：
                 <select ref="city" className="form-control form-control-sm d-inline-block mx-3 w-auto">
-                    <option value="">-- 全部城市 --</option>
+                    <option value=""></option>
                     {cityList ? cityList.map((city) => {
                         return <option value={city.city}>{city.city}</option>
                     }) : null}
                 </select>
+                标题：
+                <input ref="title" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                地址：
+                <input ref="address" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 状态：
                 <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
-                    <option value="">-- 全部 --</option>
+                    <option value=""></option>
                     <option value="-1">已下线</option>
                     <option value="-2">待运营</option>
                 </select>
-                是否对外开放：
-                <select ref="is_external" className="form-control form-control-sm d-inline-block mx-3 w-auto">
-                    <option value="">-- 全部 --</option>
-                    <option value="1">是</option>
-                </select>
+                场地编号：
+                <input ref="area_id" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                头等舱编号：
+                <input ref="capsule_id" type="text"
+                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                <button type="button" className="btn btn-sm btn-success ml-1 float-right hide"
-                        onClick={this.newArea}>添加场地
-                </button>
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）</div>
-            <Datagrid ref="grid" columns={columns}></Datagrid>
+            <Table columns={columns} data={data}></Table>
             <ModalContainer></ModalContainer>
         </div>;
     }

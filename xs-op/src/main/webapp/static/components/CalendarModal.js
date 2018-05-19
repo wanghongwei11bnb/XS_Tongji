@@ -57,7 +57,12 @@ class DateInput extends React.Component {
     };
 
 
+    onFocus = () => {
+        this.refs.input.blur();
+    };
+
     render() {
-        return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}/>
+        return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
+                      onFocus={this.onFocus}/>
     }
 }

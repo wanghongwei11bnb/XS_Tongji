@@ -174,10 +174,10 @@ class Calendar extends React.Component {
         for (let i = 1; i <= 6; i++) {
             let tds = [];
             for (let j = 1; j <= 7; j++) {
-                ymd.incrDate();
                 tds.push(<td
                     className={`text-center hm ${this.isToday(ymd.year, ymd.month, ymd.date) ? 'today' : ''} ${ymd.year == this.state.ymd.year && ymd.month == this.state.ymd.month ? '' : 'out'}`}
                     onClick={this.onDateClick.bind(this, ymd.year, ymd.month, ymd.date)}>{this.isToday(ymd.year, ymd.month, ymd.date) ? '今' : ymd.date}</td>);
+                ymd.incrDate();
             }
             trs.push(<tr>{tds}</tr>);
         }

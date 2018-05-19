@@ -11,6 +11,7 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.FailureReport;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.Location;
 import com.xiangshui.server.domain.fragment.RushHour;
@@ -435,8 +436,15 @@ public class AreaService {
         } else {
             ScanSpec scanSpec = new ScanSpec();
             List<ScanFilter> filterList = areaDao.makeScanFilterList(criteria, new String[]{
-                    "city", "status", "is_external",
+                    "city", "status",
             });
+            if (filterList == null) filterList = new ArrayList<ScanFilter>();
+            if (StringUtils.isNotBlank(criteria.getTitle())) {
+                filterList.add(new ScanFilter("title").contains(criteria.getTitle()));
+            }
+            if (StringUtils.isNotBlank(criteria.getAddress())) {
+                filterList.add(new ScanFilter("address").contains(criteria.getAddress()));
+            }
             scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
             List<Area> areaList = areaDao.scan(scanSpec);
             return areaList;
@@ -465,11 +473,32 @@ public class AreaService {
         return areaIdSet;
     }
 
-    public List<Area> getAreaList(List<Booking> bookingList, final String[] attributes) {
+    public List<Area> getAreaListByBooking(List<Booking> bookingList, final String[] attributes) {
         if (bookingList == null) {
             return null;
         }
         final Set<Integer> areaIdSet = getAreaIdSet(bookingList);
+        if (areaIdSet == null || areaIdSet.size() == 0) {
+            return null;
+        }
+        return ServiceUtils.division(areaIdSet.toArray(new Integer[0]), 100, new CallBackForResult<Integer[], List<Area>>() {
+            public List<Area> run(Integer[] object) {
+                return areaDao.batchGetItem("area_id", object, attributes);
+            }
+        }, new Integer[0]);
+
+    }
+
+    public List<Area> getAreaListByFailure(List<FailureReport> failureReportList, final String[] attributes) {
+        if (failureReportList == null) {
+            return null;
+        }
+        final Set<Integer> areaIdSet = new HashSet<Integer>();
+        for (FailureReport failureReport : failureReportList) {
+            if (failureReport != null && failureReport.getArea_id() != null) {
+                areaIdSet.add(failureReport.getArea_id());
+            }
+        }
         if (areaIdSet == null || areaIdSet.size() == 0) {
             return null;
         }
