@@ -17,6 +17,7 @@ import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
+import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.io.IOUtils;
@@ -464,15 +465,20 @@ public class AreaService {
         return areaIdSet;
     }
 
-    public List<Area> getAreaList(List<Booking> bookingList, String[] attributes) {
+    public List<Area> getAreaList(List<Booking> bookingList, final String[] attributes) {
         if (bookingList == null) {
             return null;
         }
-        Set<Integer> areaIdSet = getAreaIdSet(bookingList);
+        final Set<Integer> areaIdSet = getAreaIdSet(bookingList);
         if (areaIdSet == null || areaIdSet.size() == 0) {
             return null;
         }
-        return areaDao.batchGetItem("area_id", areaIdSet.toArray(), attributes);
+        return ServiceUtils.division(areaIdSet.toArray(new Integer[0]), 100, new CallBackForResult<Integer[], List<Area>>() {
+            public List<Area> run(Integer[] object) {
+                return areaDao.batchGetItem("area_id", object, attributes);
+            }
+        }, new Integer[0]);
+
     }
 
 }

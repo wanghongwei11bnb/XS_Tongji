@@ -13,6 +13,7 @@ import com.xiangshui.server.dao.UserWalletDao;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.UserInfoRelation;
+import com.xiangshui.util.CallBackForResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,11 +189,15 @@ public class UserService {
         return uinSet;
     }
 
-    public List<UserInfo> getUserInfoList(List<Booking> bookingList, String[] attributes) {
+    public List<UserInfo> getUserInfoList(List<Booking> bookingList, final String[] attributes) {
         if (bookingList == null) return null;
-        Set<Integer> uinSet = getUinSet(bookingList);
+        final Set<Integer> uinSet = getUinSet(bookingList);
         if (uinSet == null || uinSet.size() == 0) return null;
-        return getUserInfoList(uinSet.toArray(new Integer[0]), attributes);
+        return ServiceUtils.division(uinSet.toArray(new Integer[0]), 100, new CallBackForResult<Integer[], List<UserInfo>>() {
+            public List<UserInfo> run(Integer[] object) {
+                return getUserInfoList(object, attributes);
+            }
+        }, new Integer[0]);
     }
 
 }
