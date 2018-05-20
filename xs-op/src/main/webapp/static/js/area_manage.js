@@ -1,77 +1,21 @@
-class Page extends React.Component {
+class AreaManageGrid extends AreaGrid {
     constructor(props) {
         super(props);
-        const columns = [
-            {
-                field: 'area_id', title: '场地编号',
-                render: (value, row, index) => {
-                    return <A onClick={this.showArea.bind(this, value)}>{value}</A>;
-                }
-            },
-            {field: 'title', title: '标题'},
-            {field: 'city', title: '城市'},
-            {field: 'address', title: '地址'},
-            {
-                field: 'status', title: '状态',
-                render: (value, row, index) => {
-                    if (value == -1) {
-                        return <span className="text-danger">已下线</span>;
-                    } else if (value == -2) {
-                        return <span className="text-warning">待运营</span>;
-                    } else {
-                        return <span className="text-success">正常</span>;
-                    }
-                }
-            },
-            {field: 'contact', title: '联系方式'},
-            {field: 'minute_start', title: '最少时长（分钟）'},
-            {
-                field: 'is_time_limit', title: '限时标记', render: (value, row, index) => {
-                    value = value || 0;
-                    for (let i = 0; i < TimeLimitOption.length; i++) {
-                        if (TimeLimitOption[i].value == value) {
-                            return TimeLimitOption[i].text;
-                        }
-                    }
-                    return value;
-                }
-            },
-            {
-                field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
-                    return value ? value.map((item) => {
-                        return item ? <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div> : null;
-                    }) : null;
-                }
-            },
-            {
-                field: 'location', title: '经纬度', render: (value, row, index) => {
-                    return value ?
-                        <div>经度：{value.longitude}，纬度：{value.latitude}</div>
-                        : null;
-                }
-            },
-            {
-                field: 'is_external', title: '是否对外开放', render: (value, row, index) => {
-                    return value == 1 ? <span className="text-success">是</span> :
-                        <span className="text-danger">否</span>;
-                }
-            },
-            {
-                title: <button type="button" className="btn btn-sm btn-success m-1"
-                               onClick={this.newArea}>新建场地</button>,
-                render: (value, row, index) => {
-                    return [
-                        <button type="button" className="btn btn-sm btn-primary m-1"
-                                onClick={this.showCapsuleModal.bind(this, row.area_id)}>管理头等舱</button>,
-                        <button type="button" className="btn btn-sm btn-primary m-1"
-                                onClick={this.editTypes.bind(this, row)}>编辑类型</button>,
-                    ];
-                }
-            },
-        ];
-        this.state = {columns};
+        this.state.columns.push({
+            title: <button type="button" className="btn btn-sm btn-success m-1"
+                           onClick={this.newArea}>新建场地</button>,
+            render: (value, row, index) => {
+                return [
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.showArea.bind(this, row.area_id)}>编辑场地</button>,
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.showCapsuleModal.bind(this, row.area_id)}>管理头等舱</button>,
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.editTypes.bind(this, row)}>编辑类型</button>,
+                ];
+            }
+        });
     }
-
 
     showCapsuleModal = (area_id) => {
         Modal.open(<CapsuleManageModal area_id={area_id}></CapsuleManageModal>);
@@ -84,24 +28,22 @@ class Page extends React.Component {
 
     newArea = () => {
         Modal.open(<AreaIdCreateModal onSuccess={(area) => {
-            Modal.open(<AreaCreateModal area={area} onSuccess={this.load}></AreaCreateModal>);
+            Modal.open(<AreaModal area={area} create onSuccess={this.load}></AreaModal>);
         }}></AreaIdCreateModal>);
     };
 
     showArea = (area_id) => {
-        request({
-            url: '/api/area/' + area_id, loading: true,
-            success: (resp) => {
-                if (resp.code == 0) {
-                    Modal.open(
-                        <AreaUpdateModal update area_id={area_id} area={resp.data.area} cityList={this.state.cityList}
-                                         onSuccess={this.load}></AreaUpdateModal>
-                    );
-                } else {
-                }
-            }
-        });
+        Modal.open(<AreaModal area_id={area_id} update onSuccess={this.load}></AreaModal>);
     };
+
+
+}
+
+class Page extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
 
 
     search = () => {
@@ -115,19 +57,7 @@ class Page extends React.Component {
         };
         this.load();
     };
-    load = () => {
-        request({
-            url: '/api/area/search', loading: true,
-            data: this.state.queryParams,
-            success: (resp) => {
-                if (resp.code == 0) {
-                    this.state.data = resp.data.areaList;
-                    this.setState({});
-                } else {
-                }
-            }
-        });
-    };
+
 
     render() {
         const {cityList, columns, data} = this.state;
@@ -158,13 +88,12 @@ class Page extends React.Component {
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）</div>
-            <Table columns={columns} data={data}></Table>
+            <AreaManageGrid data={data}></AreaManageGrid>
             <ModalContainer></ModalContainer>
         </div>;
     }
 
     componentDidMount() {
-        this.search();
         reqwest({
             url: '/api/activeCityList',
             success: (resp) => {

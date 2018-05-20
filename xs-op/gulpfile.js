@@ -37,7 +37,8 @@ gulp.task('js', function () {
         .pipe(plumber())
         .pipe(concat('base.js'))
         .pipe(babel({
-            presets: ['es2015', 'react', 'stage-0']
+            presets: ['es2015', 'react', 'stage-0'],
+            plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
         .pipe(gulp.dest('./src/main/webapp/build/js/'));
@@ -47,7 +48,8 @@ gulp.task('js', function () {
     ])
         .pipe(plumber())
         .pipe(babel({
-            presets: ['es2015', 'react', 'stage-0']
+            presets: ['es2015', 'react', 'stage-0'],
+            plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
         .pipe(gulp.dest('./src/main/webapp/build/js/'));
@@ -58,7 +60,8 @@ gulp.task('js', function () {
         .pipe(plumber())
         .pipe(concat('base.js'))
         .pipe(babel({
-            presets: ['es2015', 'react', 'stage-0']
+            presets: ['es2015', 'react', 'stage-0'],
+            plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
         .pipe(gulp.dest('./src/main/webapp/build/components/'));
@@ -69,7 +72,8 @@ gulp.task('js', function () {
         .pipe(plumber())
         .pipe(concat('components.js'))
         .pipe(babel({
-            presets: ['es2015', 'react', 'stage-0']
+            presets: ['es2015', 'react', 'stage-0'],
+            plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
         .pipe(gulp.dest('./src/main/webapp/build/components/'));
