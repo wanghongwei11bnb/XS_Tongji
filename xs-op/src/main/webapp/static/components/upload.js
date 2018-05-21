@@ -30,13 +30,14 @@ class FileUploadButton extends React.Component {
             endNonXHR: () => {
                 Loading.close();
             },
-            onComplete: function (filename, resp) {
+            onComplete: (filename, resp) => {
                 if (!resp) {
                     alert(filename + '上传失败');
                     return false;
                 }
                 if (resp.code == 0) {
-                    Modal.open(<AlertModal>{resp.data.url}</AlertModal>);
+                    if (this.props.onSuccess) this.props.onSuccess(resp.data.url);
+                    else Modal.open(<AlertModal>{resp.data.url}</AlertModal>);
                 } else {
                     Message.msg(resp.msg);
                 }
