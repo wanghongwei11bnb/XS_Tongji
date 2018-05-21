@@ -272,17 +272,29 @@ body,html{
         margin: 0 auto;
     }
     .order_two{
-        left: 50%;
-        top: 50%;
-        transform: translate(-150%,180%);
-        bottom: inherit;
+        left: 5%;
     }
     .order_three{
         left: 50%;
         top: 50%;
-        transform: translate(150%,0);
+        transform: translate(120%,-20%);
         right: inherit;
         bottom: inherit;
+    }
+}
+@media screen and (max-height: 880px){
+    .order_one{
+        transform: translate(-55%,-220%);
+    }
+}
+@media screen and (max-height: 785px){
+    .order_one{
+        transform: translate(-55%,-210%);
+    }
+}
+@media screen and (max-height: 750px){
+    .order_one{
+        transform: translate(-55%,-190%);
     }
 }
 @media screen and (max-height: 700px){
@@ -317,8 +329,5 @@ body,html{
     }
     .order_item{
         font-size: 12px;
-    }
-    .order_one{
-        transform: translate(-55%,-150%);
     }
 }
