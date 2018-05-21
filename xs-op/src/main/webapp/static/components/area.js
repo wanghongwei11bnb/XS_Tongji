@@ -11,7 +11,7 @@ class AreaModal extends Modal {
     }
 
     submit = () => {
-        const {area_id, onSuccess, create, update} = this.state;
+        const {onSuccess, create, update} = this.state;
         let data = {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
@@ -382,11 +382,13 @@ class AreaGrid extends React.Component {
                             <span className="text-danger">否</span>;
                     }
                 },
-            ]
+            ],
+            queryParams: props.queryParams,
         };
     }
 
-    load = () => {
+    load = (queryParams) => {
+        if (type(queryParams) == 'Object') this.state.queryParams = queryParams;
         request({
             url: '/api/area/search', loading: true,
             data: this.state.queryParams,

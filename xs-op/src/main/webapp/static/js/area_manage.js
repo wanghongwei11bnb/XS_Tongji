@@ -47,15 +47,14 @@ class Page extends React.Component {
 
 
     search = () => {
-        this.state.queryParams = {
+        this.refs.areaGrid.load({
             city: this.refs.city.value,
             title: this.refs.title.value,
             address: this.refs.address.value,
             area_id: this.refs.area_id.value,
             capsule_id: this.refs.capsule_id.value,
             status: this.refs.status.value,
-        };
-        this.load();
+        });
     };
 
 
@@ -88,13 +87,13 @@ class Page extends React.Component {
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
             </div>
             <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）</div>
-            <AreaManageGrid data={data}></AreaManageGrid>
+            <AreaManageGrid ref="areaGrid" data={data}></AreaManageGrid>
             <ModalContainer></ModalContainer>
         </div>;
     }
 
     componentDidMount() {
-        reqwest({
+        request({
             url: '/api/activeCityList',
             success: (resp) => {
                 if (resp.code == 0) {
@@ -105,8 +104,4 @@ class Page extends React.Component {
     }
 }
 
-
-ReactDOM.render(
-    <Page/>
-    , document.getElementById('root'));
-
+ReactDOM.render(<Page/>, document.getElementById('root'));

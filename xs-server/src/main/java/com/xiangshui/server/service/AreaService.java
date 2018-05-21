@@ -412,9 +412,9 @@ public class AreaService {
                 throw new XiangShuiException("描述不能为空");
             }
 
-            if (StringUtils.isBlank(capsuleType.getPrice_rule_text())) {
-                throw new XiangShuiException("价格文案不能为空");
-            }
+//            if (StringUtils.isBlank(capsuleType.getPrice_rule_text())) {
+//                throw new XiangShuiException("价格文案不能为空");
+//            }
 
         }
         areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
