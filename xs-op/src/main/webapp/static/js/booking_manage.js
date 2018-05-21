@@ -34,11 +34,7 @@ class BookingUpdateModal extends Modal {
                 <th>订单状态</th>
                 <td>
                     <select ref="status" className="form-control">
-                        <option value=""></option>
-                        <option value="1">进行中</option>
                         <option value="2">待支付</option>
-                        <option value="3">待支付（支付中）</option>
-                        <option value="4">已支付</option>
                     </select>
                 </td>
             </tr>
@@ -55,13 +51,14 @@ class BookingUpdateModal extends Modal {
 
     componentDidMount() {
         super.componentDidMount();
+        this.refs.status.value = 2;
         request({
             url: `/api/booking/${this.state.booking_id}`, loading: true,
             success: (resp) => {
                 if (resp.code == 0) {
                     if (resp.data.booking) {
                         this.refs.final_price.value = resp.data.booking.final_price ? resp.data.booking.final_price / 100 : null;
-                        this.refs.status.value = resp.data.booking.status;
+
                     }
                 }
             }
