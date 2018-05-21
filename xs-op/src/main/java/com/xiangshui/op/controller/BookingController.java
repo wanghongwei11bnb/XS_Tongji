@@ -131,7 +131,11 @@ public class BookingController extends BaseController {
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
+        if (booking.getStatus() == 4) return new Result(-1, "不能更改已支付的订单");
         if (status == null) return new Result(-1, "订单状态不能为空");
+        if(status==1){
+            return new Result(-1, "不能将订单状态改为进行中");
+        }
         if (final_price != null && final_price <= 0) return new Result(-1, "订单金额必须大于0");
         booking.setStatus(status);
         booking.setFinal_price(final_price);

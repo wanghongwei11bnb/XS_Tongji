@@ -86,7 +86,7 @@ class Page extends React.Component {
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
             </div>
-            <div className="text-danger">查询结果条数：{data ? data.length : null}（最多返回{maxResultSize}条数据）</div>
+            <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <AreaManageGrid ref="areaGrid" data={data}></AreaManageGrid>
             <ModalContainer></ModalContainer>
         </div>;

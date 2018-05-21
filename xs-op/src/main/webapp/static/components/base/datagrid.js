@@ -7,6 +7,11 @@ class Table extends React.Component {
     render() {
         const {columns, data} = this.props;
         const theadHtml = <thead>
+        <tr>
+            <th colSpan={columns.length} className="text-danger">
+                {data ? `${data.length}条数据` : null}
+            </th>
+        </tr>
         <tr>{columns.map((column) => {
             return <th width={column.width}>{column.title || column.field}</th>
         })}</tr>

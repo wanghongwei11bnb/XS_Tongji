@@ -166,7 +166,7 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</A>
                     </li>
-                    <li className="nav-item hide">
+                    <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '用户管理', '/user_manage')}>用户管理</A>
                     </li>
@@ -186,7 +186,7 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</A>
                     </li>
-                    <li className="nav-item ">
+                    <li className="nav-item hide">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</A>
                     </li>

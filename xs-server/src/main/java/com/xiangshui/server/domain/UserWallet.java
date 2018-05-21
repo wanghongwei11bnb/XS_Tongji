@@ -4,12 +4,21 @@ public class UserWallet {
 
     private Integer uin;
 
+    /**
+     * 钱包余额
+     */
     private Integer balance;
 
+    /**
+     * 赠送
+     */
     private Integer bonus;
 
     private Integer charge;
 
+    /**
+     * 实际支付
+     */
     private Integer deposit;
 
     private String openID;

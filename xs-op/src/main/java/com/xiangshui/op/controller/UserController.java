@@ -95,7 +95,9 @@ public class UserController extends BaseController {
     public Result getByUin(@PathVariable("uin") int uin) {
         UserInfo userInfo = userService.getUserInfoByUin(uin);
         if (userInfo != null) {
-            return new Result(CodeMsg.SUCCESS).putData("userInfo", userInfo);
+            return new Result(CodeMsg.SUCCESS)
+                    .putData("userInfo", userInfo)
+                    .putData("userWallet", userService.getUserWalletByUin(userInfo.getUin()));
         } else {
             return new Result(CodeMsg.NO_FOUND);
         }

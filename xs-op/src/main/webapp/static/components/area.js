@@ -137,10 +137,7 @@ class AreaModal extends Modal {
                                         return [<img src={`${item}_227`} alt=""/>,
                                             <input type="text" className="form-control" value={item} onChange={(e) => {
                                                 itemUpdate(e.target.value);
-                                            }}/>,
-                                            <FileUploadButton onSuccess={(url) => {
-                                                itemUpdate(url);
-                                            }}>上传</FileUploadButton>
+                                            }}/>
                                         ];
                                     }}></ListEditor>
                     </td>
