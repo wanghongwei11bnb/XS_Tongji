@@ -10,10 +10,5 @@ import java.lang.annotation.Target;
 @Inherited
 @Target(ElementType.METHOD)
 public @interface AuthPassport {
-
-    String value();
-
-    boolean validate() default true;
-
-
+    String[] value();
 }

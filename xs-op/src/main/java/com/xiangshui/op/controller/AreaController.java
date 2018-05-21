@@ -1,6 +1,7 @@
 package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.xiangshui.op.annotation.AuthPassport;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
@@ -33,6 +34,16 @@ public class AreaController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
+    @AuthPassport(value = {
+            "wenjia@xiangshuispace.com",
+            "xuwei@xiangshuispace.com",
+            "yongchao@xiangshuispace.com",
+            "guobin@xiangshuispace.com",
+            "jinying@xiangshuispace.com",
+            "Zhangqun@xiangshuispace.com",
+            "Sunyi@xiangshuispace.com",
+            "Zhuli@xiangshuispace.com",
+    })
     @GetMapping("/area_manage")
     public String area_manage(HttpServletRequest request) {
         setClient(request);
