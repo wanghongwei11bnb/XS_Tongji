@@ -154,18 +154,18 @@ class Page extends React.Component {
                 <A className="d-block text-center" onClick={this.toggleMenu}>{showMenu ? '<<' : '>>'}</A>
                 {showMenu ? null : <A className="d-block text-center" onClick={this.logout}>退出</A>}
                 <ul className={`nav flex-column ${showMenu ? '' : 'hide'}`}>
-                    <li className="nav-item hide">
+                    {debug ? <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</A>
-                    </li>
-                    <li className="nav-item hide">
+                    </li> : null}
+                    {debug ? <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</A>
-                    </li>
-                    <li className="nav-item hide">
+                    </li> : null}
+                    {debug ? <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</A>
-                    </li>
+                    </li> : null}
                     <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '用户管理', '/user_manage')}>用户管理</A>
@@ -186,10 +186,10 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</A>
                     </li>
-                    <li className="nav-item hide">
+                    {debug ? <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</A>
-                    </li>
+                    </li> : null}
                     <li className="nav-item float-right">
                         <A className="nav-link"
                            onClick={this.logout}>退出</A>

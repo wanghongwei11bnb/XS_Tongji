@@ -3,11 +3,14 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.UserInfo;
+import com.xiangshui.server.domain.fragment.CapsuleType;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
@@ -33,6 +36,11 @@ public class BookingController extends BaseController {
     AreaDao areaDao;
     @Autowired
     CapsuleDao capsuleDao;
+
+    @Autowired
+    DeviceService deviceService;
+    @Autowired
+    CapsuleService capsuleService;
 
 
     @Autowired
@@ -126,26 +134,78 @@ public class BookingController extends BaseController {
     }
 
 
+//    @PostMapping("/api/booking/{booking_id:\\d+}/update/final_price")
+//    @ResponseBody
+//    public Result update_op(@PathVariable("booking_id") Long booking_id, Integer final_price) throws Exception {
+//        Booking booking = bookingService.getBookingById(booking_id);
+//        if (booking == null) return new Result(CodeMsg.NO_FOUND);
+//        if (booking.getStatus() == 1 || booking.getStatus() == 4) return new Result(-1, "只能对待支付的订单进行修改");
+//        if (final_price != null && final_price <= 0) return new Result(-1, "订单金额必须大于0");
+//        booking.setFinal_price(final_price);
+//        bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+//                "final_price",
+//        });
+//        return new Result(CodeMsg.SUCCESS);
+//    }
+//
+//    @PostMapping("/api/booking/{booking_id:\\d+}/update/status")
+//    @ResponseBody
+//    public Result update_status(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
+//        Booking booking = bookingService.getBookingById(booking_id);
+//        if (booking == null) return new Result(CodeMsg.NO_FOUND);
+//        Capsule capsule = capsuleService.getCapsuleById(booking.getCapsule_id());
+//        if (capsule == null) return new Result(-1, "未查到头等舱信息");
+//        if (booking.getStatus() != 1) return new Result(-1, "只能对进行中的订单进行修改");
+//        if (status == null || status != 2) return new Result(-1, "只能更改为待支付");
+//        if (final_price != null && final_price <= 0) return new Result(-1, "订单金额必须大于0");
+//        if (!deviceService.isLocked(capsule.getDevice_id())) return new Result(-1, "门锁没有关闭");
+//        deviceService.relieveBooking(capsule.getDevice_id());
+//        capsule.setStatus(CapsuleStatusOption.free.value);
+//        capsuleDao.updateItem(new PrimaryKey("capsule_id", capsule.getCapsule_id()), capsule, new String[]{"status"});
+//        booking.setEnd_time(System.currentTimeMillis() / 1000);
+//        booking.setStatus(status);
+//        booking.setFinal_price(final_price);
+//        bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+//                "status",
+//                "final_price",
+//                "end_time"
+//        });
+//        return new Result(CodeMsg.SUCCESS);
+//    }
+
+
     @PostMapping("/api/booking/{booking_id:\\d+}/update/op")
     @ResponseBody
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
-        if (booking.getStatus() == 4) return new Result(-1, "不能更改已支付的订单");
-        if (status == null) return new Result(-1, "订单状态不能为空");
-        if(status==1){
-            return new Result(-1, "不能将订单状态改为进行中");
+        if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
+
+        if (status == null || status != 2) return new Result(-1, "只能更改为待支付");
+        if (final_price == null || final_price <= 0) return new Result(-1, "订单金额必须大于0");
+
+        if (booking.getStatus() == 1) {
+            Capsule capsule = capsuleService.getCapsuleById(booking.getCapsule_id());
+            if (capsule == null) return new Result(-1, "未查到头等舱信息");
+            if (!deviceService.isLocked(capsule.getDevice_id())) return new Result(-1, "门锁没有关闭");
+            deviceService.relieveBooking(capsule.getDevice_id());
+            capsule.setStatus(CapsuleStatusOption.free.value);
+            capsuleDao.updateItem(new PrimaryKey("capsule_id", capsule.getCapsule_id()), capsule, new String[]{"status"});
+
+            booking.setEnd_time(System.currentTimeMillis() / 1000);
+            booking.setStatus(status);
+            booking.setFinal_price(final_price);
+            bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+                    "status",
+                    "final_price",
+                    "end_time"
+            });
+        } else {
+            booking.setFinal_price(final_price);
+            bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+                    "final_price",
+            });
         }
-        if (final_price != null && final_price <= 0) return new Result(-1, "订单金额必须大于0");
-        booking.setStatus(status);
-        booking.setFinal_price(final_price);
-        if ((booking.getStatus() == 2 || booking.getStatus() == 3) && (booking.getFinal_price() == null || booking.getFinal_price() <= 0)) {
-            return new Result(-1, "待支付的订单必须填写订单金额");
-        }
-        bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
-                "status",
-                "final_price",
-        });
         return new Result(CodeMsg.SUCCESS);
     }
 
