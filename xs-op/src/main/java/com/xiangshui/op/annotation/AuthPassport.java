@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 @Inherited
 @Target(ElementType.METHOD)
 public @interface AuthPassport {
-    String[] value();
+    String value();
+    public static final String VIEW_AREA_MANAGE = "VIEW_AREA_MANAGE";
 }

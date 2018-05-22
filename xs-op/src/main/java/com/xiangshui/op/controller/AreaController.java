@@ -34,16 +34,7 @@ public class AreaController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
-    @AuthPassport(value = {
-            "wenjia@xiangshuispace.com",
-            "xuwei@xiangshuispace.com",
-            "yongchao@xiangshuispace.com",
-            "guobin@xiangshuispace.com",
-            "jinying@xiangshuispace.com",
-            "Zhangqun@xiangshuispace.com",
-            "Sunyi@xiangshuispace.com",
-            "Zhuli@xiangshuispace.com",
-    })
+    @AuthPassport(value = "area_manage")
     @GetMapping("/area_manage")
     public String area_manage(HttpServletRequest request) {
         setClient(request);

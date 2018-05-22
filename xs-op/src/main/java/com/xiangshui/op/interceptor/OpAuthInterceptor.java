@@ -31,7 +31,7 @@ public class OpAuthInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         httpServletRequest.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));
-        httpServletRequest.setAttribute("debug", debug);
+        httpServletRequest.setAttribute("debug", !debug);
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -46,24 +46,22 @@ public class OpAuthInterceptor implements HandlerInterceptor {
                 }
             }
         }
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        AuthPassport authPassport = method.getAnnotation(AuthPassport.class);
-        if (authPassport != null) {
-            Op op = (Op) httpServletRequest.getAttribute("op_auth");
-            if (op == null) {
-                return false;
-            }
-            String[] values = authPassport.value();
-            if (values != null) {
-                for (String value : values) {
-                    if (value.equals(op.getUsername())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+//        HandlerMethod handlerMethod = (HandlerMethod) handler;
+//        Method method = handlerMethod.getMethod();
+//        AuthPassport authPassport = method.getAnnotation(AuthPassport.class);
+//        if (authPassport != null) {
+//            Op op = (Op) httpServletRequest.getAttribute("op_auth");
+//            if (op == null) {
+//                return false;
+//            }
+//            String value = authPassport.value();
+//            if (value != null) {
+//                if (value.equals(op.getUsername())) {
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
         return true;
     }
 
