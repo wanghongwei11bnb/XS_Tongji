@@ -75,6 +75,9 @@
             <mvc:exclude-mapping path="/vendor/**/*"/>
             <mvc:exclude-mapping path="/static/**/*"/>
             <mvc:exclude-mapping path="/build/**/*"/>
+            <mvc:exclude-mapping path="/login"/>
+            <mvc:exclude-mapping path="/api/login"/>
+            <mvc:exclude-mapping path="/api/logout"/>
             <bean class="com.xiangshui.op.interceptor.LoginInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
