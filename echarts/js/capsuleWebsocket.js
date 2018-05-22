@@ -18,7 +18,7 @@ if(hostname === 'dev.tj.xiangshuispace.com'){
     wsUrl = 'ws://tj.xiangshuispace.com/tj';
 }else{
     //ws://192.168.1.99:8080/tj
-    wsUrl = 'ws://dev.tj.xiangshuispace.com/tj';
+    wsUrl = 'ws://192.168.1.42:8080/tj';
 }
 
 var orderList = [];
@@ -278,6 +278,7 @@ function handlePushAppraiseMessage(message){
 
 //处理推送信息
 function doMessage(message){
+    console.log(message)
     switch (message.messageType){
         case "ListMessage":
             for(var key in message.messageList){
@@ -397,6 +398,4 @@ var heartCheck = {
 };
 
 createWebSocket(wsUrl);
-
-$('')
 
