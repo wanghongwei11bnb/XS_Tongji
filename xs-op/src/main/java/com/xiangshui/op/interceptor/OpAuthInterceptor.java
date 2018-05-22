@@ -46,22 +46,7 @@ public class OpAuthInterceptor implements HandlerInterceptor {
                 }
             }
         }
-//        HandlerMethod handlerMethod = (HandlerMethod) handler;
-//        Method method = handlerMethod.getMethod();
-//        AuthPassport authPassport = method.getAnnotation(AuthPassport.class);
-//        if (authPassport != null) {
-//            Op op = (Op) httpServletRequest.getAttribute("op_auth");
-//            if (op == null) {
-//                return false;
-//            }
-//            String value = authPassport.value();
-//            if (value != null) {
-//                if (value.equals(op.getUsername())) {
-//                    return true;
-//                }
-//            }
-//            return false;
-//        }
+
         return true;
     }
 

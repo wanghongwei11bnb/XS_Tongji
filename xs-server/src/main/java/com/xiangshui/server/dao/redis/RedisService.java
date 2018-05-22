@@ -2,6 +2,7 @@ package com.xiangshui.server.dao.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.CallBackForResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
@@ -168,8 +169,6 @@ public class RedisService implements InitializingBean {
             } else {
                 jedis.set(realKey, str);
             }
-            jedis.set(realKey, str);
-
             return true;
         } finally {
             if (jedis != null) {
@@ -189,8 +188,6 @@ public class RedisService implements InitializingBean {
             } else {
                 jedis.set(realKey, str);
             }
-            jedis.set(realKey, str);
-
             return true;
         } finally {
             if (jedis != null) {
@@ -241,7 +238,8 @@ public class RedisService implements InitializingBean {
             }
         }
     }
-    public Long incr(KeyPrefix keyPrefix) {
+
+    public Long incr(final KeyPrefix keyPrefix) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
@@ -267,11 +265,29 @@ public class RedisService implements InitializingBean {
         }
     }
 
+    public <R> R run(CallBackForResult<Jedis, R> callBack) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return callBack.run(jedis);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
 
     public void afterPropertiesSet() throws Exception {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
         this.del(CityKeyPrefix.list_active);
         this.del(CityKeyPrefix.list_all);
+    }
+
+    public static void main(String[] args) {
+        Jedis jedis = new Jedis("dev.xiangshuispace.com", 6380);
+        jedis.auth("xiangshui@123");
+        jedis.setex("test", 60 * 3, "123123");
     }
 }

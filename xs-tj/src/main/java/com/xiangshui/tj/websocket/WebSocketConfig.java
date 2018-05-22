@@ -25,7 +25,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
                         "http://localhost:8081", "http://localhost:8080",
                         "http://192.168.1.92:8081", "http://192.168.1.92:8080",
                         "http://*:*",
-                        "file://"
+                        "file://",
+                        "*"
                 );
     }
 }

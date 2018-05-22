@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.Area;
@@ -59,14 +60,14 @@ public class BookingController extends BaseController {
     @Autowired
     BookingService bookingService;
 
-
+    @AuthRequired("订单管理（全部）")
     @GetMapping("/booking_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
         return "booking_manage";
     }
 
-
+    @AuthRequired("订单管理（全部）")
     @GetMapping("/api/booking/search")
     @ResponseBody
     public Result search(Long booking_id, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end) throws Exception {
