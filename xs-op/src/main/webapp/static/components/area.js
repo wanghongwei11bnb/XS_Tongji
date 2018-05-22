@@ -371,13 +371,6 @@ class AreaGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'location', title: '经纬度', render: (value, row, index) => {
-                        return value ?
-                            <div>经度：{value.longitude}，纬度：{value.latitude}</div>
-                            : null;
-                    }
-                },
-                {
                     field: 'is_external', title: '是否对外开放', render: (value, row, index) => {
                         return value == 1 ? <span className="text-success">是</span> :
                             <span className="text-danger">否</span>;

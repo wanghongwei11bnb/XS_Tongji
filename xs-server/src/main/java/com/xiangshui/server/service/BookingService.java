@@ -9,6 +9,9 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.fragment.CapsuleType;
+import com.xiangshui.server.domain.fragment.RushHour;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -69,4 +72,45 @@ public class BookingService {
         }
         return bookingRelationList;
     }
+
+
+    public int checkPrice(int area_id, long create_time, long end_time) {
+        Area area = areaService.getAreaById(area_id);
+        if (area == null) {
+            throw new XiangShuiException("场地信息未查到");
+        }
+        List<RushHour> rushHourList = area.getRushHours();
+        List<CapsuleType> typeList = area.getTypes();
+
+        if (typeList == null || typeList.size() == 0) {
+            throw new XiangShuiException("场地信息未查到types");
+        }
+        CapsuleType type = null;
+        for (CapsuleType typeItem : typeList) {
+            if (typeItem.getType_id() == 1) {
+                type = typeItem;
+                break;
+            }
+        }
+        if (type == null) {
+            throw new XiangShuiException("场地信息未查到types");
+        }
+
+        Integer price = type.getPrice();
+        Integer rush_hour_price = type.getRush_hour_price();
+        Integer day_max_price = type.getDay_max_price();
+        if (price == null || price < 0) {
+            throw new XiangShuiException("场地价格信息有误");
+        }
+        if (day_max_price == null) {
+            day_max_price = Integer.MAX_VALUE;
+        }
+        if (rush_hour_price == null) {
+            rush_hour_price = price;
+        }
+
+        return 0;
+    }
+
+
 }
