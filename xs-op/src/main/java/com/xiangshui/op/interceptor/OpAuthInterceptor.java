@@ -31,7 +31,7 @@ public class OpAuthInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         httpServletRequest.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));
-        httpServletRequest.setAttribute("debug", !debug);
+        httpServletRequest.setAttribute("debug", debug);
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
