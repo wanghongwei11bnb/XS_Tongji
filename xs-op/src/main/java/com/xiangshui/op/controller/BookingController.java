@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.dao.*;
@@ -177,35 +178,45 @@ public class BookingController extends BaseController {
                 bookingList.forEach(new Consumer<Booking>() {
                     @Override
                     public void accept(Booking booking) {
-                        if (booking != null) {
-                            List<String> row = new ArrayList<>();
-                            row.add("" + booking.getBooking_id());
-                            row.add("" + (booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
-                                    DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
-                                    : null));
-                            row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
-                                    DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
-                                    : null));
-                            row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                            row.add("" + booking.getFinal_price());
-                            row.add("" + booking.getBooking_id());
-                            row.add("" + booking.getCapsule_id());
-                            row.add("" + booking.getArea_id());
-                            row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                    areaMap.get(booking.getArea_id()).getTitle()
-                                    : null));
-                            row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                    areaMap.get(booking.getArea_id()).getCity()
-                                    : null));
-                            row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                    areaMap.get(booking.getArea_id()).getAddress()
-                                    : null));
-                            row.add("" + booking.getUin());
-                            row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
-                                    userInfoMap.get(booking.getUin()).getPhone()
-                                    : null));
-                            data.add(row);
+                        if (booking == null) {
+                            return;
                         }
+                        Area area = areaMap.get(booking.getArea_id());
+                        if (area == null) {
+                            return;
+                        }
+                        if (area.getStatus() == AreaStatusOption.offline.value
+                                || area.getStatus() == AreaStatusOption.stay.value
+                                || area.getTitle().indexOf("待运营") > -1) {
+                            return;
+                        }
+                        List<String> row = new ArrayList<>();
+                        row.add("" + booking.getBooking_id());
+                        row.add("" + (booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
+                                DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
+                                : null));
+                        row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
+                                DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
+                                : null));
+                        row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
+                        row.add("" + booking.getFinal_price());
+                        row.add("" + booking.getBooking_id());
+                        row.add("" + booking.getCapsule_id());
+                        row.add("" + booking.getArea_id());
+                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                                areaMap.get(booking.getArea_id()).getTitle()
+                                : null));
+                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                                areaMap.get(booking.getArea_id()).getCity()
+                                : null));
+                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                                areaMap.get(booking.getArea_id()).getAddress()
+                                : null));
+                        row.add("" + booking.getUin());
+                        row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
+                                userInfoMap.get(booking.getUin()).getPhone()
+                                : null));
+                        data.add(row);
                     }
                 });
             }
