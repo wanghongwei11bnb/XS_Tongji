@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.CityDao;
 import com.xiangshui.server.dao.redis.CityKeyPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
@@ -28,6 +29,7 @@ public class CityController extends BaseController {
     @Autowired
     RedisService redisService;
 
+    @Menu(value = "城市管理", sort = 901)
     @GetMapping("/city_manage")
     public String city_manage(HttpServletRequest request) {
         setClient(request);

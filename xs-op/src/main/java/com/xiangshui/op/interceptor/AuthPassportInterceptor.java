@@ -1,8 +1,7 @@
 package com.xiangshui.op.interceptor;
 
-import com.xiangshui.op.annotation.AuthPassport;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.server.domain.mysql.Op;
-import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -27,14 +26,11 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         boolean authed = false;
-        AuthPassport authPassport = method.getAnnotation(AuthPassport.class);
-        if (authPassport != null) {
+        AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
+        if (authRequired != null) {
             Op op = (Op) httpServletRequest.getAttribute("op_auth");
             if (op != null) {
-//                if (op.getUsername().indexOf("wanghongwei@") > -1) {
-//                    authed = true;
-//                }
-                String value = authPassport.value();
+                String value = authRequired.value();
                 if (StringUtils.isNotBlank(value)) {
                     Op op1 = opMapper.selectByPrimaryKey(op.getUsername(), "auths");
                     if (op1 != null && StringUtils.isNotBlank(op1.getAuths())) {

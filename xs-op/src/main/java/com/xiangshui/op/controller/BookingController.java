@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
@@ -69,6 +70,7 @@ public class BookingController extends BaseController {
     @Autowired
     BookingService bookingService;
 
+    @Menu(value = "订单管理", sort = 901)
     @AuthRequired("订单管理（全部）")
     @GetMapping("/booking_manage")
     public String index(HttpServletRequest request) {

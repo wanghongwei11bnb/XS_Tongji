@@ -7,6 +7,7 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AuthPassport {
+public @interface Menu {
     String value();
+    int sort() default 0;
 }

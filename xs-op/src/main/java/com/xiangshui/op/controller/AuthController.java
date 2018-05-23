@@ -2,6 +2,7 @@ package com.xiangshui.op.controller;
 
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.LoginRequired;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
@@ -30,14 +31,13 @@ public class AuthController extends BaseController {
     @Autowired
     OpMapper opMapper;
 
-
+    @Menu(value = "OP权限管理", sort = 901)
     @AuthRequired("OP权限管理")
     @GetMapping("/auth_manage")
     public String auth_manage(HttpServletRequest request, HttpServletResponse response) {
         setClient(request);
         return "auth_manage";
     }
-
 
     @GetMapping("/api/allAuth")
     @ResponseBody

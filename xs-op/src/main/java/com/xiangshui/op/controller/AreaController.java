@@ -1,8 +1,8 @@
 package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
-import com.xiangshui.op.annotation.AuthPassport;
 import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
@@ -35,11 +35,14 @@ public class AreaController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
+    @Menu(value = "场地管理", sort = 901)
+    @AuthRequired("场地管理（全国）")
     @GetMapping("/area_manage")
     public String area_manage(HttpServletRequest request) {
         setClient(request);
         return "area_manage";
     }
+
     @GetMapping("/api/area/search")
     @ResponseBody
     public Result search(Area criteria, Long capsule_id) throws NoSuchFieldException, IllegalAccessException {

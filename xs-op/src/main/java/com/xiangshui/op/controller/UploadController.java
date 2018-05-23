@@ -1,6 +1,7 @@
 package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.service.AreaService;

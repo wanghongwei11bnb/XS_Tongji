@@ -162,39 +162,14 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</A>
                     </li> : null}
-                    {debug ? <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '城市列表', '/city_manage')}>城市列表</A>
-                    </li> : null}
-                    <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '用户管理', '/user_manage')}>用户管理</A>
-                    </li>
-                    <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</A>
-                    </li>
-                    {debug
-                    || (op_username && op_username.indexOf("zhangqun@") > -1)
-                        ? <li className="nav-item">
+                    {webMenuList.map((menu) => {
+                        return <li className="nav-item">
                             <A className="nav-link"
-                               onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
-                        </li> : null}
-                    <li className="nav-item hide">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '用户评论', '/appraise_manage')}>用户评论</A>
-                    </li>
-                    <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '故障报修', '/failure_manage')}>故障报修</A>
-                    </li>
-                    {debug ? <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '场地方用户管理', '/partner_manage')}>场地方用户管理</A>
-                    </li> : null}
+                               onClick={this.checkTab.bind(this, menu.title, menu.path)}>{menu.title}</A>
+                        </li>
+                    })}
                     <li className="nav-item float-right">
-                        <A className="nav-link"
-                           onClick={this.logout}>退出</A>
+                        <A className="nav-link" onClick={this.logout}>退出</A>
                     </li>
                     <li className="nav-item float-right px-2">
                         <FileUploadButton className="btn btn-sm btn-success">头等舱图片上传</FileUploadButton>

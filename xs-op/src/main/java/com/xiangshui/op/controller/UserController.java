@@ -2,6 +2,8 @@ package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.bean.PaginationResult;
 import com.xiangshui.server.bean.UserSearch;
 import com.xiangshui.server.dao.UserFaceDao;
@@ -43,6 +45,8 @@ public class UserController extends BaseController {
     @Autowired
     UserService userService;
 
+    @Menu(value = "用户管理", sort = 901)
+    @AuthRequired("用户管理")
     @GetMapping("/user_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
