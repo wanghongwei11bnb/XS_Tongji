@@ -67,7 +67,7 @@
             <mvc:exclude-mapping path="/static/*"/>
             <mvc:exclude-mapping path="/build/*"/>
             <mvc:exclude-mapping path="/error/*"/>
-            <bean class="com.xiangshui.op.interceptor.OpAuthInterceptor"></bean>
+            <bean class="com.xiangshui.op.interceptor.SetOpAuthInterceptor"></bean>
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/*"/>
@@ -76,6 +76,14 @@
             <mvc:exclude-mapping path="/build/*"/>
             <mvc:exclude-mapping path="/error/*"/>
             <bean class="com.xiangshui.op.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/*"/>
+            <mvc:exclude-mapping path="/vendor/*"/>
+            <mvc:exclude-mapping path="/static/*"/>
+            <mvc:exclude-mapping path="/build/*"/>
+            <mvc:exclude-mapping path="/error/*"/>
+            <bean class="com.xiangshui.op.interceptor.AuthPassportInterceptor"></bean>
         </mvc:interceptor>
     </mvc:interceptors>
 

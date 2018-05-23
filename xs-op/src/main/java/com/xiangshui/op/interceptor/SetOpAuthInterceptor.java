@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
-public class OpAuthInterceptor implements HandlerInterceptor {
+public class SetOpAuthInterceptor implements HandlerInterceptor {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +46,6 @@ public class OpAuthInterceptor implements HandlerInterceptor {
                 }
             }
         }
-
         return true;
     }
 

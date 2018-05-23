@@ -10,6 +10,6 @@ public class CityKeyPrefix extends KeyPrefix {
         super(prefix, expiry);
     }
 
-    public static final KeyPrefix list_all = new CityKeyPrefix("list_all", 60 * 10);
-    public static final KeyPrefix list_active = new CityKeyPrefix("list_active", 60 * 10);
+    public static final KeyPrefix list_all = new CityKeyPrefix("list_all", 60 * 5);
+    public static final KeyPrefix list_active = new CityKeyPrefix("list_active", 60 * 5);
 }

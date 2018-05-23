@@ -174,10 +174,12 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</A>
                     </li>
-                    {debug || (op_username && op_username.indexOf("zhangqun@") > -1) ? <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
-                    </li> : null}
+                    {debug
+                    || (op_username && op_username.indexOf("zhangqun@") > -1)
+                        ? <li className="nav-item">
+                            <A className="nav-link"
+                               onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
+                        </li> : null}
                     <li className="nav-item hide">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '用户评论', '/appraise_manage')}>用户评论</A>

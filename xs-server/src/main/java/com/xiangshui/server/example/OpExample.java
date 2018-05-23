@@ -693,6 +693,76 @@ public class OpExample {
             addCriterion("roles not between", value1, value2, "roles");
             return (Criteria) this;
         }
+
+        public Criteria andAuthsIsNull() {
+            addCriterion("auths is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsIsNotNull() {
+            addCriterion("auths is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsEqualTo(String value) {
+            addCriterion("auths =", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsNotEqualTo(String value) {
+            addCriterion("auths <>", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsGreaterThan(String value) {
+            addCriterion("auths >", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsGreaterThanOrEqualTo(String value) {
+            addCriterion("auths >=", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsLessThan(String value) {
+            addCriterion("auths <", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsLessThanOrEqualTo(String value) {
+            addCriterion("auths <=", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsLike(String value) {
+            addCriterion("auths like", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsNotLike(String value) {
+            addCriterion("auths not like", value, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsIn(List<String> values) {
+            addCriterion("auths in", values, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsNotIn(List<String> values) {
+            addCriterion("auths not in", values, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsBetween(String value1, String value2) {
+            addCriterion("auths between", value1, value2, "auths");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthsNotBetween(String value1, String value2) {
+            addCriterion("auths not between", value1, value2, "auths");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

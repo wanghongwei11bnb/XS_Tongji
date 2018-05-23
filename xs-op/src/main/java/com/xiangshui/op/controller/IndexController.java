@@ -40,22 +40,4 @@ public class IndexController extends BaseController {
         return "home";
     }
 
-    @GetMapping("/allAuth")
-    @ResponseBody
-    @LoginRequired
-    public Result getAllUrl(HttpServletRequest request) {
-        Set<String> authSet = new HashSet<String>();
-        WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-        RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
-        Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
-        for (RequestMappingInfo requestMappingInfo : handlerMethods.keySet()) {
-            HandlerMethod handlerMethod = handlerMethods.get(requestMappingInfo);
-            Method method = handlerMethod.getMethod();
-            AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
-            if (authRequired != null) {
-                authSet.add(authRequired.value());
-            }
-        }
-        return new Result(CodeMsg.SUCCESS).putData("authList", authSet.toArray(new String[authSet.size()]));
-    }
 }

@@ -17,6 +17,8 @@ public class Op {
 
     private String roles;
 
+    private String auths;
+
     public String getUsername() {
         return username;
     }
@@ -79,5 +81,13 @@ public class Op {
 
     public void setRoles(String roles) {
         this.roles = roles == null ? null : roles.trim();
+    }
+
+    public String getAuths() {
+        return auths;
+    }
+
+    public void setAuths(String auths) {
+        this.auths = auths == null ? null : auths.trim();
     }
 }

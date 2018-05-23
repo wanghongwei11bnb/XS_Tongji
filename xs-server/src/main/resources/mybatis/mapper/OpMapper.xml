@@ -10,6 +10,7 @@
     <result column="operate_remove" property="operateRemove" jdbcType="VARCHAR" />
     <result column="all_operates" property="allOperates" jdbcType="VARCHAR" />
     <result column="roles" property="roles" jdbcType="VARCHAR" />
+    <result column="auths" property="auths" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -75,7 +76,7 @@
     </if>
     <if test="fields == null" >
       username, password, realname, areas, operate_extend, operate_remove, all_operates, 
-      roles
+      roles, auths
     </if>
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.xiangshui.server.example.OpExample" >
@@ -113,10 +114,12 @@
   <insert id="insert" parameterType="com.xiangshui.server.domain.mysql.Op" >
     insert into op (username, password, realname, 
       areas, operate_extend, operate_remove, 
-      all_operates, roles)
+      all_operates, roles, auths
+      )
     values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{realname,jdbcType=VARCHAR}, 
       #{areas,jdbcType=VARCHAR}, #{operateExtend,jdbcType=VARCHAR}, #{operateRemove,jdbcType=VARCHAR}, 
-      #{allOperates,jdbcType=VARCHAR}, #{roles,jdbcType=VARCHAR})
+      #{allOperates,jdbcType=VARCHAR}, #{roles,jdbcType=VARCHAR}, #{auths,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.xiangshui.server.domain.mysql.Op" >
     insert into op
@@ -145,6 +148,9 @@
       <if test="roles != null" >
         roles,
       </if>
+      <if test="auths != null" >
+        auths,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="username != null" >
@@ -170,6 +176,9 @@
       </if>
       <if test="roles != null" >
         #{roles,jdbcType=VARCHAR},
+      </if>
+      <if test="auths != null" >
+        #{auths,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -206,6 +215,9 @@
       <if test="record.roles != null" >
         roles = #{record.roles,jdbcType=VARCHAR},
       </if>
+      <if test="record.auths != null" >
+        auths = #{record.auths,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -220,7 +232,8 @@
       operate_extend = #{record.operateExtend,jdbcType=VARCHAR},
       operate_remove = #{record.operateRemove,jdbcType=VARCHAR},
       all_operates = #{record.allOperates,jdbcType=VARCHAR},
-      roles = #{record.roles,jdbcType=VARCHAR}
+      roles = #{record.roles,jdbcType=VARCHAR},
+      auths = #{record.auths,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -249,6 +262,9 @@
       <if test="roles != null" >
         roles = #{roles,jdbcType=VARCHAR},
       </if>
+      <if test="auths != null" >
+        auths = #{auths,jdbcType=VARCHAR},
+      </if>
     </set>
     where username = #{username,jdbcType=VARCHAR}
   </update>
@@ -260,7 +276,8 @@
       operate_extend = #{operateExtend,jdbcType=VARCHAR},
       operate_remove = #{operateRemove,jdbcType=VARCHAR},
       all_operates = #{allOperates,jdbcType=VARCHAR},
-      roles = #{roles,jdbcType=VARCHAR}
+      roles = #{roles,jdbcType=VARCHAR},
+      auths = #{auths,jdbcType=VARCHAR}
     where username = #{username,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -2,6 +2,12 @@ package com.xiangshui.op.interceptor;
 
 import com.xiangshui.op.annotation.AuthPassport;
 import com.xiangshui.server.domain.mysql.Op;
+import com.xiangshui.server.example.OpExample;
+import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.util.web.result.CodeMsg;
+import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -11,25 +17,52 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 public class AuthPassportInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    OpMapper opMapper;
+
+
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
+        boolean authed = false;
         AuthPassport authPassport = method.getAnnotation(AuthPassport.class);
         if (authPassport != null) {
             Op op = (Op) httpServletRequest.getAttribute("op_auth");
-            if (op == null) {
-                return false;
-            }
-            String value = authPassport.value();
-            if (value != null) {
-                if (value.equals(op.getUsername())) {
-                    return true;
+            if (op != null) {
+//                if (op.getUsername().indexOf("wanghongwei@") > -1) {
+//                    authed = true;
+//                }
+                String value = authPassport.value();
+                if (StringUtils.isNotBlank(value)) {
+                    Op op1 = opMapper.selectByPrimaryKey(op.getUsername(), "auths");
+                    if (op1 != null && StringUtils.isNotBlank(op1.getAuths())) {
+                        String[] authArr = op1.getAuths().split(",");
+                        if (authArr != null && authArr.length > 0) {
+                            for (String auth : authArr) {
+                                if (value.equals(auth)) {
+                                    authed = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            return false;
         } else {
+            authed = true;
+        }
+        if (authed) {
             return true;
+        } else {
+            if (httpServletRequest.getRequestURI().startsWith("/api")) {
+                httpServletResponse.getWriter().write(new Result(CodeMsg.AUTH_FAIL).toString());
+                httpServletResponse.getWriter().flush();
+                httpServletResponse.getWriter().close();
+            } else {
+                httpServletRequest.getRequestDispatcher("/error/no_auth").forward(httpServletRequest, httpServletResponse);
+            }
+            return false;
         }
     }
 
