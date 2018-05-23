@@ -200,7 +200,6 @@ public class BookingController extends BaseController {
                                 : null));
                         row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
                         row.add("" + booking.getFinal_price());
-                        row.add("" + booking.getBooking_id());
                         row.add("" + booking.getCapsule_id());
                         row.add("" + booking.getArea_id());
                         row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
