@@ -25,13 +25,23 @@ public class LoginInterceptor implements HandlerInterceptor {
     RedisService redisService;
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+        if (httpServletRequest.getRequestURI().startsWith("/login")
+                || httpServletRequest.getRequestURI().startsWith("/api/login")
+                || httpServletRequest.getRequestURI().startsWith("/api/logout")
+                ) {
+            return true;
+        }
         Op op = (Op) httpServletRequest.getAttribute("op_auth");
         if (op == null) {
             if (httpServletRequest.getRequestURI().startsWith("/api/")) {
                 httpServletResponse.getWriter().write(JSON.toJSONString(new Result(CodeMsg.NO_LOGIN)));
+                httpServletResponse.getWriter().flush();
+                httpServletResponse.getWriter().close();
             } else {
                 httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
             }
+        } else {
+            httpServletRequest.setAttribute("op_username", op.getUsername());
         }
         return true;
     }

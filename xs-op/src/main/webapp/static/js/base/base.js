@@ -296,3 +296,9 @@ class UserInfoMapOptions extends MapOptions {
         return option ? option.uin || null : null;
     }
 }
+
+function queryString(json) {
+    return Object.keys(json).map(function (key) {
+        return `${encodeURIComponent(key)}=${encodeURIComponent(json[key])}`;
+    }).join("&");
+}

@@ -156,6 +156,18 @@ class Page extends React.Component {
         };
         this.load();
     };
+    download = () => {
+        let queryParams = {
+            status: this.refs.status.value,
+            booking_id: this.refs.booking_id.value,
+            area_id: this.refs.area_id.value,
+            capsule_id: this.refs.capsule_id.value,
+            create_date_start: this.refs.create_date_start.value,
+            create_date_end: this.refs.create_date_end.value,
+            download: true,
+        };
+        window.open(`/api/booking/search?${queryString(queryParams)}`)
+    };
     load = () => {
         request({
             url: '/api/booking/search', loading: true,
@@ -203,9 +215,8 @@ class Page extends React.Component {
 
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                <button type="button" className="btn btn-sm btn-success ml-1 float-right hide"
-                        onClick={this.newArea}>添加场地
-                </button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
+
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <Table columns={columns} data={data}></Table>

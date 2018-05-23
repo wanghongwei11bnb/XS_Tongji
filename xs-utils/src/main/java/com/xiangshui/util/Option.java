@@ -18,6 +18,15 @@ public class Option<T> {
     }
 
 
+    public static String getActiveText(List<? extends Option> optionList, Object value) {
+        for (Option option : optionList) {
+            if (option.value.equals(value)) {
+                return option.text;
+            }
+        }
+        return null;
+    }
+
     public static List<Option> getOptions(Class<? extends Option> optionClass) {
         List<Option> optionList = new ArrayList<Option>();
         if (optionClass != null) {

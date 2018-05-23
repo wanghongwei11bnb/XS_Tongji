@@ -66,7 +66,7 @@ public class FailureReportController extends BaseController {
         if (download == null) {
             download = false;
         }
-        List<FailureReport> failureReportList = failureReportService.search(criteria, start_date, end_date, download ? 5000 : null);
+        List<FailureReport> failureReportList = failureReportService.search(criteria, start_date, end_date, download ? 10000 : null);
         List<Area> areaList = null;
         if (failureReportList != null && failureReportList.size() > 0) {
             failureReportList.sort(new Comparator<FailureReport>() {

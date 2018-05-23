@@ -174,7 +174,7 @@ class Page extends React.Component {
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '场地管理', '/area_manage')}>场地管理</A>
                     </li>
-                    {debug ? <li className="nav-item">
+                    {debug || (op_username && op_username.indexOf("zhangqun@") > -1) ? <li className="nav-item">
                         <A className="nav-link"
                            onClick={this.checkTab.bind(this, '订单管理', '/booking_manage')}>订单管理</A>
                     </li> : null}

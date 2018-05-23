@@ -62,25 +62,20 @@
     <!--拦截器-->
     <mvc:interceptors>
         <mvc:interceptor>
-            <mvc:mapping path="/"/>
-            <mvc:mapping path="/**/*"/>
-            <mvc:exclude-mapping path="/vendor/**/*"/>
-            <mvc:exclude-mapping path="/static/**/*"/>
-            <mvc:exclude-mapping path="/build/**/*"/>
-            <mvc:exclude-mapping path="/error/**/*"/>
-            <bean class="com.xiangshui.op.interceptor.OpAuthInterceptor"/>
+            <mvc:mapping path="/*"/>
+            <mvc:exclude-mapping path="/vendor/*"/>
+            <mvc:exclude-mapping path="/static/*"/>
+            <mvc:exclude-mapping path="/build/*"/>
+            <mvc:exclude-mapping path="/error/*"/>
+            <bean class="com.xiangshui.op.interceptor.OpAuthInterceptor"></bean>
         </mvc:interceptor>
         <mvc:interceptor>
-            <mvc:mapping path="/"/>
-            <mvc:mapping path="/**/*"/>
-            <mvc:exclude-mapping path="/vendor/**/*"/>
-            <mvc:exclude-mapping path="/static/**/*"/>
-            <mvc:exclude-mapping path="/build/**/*"/>
-            <mvc:exclude-mapping path="/error/**/*"/>
-            <mvc:exclude-mapping path="/login"/>
-            <mvc:exclude-mapping path="/api/login"/>
-            <mvc:exclude-mapping path="/api/logout"/>
-            <bean class="com.xiangshui.op.interceptor.LoginInterceptor"/>
+            <mvc:mapping path="/*"/>
+            <mvc:exclude-mapping path="/vendor/*"/>
+            <mvc:exclude-mapping path="/static/*"/>
+            <mvc:exclude-mapping path="/build/*"/>
+            <mvc:exclude-mapping path="/error/*"/>
+            <bean class="com.xiangshui.op.interceptor.LoginInterceptor"></bean>
         </mvc:interceptor>
     </mvc:interceptors>
 
