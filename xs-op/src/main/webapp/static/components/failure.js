@@ -19,7 +19,7 @@ class FailureModal extends Modal {
             return Message.msg('请输入头等舱编号');
         }
         request({
-            url: `/api/capsule/${this.refs.capsule_id.value}`,
+            url: `/api/capsule/${this.refs.capsule_id.value}`, loading: true,
             success: (resp) => {
                 if (resp.data.capsule) {
                     let capsule = resp.data.capsule;
