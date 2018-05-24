@@ -94,7 +94,7 @@ class OpGrid extends React.Component {
                 },
                 {
                     field: 'username',
-                    title: <button className="btn btn-sm btn-success" onClick={this.createOp}>创建用户</button>,
+                    // title: <button className="btn btn-sm btn-success" onClick={this.createOp}>创建用户</button>,
                     render: (value) => {
                         return [
                             <button className="btn btn-sm btn-primary m-1"
