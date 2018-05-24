@@ -120,3 +120,55 @@ class IntInput extends React.Component {
 }
 
 
+class PriceInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: null,
+        };
+    }
+
+    setValue = (value) => {
+        if (type(value) == 'Number') {
+            this.refs.input.value = Math.floor(value) / 100;
+        } else if (type(value) == 'String') {
+            this.setValue(value - 0);
+        } else {
+            this.refs.input.value = 0;
+        }
+    };
+
+    getValue = () => {
+        let value = this.refs.input.value;
+        if (type(value) == 'Number') {
+            return Math.floor(value * 100);
+        } else if (type(value) == 'String' && type(value - 0) == 'Number') {
+            return Math.floor((value - 0) * 100);
+        } else {
+            return 0;
+        }
+    };
+
+    onChange = (e) => {
+        let value = e.target.value;
+        if (/^\d*\.?\d*$/.test(value)) {
+            this.setState({value});
+        } else {
+            this.setState({});
+        }
+    };
+
+    render() {
+        const {value} = this.state;
+        return <input ref="input" type="text"
+                      className={this.props.className}
+                      placeholder={this.props.placeholder}
+                      onChange={this.onChange}
+                      value={value}/>
+    }
+
+    componentDidUpdate() {
+        this.value = this.getValue();
+    }
+}
+

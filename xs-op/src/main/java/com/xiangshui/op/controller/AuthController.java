@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.LoginRequired;
 import com.xiangshui.op.annotation.Menu;
@@ -30,32 +31,43 @@ public class AuthController extends BaseController {
 
     @Autowired
     OpMapper opMapper;
+    Set<String> authSet;
 
-    @Menu(value = "OP权限管理", sort = 901)
+
+    public Set<String> getAuthSet(HttpServletRequest request) {
+        if (this.authSet == null) {
+            this.authSet = new HashSet<String>();
+            WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+            RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
+            Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
+            for (RequestMappingInfo requestMappingInfo : handlerMethods.keySet()) {
+                HandlerMethod handlerMethod = handlerMethods.get(requestMappingInfo);
+                Method method = handlerMethod.getMethod();
+                AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
+                if (authRequired != null) {
+                    authSet.add(authRequired.value());
+                }
+            }
+        }
+        return this.authSet;
+    }
+
+    @Menu(value = "OP权限管理")
     @AuthRequired("OP权限管理")
     @GetMapping("/auth_manage")
     public String auth_manage(HttpServletRequest request, HttpServletResponse response) {
         setClient(request);
+        request.setAttribute("authList", JSON.toJSONString(getAuthSet(request)));
         return "auth_manage";
     }
 
     @GetMapping("/api/allAuth")
     @ResponseBody
     public Result getAllUrl(HttpServletRequest request) {
-        Set<String> authSet = new HashSet<String>();
-        WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-        RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
-        Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
-        for (RequestMappingInfo requestMappingInfo : handlerMethods.keySet()) {
-            HandlerMethod handlerMethod = handlerMethods.get(requestMappingInfo);
-            Method method = handlerMethod.getMethod();
-            AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
-            if (authRequired != null) {
-                authSet.add(authRequired.value());
-            }
-        }
+        Set<String> authSet = getAuthSet(request);
         return new Result(CodeMsg.SUCCESS).putData("authList", authSet.toArray(new String[authSet.size()]));
     }
+
 
     @AuthRequired("OP权限管理")
     @GetMapping("/api/op/list")
@@ -67,9 +79,9 @@ public class AuthController extends BaseController {
     }
 
 
-    @GetMapping("/api/op/{username}")
+    @GetMapping("/api/op/get")
     @ResponseBody
-    public Result getOp(@PathVariable("username") String username) {
+    public Result getOp(String username) {
         Op op = opMapper.selectByPrimaryKey(username, null);
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);
@@ -78,9 +90,9 @@ public class AuthController extends BaseController {
     }
 
     @AuthRequired("OP权限管理")
-    @PostMapping("/api/op/{username}/update/auths")
+    @PostMapping("/api/op/update/auths")
     @ResponseBody
-    public Result getOp(@PathVariable("username") String username, String auths) {
+    public Result getOp(String username, String auths) {
         Op op = opMapper.selectByPrimaryKey(username, "username");
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);

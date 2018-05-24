@@ -70,8 +70,8 @@ public class BookingController extends BaseController {
     @Autowired
     BookingService bookingService;
 
-    @Menu(value = "订单管理", sort = 901)
-    @AuthRequired("订单管理（全部）")
+    @Menu(value = "订单管理")
+    @AuthRequired("订单管理（全国）")
     @GetMapping("/booking_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
@@ -174,6 +174,7 @@ public class BookingController extends BaseController {
             headRow.add("地址");
             headRow.add("用户UIN");
             headRow.add("用户手机号");
+            headRow.add("订单来源");
             data.add(headRow);
             if (bookingList != null && bookingList.size() > 0) {
                 bookingList.forEach(new Consumer<Booking>() {
@@ -186,8 +187,8 @@ public class BookingController extends BaseController {
                         if (area == null) {
                             return;
                         }
-                        if (area.getStatus() == AreaStatusOption.offline.value
-                                || area.getStatus() == AreaStatusOption.stay.value
+                        if (area.getStatus().equals(AreaStatusOption.offline.value)
+                                || area.getStatus().equals(AreaStatusOption.stay.value)
                                 || area.getTitle().indexOf("待运营") > -1) {
                             return;
                         }
@@ -216,6 +217,7 @@ public class BookingController extends BaseController {
                         row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
                                 userInfoMap.get(booking.getUin()).getPhone()
                                 : null));
+                        row.add(booking.getReq_from());
                         data.add(row);
                     }
                 });

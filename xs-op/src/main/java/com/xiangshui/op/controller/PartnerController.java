@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.bean.Pagination;
 import com.xiangshui.server.dao.AreaDao;
@@ -42,7 +43,8 @@ public class PartnerController extends BaseController {
     CapsuleDao capsuleDao;
 
 
-    @Menu(value = "场地方账号管理", sort = 901)
+    @Menu(value = "场地方账号管理")
+    @AuthRequired("场地方账号管理")
     @GetMapping("/partner_manage")
     public String index(HttpServletRequest request) {
         setClient(request);

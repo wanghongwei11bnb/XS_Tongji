@@ -35,7 +35,7 @@ public class AreaController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
-    @Menu(value = "场地管理", sort = 901)
+    @Menu(value = "场地管理")
     @AuthRequired("场地管理（全国）")
     @GetMapping("/area_manage")
     public String area_manage(HttpServletRequest request) {
@@ -66,7 +66,6 @@ public class AreaController extends BaseController {
             });
         }
         return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
-
     }
 
 

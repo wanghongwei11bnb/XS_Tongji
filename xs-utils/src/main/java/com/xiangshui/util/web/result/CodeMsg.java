@@ -16,6 +16,7 @@ public class CodeMsg {
     public static final CodeMsg NO_LOGIN = new CodeMsg(401, "未登录");
     public static final CodeMsg NO_FOUND = new CodeMsg(404, "资源未找到");
     public static final CodeMsg AUTH_FAIL = new CodeMsg(405, "用户明或密码失败");
+    public static final CodeMsg OPAUTH_FAIL = new CodeMsg(406, "没有权限");
 
     public static final CodeMsg SERVER_ERROR = new CodeMsg(500, "未知错误");
     public static final CodeMsg TIMEOUT = new CodeMsg(501, "连接超时");

@@ -52,7 +52,8 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
             return true;
         } else {
             if (httpServletRequest.getRequestURI().startsWith("/api")) {
-                httpServletResponse.getWriter().write(new Result(CodeMsg.AUTH_FAIL).toString());
+                httpServletResponse.setHeader("Content-Type", "application/json;charset=UTF-8");
+                httpServletResponse.getWriter().write(new Result(CodeMsg.OPAUTH_FAIL).toString());
                 httpServletResponse.getWriter().flush();
                 httpServletResponse.getWriter().close();
             } else {

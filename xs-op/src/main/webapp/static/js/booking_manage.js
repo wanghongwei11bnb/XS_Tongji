@@ -99,7 +99,7 @@ class Page extends React.Component {
                         }
                     }
                 },
-                {field: 'final_price', title: '订单总金额', render: value => value ? value / 100 : value},
+                {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
                 {field: 'capsule_id', title: '头等舱编号'},
                 {field: 'area_id', title: '场地编号'},
                 {
@@ -123,11 +123,12 @@ class Page extends React.Component {
                         return value && this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null;
                     }
                 },
+                {field: 'req_from', title: '订单来源'},
                 {
                     render: (value, row, index) => {
                         return [
-                            debug ? <button type="button" className="btn btn-primary btn-sm m-1"
-                                            onClick={this.update.bind(this, row.booking_id)}>更改订单信息</button> : null,
+                            <button type="button" className="btn btn-primary btn-sm m-1"
+                                    onClick={this.update.bind(this, row.booking_id)}>更改订单信息</button>,
                             <button type="button" className="btn btn-success btn-sm m-1"
                                     onClick={this.makeFailureByBooking.bind(this, row.booking_id)}>创建报修</button>,
                         ]

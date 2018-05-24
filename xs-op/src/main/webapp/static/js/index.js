@@ -154,14 +154,6 @@ class Page extends React.Component {
                 <A className="d-block text-center" onClick={this.toggleMenu}>{showMenu ? '<<' : '>>'}</A>
                 {showMenu ? null : <A className="d-block text-center" onClick={this.logout}>退出</A>}
                 <ul className={`nav flex-column ${showMenu ? '' : 'hide'}`}>
-                    {debug ? <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '时时监控平台', 'http://tj.xiangshuispace.com/index.html')}>时时监控平台</A>
-                    </li> : null}
-                    {debug ? <li className="nav-item">
-                        <A className="nav-link"
-                           onClick={this.checkTab.bind(this, '数据汇总', 'http://tj.xiangshuispace.com/tj/home')}>数据汇总</A>
-                    </li> : null}
                     {webMenuList.map((menu) => {
                         return <li className="nav-item">
                             <A className="nav-link"
@@ -174,7 +166,11 @@ class Page extends React.Component {
                     <li className="nav-item float-right px-2">
                         <FileUploadButton className="btn btn-sm btn-success">头等舱图片上传</FileUploadButton>
                     </li>
+
                 </ul>
+                {showMenu ? <span
+                    className="position-absolute bottom-0 left-0 w-100 text-secondary"
+                    style={{wordBreak: 'break-word'}}>{op_username}</span> : null}
             </div>
             <div className="position-absolute top-0 bottom-0 right-0" style={{left: showMenu ? menuWidth : '50px'}}>
                 <Tabs ref="tabs"></Tabs>

@@ -387,9 +387,11 @@ public class AreaService {
 
         for (CapsuleType capsuleType : criteria.getTypes()) {
 
-            if (capsuleType.getType_id() == null || capsuleType.getType_id() < 1) {
-                throw new XiangShuiException("类型ID不能小于1");
-            }
+//            if (capsuleType.getType_id() == null || capsuleType.getType_id() < 1) {
+//                throw new XiangShuiException("类型ID不能小于1");
+//            }
+
+            capsuleType.setType_id(1);
 
             if (capsuleType.getPrice() == null || capsuleType.getPrice() <= 0) {
                 throw new XiangShuiException("价格必须大于0");

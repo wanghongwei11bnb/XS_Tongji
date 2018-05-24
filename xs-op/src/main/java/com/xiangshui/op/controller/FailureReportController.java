@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
@@ -53,7 +54,8 @@ public class FailureReportController extends BaseController {
     @Autowired
     AreaService areaService;
 
-    @Menu(value = "故障报修", sort = 901)
+    @Menu(value = "故障报修")
+    @AuthRequired("故障报修")
     @GetMapping("/failure_manage")
     public String index(HttpServletRequest request) {
         setClient(request);

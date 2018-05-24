@@ -11,4 +11,6 @@ public class OpPrefix extends KeyPrefix {
     }
 
     public static final KeyPrefix op_token = new OpPrefix("op_token", 60 * 60 * 24);
+    public static final KeyPrefix cache = new OpPrefix("cache", 60 * 5);
+    public static final KeyPrefix session = new OpPrefix("session", 60 * 60 * 24);
 }

@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.CityDao;
 import com.xiangshui.server.dao.redis.CityKeyPrefix;
@@ -29,7 +30,8 @@ public class CityController extends BaseController {
     @Autowired
     RedisService redisService;
 
-    @Menu(value = "城市管理", sort = 901)
+    @Menu(value = "城市列表管理")
+    @AuthRequired("城市列表管理")
     @GetMapping("/city_manage")
     public String city_manage(HttpServletRequest request) {
         setClient(request);
@@ -60,7 +62,6 @@ public class CityController extends BaseController {
         if (city.getCode() < 1000 || city.getCode() > 4200) {
             return new Result(-1, "城市编号必须在1000到4200之间");
         }
-
         if (StringUtils.isBlank(city.getCity())) {
             return new Result(-1, "请输入城市名称");
         }

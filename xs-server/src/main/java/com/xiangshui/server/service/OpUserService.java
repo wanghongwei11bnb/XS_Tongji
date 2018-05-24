@@ -1,5 +1,7 @@
 package com.xiangshui.server.service;
 
+import com.xiangshui.server.dao.redis.OpPrefix;
+import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
@@ -15,6 +17,8 @@ public class OpUserService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     OpMapper opMapper;
+    @Autowired
+    RedisService redisService;
 
     public static final String password_pre = "11bnb_opsc";
 
@@ -35,7 +39,18 @@ public class OpUserService {
     }
 
     public Op getOpByUsername(String username, String fields) {
-        return opMapper.selectByPrimaryKey(username, fields);
+        Op op = redisService.get(OpPrefix.cache, username, Op.class);
+        if (op == null) {
+            op = opMapper.selectByPrimaryKey(username, fields);
+            if (op != null) {
+                redisService.set(OpPrefix.cache, op.getUsername(), op);
+            }
+        }
+        return op;
+    }
+
+    public void cleanCache(String username) {
+        redisService.del(OpPrefix.cache, username);
     }
 
     public boolean authArea(Op op, int area_id) {

@@ -9,14 +9,12 @@ class CapsuleTypeModal extends Modal {
 
     onSubmit = () => {
         const {onSuccess} = this.state;
-        if (!this.refs.type_id.value) return Message.msg('类型id 不能为空');
         if (!this.refs.price.value) return Message.msg('价格 不能为空');
         if (!this.refs.day_max_price.value) return Message.msg('每日最高费用 不能为空');
         if (!this.refs.price_rule_text.value) return Message.msg('价格文案 不能为空');
         if (!this.refs.typeTitle.value) return Message.msg('标题 不能为空');
         if (!this.refs.typeDesc.value) return Message.msg('描述 不能为空');
         let data = {
-            type_id: this.refs.type_id.value,
             size: this.refs.size.value,
             day_max_price: this.refs.day_max_price.value,
             price: this.refs.price.value,
@@ -30,7 +28,7 @@ class CapsuleTypeModal extends Modal {
         this.close();
     };
     renderHeader = () => {
-        return '头等舱类型信息';
+        return <div>头等舱类型信息<span className="text-danger">（金额单位：元）</span></div>;
     };
     renderFooter = () => {
         return <span className="float-right">
@@ -43,27 +41,21 @@ class CapsuleTypeModal extends Modal {
             <table className="table table-bordered">
                 <tbody>
                 <tr>
-                    <th>类型id</th>
-                    <td>
-                        <input ref="type_id" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
                     <th>价格</th>
                     <td>
-                        <input ref="price" type="text" className="form-control"/>
+                        <PriceInput ref="price" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>高峰期价格</th>
                     <td>
-                        <input ref="rush_hour_price" type="text" className="form-control"/>
+                        <PriceInput ref="rush_hour_price" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
                     <th>每日最高费用</th>
                     <td>
-                        <input ref="day_max_price" type="text" className="form-control"/>
+                        <PriceInput ref="day_max_price" type="text" className="form-control"/>
                     </td>
                 </tr>
                 <tr>
@@ -99,11 +91,10 @@ class CapsuleTypeModal extends Modal {
         super.componentDidMount();
         const {capsuleType} = this.state;
         if (capsuleType) {
-            this.refs.type_id.value = capsuleType.type_id;
             this.refs.size.value = capsuleType.size;
-            this.refs.day_max_price.value = capsuleType.day_max_price;
-            this.refs.price.value = capsuleType.price;
-            this.refs.rush_hour_price.value = capsuleType.rush_hour_price;
+            this.refs.day_max_price.setValue(capsuleType.day_max_price);
+            this.refs.price.setValue(capsuleType.price);
+            this.refs.rush_hour_price.setValue(capsuleType.rush_hour_price);
             this.refs.price_rule_text.value = capsuleType.price_rule_text;
             this.refs.typeDesc.value = capsuleType.typeDesc;
             this.refs.typeTitle.value = capsuleType.typeTitle;
@@ -117,11 +108,22 @@ class CapsuleTypeGridModal extends Modal {
         super(props);
         this.state = {
             columns: [
-                {field: 'type_id', title: '类型id'},
                 {field: 'size', title: '面积'},
-                {field: 'day_max_price', title: '每日最高费用'},
-                {field: 'price', title: '价格'},
-                {field: 'rush_hour_price', title: '高峰期价格'},
+                {
+                    field: 'day_max_price', title: '每日最高费用', render: value => {
+                        return type(value) == 'Number' ? value / 100 : null;
+                    }
+                },
+                {
+                    field: 'price', title: '价格', render: value => {
+                        return type(value) == 'Number' ? value / 100 : null;
+                    }
+                },
+                {
+                    field: 'rush_hour_price', title: '高峰期价格', render: value => {
+                        return type(value) == 'Number' ? value / 100 : null;
+                    }
+                },
                 {field: 'price_rule_text', title: '价格文案'},
                 {field: 'typeDesc', title: '描述'},
                 {field: 'typeTitle', title: '标题'},
@@ -142,7 +144,6 @@ class CapsuleTypeGridModal extends Modal {
             types: props.types,
         };
     }
-
 
     setData = (types) => {
         this.refs.grid.state.data = types;
@@ -191,7 +192,7 @@ class CapsuleTypeGridModal extends Modal {
     };
 
     renderHeader = () => {
-        return '头等舱类型信息';
+        return <div>头等舱类型信息<span className="text-danger">（金额单位：元）</span></div>;
     };
     renderFooter = () => {
         return <span className="float-right">
