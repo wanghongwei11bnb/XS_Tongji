@@ -186,10 +186,10 @@ body,html{
 }
 .tipAnimate{
     width: 100%;
-    animation: bgChange 300ms 15;
-    -moz-animation: bgChange 300ms 15;
-    -o-animation: bgChange 300ms 15;
-    -webkit-animation: bgChange 300ms 15;
+    animation: bgChange 300ms infinite;
+    -moz-animation: bgChange 300ms infinite;
+    -o-animation: bgChange 300ms infinite;
+    -webkit-animation: bgChange 300ms infinite;
     border-radius: 4px;
     padding: 3px;
     box-sizing: border-box;
