@@ -65,7 +65,7 @@ class Page extends React.Component {
                         if (value == -1) {
                             return <span className="text-danger">未解决</span>
                         } else if (value == 1) {
-                            return <span className="text-success">处理中</span>
+                            return <span className="text-warning">处理中</span>
                         } else if (value == 2) {
                             return <span className="text-success">已解决</span>
                         } else {
