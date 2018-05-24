@@ -5,7 +5,6 @@ class UserGrid extends React.Component {
             columns: [
                 {field: 'uin', title: '用户uin'},
                 {field: 'phone', title: '手机号'},
-                {field: 'nick_name', title: '用户昵称'},
                 {
                     field: 'create_time', title: '注册日期', render: (value) => {
                         if (type(value) == 'Number') return new Date(value * 1000).format('yyyy-MM-dd');

@@ -45,6 +45,13 @@ class FailureModal extends Modal {
             </span>;
     };
 
+    updateBooking = () => {
+        let booking_id = this.refs.booking_id.value;
+        if (!booking_id) return Message.msg('请输入订单编号');
+        if (!/^\d+$/.test(booking_id)) return Message.msg('订单编号输入有误');
+        Modal.open(<BookingUpdateModal booking_id={booking_id}></BookingUpdateModal>);
+    };
+
     onSubmit = () => {
         const {isNew, failure, onSuccess} = this.state;
         if (isNew) {
@@ -106,8 +113,6 @@ class FailureModal extends Modal {
                                        className="form-control"/>
                             </div>
                             <div className="col-sm-4">
-                                <button disabled={disabled} type="button" className="btn btn-sm btn-success m-1 hide">选择
-                                </button>
                                 <button disabled={disabled} type="button" className="btn btn-sm btn-success m-1"
                                         onClick={this.fillByCapsuleId}>补全信息
                                 </button>
@@ -159,8 +164,17 @@ class FailureModal extends Modal {
                 <tr>
                     <th>订单编号</th>
                     <td>
-                        <input ref="booking_id" readOnly={readOnly} disabled={disabled} type="text"
-                               className="form-control"/>
+                        <div className="row">
+                            <div className="col-sm-8">
+                                <input ref="booking_id" readOnly={readOnly} disabled={disabled} type="text"
+                                       className="form-control"/>
+                            </div>
+                            <div className="col-sm-4">
+                                <button type="button" className="btn btn-sm btn-success m-1"
+                                        onClick={this.updateBooking}>更改订单
+                                </button>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -174,35 +188,35 @@ class FailureModal extends Modal {
                     </td>
                 </tr>
                 <tr>
-                    <th>req_from</th>
+                    <th>订单来源</th>
                     <td>
                         <input ref="req_from" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>app_version</th>
+                    <th>App版本号</th>
                     <td>
                         <input ref="app_version" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>client_type</th>
+                    <th>手机类型</th>
                     <td>
                         <input ref="client_type" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>client_version</th>
+                    <th>手机型号</th>
                     <td>
                         <input ref="client_version" readOnly={readOnly} disabled={disabled} type="text"
                                className="form-control"/>
                     </td>
                 </tr>
                 <tr>
-                    <th>tags</th>
+                    <th>问题标签</th>
                     <td>
                         <ListEditor ref="tags" readOnly={readOnly}
                                     itemRender={(item, index, itemUpdate) => {
