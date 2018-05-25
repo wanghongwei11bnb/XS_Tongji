@@ -1,13 +1,12 @@
 package com.xiangshui.op.controller;
 
+import com.xiangshui.op.bean.Session;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.service.OpUserService;
-import com.xiangshui.util.MD5;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +41,13 @@ public class OpController extends BaseController {
             return new Result(CodeMsg.AUTH_FAIL);
         }
         if (opUserService.authOp(op, password)) {
-            String op_token = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
-            redisService.set(OpPrefix.op_token, op_token, op);
-            Cookie cookie = new Cookie("op_token", op_token);
+            String op_session = UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
+            Session session = new Session();
+            session.setUsername(username);
+            redisService.set(OpPrefix.session, op_session, session);
+            Cookie cookie = new Cookie("op_session", op_session);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24 * 7);
+            cookie.setMaxAge(60 * 60 * 24);
             response.addCookie(cookie);
             return new Result(CodeMsg.SUCCESS).putData("op", op);
         } else {
@@ -56,14 +57,14 @@ public class OpController extends BaseController {
 
     @PostMapping("/api/logout")
     @ResponseBody
-    public Result logout(HttpServletRequest request, HttpServletResponse response, String username, String password) {
+    public Result logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("op_token".equals(cookie.getName())) {
+                if ("op_session".equals(cookie.getName())) {
                     cookie.setMaxAge(0);
                     response.addCookie(cookie);
-                    redisService.del(OpPrefix.op_token, cookie.getValue());
+                    redisService.del(OpPrefix.session, cookie.getValue());
                     break;
                 }
             }

@@ -1,6 +1,7 @@
 package com.xiangshui.op.interceptor;
 
 import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.op.bean.Session;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.mapper.OpMapper;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -28,13 +29,13 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
         boolean authed = false;
         AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
         if (authRequired != null) {
-            Op op = (Op) httpServletRequest.getAttribute("op_auth");
-            if (op != null) {
+            Session session = (Session) httpServletRequest.getAttribute("session");
+            if (session != null) {
                 String value = authRequired.value();
                 if (StringUtils.isNotBlank(value)) {
-                    Op op1 = opMapper.selectByPrimaryKey(op.getUsername(), "auths");
-                    if (op1 != null && StringUtils.isNotBlank(op1.getAuths())) {
-                        String[] authArr = op1.getAuths().split(",");
+                    Op op = opMapper.selectByPrimaryKey(session.getUsername(), "auths");
+                    if (op != null && StringUtils.isNotBlank(op.getAuths())) {
+                        String[] authArr = op.getAuths().split(",");
                         if (authArr != null && authArr.length > 0) {
                             for (String auth : authArr) {
                                 if (value.equals(auth)) {

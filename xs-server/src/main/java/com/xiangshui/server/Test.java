@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class Test {
@@ -77,8 +78,12 @@ public class Test {
     public static void main(String[] args) throws Exception {
 
 
-        SpringUtils.init();
-        SpringUtils.getBean(Test.class).test();
+//        SpringUtils.init();
+//        SpringUtils.getBean(Test.class).test();
+
+        Set<String> set=JSON.parseObject("['123','sdf','123']", Set.class);
+
+        System.out.println(JSON.parseObject("['123']", Set.class));
 
     }
 }

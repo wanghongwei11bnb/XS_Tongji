@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 public class OpUserService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -51,6 +54,49 @@ public class OpUserService {
 
     public void cleanCache(String username) {
         redisService.del(OpPrefix.cache, username);
+        redisService.del(OpPrefix.auth_set, username);
+        redisService.del(OpPrefix.city_set, username);
+        redisService.del(OpPrefix.area_set, username);
+    }
+
+    public Set<String> getAuthSet(String username) {
+        Set<String> authSet = redisService.get(OpPrefix.auth_set, username, HashSet.class);
+        if (authSet == null) {
+            authSet = new HashSet<String>();
+            Op op = getOpByUsername(username, null);
+            if (op != null && StringUtils.isNotBlank(op.getAuths())) {
+                String[] authArray = op.getAuths().split(",");
+                if (authArray != null && authArray.length > 0) {
+                    for (String auth : authArray) {
+                        if (StringUtils.isNotBlank(auth)) {
+                            authSet.add(auth);
+                        }
+                    }
+                }
+            }
+            redisService.set(OpPrefix.auth_set, username, authSet);
+        }
+        return authSet;
+    }
+
+    public Set<String> getCitySet(String username) {
+        Set<String> citySet = redisService.get(OpPrefix.city_set, username, HashSet.class);
+        if (citySet == null) {
+            citySet = new HashSet<String>();
+            Op op = getOpByUsername(username, null);
+            if (op != null && StringUtils.isNotBlank(op.getCitys())) {
+                String[] cityArray = op.getCitys().split(",");
+                if (cityArray != null && cityArray.length > 0) {
+                    for (String city : cityArray) {
+                        if (StringUtils.isNotBlank(city)) {
+                            citySet.add(city);
+                        }
+                    }
+                }
+            }
+            redisService.set(OpPrefix.city_set, username, citySet);
+        }
+        return citySet;
     }
 
     public boolean authArea(Op op, int area_id) {
@@ -67,4 +113,18 @@ public class OpUserService {
         }
         return false;
     }
+
+
+    public boolean authCity(String username, String city) {
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(city)) {
+            return false;
+        }
+        Set<String> citySet = getCitySet(username);
+        if (citySet == null || !citySet.contains(city)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

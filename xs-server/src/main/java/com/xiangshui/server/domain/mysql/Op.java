@@ -19,6 +19,8 @@ public class Op {
 
     private String auths;
 
+    private String citys;
+
     public String getUsername() {
         return username;
     }
@@ -89,5 +91,13 @@ public class Op {
 
     public void setAuths(String auths) {
         this.auths = auths == null ? null : auths.trim();
+    }
+
+    public String getCitys() {
+        return citys;
+    }
+
+    public void setCitys(String citys) {
+        this.citys = citys == null ? null : citys.trim();
     }
 }

@@ -763,6 +763,76 @@ public class OpExample {
             addCriterion("auths not between", value1, value2, "auths");
             return (Criteria) this;
         }
+
+        public Criteria andCitysIsNull() {
+            addCriterion("citys is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysIsNotNull() {
+            addCriterion("citys is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysEqualTo(String value) {
+            addCriterion("citys =", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysNotEqualTo(String value) {
+            addCriterion("citys <>", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysGreaterThan(String value) {
+            addCriterion("citys >", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysGreaterThanOrEqualTo(String value) {
+            addCriterion("citys >=", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysLessThan(String value) {
+            addCriterion("citys <", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysLessThanOrEqualTo(String value) {
+            addCriterion("citys <=", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysLike(String value) {
+            addCriterion("citys like", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysNotLike(String value) {
+            addCriterion("citys not like", value, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysIn(List<String> values) {
+            addCriterion("citys in", values, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysNotIn(List<String> values) {
+            addCriterion("citys not in", values, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysBetween(String value1, String value2) {
+            addCriterion("citys between", value1, value2, "citys");
+            return (Criteria) this;
+        }
+
+        public Criteria andCitysNotBetween(String value1, String value2) {
+            addCriterion("citys not between", value1, value2, "citys");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.LoginRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.server.dao.redis.OpPrefix;
+import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +34,12 @@ public class AuthController extends BaseController {
 
     @Autowired
     OpMapper opMapper;
+    @Autowired
+    OpUserService opUserService;
     Set<String> authSet;
+
+    @Autowired
+    RedisService redisService;
 
 
     public Set<String> getAuthSet(HttpServletRequest request) {
@@ -61,6 +69,7 @@ public class AuthController extends BaseController {
         return "auth_manage";
     }
 
+    @AuthRequired("OP权限管理")
     @GetMapping("/api/allAuth")
     @ResponseBody
     public Result getAllUrl(HttpServletRequest request) {
@@ -78,7 +87,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("opList", opMapper.selectByExample(example));
     }
 
-
+    @AuthRequired("OP权限管理")
     @GetMapping("/api/op/get")
     @ResponseBody
     public Result getOp(String username) {
@@ -90,9 +99,31 @@ public class AuthController extends BaseController {
     }
 
     @AuthRequired("OP权限管理")
+    @GetMapping("/api/op/auths")
+    @ResponseBody
+    public Result auths(String username) {
+        Op op = opMapper.selectByPrimaryKey(username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        return new Result(CodeMsg.SUCCESS).putData("auths", opUserService.getAuthSet(username));
+    }
+
+    @AuthRequired("OP权限管理")
+    @GetMapping("/api/op/citys")
+    @ResponseBody
+    public Result citys(String username) {
+        Op op = opMapper.selectByPrimaryKey(username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        return new Result(CodeMsg.SUCCESS).putData("citys", opUserService.getCitySet(username));
+    }
+
+    @AuthRequired("OP权限管理")
     @PostMapping("/api/op/update/auths")
     @ResponseBody
-    public Result getOp(String username, String auths) {
+    public Result update_auths(String username, String auths) {
         Op op = opMapper.selectByPrimaryKey(username, "username");
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);
@@ -102,6 +133,24 @@ public class AuthController extends BaseController {
         }
         op.setAuths(auths);
         opMapper.updateByPrimaryKeySelective(op);
+        opUserService.cleanCache(username);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+    @AuthRequired("OP权限管理")
+    @PostMapping("/api/op/update/citys")
+    @ResponseBody
+    public Result update_citys(String username, String citys) {
+        Op op = opMapper.selectByPrimaryKey(username, "username");
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        if (StringUtils.isBlank(citys)) {
+            citys = "";
+        }
+        op.setCitys(citys);
+        opMapper.updateByPrimaryKeySelective(op);
+        opUserService.cleanCache(username);
         return new Result(CodeMsg.SUCCESS);
     }
 

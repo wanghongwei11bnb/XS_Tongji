@@ -1,6 +1,7 @@
 package com.xiangshui.op.interceptor;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.op.bean.Session;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
@@ -31,8 +32,8 @@ public class LoginInterceptor implements HandlerInterceptor {
                 ) {
             return true;
         }
-        Op op = (Op) httpServletRequest.getAttribute("op_auth");
-        if (op == null) {
+        Session session = (Session) httpServletRequest.getAttribute("session");
+        if (session == null) {
             if (httpServletRequest.getRequestURI().startsWith("/api/")) {
                 httpServletResponse.getWriter().write(JSON.toJSONString(new Result(CodeMsg.NO_LOGIN)));
                 httpServletResponse.getWriter().flush();
@@ -40,8 +41,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             } else {
                 httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
             }
-        } else {
-            httpServletRequest.setAttribute("op_username", op.getUsername());
         }
         return true;
     }

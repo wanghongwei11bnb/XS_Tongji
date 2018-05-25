@@ -1,5 +1,6 @@
 package com.xiangshui.op.interceptor;
 
+import com.xiangshui.op.bean.Session;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
@@ -32,12 +33,13 @@ public class SetOpAuthInterceptor implements HandlerInterceptor {
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("op_token".equals(cookie.getName())) {
-                    String op_token = cookie.getValue();
-                    if (StringUtils.isNotBlank(op_token)) {
-                        Op op = redisService.get(OpPrefix.op_token, op_token, Op.class);
-                        if (op != null) {
-                            httpServletRequest.setAttribute("op_auth", op);
+                if ("op_session".equals(cookie.getName())) {
+                    String op_session = cookie.getValue();
+                    if (StringUtils.isNotBlank(op_session)) {
+                        Session session = redisService.get(OpPrefix.session, op_session, Session.class);
+                        if (session != null) {
+                            httpServletRequest.setAttribute("session", session);
+                            httpServletRequest.setAttribute("op_username", session.getUsername());
                         }
                     }
                 }
