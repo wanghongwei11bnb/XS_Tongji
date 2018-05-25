@@ -127,10 +127,10 @@ class Page extends React.Component {
             <div className="m-1">
                 报修时间：
                 <DateInput ref="start_date"
-                           className="form-control  form-control-sm d-inline-block mx-3 w-auto"/>
-                <DateInput ref="end_date" className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="end_date" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 OP处理状态：
-                <select ref="op_status" className="form-control form-control-sm  d-inline-block mx-3 w-auto">
+                <select ref="op_status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value=""></option>
                     <option value="1">处理中</option>
                     <option value="2">已解决</option>
