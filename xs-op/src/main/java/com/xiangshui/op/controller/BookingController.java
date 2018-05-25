@@ -126,8 +126,8 @@ public class BookingController extends BaseController {
         List<Area> areaList = null;
         List<UserInfo> userInfoList = null;
         if (bookingList != null && bookingList.size() > 0) {
-            userInfoList = userService.getUserInfoList(bookingList, null);
-            areaList = areaService.getAreaListByBooking(bookingList, null);
+            userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
+            areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
             Collections.sort(bookingList, new Comparator<Booking>() {
                 @Override
                 public int compare(Booking o1, Booking o2) {
