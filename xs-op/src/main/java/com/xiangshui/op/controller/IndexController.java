@@ -6,6 +6,7 @@ import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.WebMenu;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.OpUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,21 +25,23 @@ import java.util.function.Consumer;
 @Controller
 public class IndexController extends BaseController {
 
-    private List<WebMenu> webMenuList;
+    private List<WebMenu> authMenuList;
+
 
     @Autowired
     OpMapper opMapper;
+    @Autowired
+    OpUserService opUserService;
 
     @GetMapping("")
     public String index(HttpServletRequest request) {
         setClient(request);
-
-        if (this.webMenuList == null) {
+        if (this.authMenuList == null) {
             WebApplicationContext webApplicationContext =
                     (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
             Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
-            List<WebMenu> webMenuList = new ArrayList<>();
+            this.authMenuList = new ArrayList<>();
             for (RequestMappingInfo requestMappingInfo : handlerMethods.keySet()) {
                 HandlerMethod handlerMethod = handlerMethods.get(requestMappingInfo);
                 Method method = handlerMethod.getMethod();
@@ -52,31 +55,22 @@ public class IndexController extends BaseController {
                     if (authRequired != null) {
                         webMenu.setAuth(authRequired.value());
                     }
-                    webMenuList.add(webMenu);
+
+                    this.authMenuList.add(webMenu);
                 }
             }
-            webMenuList.sort(new Comparator<WebMenu>() {
+            this.authMenuList.sort(new Comparator<WebMenu>() {
                 @Override
                 public int compare(WebMenu o1, WebMenu o2) {
                     return o1.getSort() - o2.getSort();
                 }
             });
-            this.webMenuList = webMenuList;
         }
         String op_username = (String) request.getAttribute("op_username");
-        Op op = opMapper.selectByPrimaryKey(op_username, "auths");
-        Set<String> authSet = new HashSet<>();
-        if (op != null && StringUtils.isNotBlank(op.getAuths())) {
-            String[] authArr = op.getAuths().split(",");
-            if (authArr != null && authArr.length > 0) {
-                for (String auth : authArr) {
-                    authSet.add(auth);
-                }
-            }
-        }
+        Set<String> authSet = opUserService.getAuthSet(op_username);
 
         List<WebMenu> webMenuListActive = new ArrayList<>();
-        this.webMenuList.forEach(new Consumer<WebMenu>() {
+        this.authMenuList.forEach(new Consumer<WebMenu>() {
             @Override
             public void accept(WebMenu webMenu) {
                 if (StringUtils.isBlank(webMenu.getAuth())) {

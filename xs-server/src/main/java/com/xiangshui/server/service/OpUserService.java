@@ -120,10 +120,10 @@ public class OpUserService {
             return false;
         }
         Set<String> citySet = getCitySet(username);
-        if (citySet == null || !citySet.contains(city)) {
-            return false;
-        } else {
+        if (citySet != null && citySet.contains(city)) {
             return true;
+        } else {
+            return false;
         }
     }
 
