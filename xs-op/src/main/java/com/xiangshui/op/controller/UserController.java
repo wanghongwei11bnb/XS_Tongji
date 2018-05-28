@@ -56,42 +56,43 @@ public class UserController extends BaseController {
     @GetMapping("/api/user/search")
     @ResponseBody
     public Result search(UserInfo criteria, Date create_date_start, Date create_date_end) {
-        if (criteria.getUin() != null || StringUtils.isNotBlank(criteria.getPhone())) {
-            UserInfo userInfo = null;
-            if (criteria.getUin() != null) {
-                userInfo = userService.getUserInfoByUin(criteria.getUin());
-            } else if (StringUtils.isNotBlank(criteria.getPhone())) {
-                userInfo = userService.getUserInfoByPhone(criteria.getPhone());
-            }
-            if (userInfo == null) {
-                return new Result(CodeMsg.SUCCESS);
-            } else {
-                UserInfoRelation userInfoRelation = userService.toRelation(userInfo);
-                return new Result(CodeMsg.SUCCESS).putData("userInfoList", new UserInfoRelation[]{userInfoRelation});
-            }
-        }
+        List<UserInfo> userInfoList = null;
 
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-        if (create_date_start != null && create_date_end != null) {
-            filterList.add(new ScanFilter("create_time").between(
-                    create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
-            ));
-        } else if (create_date_start != null && create_date_end == null) {
-            filterList.add(new ScanFilter("create_time").gt(create_date_start.getTime() / 1000 - 1));
-        } else if (create_date_start == null && create_date_end != null) {
-            filterList.add(new ScanFilter("create_time").lt((create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000 + 1));
-        }
-        if (filterList.size() > 0) {
-            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
-        }
-        List<UserInfo> userInfoList = userInfoDao.scan(scanSpec);
-        if (userInfoList == null || userInfoList.size() == 0) {
-            return new Result(CodeMsg.SUCCESS);
+        if (criteria.getUin() != null) {
+            UserInfo userInfo = userService.getUserInfoByUin(criteria.getUin());
+            if (userInfo == null) {
+                return new Result(CodeMsg.NO_FOUND);
+            }
+            userInfoList = new ArrayList<>();
+            userInfoList.add(userInfo);
+        } else if (StringUtils.isNotBlank(criteria.getPhone())) {
+            UserInfo userInfo = userService.getUserInfoByPhone(criteria.getPhone());
+            if (userInfo == null) {
+                return new Result(CodeMsg.NO_FOUND);
+            }
+            userInfoList = new ArrayList<>();
+            userInfoList.add(userInfo);
         } else {
-            List<UserInfoRelation> userInfoRelationList = userService.toRelation(userInfoList);
-            return new Result(CodeMsg.SUCCESS).putData("userInfoList", userInfoRelationList);
+            ScanSpec scanSpec = new ScanSpec();
+            List<ScanFilter> filterList = new ArrayList<ScanFilter>();
+            if (create_date_start != null && create_date_end != null) {
+                filterList.add(new ScanFilter("create_time").between(
+                        create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
+                ));
+            } else if (create_date_start != null && create_date_end == null) {
+                filterList.add(new ScanFilter("create_time").gt(create_date_start.getTime() / 1000 - 1));
+            } else if (create_date_start == null && create_date_end != null) {
+                filterList.add(new ScanFilter("create_time").lt((create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000 + 1));
+            }
+            if (filterList.size() > 0) {
+                scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
+            }
+            userInfoList = userInfoDao.scan(scanSpec);
         }
+        if (userInfoList == null) {
+            userInfoList = new ArrayList<>();
+        }
+        return new Result(CodeMsg.SUCCESS).putData("userInfoList", userInfoList);
     }
 
 

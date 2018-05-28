@@ -2,6 +2,7 @@ package com.xiangshui.server.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
@@ -15,10 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Component
 public class CityService {
@@ -43,6 +41,11 @@ public class CityService {
             return cityList;
         } else {
             List<City> cityList = cityDao.scan(new ScanSpec());
+            cityList.sort(new Comparator<City>() {
+                public int compare(City o1, City o2) {
+                    return o1.getCity().compareTo(o2.getCity());
+                }
+            });
             redisService.set(CityKeyPrefix.list_all, JSON.toJSONString(cityList));
             return cityList;
         }
@@ -64,9 +67,21 @@ public class CityService {
                 citySet.add(area.getCity());
             }
             List<City> cityList = cityDao.batchGetItem("city", citySet.toArray());
+            cityList.sort(new Comparator<City>() {
+                public int compare(City o1, City o2) {
+                    return o1.getCity().compareTo(o2.getCity());
+                }
+            });
             redisService.set(CityKeyPrefix.list_active, JSON.toJSONString(cityList));
             return cityList;
         }
+    }
+
+    public City getByCityName(String cityName) {
+        if (StringUtils.isBlank(cityName)) {
+            return null;
+        }
+        return cityDao.getItem(new PrimaryKey("city", cityName));
     }
 
 

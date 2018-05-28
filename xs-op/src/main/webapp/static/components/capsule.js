@@ -193,11 +193,6 @@ class CapsuleManageModal extends Modal {
                     }
                 },
                 {
-                    field: 'update_time', title: '更新时间', render: (value) => {
-                        return value ? new Date(value * 1000).format('yyyy-MM-dd') : null;
-                    }
-                },
-                {
                     field: 'is_downline', title: '是否标记下线', render: (value) => {
                         return value == 1 ? <span className="text-danger">已下线</span> : null;
                     }
@@ -210,6 +205,8 @@ class CapsuleManageModal extends Modal {
                                     onClick={this.showQrcode.bind(this, row.capsule_id)}>查看二维码</button>,
                             <button type="button" className="btn btn-sm m-1 btn-primary"
                                     onClick={this.openUpdateModal.bind(this, row.capsule_id)}>编辑</button>,
+                            <button type="button" className="btn btn-sm m-1 btn-primary"
+                                    onClick={this.showDeviceStatus.bind(this, row.device_id)}>查看硬件设备状态</button>,
                             <button type="button" className="btn btn-sm m-1 btn-success"
                                     onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>创建报修</button>,
 
@@ -245,6 +242,26 @@ class CapsuleManageModal extends Modal {
         Modal.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
     };
 
+    showDeviceStatus = (device_id) => {
+        request({
+            url: `/api/device/${device_id}/status`, method: 'post', loading: true,
+            success: resp => {
+                resp = resp.data.resp;
+                if (resp.ret == 0) {
+                    Modal.open(<AlertModal>
+
+                        设备编号：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
+                        目前状态：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
+                        wifi链接情况：{resp.wifi_flag == 1 ? '链接成功' : '链接失败'}<br/>
+                        最后链接时间：{resp.localtime}<br/>
+                    </AlertModal>)
+                } else {
+                    Message.msg(resp.err || '未知错误');
+                }
+            }
+        });
+
+    };
 
     openCreateModal = () => {
         const {area_id} = this.state;

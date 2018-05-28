@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -133,7 +134,6 @@ public class AreaController extends BaseController {
         }
         criteria.setArea_id(area_id);
         areaService.updateTypes(criteria);
-//        areaService.clean_area_cache_notification();
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -142,5 +142,11 @@ public class AreaController extends BaseController {
     public Result clean_area_cache_notification() {
         areaService.clean_area_cache_notification();
         return new Result(CodeMsg.SUCCESS);
+    }
+
+    @PostMapping("/api/device/{device_id}/status")
+    @ResponseBody
+    public Result device_status(@PathVariable("device_id") String device_id) throws IOException {
+        return new Result(CodeMsg.SUCCESS).putData("resp", areaService.deviceStatus(device_id));
     }
 }

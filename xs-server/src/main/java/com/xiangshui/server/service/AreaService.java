@@ -5,12 +5,10 @@ import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.FailureReport;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.Location;
@@ -20,7 +18,6 @@ import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
-import com.xiangshui.util.web.result.Result;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -285,7 +282,7 @@ public class AreaService {
         if (!validateRushHours(criteria)) {
             throw new XiangShuiException("高峰时段输入有误");
         }
-        if (!(criteria.getCity().endsWith(area.getCity()) && criteria.getAddress().endsWith(area.getAddress()))) {
+        if (!(criteria.getCity().equals(area.getCity()) && criteria.getAddress().equals(area.getAddress()))) {
             fillLocation(criteria);
             areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
                     "title",
@@ -387,11 +384,6 @@ public class AreaService {
 
         for (CapsuleType capsuleType : criteria.getTypes()) {
 
-//            if (capsuleType.getType_id() == null || capsuleType.getType_id() < 1) {
-//                throw new XiangShuiException("类型ID不能小于1");
-//            }
-
-            capsuleType.setType_id(1);
 
             if (capsuleType.getPrice() == null || capsuleType.getPrice() <= 0) {
                 throw new XiangShuiException("价格必须大于0");
@@ -405,18 +397,17 @@ public class AreaService {
                 throw new XiangShuiException("高峰期价格必须大于0");
             }
 
-            if (StringUtils.isBlank(capsuleType.getTypeTitle())) {
-                throw new XiangShuiException("标题不能为空");
-            }
-
-
-            if (StringUtils.isBlank(capsuleType.getTypeDesc())) {
-                throw new XiangShuiException("描述不能为空");
-            }
 
 //            if (StringUtils.isBlank(capsuleType.getPrice_rule_text())) {
 //                throw new XiangShuiException("价格文案不能为空");
 //            }
+
+
+            capsuleType.setType_id(1);
+            capsuleType.setSize(1);
+            capsuleType.setTypeTitle("共享头等舱");
+            capsuleType.setTypeDesc("共享头等舱");
+
 
         }
         areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
@@ -510,6 +501,15 @@ public class AreaService {
             }
         }, new Integer[0]);
 
+    }
+
+    public JSONObject deviceStatus(String device_id) throws IOException {
+        if (StringUtils.isBlank(device_id)) {
+            throw new XiangShuiException("device_id 不能为空");
+        }
+        String body = Jsoup.connect((debug ? "http://dev.xiangshuispace.com:8855" : "http://52.80.56.139:8877") + "/api/device/" + device_id + "/status")
+                .header("User-Uin", "100000").ignoreContentType(true).execute().body();
+        return JSONObject.parseObject(body);
     }
 
 }

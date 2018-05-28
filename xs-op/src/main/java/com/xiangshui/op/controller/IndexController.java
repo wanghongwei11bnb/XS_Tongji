@@ -37,11 +37,11 @@ public class IndexController extends BaseController {
     public String index(HttpServletRequest request) {
         setClient(request);
         if (this.authMenuList == null) {
+            List<WebMenu> authMenuList = new ArrayList<>();
             WebApplicationContext webApplicationContext =
                     (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
             Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
-            this.authMenuList = new ArrayList<>();
             for (RequestMappingInfo requestMappingInfo : handlerMethods.keySet()) {
                 HandlerMethod handlerMethod = handlerMethods.get(requestMappingInfo);
                 Method method = handlerMethod.getMethod();
@@ -55,19 +55,20 @@ public class IndexController extends BaseController {
                     if (authRequired != null) {
                         webMenu.setAuth(authRequired.value());
                     }
-
-                    this.authMenuList.add(webMenu);
+                    authMenuList.add(webMenu);
                 }
             }
-            this.authMenuList.sort(new Comparator<WebMenu>() {
+            authMenuList.sort(new Comparator<WebMenu>() {
                 @Override
                 public int compare(WebMenu o1, WebMenu o2) {
                     return o1.getSort() - o2.getSort();
                 }
             });
+            this.authMenuList = authMenuList;
         }
         String op_username = (String) request.getAttribute("op_username");
         Set<String> authSet = opUserService.getAuthSet(op_username);
+
 
         List<WebMenu> webMenuListActive = new ArrayList<>();
         this.authMenuList.forEach(new Consumer<WebMenu>() {
@@ -80,11 +81,23 @@ public class IndexController extends BaseController {
                 }
             }
         });
+        Set<String> citySet = opUserService.getCitySet(op_username);
+        if (citySet != null && citySet.size() > 0) {
+            citySet.forEach(new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    WebMenu webMenu = new WebMenu();
+                    webMenu.setTitle(s + "-场地管理");
+                    webMenu.setPath("/city/" + s + "/area_manage");
+                    webMenuListActive.add(webMenu);
+                }
+            });
+        }
         request.setAttribute("webMenuList", JSON.toJSONString(webMenuListActive));
         return "index";
     }
 
-//    @Menu(value = "首页", sort = 901)
+    //    @Menu(value = "首页", sort = 901)
     @GetMapping("/home")
     public String home(HttpServletRequest request) {
         setClient(request);

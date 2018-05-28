@@ -16,10 +16,19 @@ function nullStringReplacer(k, v) {
 }
 
 
-function type(o) {
-    if (o !== o) return 'NaN';
-    let typeStr = Object.prototype.toString.call(o);
-    return typeStr.substring(8, typeStr.length - 1);
+function type(o, t) {
+    if (t === undefined) {
+        if (o !== o) return 'NaN';
+        let typeStr = Object.prototype.toString.call(o);
+        return typeStr.substring(8, typeStr.length - 1);
+    } else {
+        return type(o) === t;
+    }
+}
+
+
+function typeValue(o, t, d) {
+    return type(o, t) ? o : (d || null);
 }
 
 Date.prototype.format = function (fmt) {

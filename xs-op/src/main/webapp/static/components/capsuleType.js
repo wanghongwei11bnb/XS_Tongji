@@ -12,16 +12,11 @@ class CapsuleTypeModal extends Modal {
         if (!this.refs.price.value) return Message.msg('价格 不能为空');
         if (!this.refs.day_max_price.value) return Message.msg('每日最高费用 不能为空');
         if (!this.refs.price_rule_text.value) return Message.msg('价格文案 不能为空');
-        if (!this.refs.typeTitle.value) return Message.msg('标题 不能为空');
-        if (!this.refs.typeDesc.value) return Message.msg('描述 不能为空');
         let data = {
-            size: this.refs.size.value,
             day_max_price: this.refs.day_max_price.value,
             price: this.refs.price.value,
             rush_hour_price: this.refs.rush_hour_price.value,
             price_rule_text: this.refs.price_rule_text.value,
-            typeDesc: this.refs.typeDesc.value,
-            typeTitle: this.refs.typeTitle.value,
 
         };
         if (onSuccess) onSuccess(data);
@@ -41,7 +36,7 @@ class CapsuleTypeModal extends Modal {
             <table className="table table-bordered">
                 <tbody>
                 <tr>
-                    <th>价格</th>
+                    <th>每分钟价格</th>
                     <td>
                         <PriceInput ref="price" type="text" className="form-control"/>
                     </td>
@@ -64,24 +59,6 @@ class CapsuleTypeModal extends Modal {
                         <input ref="price_rule_text" type="text" className="form-control"/>
                     </td>
                 </tr>
-                <tr>
-                    <th>面积</th>
-                    <td>
-                        <input ref="size" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>标题</th>
-                    <td>
-                        <input ref="typeTitle" type="text" className="form-control"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th>描述</th>
-                    <td>
-                        <input ref="typeDesc" type="text" className="form-control"/>
-                    </td>
-                </tr>
                 </tbody>
             </table>
         </div>;
@@ -91,13 +68,10 @@ class CapsuleTypeModal extends Modal {
         super.componentDidMount();
         const {capsuleType} = this.state;
         if (capsuleType) {
-            this.refs.size.value = capsuleType.size;
             this.refs.day_max_price.setValue(capsuleType.day_max_price);
             this.refs.price.setValue(capsuleType.price);
             this.refs.rush_hour_price.setValue(capsuleType.rush_hour_price);
             this.refs.price_rule_text.value = capsuleType.price_rule_text;
-            this.refs.typeDesc.value = capsuleType.typeDesc;
-            this.refs.typeTitle.value = capsuleType.typeTitle;
         }
     }
 }
@@ -108,14 +82,13 @@ class CapsuleTypeGridModal extends Modal {
         super(props);
         this.state = {
             columns: [
-                {field: 'size', title: '面积'},
                 {
                     field: 'day_max_price', title: '每日最高费用', render: value => {
                         return type(value) == 'Number' ? value / 100 : null;
                     }
                 },
                 {
-                    field: 'price', title: '价格', render: value => {
+                    field: 'price', title: '每分钟价格', render: value => {
                         return type(value) == 'Number' ? value / 100 : null;
                     }
                 },
@@ -125,8 +98,6 @@ class CapsuleTypeGridModal extends Modal {
                     }
                 },
                 {field: 'price_rule_text', title: '价格文案'},
-                {field: 'typeDesc', title: '描述'},
-                {field: 'typeTitle', title: '标题'},
                 {
                     title: <button type="button" className="btn btn-sm btn-success"
                                    onClick={this.addNew}>新建类型</button>,

@@ -1,9 +1,8 @@
-
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            payType: {5: '公众号支付', 7: '支付宝移动页面支付', 9: '微信小程序支付', 30: '新用户注册赠送', 1: '微信支付', 2: '支付宝支付', 20: '钱包余额支付'},
             columns: [
                 {field: 'booking_id', title: '订单编号'},
                 {
@@ -33,6 +32,10 @@ class Page extends React.Component {
                     }
                 },
                 {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
+                {
+                    field: 'pay_type', title: '支付方式',
+                    render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
+                },
                 {field: 'capsule_id', title: '头等舱编号'},
                 {field: 'area_id', title: '场地编号'},
                 {

@@ -263,32 +263,29 @@ class FailureModal extends Modal {
 
     reViewData = (failure) => {
         if (failure) {
-            this.refs.capsule_id.value = failure.capsule_id;
-            this.refs.area_id.value = failure.area_id;
-
+            this.refs.capsule_id.value = typeValue(failure.capsule_id, 'Number');
+            this.refs.area_id.value = typeValue(failure.area_id, 'Number');
             if (failure._area) {
-
-                this.refs.area_title.value = failure._area.title;
-                this.refs.area_city.value = failure._area.city;
-                this.refs.area_address.value = failure._area.address;
+                this.refs.area_title.value = typeValue(failure.title, 'String');
+                this.refs.area_city.value = typeValue(failure.city, 'String');
+                this.refs.area_address.value = typeValue(failure.address, 'String');
             }
-            this.refs.uin.value = failure.uin;
-            this.refs.phone.value = failure.phone;
-            this.refs.booking_id.value = failure.booking_id;
+            this.refs.uin.value = typeValue(failure.uin, 'Number');
+            this.refs.phone.value = typeValue(failure.phone, 'String');
+            this.refs.booking_id.value = typeValue(failure.booking_id, 'Number');
 
-            this.refs.req_from.value = failure.req_from;
-            this.refs.app_version.value = failure.app_version;
-            this.refs.client_type.value = failure.client_type;
-            this.refs.client_version.value = failure.client_version;
+            this.refs.req_from.value = typeValue(failure.req_from, 'String');
+            this.refs.app_version.value = typeValue(failure.app_version, 'String');
+            this.refs.client_type.value = typeValue(failure.client_type, 'String');
+            this.refs.client_version.value = typeValue(failure.client_version, 'String');
 
-
-            this.refs.create_time.value = failure.create_time ? new Date(failure.create_time * 1000).format('yyyy-MM-dd hh:mm:ss') : failure.create_time;
+            this.refs.create_time.value = type(failure.create_time, 'Number') ? new Date(failure.create_time * 1000).format('yyyy-MM-dd hh:mm:ss') : failure.create_time;
             this.refs.tags.setData(failure.tags);
-            this.refs.description.value = failure.description;
+            this.refs.description.value = typeValue(failure.description, 'String');
 
 
-            this.refs.op_description.value = failure.op_description;
-            this.refs.op_status.value = failure.op_status;
+            this.refs.op_description.value = typeValue(failure.op_description, 'String');
+            this.refs.op_status.value = typeValue(failure.op_status, 'Number');
         }
     };
 

@@ -10,9 +10,8 @@ class AreaModal extends Modal {
         };
     }
 
-    submit = () => {
-        const {onSuccess, create, update} = this.state;
-        let data = {
+    getData = () => {
+        return {
             area_id: this.refs.area_id.value,
             title: this.refs.title.value,
             city: this.refs.city.value,
@@ -26,6 +25,11 @@ class AreaModal extends Modal {
             status: this.refs.status.value,
             is_external: this.refs.is_external.value,
         };
+    };
+
+    submit = () => {
+        const {onSuccess, create, update} = this.state;
+        let data = this.getData();
         if (create) {
             request({
                 url: `/api/area/create`, method: 'post', contentType: 'application/json', loading: true,
@@ -238,7 +242,9 @@ AreaModal.show = function (area_id) {
 class AreaIdCreateModal extends Modal {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            city: props.city
+        };
     }
 
     renderHeader = () => {
@@ -246,7 +252,7 @@ class AreaIdCreateModal extends Modal {
     };
 
     renderBody = () => {
-        const {cityList} = this.props;
+        const {city} = this.state;
         return <table className="table table-bordered">
             <tbody>
             <tr>
@@ -256,14 +262,14 @@ class AreaIdCreateModal extends Modal {
                         <div className="col-sm-6">
                             <input ref="city" readOnly={true} disabled={true} type="text" className="form-control"/>
                         </div>
-                        <div className="col-sm-6">
+                        {city ? null : <div className="col-sm-6">
                             <button type="button" className="btn btn-sm btn-primary m-1"
                                     onClick={this.selectCity.bind(this, false)}>选择城市
                             </button>
                             <button type="button" className="btn btn-sm btn-primary m-1"
                                     onClick={this.selectCity.bind(this, true)}>更多城市
                             </button>
-                        </div>
+                        </div>}
                     </div>
                 </td>
             </tr>
@@ -322,6 +328,13 @@ class AreaIdCreateModal extends Modal {
         });
     };
 
+    componentDidMount() {
+        super.componentDidMount();
+        const {city} = this.state;
+        if (city) {
+            this.setCity(city);
+        }
+    }
 }
 
 class AreaGrid extends React.Component {

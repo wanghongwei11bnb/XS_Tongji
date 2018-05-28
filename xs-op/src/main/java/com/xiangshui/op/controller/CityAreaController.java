@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
@@ -11,6 +12,7 @@ import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.City;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -60,7 +62,6 @@ public class CityAreaController extends BaseController {
         return true;
     }
 
-//    @Menu(value = "{city}场地管理")
     @CityRequired
     @GetMapping("/city/{city}/area_manage")
     public String area_manage(HttpServletRequest request, HttpServletResponse response, @PathVariable("city") String city) throws ServletException, IOException {
@@ -69,25 +70,19 @@ public class CityAreaController extends BaseController {
             return null;
         }
         setClient(request);
-        request.setAttribute("city", city);
+        City cityObj = cityService.getByCityName(city);
+        request.setAttribute("city_code", cityObj.getCode());
         return "city_area_manage";
     }
 
     @GetMapping("/api/city/{city}/area/search")
     @ResponseBody
-    public Result search(HttpServletRequest request, @PathVariable("city") String city, Area criteria, Long capsule_id) throws NoSuchFieldException, IllegalAccessException {
-        ScanSpec scanSpec = new ScanSpec();
-
-        if (criteria == null) criteria = new Area();
-        if (capsule_id != null) {
-            Capsule capsule = capsuleService.getCapsuleById(capsule_id);
-            if (capsule == null) {
-                return new Result(-1, "头等舱编号不存在");
-            } else {
-                criteria.setArea_id(capsule.getArea_id());
-            }
+    public Result search(HttpServletRequest request, @PathVariable("city") String city) throws NoSuchFieldException, IllegalAccessException {
+        if (!checkCity(request, city)) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
         }
-
+        Area criteria = new Area();
+        criteria.setCity(city);
         List<Area> areaList = areaService.search(criteria, null);
         if (areaList != null && areaList.size() > 0) {
             areaList.sort(new Comparator<Area>() {
@@ -101,44 +96,23 @@ public class CityAreaController extends BaseController {
     }
 
 
-    @GetMapping("/api/city/{city}/area/{area_id}/validateForCreate")
+    @PostMapping("/api/city/{city}/area/create")
     @ResponseBody
-    public Result validateForCreate(@PathVariable("area_id") Integer area_id) {
-        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
-        if (area == null) {
-            return new Result(CodeMsg.SUCCESS);
-        } else {
-            return new Result(-1, "场地编号已存在");
+    public Result create(HttpServletRequest request, @PathVariable("city") String city, @RequestBody Area criteria) throws Exception {
+        if (!checkCity(request, city)) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
         }
-    }
-
-
-    @GetMapping("/api/city/{city}/area/{area_id}")
-    @ResponseBody
-    public Result get(@PathVariable("area_id") Integer area_id) {
-        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
-        if (area != null) {
-            return new Result(CodeMsg.SUCCESS).putData("area", area);
-        } else {
-            return new Result(CodeMsg.NO_FOUND);
-        }
-    }
-
-    @GetMapping("/api/city/{city}/area/{area_id}/types")
-    @ResponseBody
-    public Result getTypes(@PathVariable("area_id") Integer area_id) {
-        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
-        if (area == null) {
-            return new Result(CodeMsg.NO_FOUND);
-        } else {
-            return new Result(CodeMsg.SUCCESS).putData("types", area.getTypes());
-        }
+        areaService.createArea(criteria);
+        return new Result(CodeMsg.SUCCESS);
     }
 
 
     @PostMapping("/api/city/{city}/area/{area_id:\\d+}/update")
     @ResponseBody
-    public Result update(@PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+    public Result update(HttpServletRequest request, @PathVariable("city") String city, @PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+        if (!checkCity(request, city)) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
+        }
         if (area_id == null || area_id < 1) {
             return new Result(-1, "场地编号不能小于1");
         }
@@ -147,16 +121,13 @@ public class CityAreaController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
-    @PostMapping("/api/city/{city}/area/create")
-    @ResponseBody
-    public Result create(@RequestBody Area criteria) throws Exception {
-        areaService.createArea(criteria);
-        return new Result(CodeMsg.SUCCESS);
-    }
 
     @PostMapping("/api/city/{city}/area/{area_id:\\d+}/update/types")
     @ResponseBody
-    public Result update_types(@PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+    public Result update_types(HttpServletRequest request, @PathVariable("city") String city, @PathVariable("area_id") Integer area_id, @RequestBody Area criteria) throws Exception {
+        if (!checkCity(request, city)) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
+        }
         if (area_id == null || area_id < 1) {
             return new Result(-1, "场地编号不能小于1");
         }
@@ -165,14 +136,8 @@ public class CityAreaController extends BaseController {
         }
         criteria.setArea_id(area_id);
         areaService.updateTypes(criteria);
-//        areaService.clean_area_cache_notification();
         return new Result(CodeMsg.SUCCESS);
     }
 
-    @PostMapping("/api/city/{city}/clean_area_cache_notification")
-    @ResponseBody
-    public Result clean_area_cache_notification() {
-        areaService.clean_area_cache_notification();
-        return new Result(CodeMsg.SUCCESS);
-    }
+
 }
