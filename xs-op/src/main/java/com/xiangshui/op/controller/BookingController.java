@@ -187,8 +187,8 @@ public class BookingController extends BaseController {
                         if (area == null) {
                             return;
                         }
-                        if (area.getStatus().equals(AreaStatusOption.offline.value)
-                                || area.getStatus().equals(AreaStatusOption.stay.value)
+                        if (AreaStatusOption.offline.value.equals(area.getStatus())
+                                || AreaStatusOption.stay.value.equals(area.getStatus())
                                 || area.getTitle().indexOf("待运营") > -1) {
                             return;
                         }

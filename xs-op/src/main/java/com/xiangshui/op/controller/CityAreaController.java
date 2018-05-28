@@ -60,7 +60,7 @@ public class CityAreaController extends BaseController {
         return true;
     }
 
-    @Menu(value = "{city}场地管理")
+//    @Menu(value = "{city}场地管理")
     @CityRequired
     @GetMapping("/city/{city}/area_manage")
     public String area_manage(HttpServletRequest request, HttpServletResponse response, @PathVariable("city") String city) throws ServletException, IOException {
