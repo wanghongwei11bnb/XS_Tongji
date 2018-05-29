@@ -8,10 +8,8 @@ import com.xiangshui.op.scheduled.DeviceStatusScheduled;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
-import com.xiangshui.server.service.AreaService;
-import com.xiangshui.server.service.CapsuleService;
-import com.xiangshui.server.service.CityService;
-import com.xiangshui.server.service.S3Service;
+import com.xiangshui.server.service.*;
+import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,12 @@ public class DeviceController extends BaseController {
         }
         List<Area> areaList = null;
         if (areaIdSet.size() > 0) {
-            areaList = areaService.getAreaListByIds(areaIdSet.toArray(new Integer[areaIdSet.size()]));
+            areaList = ServiceUtils.division(areaIdSet.toArray(new Integer[areaIdSet.size()]), 100, new CallBackForResult<Integer[], List<Area>>() {
+                @Override
+                public List<Area> run(Integer[] object) {
+                    return areaService.getAreaListByIds(object);
+                }
+            }, new Integer[0]);
         }
         return new Result(CodeMsg.SUCCESS)
                 .putData("deviceStatusList", deviceStatusList)
@@ -72,12 +75,13 @@ public class DeviceController extends BaseController {
                 ;
     }
 
+    @Menu("实时设备状态——更新")
+    @AuthRequired("实时设备状态——更新")
     @PostMapping("/api/device_status/refresh")
     @ResponseBody
-    @AuthRequired("实时设备状态——更新")
     public Result refresh() {
         deviceStatusScheduled.put();
-        return new Result(CodeMsg.SUCCESS);
+        return new Result(CodeMsg.SUCCESS).setMsg("操作成功!最新结果正在获取中，请等一等!");
     }
 
 

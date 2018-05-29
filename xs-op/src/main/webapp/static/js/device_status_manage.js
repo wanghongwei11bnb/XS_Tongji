@@ -80,7 +80,6 @@ class Page extends React.Component {
         const {columns, data} = this.state;
         return <div className="container-fluid my-3">
             <button className="btn btn-success btn-sm m-1" type="button" onClick={this.load}>刷新</button>
-            <button className="btn btn-primary btn-sm m-1" type="button" onClick={this.refresh}>请求后台更新</button>
             <Table columns={columns} data={data}></Table>
             <ModalContainer></ModalContainer>
         </div>;

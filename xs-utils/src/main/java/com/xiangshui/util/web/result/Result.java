@@ -22,6 +22,16 @@ public class Result {
         this.msg = codeMsg.msg;
     }
 
+    public Result setCode(int code) {
+        this.code = code;
+        return this;
+    }
+
+    public Result setMsg(String msg) {
+        this.msg = msg;
+        return this;
+    }
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);
