@@ -84,6 +84,9 @@ public class TestScheduled implements InitializingBean {
     @Autowired
     CumulativeBookingTodayTask cumulativeBookingTodayTask;
 
+    @Autowired
+    GoodAppraise goodAppraise;
+
 
     private volatile long lastBookingCapsuleId;
     private final Timer planPushBookingTimer = new Timer("planPushBookingTimer");
@@ -154,7 +157,7 @@ public class TestScheduled implements InitializingBean {
 
 
     public void afterPropertiesSet() throws Exception {
-
+        goodAppraise.init();
         SendMessagePrefix.debug = debug;
         log.info("init dynamoDBService");
         dynamoDBService.init();

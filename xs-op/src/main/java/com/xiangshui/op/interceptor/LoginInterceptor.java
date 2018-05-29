@@ -35,12 +35,14 @@ public class LoginInterceptor implements HandlerInterceptor {
         Session session = (Session) httpServletRequest.getAttribute("session");
         if (session == null) {
             if (httpServletRequest.getRequestURI().startsWith("/api/")) {
+                httpServletResponse.setHeader("Content-Type", "application/json;charset=UTF-8");
                 httpServletResponse.getWriter().write(JSON.toJSONString(new Result(CodeMsg.NO_LOGIN)));
                 httpServletResponse.getWriter().flush();
                 httpServletResponse.getWriter().close();
             } else {
                 httpServletRequest.getRequestDispatcher("/login").forward(httpServletRequest, httpServletResponse);
             }
+            return false;
         }
         return true;
     }

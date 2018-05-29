@@ -9,6 +9,15 @@ public class DeviceStatus {
     private Date update_time;
     private Integer status;
     private Integer wifi_flag;
+    private String status_text;
+
+    public String getStatus_text() {
+        return status_text;
+    }
+
+    public void setStatus_text(String status_text) {
+        this.status_text = status_text;
+    }
 
     public Integer getArea_id() {
         return area_id;

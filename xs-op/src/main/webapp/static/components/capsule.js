@@ -249,8 +249,6 @@ class CapsuleManageModal extends Modal {
                 resp = resp.data.resp;
                 if (resp.ret == 0) {
                     Modal.open(<AlertModal>
-
-                        设备编号：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
                         目前状态：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
                         wifi链接情况：{resp.wifi_flag == 1 ? '链接成功' : '链接失败'}<br/>
                         最后链接时间：{resp.localtime}<br/>

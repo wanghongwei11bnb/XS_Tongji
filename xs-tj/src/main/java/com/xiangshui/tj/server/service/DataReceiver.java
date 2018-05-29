@@ -2,7 +2,6 @@ package com.xiangshui.tj.server.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.tj.server.bean.*;
-import com.xiangshui.tj.server.constant.GoodAppraiseCache;
 import com.xiangshui.tj.server.constant.ReceiveEvent;
 import com.xiangshui.tj.server.redis.RedisService;
 import com.xiangshui.tj.server.redis.SendMessagePrefix;
@@ -53,6 +52,9 @@ public class DataReceiver {
     WebSocketSessionManager sessionManager;
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    GoodAppraise goodAppraise;
 
     private static final Logger log = LoggerFactory.getLogger(DataReceiver.class);
 
@@ -145,7 +147,7 @@ public class DataReceiver {
             if (appraise.getScore() < 5) {
                 return;
             } else {
-                appraise.setSuggest(GoodAppraiseCache.random());
+                appraise.setSuggest(goodAppraise.random());
             }
         }
         UserTj user = userDataManager.getById(appraise.getUin());
