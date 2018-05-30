@@ -54,12 +54,15 @@ public class DeviceStatusScheduled {
     @Scheduled(fixedDelay = 1000 * 60 * 20)
     public void put() {
         log.debug("［定时任务——获取硬件设备状态——入队］");
-        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withAttributesToGet("capsule_id", "area_id", "device_id"));
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withAttributesToGet("capsule_id", "area_id", "device_id", "type", "status", "is_downline"));
         capsuleList.forEach(capsule -> {
             if (capsule == null) {
                 return;
             }
-            if (capsule.getType() != null && capsule.getType() == 2) {
+            if (
+                    (capsule.getType() != null && capsule.getType() == 2)
+                            || (capsule.getIs_downline() != null && capsule.getIs_downline() == 1)
+                    ) {
                 statusMap.remove(capsule.getCapsule_id());
                 return;
             }
