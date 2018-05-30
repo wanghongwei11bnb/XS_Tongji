@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 @Component
 public class DeviceStatusScheduled {
@@ -54,10 +55,19 @@ public class DeviceStatusScheduled {
     public void put() {
         log.debug("［定时任务——获取硬件设备状态——入队］");
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withAttributesToGet("capsule_id", "area_id", "device_id"));
-        blockingQueue.addAll(capsuleList);
+        capsuleList.forEach(capsule -> {
+            if (capsule == null) {
+                return;
+            }
+            if (capsule.getType() != null && capsule.getType() == 2) {
+                statusMap.remove(capsule.getCapsule_id());
+                return;
+            }
+            blockingQueue.add(capsule);
+        });
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 500)
     public void pop() {
         Capsule capsule = blockingQueue.poll();
         if (capsule == null || StringUtils.isBlank(capsule.getDevice_id())) {
