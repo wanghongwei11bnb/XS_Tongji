@@ -82,6 +82,12 @@ let areaColumns = [
     },
 ];
 
+function isWeiXin() {
+    let ua = window.navigator.userAgent.toLowerCase();
+    return ua.match(/MicroMessenger/i) === 'micromessenger';
+}
+
+
 window.Message = {
     id: 'message',
     msg: function (text, ms) {

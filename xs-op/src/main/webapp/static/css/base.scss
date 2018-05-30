@@ -1,6 +1,12 @@
 
-iframe {
+.tab-content {
   overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+}
+.tab-content > iframe {
+  width: 100%;
+  height: calc(100% - 50px);
 }
 table.calendar {
   tbody td {

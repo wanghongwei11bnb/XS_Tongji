@@ -66,7 +66,7 @@ class Tabs extends React.Component {
 
     render() {
         const {tabs, activeIndex, height} = this.state;
-        return <div className="position-relative d-block">
+        return <div className="position-relative d-block h-100">
             <ul ref="nav" className="nav nav-tabs p-1">
                 {tabs ? tabs.map((tab, index) => {
                     return <li key={`tab-bar-${index}`} className="nav-item">
@@ -83,7 +83,7 @@ class Tabs extends React.Component {
             </ul>
             {tabs ? tabs.map((tab, index) => {
                 return <div key={`tab-content-${tab.title}`}
-                            className={`position-relative w-100 h-100 ${activeIndex == index ? 'show' : 'hide'}`}>
+                            className={`tab-content position-relative w-100 h-100 ${activeIndex == index ? 'show' : 'hide'}`}>
                     {tab.content}
                 </div>
             }) : null}
@@ -93,31 +93,6 @@ class Tabs extends React.Component {
     componentDidUpdate() {
     }
 
-}
-
-
-class Iframe extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
-    render() {
-        return <iframe ref="iframe"   {...this.props}></iframe>
-    }
-
-    resize = () => {
-        this.refs.iframe.height = window.innerHeight - 50;
-    };
-
-    componentDidMount() {
-        this.resize();
-        eventUtil.addHandler(window, 'resize', this.resize);
-    }
-
-    componentWillUnmount() {
-        eventUtil.removeHandler(window, 'resize', this.resize);
-    }
 }
 
 class Page extends React.Component {
@@ -136,11 +111,15 @@ class Page extends React.Component {
 
 
     checkTab = (title, url) => {
+        if (window.innerWidth < 900) {
+            location.assign(url);
+            return;
+        }
         if (this.refs.tabs.getTabByTitle(title)) {
             this.refs.tabs.checkTitle(title);
         } else {
             this.refs.tabs.addTab({
-                title, content: <Iframe src={url} className="w-100 border-0"></Iframe>
+                title, content: <iframe src={url} className="w-100 border-0"></iframe>
             }, true);
         }
     };
@@ -150,7 +129,7 @@ class Page extends React.Component {
         const {showMenu, menuWidth} = this.state;
         return <div className="position-fixed w-100 h-100">
             <div className="position-absolute top-0 bottom-0 left-0 border-right"
-                 style={{width: showMenu ? menuWidth : '50px'}}>
+                 style={{overflow: 'auto', width: showMenu ? menuWidth : '50px'}}>
                 <A className="d-block text-center" onClick={this.toggleMenu}>{showMenu ? '<<' : '>>'}</A>
                 {showMenu ? null : <A className="d-block text-center" onClick={this.logout}>退出</A>}
                 <ul className={`nav flex-column ${showMenu ? '' : 'hide'}`}>
