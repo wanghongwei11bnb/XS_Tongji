@@ -8,6 +8,7 @@ import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,8 +19,11 @@ import java.lang.reflect.Method;
 
 public class AuthPassportInterceptor implements HandlerInterceptor {
 
+    @Value("${isdebug}")
+    boolean debug;
     @Autowired
     OpMapper opMapper;
+
 
 
     @Override
