@@ -23,6 +23,7 @@ $(document).ready(function () {
 
     var timeChart = echarts.init(document.getElementById('time'));
 
+    //周／日  点击切换
     $(".switch_wrap").click(function (e) {    //这种点击方式怎么排除父元素？？？？
         var $clicked = $(e.target);    //e.target 捕捉到触发的元素
         var choice = $(e.target).attr('choice');
@@ -48,6 +49,7 @@ $(document).ready(function () {
         }
     });
 
+    //使用率
     function occupyChartDraw(dateList, valueList, valueList2) {
         var maxValue = Math.ceil(Math.max.apply(null, valueList));
         var maxValue2 = Math.ceil(Math.max.apply(null, valueList2));
@@ -56,6 +58,7 @@ $(document).ready(function () {
         var minValue = Math.floor(Math.min.apply(null, valueList));
         var minValue2 = Math.floor(Math.min.apply(null, valueList2));
         var min = minValue < minValue2 ? minValue : minValue2;
+
         if (max - min < 5) {
             max = min + 5
         }
@@ -147,6 +150,7 @@ $(document).ready(function () {
         });
     }
 
+    //服务人次
     function servicePeopleChartDraw(dateList, valueList) {
         //var result = getMinMaxUtil(Math.min.apply(null, valueList),Math.max.apply(null, valueList));
         var min = Math.min.apply(null, valueList);
@@ -214,6 +218,7 @@ $(document).ready(function () {
         });
     }
 
+    //使用时长
     function timeChartDraw(dateList, valueList) {
         var result = getMinMaxUtil(Math.min.apply(null, valueList), Math.max.apply(null, valueList));
         var min = result.min;
@@ -280,6 +285,7 @@ $(document).ready(function () {
      */
     var orderChart = echarts.init(document.getElementById('order'));
 
+    //城市数组
     var areaData = [
         {name: "无锡"},
         {name: "保定"},
@@ -294,7 +300,9 @@ $(document).ready(function () {
         {name: "武汉"}
     ];
 
+    //
     var mapData = [];
+
 
     var geoCoordMap = {};
 
@@ -319,7 +327,7 @@ $(document).ready(function () {
         }
         return res;
     };
-
+    //地图 option
     option = {
         backgroundColor: '#0e012a',
         tooltip: {
@@ -495,6 +503,7 @@ $(document).ready(function () {
 
     var appraiseSave;
 
+    //评论初始化
     function createDom(sTxt, idName) {
         var oUl = document.getElementById(idName);
         var aLi = oUl.getElementsByTagName("li");
