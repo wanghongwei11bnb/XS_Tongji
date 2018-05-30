@@ -3,8 +3,10 @@ package com.xiangshui.op.scheduled;
 import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.bean.DeviceStatus;
+import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.CapsuleDao;
+import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CapsuleService;
@@ -59,9 +61,9 @@ public class DeviceStatusScheduled {
             if (capsule == null) {
                 return;
             }
-            if (
-                    (capsule.getType() != null && capsule.getType() == 2)
-                            || (capsule.getIs_downline() != null && capsule.getIs_downline() == 1)
+            if ((capsule.getArea_id() != null && capsule.getArea_id() == 1100001)
+                    || (capsule.getType() != null && capsule.getType() == 2)
+                    || (capsule.getIs_downline() != null && capsule.getIs_downline() == 1)
                     ) {
                 statusMap.remove(capsule.getCapsule_id());
                 return;
@@ -74,6 +76,10 @@ public class DeviceStatusScheduled {
     public void pop() {
         Capsule capsule = blockingQueue.poll();
         if (capsule == null || StringUtils.isBlank(capsule.getDevice_id())) {
+            return;
+        }
+        Area area = areaService.getAreaById(capsule.getArea_id());
+        if (area == null || !(area.getStatus() == null || AreaStatusOption.normal.value.equals(area.getStatus()))) {
             return;
         }
         log.debug("［定时任务——获取硬件设备状态］device_id:" + capsule.getDevice_id());
