@@ -27,13 +27,6 @@ class CalendarModal extends Modal {
             <A className="btn btn-link text-secondary" onClick={this.close}>关闭</A>,
         ];
     };
-
-    componentDidMount() {
-        super.componentDidMount();
-        this.refs.dialog.style.maxWidth = '500px';
-        this.refs.dialog.style.minWidth = '500px';
-    }
-
 }
 
 class DateInput extends React.Component {
