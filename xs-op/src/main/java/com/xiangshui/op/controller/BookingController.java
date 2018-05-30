@@ -8,6 +8,7 @@ import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
+import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
@@ -25,6 +26,7 @@ import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -167,6 +169,8 @@ public class BookingController extends BaseController {
             headRow.add("结束时间");
             headRow.add("订单状态");
             headRow.add("订单总金额");
+            headRow.add("实际支付金额");
+            headRow.add("支付方式");
             headRow.add("头等舱编号");
             headRow.add("场地编号");
             headRow.add("场地名称");
@@ -201,7 +205,9 @@ public class BookingController extends BaseController {
                                 DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
                                 : null));
                         row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                        row.add("" + booking.getFinal_price());
+                        row.add(booking.getFinal_price() != null ? booking.getFinal_price() / 100f + "" : "");
+                        row.add(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f + "" : "");
+                        row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
                         row.add("" + booking.getCapsule_id());
                         row.add("" + booking.getArea_id());
                         row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
@@ -223,7 +229,7 @@ public class BookingController extends BaseController {
                 });
             }
 
-            HSSFWorkbook workbook = ExcelUtils.export(data);
+            XSSFWorkbook workbook = ExcelUtils.export(data);
             response.addHeader("Content-Disposition", "attachment;filename=" + new String("booking.xlsx".getBytes()));
             ServletOutputStream outputStream = response.getOutputStream();
             workbook.write(outputStream);

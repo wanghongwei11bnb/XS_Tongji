@@ -32,6 +32,7 @@ class Page extends React.Component {
                     }
                 },
                 {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
+                {field: 'from_bonus', title: '实际支付金额', render: value => type(value) == 'Number' ? value / 100 : value},
                 {
                     field: 'pay_type', title: '支付方式',
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value

@@ -20,6 +20,7 @@ import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -138,7 +139,7 @@ public class FailureReportController extends BaseController {
                     data.add(row);
                 }
             });
-            HSSFWorkbook workbook = ExcelUtils.export(data);
+            XSSFWorkbook workbook = ExcelUtils.export(data);
             response.addHeader("Content-Disposition", "attachment;filename=" + new String("故障报修.xlsx".getBytes()));
             ServletOutputStream outputStream = response.getOutputStream();
             workbook.write(outputStream);

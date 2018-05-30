@@ -1,20 +1,23 @@
 package com.xiangshui.util;
 
-import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.List;
 
 public class ExcelUtils {
 
-    public static HSSFWorkbook export(List<List<String>> data) {
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet();
+    public static XSSFWorkbook export(List<List<String>> data) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("sheet1");
         for (int i = 0; i < data.size(); i++) {
             List<String> item = data.get(i);
-            HSSFRow row = sheet.createRow(i);
+            XSSFRow row = sheet.createRow(i);
             for (int j = 0; j < item.size(); j++) {
                 String value = item.get(j);
-                HSSFCell cell = row.createCell(j);
+                XSSFCell cell = row.createCell(j);
                 cell.setCellValue(value);
             }
         }
