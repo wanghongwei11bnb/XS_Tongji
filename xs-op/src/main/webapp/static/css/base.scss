@@ -125,6 +125,7 @@ table.calendar {
       width: 950px;
       min-width: 70%;
       max-width: 95%;
+      overflow: auto;
       .modal-body {
         min-height: 100px;
         overflow: auto;
