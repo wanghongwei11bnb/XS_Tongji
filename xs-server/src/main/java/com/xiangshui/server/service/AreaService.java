@@ -7,6 +7,8 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
+import com.xiangshui.server.dao.redis.AreaKeyPrefix;
+import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.FailureReport;
@@ -39,9 +41,18 @@ public class AreaService {
     AreaDao areaDao;
     @Autowired
     S3Service s3Service;
+    @Autowired
+    RedisService redisService;
 
     public Area getAreaById(int area_id) {
-        return areaDao.getItem(new PrimaryKey("area_id", area_id));
+        Area area = redisService.get(AreaKeyPrefix.cache, String.valueOf(area_id), Area.class);
+        if (area == null) {
+            area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+            if (area != null) {
+                redisService.set(AreaKeyPrefix.cache, String.valueOf(area_id), area);
+            }
+        }
+        return area;
     }
 
 
@@ -263,6 +274,7 @@ public class AreaService {
                     "is_time_limit",
             });
         }
+        cleanCache(area.getArea_id());
         clean_area_cache_notification();
     }
 
@@ -313,6 +325,7 @@ public class AreaService {
             criteria.setStatus(AreaStatusOption.stay.value);
         }
         areaDao.putItem(criteria);
+        cleanCache(area.getArea_id());
         clean_area_cache_notification();
     }
 
@@ -364,6 +377,7 @@ public class AreaService {
         areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
                 "types",
         });
+        cleanCache(area.getArea_id());
     }
 
     public List<Area> search(Area criteria, String[] attributes) throws NoSuchFieldException, IllegalAccessException {
@@ -401,6 +415,10 @@ public class AreaService {
             Jsoup.connect(debug ? "http://devop.xiangshuispace.com/op/clean_area_cache_notification" : "http://op.xiangshuispace.com/op/clean_area_cache_notification").execute();
         } catch (Exception e) {
         }
+    }
+
+    public void cleanCache(int area_id) {
+        redisService.del(AreaKeyPrefix.cache, String.valueOf(area_id));
     }
 
 

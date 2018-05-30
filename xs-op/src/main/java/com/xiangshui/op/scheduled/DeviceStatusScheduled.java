@@ -61,10 +61,8 @@ public class DeviceStatusScheduled {
             if (capsule == null) {
                 return;
             }
-            if ((capsule.getArea_id() != null && capsule.getArea_id() == 1100001)
-                    || (capsule.getType() != null && capsule.getType() == 2)
-                    || (capsule.getIs_downline() != null && capsule.getIs_downline() == 1)
-                    ) {
+            if ((capsule.getType() != null && capsule.getType() == 2)
+                    || (capsule.getIs_downline() != null && capsule.getIs_downline() == 1)) {
                 statusMap.remove(capsule.getCapsule_id());
                 return;
             }
