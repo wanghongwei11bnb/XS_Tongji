@@ -169,7 +169,7 @@ public class BookingController extends BaseController {
             headRow.add("结束时间");
             headRow.add("订单状态");
             headRow.add("订单总金额");
-            headRow.add("实际支付金额");
+            headRow.add("现金支付金额");
             headRow.add("支付方式");
             headRow.add("头等舱编号");
             headRow.add("场地编号");
@@ -206,7 +206,7 @@ public class BookingController extends BaseController {
                                 : null));
                         row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
                         row.add(booking.getFinal_price() != null ? booking.getFinal_price() / 100f + "" : "");
-                        row.add(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f + "" : "");
+                        row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
                         row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
                         row.add("" + booking.getCapsule_id());
                         row.add("" + booking.getArea_id());
