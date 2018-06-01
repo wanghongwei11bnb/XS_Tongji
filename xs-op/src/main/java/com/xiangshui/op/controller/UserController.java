@@ -49,7 +49,7 @@ public class UserController extends BaseController {
     @Autowired
     WalletRecordDao walletRecordDao;
 
-    @Menu(value = "用户管理", sort = 901)
+    @Menu("用户管理")
     @AuthRequired("用户管理")
     @GetMapping("/user_manage")
     public String index(HttpServletRequest request) {
@@ -59,7 +59,6 @@ public class UserController extends BaseController {
 
     @GetMapping("/api/user/search")
     @ResponseBody
-    @AuthRequired("用户管理")
     public Result search(UserInfo criteria, Date create_date_start, Date create_date_end) {
         List<UserInfo> userInfoList = null;
 
@@ -140,7 +139,7 @@ public class UserController extends BaseController {
 
     @PostMapping("/api/user/{uin:\\d+}/wallet/update/balance")
     @ResponseBody
-    @AuthRequired("用户管理")
+    @AuthRequired("更改用户钱包")
     public Result updateWallet(HttpServletRequest request, @PathVariable("uin") Integer uin, Integer disparity, String subject) throws Exception {
         if (disparity == null || disparity == 0) return new Result(-1, "请输入变动金额");
         if (StringUtils.isBlank(subject)) return new Result(-1, "原因不能为空");
@@ -152,7 +151,6 @@ public class UserController extends BaseController {
 
     @GetMapping("/api/user_wallet/search")
     @ResponseBody
-    @AuthRequired("用户管理")
     public Result user_wallet_search(WalletRecord criteria, Date create_date_start, Date create_date_end) throws Exception {
 
         if (criteria == null) {
