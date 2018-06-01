@@ -129,16 +129,12 @@ public class UserService {
         if (userWallet.getCharge() == null) {
             userWallet.setCharge(0);
         }
-
         userWallet.setBalance(userWallet.getBalance() + disparity);
-
-        if (userWallet.getBonus() + disparity < 0) {
-            userWallet.setBonus(0);
-            userWallet.setCharge(userWallet.getCharge() + userWallet.getBonus() + disparity);
-        } else {
+        if (disparity >= 0) {
             userWallet.setBonus(userWallet.getBonus() + disparity);
+        } else {
+            userWallet.setCharge(userWallet.getCharge() + disparity);
         }
-
         userWalletDao.updateItem(new PrimaryKey("uin", uin), userWallet, new String[]{"balance", "bonus", "charge"});
         WalletRecord walletRecord = new WalletRecord();
         walletRecord.setOut_trade_no(UUID.randomUUID().toString().replaceAll("-", ""));

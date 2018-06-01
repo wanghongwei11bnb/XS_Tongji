@@ -25,24 +25,24 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
     OpMapper opMapper;
 
 
-
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         boolean authed = false;
+        String authName = null;
         AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
         if (authRequired != null) {
             Session session = (Session) httpServletRequest.getAttribute("session");
             if (session != null) {
-                String value = authRequired.value();
-                if (StringUtils.isNotBlank(value)) {
+                authName = authRequired.value();
+                if (StringUtils.isNotBlank(authName)) {
                     Op op = opMapper.selectByPrimaryKey(session.getUsername(), "auths");
                     if (op != null && StringUtils.isNotBlank(op.getAuths())) {
                         String[] authArr = op.getAuths().split(",");
                         if (authArr != null && authArr.length > 0) {
                             for (String auth : authArr) {
-                                if (value.equals(auth)) {
+                                if (authName.equals(auth)) {
                                     authed = true;
                                 }
                             }
@@ -58,10 +58,15 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
         } else {
             if (httpServletRequest.getRequestURI().startsWith("/api")) {
                 httpServletResponse.setHeader("Content-Type", "application/json;charset=UTF-8");
-                httpServletResponse.getWriter().write(new Result(CodeMsg.OPAUTH_FAIL).toString());
+                if (StringUtils.isNotBlank(authName)) {
+                    httpServletResponse.getWriter().write(new Result(CodeMsg.OPAUTH_FAIL).setMsg("没有权限：" + authName).toString());
+                } else {
+                    httpServletResponse.getWriter().write(new Result(CodeMsg.OPAUTH_FAIL).toString());
+                }
                 httpServletResponse.getWriter().flush();
                 httpServletResponse.getWriter().close();
             } else {
+                httpServletRequest.setAttribute("authName", authName);
                 httpServletRequest.getRequestDispatcher("/error/no_auth").forward(httpServletRequest, httpServletResponse);
             }
             return false;
