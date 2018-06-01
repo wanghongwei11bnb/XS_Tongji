@@ -75,54 +75,29 @@ class Page extends React.Component {
         };
     }
 
-    update = (booking_id) => {
-        Modal.open(<BookingUpdateModal booking_id={booking_id} onSuccess={this.load}></BookingUpdateModal>);
-    };
 
-    makeFailureByBooking = (booking_id) => {
-        Modal.open(<FailureModal isNew={true} booking_id={booking_id}></FailureModal>);
+    getQueryParams = () => {
+        return {
+            status: this.refs.status.value,
+            booking_id: this.refs.booking_id.value,
+            area_id: this.refs.area_id.value,
+            capsule_id: this.refs.capsule_id.value,
+            uin: this.refs.uin.value,
+            phone: this.refs.phone.value,
+            create_date_start: this.refs.create_date_start.value,
+            create_date_end: this.refs.create_date_end.value,
+        };
     };
 
     search = () => {
-        this.state.queryParams = {
-            status: this.refs.status.value,
-            booking_id: this.refs.booking_id.value,
-            area_id: this.refs.area_id.value,
-            capsule_id: this.refs.capsule_id.value,
-            create_date_start: this.refs.create_date_start.value,
-            create_date_end: this.refs.create_date_end.value,
-        };
-        this.load();
+        this.refs.bookingGrid.load(this.getQueryParams());
     };
     download = () => {
-        let queryParams = {
-            status: this.refs.status.value,
-            booking_id: this.refs.booking_id.value,
-            area_id: this.refs.area_id.value,
-            capsule_id: this.refs.capsule_id.value,
-            create_date_start: this.refs.create_date_start.value,
-            create_date_end: this.refs.create_date_end.value,
-            download: true,
-        };
+        let queryParams = this.getQueryParams();
+        queryParams.download = true;
         window.open(`/api/booking/search?${queryString(queryParams)}`)
     };
-    load = () => {
-        request({
-            url: '/api/booking/search', loading: true,
-            data: this.state.queryParams,
-            success: (resp) => {
-                if (resp.code == 0) {
-                    this.state.bookingList = resp.data.bookingList;
-                    this.setState({
-                        data: resp.data.bookingList,
-                        areaMapOptions: new AreaMapOptions(resp.data.areaList),
-                        userInfoMapOptions: new UserInfoMapOptions(resp.data.userInfoList),
-                    });
-                } else {
-                }
-            }
-        });
-    };
+
 
     render() {
         const {columns, data} = this.state;
@@ -151,13 +126,21 @@ class Page extends React.Component {
                 <input ref="capsule_id" type="text"
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
+                uin：
+                <input ref="uin" type="text"
+                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+
+                手机号：
+                <input ref="phone" type="text"
+                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
 
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
-            <Table columns={columns} data={data}></Table>
+            <BookingGrid ref="bookingGrid"></BookingGrid>
             <ModalContainer></ModalContainer>
         </div>;
     }

@@ -5,15 +5,14 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.bean.UserSearch;
+import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
-import com.xiangshui.server.dao.UserFaceDao;
-import com.xiangshui.server.dao.UserInfoDao;
-import com.xiangshui.server.dao.UserRegisterDao;
-import com.xiangshui.server.dao.UserWalletDao;
 import com.xiangshui.server.dao.redis.RedisService;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.UserInfoRelation;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-
     @Autowired
     RedisService redisService;
 
@@ -40,6 +38,8 @@ public class UserService {
     UserRegisterDao userRegisterDao;
     @Autowired
     UserFaceDao userFaceDao;
+    @Autowired
+    WalletRecordDao walletRecordDao;
 
 
     public UserInfo getUserInfoByUin(int uin) {
@@ -65,112 +65,12 @@ public class UserService {
         } else {
             return null;
         }
-
     }
 
-    public List<UserFace> getUserFaceListByUin(int uin) {
-        return userFaceDao.scan(new ScanSpec().withFilterExpression("uin = :uin").withValueMap(new ValueMap().withInt(":uin", uin)));
-    }
-
-
-    public List<UserInfo> search(UserSearch userSearch) {
-        List<UserInfo> userInfoList = new ArrayList<UserInfo>();
-        if (userSearch == null) {
-            return userInfoList;
-        }
-        if (userSearch.getUin() != null) {
-            UserInfo userInfo = getUserInfoByUin(userSearch.getUin());
-            if (userInfo != null) {
-                userInfoList.add(userInfo);
-            }
-        } else if (StringUtils.isNotBlank(userSearch.getPhone())) {
-            ScanSpec scanSpec = new ScanSpec().withFilterExpression("phone = :phone").withValueMap(new ValueMap().withString(":phone", userSearch.getPhone()));
-            userInfoList = userInfoDao.scan(scanSpec);
-        } else {
-            ScanSpec scanSpec = new ScanSpec();
-        }
-        return userInfoList;
-    }
-
-
-    public List<UserInfoRelation> mapperRelation(List<UserInfo> userInfoList) {
-        if (userInfoList == null) {
-            return null;
-        }
-        List<UserInfoRelation> userInfoRelationList = new ArrayList<UserInfoRelation>();
-        for (UserInfo userInfo : userInfoList) {
-            UserInfoRelation userInfoRelation = new UserInfoRelation();
-            BeanUtils.copyProperties(userInfo, userInfoRelation);
-            userInfoRelation.set_userWallet(getUserWalletByUin(userInfo.getUin()));
-            userInfoRelation.set_userRegister(getUserRegisterByUin(userInfo.getUin()));
-        }
-
-        return userInfoRelationList;
-    }
-
-
-    public List<UserInfo> getUserInfoListByUins(Integer[] uins) {
-        if (uins == null || uins.length == 0) {
-            return null;
-        }
-        return userInfoDao.batchGetItem("uin", uins);
-    }
-
-
-    public Map<Integer, UserInfo> getUserInfoMapByUins(Integer[] uins) {
-        if (uins == null || uins.length == 0) {
-            return null;
-        }
-        List<UserInfo> userInfoList = userInfoDao.batchGetItem("uin", uins);
-        if (userInfoList == null || userInfoList.size() == 0) {
-            return null;
-        }
-        Map<Integer, UserInfo> userInfoMap = new HashMap<Integer, UserInfo>(userInfoList.size());
-        for (UserInfo userInfo : userInfoList) {
-            userInfoMap.put(userInfo.getUin(), userInfo);
-        }
-        return userInfoMap;
-    }
 
     public void matchUserInfoForBooking(BookingRelation bookingRelation) {
         if (bookingRelation == null || bookingRelation.getUin() == null) return;
         bookingRelation.set_userInfo(getUserInfoByUin(bookingRelation.getUin()));
-    }
-
-
-    public void matchUserInfoForBooking(List<BookingRelation> bookingRelationList) {
-        if (bookingRelationList == null || bookingRelationList.size() == 0) return;
-
-        Set<Integer> uinSet = new HashSet<Integer>();
-        for (BookingRelation bookingRelation : bookingRelationList) {
-            if (bookingRelation.getUin() != null) {
-                uinSet.add(bookingRelation.getUin());
-            }
-        }
-        Map<Integer, UserInfo> userInfoMap = getUserInfoMapByUins(uinSet.toArray(new Integer[0]));
-        for (BookingRelation bookingRelation : bookingRelationList) {
-            if (userInfoMap.containsKey(bookingRelation.getUin())) {
-                bookingRelation.set_userInfo(userInfoMap.get(bookingRelation.getUin()));
-            }
-        }
-    }
-
-
-    public UserInfoRelation toRelation(UserInfo userInfo) {
-        if (userInfo == null) return null;
-        UserInfoRelation userInfoRelation = new UserInfoRelation();
-        BeanUtils.copyProperties(userInfo, userInfoRelation);
-        return userInfoRelation;
-    }
-
-    public List<UserInfoRelation> toRelation(List<UserInfo> userInfoList) {
-        if (userInfoList == null) return null;
-        List<UserInfoRelation> userInfoRelationList = new ArrayList<UserInfoRelation>(userInfoList.size());
-        for (UserInfo userInfo : userInfoList) {
-            UserInfoRelation userInfoRelation = toRelation(userInfo);
-            userInfoRelationList.add(userInfoRelation);
-        }
-        return userInfoRelationList;
     }
 
 
@@ -199,5 +99,58 @@ public class UserService {
             }
         }, new Integer[0]);
     }
+
+
+//    enum BookingType {
+//        SLEEP_BOOKING_TYPE     = 0; //扫码睡觉订单
+//        DEPOSIT_BOOKING_TYPE   = 1; //押金充值订单
+//        CHARGE_BOOKING_TYPE    = 2; //钱包充值订单
+//        DEPOSIT_OP_TYPE        = 3; //op押金修改
+//        CHARGE_OP_TYPE         = 4; //op钱包修改
+//        DEPOSIT_REFUND_WX_TYPE = 5; //押金微信退款
+//        DEPOSIT_REFUND_ALI_TYPE= 6; //押金支付宝退款
+//
+//    }
+
+
+    public void updateUserBalance(int uin, int disparity, String subject, String op_username) throws Exception {
+        UserInfo userInfo = getUserInfoByUin(uin);
+        UserWallet userWallet = getUserWalletByUin(uin);
+        if (userInfo == null || userWallet == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+
+        if (userWallet.getBalance() == null) {
+            userWallet.setBalance(0);
+        }
+        if (userWallet.getBonus() == null) {
+            userWallet.setBonus(0);
+        }
+        if (userWallet.getCharge() == null) {
+            userWallet.setCharge(0);
+        }
+
+        userWallet.setBalance(userWallet.getBalance() + disparity);
+
+        if (userWallet.getBonus() + disparity < 0) {
+            userWallet.setBonus(0);
+            userWallet.setCharge(userWallet.getCharge() + userWallet.getBonus() + disparity);
+        } else {
+            userWallet.setBonus(userWallet.getBonus() + disparity);
+        }
+
+        userWalletDao.updateItem(new PrimaryKey("uin", uin), userWallet, new String[]{"balance", "bonus", "charge"});
+        WalletRecord walletRecord = new WalletRecord();
+        walletRecord.setOut_trade_no(UUID.randomUUID().toString().replaceAll("-", ""));
+        walletRecord.setUin(userInfo.getUin());
+        walletRecord.setPhone(userInfo.getPhone());
+        walletRecord.setPrice(disparity);
+        walletRecord.setType(4);
+        walletRecord.setOperator(op_username);
+        walletRecord.setSubject(subject);
+        walletRecord.setCreate_time(System.currentTimeMillis() / 1000);
+        walletRecordDao.putItem(walletRecord);
+    }
+
 
 }

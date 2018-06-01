@@ -14,10 +14,13 @@ public class UserWallet {
      */
     private Integer bonus;
 
+    /**
+     * 实际支付
+     */
     private Integer charge;
 
     /**
-     * 实际支付
+     * 押金
      */
     private Integer deposit;
 

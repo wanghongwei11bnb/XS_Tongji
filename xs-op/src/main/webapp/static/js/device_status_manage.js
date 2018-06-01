@@ -48,6 +48,12 @@ class Page extends React.Component {
                         return value ? new Date(value).format() : value;
                     }
                 },
+                // {
+                //     field: 'device_id', title: '操作', render: value => {
+                //         return [<button className="btn btn-sm btn-primary m-1"
+                //                         onClick={showDeviceStatus.bind(null, value)}>此时此刻</button>];
+                //     }
+                // },
             ],
         };
     }

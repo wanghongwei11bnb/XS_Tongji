@@ -1,3 +1,21 @@
+function showDeviceStatus(device_id) {
+    request({
+        url: `/api/device/${device_id}/status`, method: 'post', loading: true,
+        success: resp => {
+            resp = resp.data.resp;
+            if (resp.ret == 0) {
+                Modal.open(<AlertModal>
+                    目前状态：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
+                    wifi链接情况：{resp.wifi_flag == 1 ? '链接成功' : '链接失败'}<br/>
+                    最后链接时间：{resp.localtime}<br/>
+                </AlertModal>)
+            } else {
+                Message.msg(resp.err || '未知错误');
+            }
+        }
+    });
+}
+
 class CapsuleModal extends Modal {
     constructor(props) {
         super(props);
@@ -206,7 +224,7 @@ class CapsuleManageModal extends Modal {
                             <button type="button" className="btn btn-sm m-1 btn-primary"
                                     onClick={this.openUpdateModal.bind(this, row.capsule_id)}>编辑</button>,
                             <button type="button" className="btn btn-sm m-1 btn-primary"
-                                    onClick={this.showDeviceStatus.bind(this, row.device_id)}>查看硬件设备状态</button>,
+                                    onClick={showDeviceStatus.bind(this, row.device_id)}>查看硬件设备状态</button>,
                             <button type="button" className="btn btn-sm m-1 btn-success"
                                     onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>创建报修</button>,
 
@@ -242,24 +260,6 @@ class CapsuleManageModal extends Modal {
         Modal.open(<FailureModal isNew={true} capsule_id={capsule_id}></FailureModal>);
     };
 
-    showDeviceStatus = (device_id) => {
-        request({
-            url: `/api/device/${device_id}/status`, method: 'post', loading: true,
-            success: resp => {
-                resp = resp.data.resp;
-                if (resp.ret == 0) {
-                    Modal.open(<AlertModal>
-                        目前状态：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
-                        wifi链接情况：{resp.wifi_flag == 1 ? '链接成功' : '链接失败'}<br/>
-                        最后链接时间：{resp.localtime}<br/>
-                    </AlertModal>)
-                } else {
-                    Message.msg(resp.err || '未知错误');
-                }
-            }
-        });
-
-    };
 
     openCreateModal = () => {
         const {area_id} = this.state;
