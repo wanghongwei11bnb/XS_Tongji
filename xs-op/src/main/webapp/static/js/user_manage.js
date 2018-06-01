@@ -115,7 +115,7 @@ class UserWalletUpdateModal extends Modal {
     submit = () => {
         if (type(this.refs.disparity.value - 0) !== 'Number' || type(this.refs.disparity.value - 0) === 0) return Message.msg('变化金额输入有误');
         if (!this.refs.subject.value) return Message.msg('请选择原因');
-        if (this.refs.disparity.value - 0 <= 0) return Message.msg('赞不支持扣款');
+        if (this.refs.disparity.value - 0 <= 0) return Message.msg('暂不支持扣款');
         request({
             url: `/api/user/${this.state.uin}/wallet/update/balance`,
             method: 'post', loading: true,
