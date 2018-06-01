@@ -1,78 +1,3 @@
-class UserWalletUpdateModal extends Modal {
-    constructor(props) {
-        super(props);
-        this.state = {
-            uin: props.uin,
-        };
-    }
-
-    renderHeader = () => {
-        return '修改钱包金额'
-    };
-
-    renderBody = () => {
-        return <table className="table table-bordered">
-            <tbody>
-            <tr>
-                <th>变化金额(￥)</th>
-                <td>
-                    <input ref="disparity" type="text" className="form-control"/>
-                    <div className="text-danger">
-                        注意: 负数代表扣除钱包(例:-8) 正数代表添加钱包(例:8)
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <th>原因</th>
-                <td>
-                    <select ref="subject" className="form-control">
-                        <option value=""></option>
-                        <option value="奖励赠送">奖励赠送</option>
-                        <option value="回访奖励">回访奖励</option>
-                        <option value="用户补偿">用户补偿</option>
-                        <option value="体验金">体验金</option>
-                        <option value="订单扣款">订单扣款</option>
-                        <option value="包月赠送">包月赠送</option>
-                        <option value="测试">测试</option>
-                        <option value="损坏赔偿">损坏赔偿</option>
-                        <option value="押金退款">押金退款</option>
-                    </select>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    };
-
-    submit = () => {
-        if (type(this.refs.disparity.value - 0) !== 'Number' || type(this.refs.disparity.value - 0) === 0) return Message.msg('变化金额输入有误');
-        if (!this.refs.subject.value) return Message.msg('请选择原因');
-
-        request({
-            url: `/api/user/${this.state.uin}/wallet/update/balance`,
-            method: 'post', loading: true,
-            data: {
-                disparity: Math.floor((this.refs.disparity.value - 0) * 100),
-                subject: this.refs.subject.value,
-            },
-            success: resp => {
-                Message.msg('保存成功');
-                this.close();
-                if (this.props.onSuccess) this.props.onSuccess();
-            }
-        });
-
-    };
-
-    renderFooter = () => {
-        return [
-            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
-            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
-        ]
-    };
-
-
-}
-
 class WalletRecordGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -142,6 +67,142 @@ class WalletRecordGridModal extends Modal {
     }
 }
 
+class UserWalletUpdateModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            uin: props.uin,
+        };
+    }
+
+    renderHeader = () => {
+        return '修改钱包金额'
+    };
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>变化金额(￥)</th>
+                <td>
+                    <input ref="disparity" type="text" className="form-control"/>
+                    <div className="text-danger">
+                        注意: 负数代表扣除钱包(例:-8) 正数代表添加钱包(例:8)
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>原因</th>
+                <td>
+                    <select ref="subject" className="form-control">
+                        <option value=""></option>
+                        <option value="奖励赠送">奖励赠送</option>
+                        <option value="回访奖励">回访奖励</option>
+                        <option value="用户补偿">用户补偿</option>
+                        <option value="体验金">体验金</option>
+                        <option value="订单扣款">订单扣款</option>
+                        <option value="包月赠送">包月赠送</option>
+                        <option value="测试">测试</option>
+                        <option value="损坏赔偿">损坏赔偿</option>
+                        <option value="押金退款">押金退款</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+    submit = () => {
+        if (type(this.refs.disparity.value - 0) !== 'Number' || type(this.refs.disparity.value - 0) === 0) return Message.msg('变化金额输入有误');
+        if (!this.refs.subject.value) return Message.msg('请选择原因');
+        if (this.refs.disparity.value - 0 <= 0) return Message.msg('赞不支持扣款');
+        request({
+            url: `/api/user/${this.state.uin}/wallet/update/balance`,
+            method: 'post', loading: true,
+            data: {
+                disparity: Math.floor((this.refs.disparity.value - 0) * 100),
+                subject: this.refs.subject.value,
+            },
+            success: resp => {
+                Message.msg('保存成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
+
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ]
+    };
+
+
+}
+
+class UserWalletModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            uin: props.uin,
+        };
+    }
+
+    renderHeader = () => '用户钱包信息';
+
+
+    renderBody = () => {
+        const {userWallet} = this.state;
+        return userWallet ? <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>押金</th>
+                <td width="50%">{type(userWallet.deposit) === 'Number' ? userWallet.deposit / 100 : 0}</td>
+            </tr>
+            <tr>
+                <th>钱包总余额</th>
+                <td>{type(userWallet.balance) === 'Number' ? userWallet.balance / 100 : 0}</td>
+            </tr>
+            <tr>
+                <th>钱包充值余额</th>
+                <td>{type(userWallet.charge) === 'Number' ? userWallet.charge / 100 : 0}</td>
+            </tr>
+            <tr>
+                <th>钱包赠送余额</th>
+                <td>{type(userWallet.bonus) === 'Number' ? userWallet.bonus / 100 : 0}</td>
+            </tr>
+            <tr>
+                <th></th>
+                <td>
+                    <button className="btn btn-sm btn-primary m-1" onClick={this.updateBalance}>钱包充值／扣款</button>
+                </td>
+            </tr>
+            </tbody>
+        </table> : null;
+    };
+
+    updateBalance = () => {
+        Modal.open(<UserWalletUpdateModal uin={this.state.uin} onSuccess={this.load}></UserWalletUpdateModal>);
+    };
+
+    load = () => {
+        request({
+            url: `/api/user/${this.state.uin}/wallet`, loading: true,
+            success: resp => {
+                this.setState({userWallet: resp.data.userWallet});
+            }
+        });
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.load();
+    }
+
+}
+
 
 class UserGrid extends React.Component {
     constructor(props) {
@@ -163,8 +224,6 @@ class UserGrid extends React.Component {
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showUserWallet.bind(this, value)}>钱包／押金查看</button>,
                             <button className="btn btn-sm btn-primary m-1"
-                                    onClick={this.showUserWalletUpdateModal.bind(this, value)}>钱包充值／扣款</button>,
-                            <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showWalletRecordGridModal.bind(this, value)}>查看钱包记录</button>,
                         ];
                     }
@@ -179,41 +238,8 @@ class UserGrid extends React.Component {
     };
 
 
-    showUserWalletUpdateModal = (uin) => {
-        Modal.open(<UserWalletUpdateModal uin={uin}></UserWalletUpdateModal>);
-    };
-
     showUserWallet = (uin) => {
-
-        request({
-            url: `/api/user/${uin}/wallet`, loading: true,
-            success: resp => {
-                let userWallet = resp.data.userWallet;
-                Modal.open(<AlertModal>
-                    <table className="table table-bordered">
-                        <tbody>
-                        <tr>
-                            <th>押金</th>
-                            <td width="50%">{type(userWallet.deposit) === 'Number' ? userWallet.deposit / 100 : 0}</td>
-                        </tr>
-                        <tr>
-                            <th>钱包总余额</th>
-                            <td>{type(userWallet.balance) === 'Number' ? userWallet.balance / 100 : 0}</td>
-                        </tr>
-                        <tr>
-                            <th>钱包充值余额</th>
-                            <td>{type(userWallet.charge) === 'Number' ? userWallet.charge / 100 : 0}</td>
-                        </tr>
-                        <tr>
-                            <th>钱包赠送余额</th>
-                            <td>{type(userWallet.bonus) === 'Number' ? userWallet.bonus / 100 : 0}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </AlertModal>);
-            }
-        });
-
+        Modal.open(<UserWalletModal uin={uin}></UserWalletModal>);
     };
 
     showBookingList = (uin) => {
@@ -243,7 +269,6 @@ class UserGrid extends React.Component {
     }
 
 }
-
 
 class Page extends React.Component {
     constructor(props) {
