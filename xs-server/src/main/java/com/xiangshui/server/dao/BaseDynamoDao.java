@@ -116,7 +116,7 @@ abstract public class BaseDynamoDao<T> {
     }
 
     public List<T> scan(ScanSpec scanSpec) {
-        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0 || scanSpec.getMaxResultSize() > maxResultSize) {
+        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0) {
             scanSpec.setMaxResultSize(maxResultSize);
         }
         Table table = getTable();

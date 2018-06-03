@@ -191,11 +191,9 @@ public class BookingController extends BaseController {
                         if (area == null) {
                             return;
                         }
-                        if (
-                                AreaStatusOption.offline.value.equals(area.getStatus())
-                                        || AreaStatusOption.stay.value.equals(area.getStatus())
-//                                || area.getTitle().indexOf("待运营") > -1
-                                ) {
+                        if (AreaStatusOption.offline.value.equals(area.getStatus())
+                                || AreaStatusOption.stay.value.equals(area.getStatus())
+                                || area.getTitle().indexOf("待运营") > -1) {
                             return;
                         }
                         List<String> row = new ArrayList<>();
