@@ -112,6 +112,7 @@ public class DeviceController extends BaseController {
                     row.add(area.getCity());
                     row.add(area.getAddress());
                     row.add(String.valueOf(deviceStatus.getCapsule_id()));
+                    row.add(deviceStatus.getDevice_id());
                     row.add(deviceStatus.getStatus() != null && (deviceStatus.getStatus() & 1) == 0 ? "关闭" : "打开");
                     row.add(deviceStatus.getWifi_flag() != null && deviceStatus.getWifi_flag() == 1 ? "链接成功" : "链接失败");
                     row.add(deviceStatus.getStatus_text());
