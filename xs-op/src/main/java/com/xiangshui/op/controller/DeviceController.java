@@ -10,16 +10,21 @@ import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Controller
 public class DeviceController extends BaseController {
@@ -50,7 +55,8 @@ public class DeviceController extends BaseController {
 
     @GetMapping("/api/device_status/search")
     @ResponseBody
-    public Result search() {
+    public Result search(HttpServletRequest request, HttpServletResponse response, Boolean download) throws IOException {
+        if (download == null) download = false;
         List<DeviceStatus> deviceStatusList = new ArrayList<>();
         deviceStatusScheduled.statusMap.forEach((aLong, deviceStatus) -> {
             deviceStatusList.add(deviceStatus);
@@ -69,10 +75,65 @@ public class DeviceController extends BaseController {
                 }
             }, new Integer[0]);
         }
-        return new Result(CodeMsg.SUCCESS)
-                .putData("deviceStatusList", deviceStatusList)
-                .putData("areaList", areaList)
-                ;
+        if (download) {
+
+            Map<Integer, Area> areaMap = new HashMap<>();
+            if (areaList != null) {
+                for (Area area : areaList) {
+                    if (area != null) {
+                        areaMap.put(area.getArea_id(), area);
+                    }
+                }
+            }
+
+            List<List<String>> data = new ArrayList<>();
+            List<String> headRow = new ArrayList<>();
+            headRow.add("场地编号");
+            headRow.add("场地名称");
+            headRow.add("城市");
+            headRow.add("地址");
+            headRow.add("头等舱编号");
+            headRow.add("设备ID");
+            headRow.add("门状态");
+            headRow.add("WIFI状态");
+            headRow.add("其他");
+            headRow.add("获取时间");
+            data.add(headRow);
+            deviceStatusList.forEach(new Consumer<DeviceStatus>() {
+                @Override
+                public void accept(DeviceStatus deviceStatus) {
+                    Area area = areaMap.get(deviceStatus.getArea_id());
+                    if (area == null) {
+                        return;
+                    }
+                    List<String> row = new ArrayList<>();
+                    row.add(String.valueOf(deviceStatus.getArea_id()));
+                    row.add(area.getTitle());
+                    row.add(area.getCity());
+                    row.add(area.getAddress());
+                    row.add(String.valueOf(deviceStatus.getCapsule_id()));
+                    row.add(deviceStatus.getStatus() != null && (deviceStatus.getStatus() & 1) == 0 ? "关闭" : "打开");
+                    row.add(deviceStatus.getWifi_flag() != null && deviceStatus.getWifi_flag() == 1 ? "链接成功" : "链接失败");
+                    row.add(deviceStatus.getStatus_text());
+                    data.add(row);
+                }
+            });
+
+            XSSFWorkbook workbook = ExcelUtils.export(data);
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String("status.xlsx".getBytes()));
+            ServletOutputStream outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            outputStream.flush();
+            outputStream.close();
+            workbook.close();
+            return null;
+
+        } else {
+            return new Result(CodeMsg.SUCCESS)
+                    .putData("deviceStatusList", deviceStatusList)
+                    .putData("areaList", areaList)
+                    ;
+        }
     }
 
     @Menu("实时设备状态——更新")

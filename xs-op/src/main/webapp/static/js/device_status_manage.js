@@ -48,12 +48,6 @@ class Page extends React.Component {
                         return value ? new Date(value).format() : value;
                     }
                 },
-                // {
-                //     field: 'device_id', title: '操作', render: value => {
-                //         return [<button className="btn btn-sm btn-primary m-1"
-                //                         onClick={showDeviceStatus.bind(null, value)}>此时此刻</button>];
-                //     }
-                // },
             ],
         };
     }
@@ -68,6 +62,10 @@ class Page extends React.Component {
                 });
             }
         });
+    };
+
+    download = () => {
+        window.open(`/api/device_status/search?${queryString({download: true})}`)
     };
 
     refresh = () => {
@@ -86,6 +84,7 @@ class Page extends React.Component {
         const {columns, data} = this.state;
         return <div className="container-fluid my-3">
             <button className="btn btn-success btn-sm m-1" type="button" onClick={this.load}>刷新</button>
+            <button className="btn btn-success btn-sm m-1" type="button" onClick={this.download}>下载</button>
             <Table columns={columns} data={data}></Table>
             <ModalContainer></ModalContainer>
         </div>;
