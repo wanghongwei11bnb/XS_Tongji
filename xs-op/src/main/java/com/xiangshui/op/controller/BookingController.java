@@ -169,7 +169,9 @@ public class BookingController extends BaseController {
             headRow.add("结束时间");
             headRow.add("订单状态");
             headRow.add("订单总金额");
-            headRow.add("现金支付金额");
+            headRow.add("实际充值金额");
+            headRow.add("系统赠送金额");
+            headRow.add("实际付款金额");
             headRow.add("支付方式");
             headRow.add("头等舱编号");
             headRow.add("场地编号");
@@ -197,15 +199,19 @@ public class BookingController extends BaseController {
                             return;
                         }
                         List<String> row = new ArrayList<>();
-                        row.add("" + booking.getBooking_id());
-                        row.add("" + (booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
+                        row.add(String.valueOf(booking.getBooking_id()));
+                        row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
                                 DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
-                                : null));
+                                : ""));
                         row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
                                 DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
                                 : null));
                         row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                        row.add(booking.getFinal_price() != null ? booking.getFinal_price() / 100f + "" : "");
+                        row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
+
+                        row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
+                        row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
+
                         row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
                         row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
                         row.add("" + booking.getCapsule_id());

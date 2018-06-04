@@ -102,7 +102,7 @@ class BookingGrid extends React.Component {
                     }
                 },
                 {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
-                {field: 'use_pay', title: '现金支付金额', render: value => type(value) == 'Number' ? value / 100 : value},
+                {field: 'use_pay', title: '实际付款金额', render: value => type(value) == 'Number' ? value / 100 : value},
                 {
                     field: 'pay_type', title: '支付方式',
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
@@ -202,4 +202,54 @@ class BookingGridModal extends Modal {
         super.componentDidMount();
         this.refs.bookingGrid.load(this.state.queryParams);
     }
+}
+
+
+class BookingModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            booking_id: props.booking_id,
+        };
+    }
+
+    renderHeader = () => {
+        return '订单信息';
+    };
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>订单编号</th>
+                <td>
+                    <input ref="booking_id" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>订单编号</th>
+                <td>
+                    <input ref="booking_id" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>订单编号</th>
+                <td>
+                    <input ref="booking_id" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>订单编号</th>
+                <td>
+                    <input ref="booking_id" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>订单编号</th>
+                <td>
+                    <input ref="booking_id" type="text" className="form-control"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>;
+    };
 }

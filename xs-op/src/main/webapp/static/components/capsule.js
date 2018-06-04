@@ -71,10 +71,8 @@ class CapsuleModal extends Modal {
 
     renderFooter = () => {
         return [
-            <button type="button" className="btn btn-link btn-sm btn-primary float-right"
-                    onClick={this.submit}>保存</button>,
-            <button type="button" className="btn btn-link btn-sm btn-secondary float-right"
-                    onClick={this.close}>取消</button>,
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
         ];
     };
 

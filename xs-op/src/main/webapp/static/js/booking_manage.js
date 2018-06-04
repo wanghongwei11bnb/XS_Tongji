@@ -3,75 +3,7 @@ class Page extends React.Component {
         super(props);
         this.state = {
             payType: {5: '公众号支付', 7: '支付宝移动页面支付', 9: '微信小程序支付', 30: '新用户注册赠送', 1: '微信支付', 2: '支付宝支付', 20: '钱包余额支付'},
-            columns: [
-                {field: 'booking_id', title: '订单编号'},
-                {
-                    field: 'create_time', title: '创建时间', render: (value, row, index) => {
-                        return value ? new Date(value * 1000).format('yyyy-MM-dd hh:mm') : value;
-                    }
-                },
-                {
-                    field: 'end_time', title: '结束时间', render: (value, row, index) => {
-                        return value ? new Date(value * 1000).format('yyyy-MM-dd hh:mm') : value;
-                    }
-                },
-                {
-                    field: 'status', title: '订单状态', render: (value, row, index) => {
-                        switch (value) {
-                            case 1:
-                                return <span className="text-success">进行中</span>;
-                            case 2:
-                                return <span className="text-warning">待支付</span>;
-                            case 3:
-                                return <span className="text-warning">待支付（支付中）</span>;
-                            case 4:
-                                return <span className="text-secondary">已支付</span>;
-                            default:
-                                return value;
-                        }
-                    }
-                },
-                {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
-                {field: 'use_pay', title: '现金支付金额', render: value => type(value) == 'Number' ? value / 100 : value},
-                {
-                    field: 'pay_type', title: '支付方式',
-                    render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
-                },
-                {field: 'capsule_id', title: '头等舱编号'},
-                {field: 'area_id', title: '场地编号'},
-                {
-                    field: 'area_id', title: '场地名称', render: (value, row, index) => {
-                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null;
-                    }
-                },
-                {
-                    field: 'area_id', title: '城市', render: (value, row, index) => {
-                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).city : null;
-                    }
-                },
-                {
-                    field: 'area_id', title: '地址', render: (value, row, index) => {
-                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null;
-                    }
-                },
-                {field: 'uin', title: '用户UIN'},
-                {
-                    field: 'uin', title: '用户手机号', render: (value, row, index) => {
-                        return value && this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null;
-                    }
-                },
-                {field: 'req_from', title: '订单来源'},
-                {
-                    render: (value, row, index) => {
-                        return [
-                            <button type="button" className="btn btn-primary btn-sm m-1"
-                                    onClick={this.update.bind(this, row.booking_id)}>更改订单信息</button>,
-                            <button type="button" className="btn btn-success btn-sm m-1"
-                                    onClick={this.makeFailureByBooking.bind(this, row.booking_id)}>创建报修</button>,
-                        ]
-                    }
-                },
-            ]
+
         };
     }
 
@@ -100,7 +32,6 @@ class Page extends React.Component {
 
 
     render() {
-        const {columns, data} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
                 订单创建时间：
