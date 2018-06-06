@@ -363,7 +363,7 @@ class AreaGrid extends React.Component {
                         }
                     }
                 },
-                {field: 'contact', title: '联系方式'},
+                // {field: 'contact', title: '联系方式'},
                 {field: 'minute_start', title: '最少时长（分钟）'},
                 {
                     field: 'is_time_limit', title: '限时标记', render: (value, row, index) => {

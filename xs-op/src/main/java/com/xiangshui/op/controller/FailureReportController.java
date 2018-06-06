@@ -140,7 +140,7 @@ public class FailureReportController extends BaseController {
                 }
             });
             XSSFWorkbook workbook = ExcelUtils.export(data);
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String("故障报修.xlsx".getBytes()));
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String("failure.xlsx".getBytes()));
             ServletOutputStream outputStream = response.getOutputStream();
             workbook.write(outputStream);
             outputStream.flush();

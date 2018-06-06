@@ -105,6 +105,18 @@ class Page extends React.Component {
         this.load();
     };
 
+    download = () => {
+        location.assign(`/api/failure/search?${queryString({
+            start_date: this.refs.start_date.value,
+            end_date: this.refs.end_date.value,
+            op_status: this.refs.op_status.value,
+            capsule_id: this.refs.capsule_id.value,
+            booking_id: this.refs.booking_id.value,
+            download: true,
+        })}`);
+
+    };
+
     load = () => {
         const {queryParams} = this.state;
         request({
@@ -143,6 +155,7 @@ class Page extends React.Component {
                 <input ref="booking_id" type="text"
                        className="form-control form-control-sm  d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <div className="text-danger">最多返回{maxResultSize}条</div>
             <div className="table-responsive">

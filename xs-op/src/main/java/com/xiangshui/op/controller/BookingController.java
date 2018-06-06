@@ -10,6 +10,7 @@ import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
@@ -19,6 +20,7 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
+import com.xiangshui.util.CallBack;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.Option;
@@ -31,6 +33,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.Jedis;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +57,9 @@ public class BookingController extends BaseController {
     DeviceService deviceService;
     @Autowired
     CapsuleService capsuleService;
+
+    @Autowired
+    RedisService redisService;
 
 
     @Autowired
@@ -280,10 +286,12 @@ public class BookingController extends BaseController {
         if (booking.getStatus() == 1) {
             Capsule capsule = capsuleService.getCapsuleById(booking.getCapsule_id());
             if (capsule == null) return new Result(-1, "未查到头等舱信息");
-            if (!deviceService.isLocked(capsule.getDevice_id())) return new Result(-1, "门锁没有关闭");
+            //设备与订单解绑
             deviceService.relieveBooking(capsule.getDevice_id());
+            //更改舱状态
             capsule.setStatus(CapsuleStatusOption.free.value);
             capsuleDao.updateItem(new PrimaryKey("capsule_id", capsule.getCapsule_id()), capsule, new String[]{"status"});
+            //更改订单
             booking.setEnd_time(System.currentTimeMillis() / 1000);
             booking.setStatus(status);
             booking.setFinal_price(final_price);
@@ -292,7 +300,15 @@ public class BookingController extends BaseController {
                     "final_price",
                     "end_time"
             });
+            //redis
+            redisService.run(object -> {
+                object.zrem("time_out", String.valueOf(booking.getUin()));
+                object.zrem("time_out_new", String.valueOf(booking.getUin()));
+                object.srem("capsule_time", String.valueOf(booking.getCapsule_id()));
+            });
+
         } else {
+            //更改订单
             booking.setFinal_price(final_price);
             bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                     "final_price",
