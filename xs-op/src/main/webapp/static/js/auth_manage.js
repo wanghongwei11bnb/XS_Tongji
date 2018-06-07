@@ -128,6 +128,75 @@ class CitysModal extends Modal {
     }
 }
 
+class AreasModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            onSuccess: props.onSuccess,
+            username: props.username,
+        };
+    }
+
+    submit = () => {
+        let areas = [];
+        areaList.map((area) => {
+            if (this.refs[area.area_id] && this.refs[area.area_id].checked) {
+                areas.push(area.area_id);
+            }
+        });
+        request({
+            url: '/api/op/update/areas', method: 'post', loading: true,
+            data: {
+                username: this.state.username,
+                areas: areas.join(','),
+            },
+            success: resp => {
+                Message.msg('保存成功');
+                this.close();
+                if (this.state.onSuccess) this.state.onSuccess();
+            }
+        });
+    };
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            {areaList.map((area) => {
+                return <tr>
+                    <td><input ref={area.area_id} id={area.area_id} className="form-check-input float-right"
+                               type="checkbox"/></td>
+                    <td>{area.title}</td>
+                    <td>{area.city}</td>
+                    <td>{area.address}</td>
+                </tr>
+            })}
+            </tbody>
+        </table>;
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        request({
+            url: '/api/op/areas', loading: true,
+            data: {username: this.state.username},
+            success: resp => {
+                resp.data.areas.map((area) => {
+                    if (this.refs[area]) {
+                        this.refs[area].checked = true;
+                    }
+                });
+            }
+        });
+    }
+}
+
 
 class OpGrid extends React.Component {
     constructor(props) {
@@ -160,13 +229,28 @@ class OpGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'username', title: '',
+                    field: 'areas', title: '场地', render: (value) => {
+                        if (type(value) == 'String') {
+                            let areas = value.split(",");
+                            if (areas && areas.length > 0) {
+                                return areas.map((area) => {
+                                    return <span
+                                        className="badge badge-primary m-1">{areaMapOptions && areaMapOptions.get(area) ? areaMapOptions.get(area).title : area}</span>;
+                                });
+                            }
+                        }
+                    }
+                },
+                {
+                    field: 'username', title: '操作',
                     render: (value) => {
                         return [
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.updateAuths.bind(this, value)}>更改权限</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.updateCitys.bind(this, value)}>分配城市</button>,
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.updateAreas.bind(this, value)}>分配场地</button>,
                         ];
                     }
                 },
@@ -179,6 +263,9 @@ class OpGrid extends React.Component {
     };
     updateCitys = (username) => {
         Modal.open(<CitysModal username={username} onSuccess={this.load}></CitysModal>);
+    };
+    updateAreas = (username) => {
+        Modal.open(<AreasModal username={username} onSuccess={this.load}></AreasModal>);
     };
 
     load = () => {
@@ -213,6 +300,12 @@ class Page extends React.Component {
     }
 }
 
+request({
+    url: '/api/op/areas/options', success: resp => {
+        window.areaList = resp.data.areaList;
+        window.areaMapOptions = new AreaMapOptions(resp.data.areaList);
+    }
+});
 request({
     url: '/api/cityList',
     success: (resp) => {

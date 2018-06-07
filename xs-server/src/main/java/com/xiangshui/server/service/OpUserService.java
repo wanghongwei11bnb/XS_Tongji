@@ -99,6 +99,28 @@ public class OpUserService {
         return citySet;
     }
 
+    public Set<Integer> getAreaSet(String username) {
+        Set<Integer> areaSet = redisService.get(OpPrefix.area_set, username, HashSet.class);
+
+        if (areaSet == null) {
+            areaSet = new HashSet<Integer>();
+            Op op = getOpByUsername(username, null);
+            if (op != null && StringUtils.isNotBlank(op.getAreas())) {
+                String[] areaArray = op.getAreas().split(",");
+                if (areaArray != null && areaArray.length > 0) {
+                    for (String area : areaArray) {
+                        if (StringUtils.isNotBlank(area)) {
+                            areaSet.add(Integer.valueOf(area));
+                        }
+                    }
+                }
+            }
+            redisService.set(OpPrefix.area_set, username, areaSet);
+        }
+        return areaSet;
+    }
+
+
     public boolean authArea(Op op, int area_id) {
         if (op == null) return false;
         String areas = op.getAreas();

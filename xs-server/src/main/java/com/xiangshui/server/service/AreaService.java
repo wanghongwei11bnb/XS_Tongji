@@ -382,31 +382,24 @@ public class AreaService {
 
     public List<Area> search(Area criteria, String[] attributes) throws NoSuchFieldException, IllegalAccessException {
         if (criteria == null) {
-            return areaDao.scan();
+            criteria = new Area();
         }
-        if (criteria.getArea_id() != null) {
-            List<Area> areaList = new ArrayList<Area>();
-            Area area = getAreaById(criteria.getArea_id());
-            if (area != null) {
-                areaList.add(area);
-            }
-            return areaList;
-        } else {
-            ScanSpec scanSpec = new ScanSpec();
-            List<ScanFilter> filterList = areaDao.makeScanFilterList(criteria, new String[]{
-                    "city", "status",
-            });
-            if (filterList == null) filterList = new ArrayList<ScanFilter>();
-            if (StringUtils.isNotBlank(criteria.getTitle())) {
-                filterList.add(new ScanFilter("title").contains(criteria.getTitle()));
-            }
-            if (StringUtils.isNotBlank(criteria.getAddress())) {
-                filterList.add(new ScanFilter("address").contains(criteria.getAddress()));
-            }
-            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
-            List<Area> areaList = areaDao.scan(scanSpec);
-            return areaList;
+        ScanSpec scanSpec = new ScanSpec();
+        List<ScanFilter> filterList = areaDao.makeScanFilterList(criteria, new String[]{
+                "area_id", "city", "status",
+        });
+        if (filterList == null) filterList = new ArrayList<>();
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            filterList.add(new ScanFilter("title").contains(criteria.getTitle()));
         }
+        if (StringUtils.isNotBlank(criteria.getAddress())) {
+            filterList.add(new ScanFilter("address").contains(criteria.getAddress()));
+        }
+        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[]{}));
+        if (attributes != null && attributes.length > 0) {
+            scanSpec.withAttributesToGet(attributes);
+        }
+        return areaDao.scan(scanSpec);
 
     }
 

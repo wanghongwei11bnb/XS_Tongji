@@ -6,9 +6,11 @@ import com.xiangshui.op.annotation.LoginRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
+import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -25,9 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class AuthController extends BaseController {
@@ -40,6 +40,9 @@ public class AuthController extends BaseController {
 
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    AreaService areaService;
 
 
     public Set<String> getAuthSet(HttpServletRequest request) {
@@ -109,16 +112,6 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("auths", opUserService.getAuthSet(username));
     }
 
-    @AuthRequired("OP权限管理")
-    @GetMapping("/api/op/citys")
-    @ResponseBody
-    public Result citys(String username) {
-        Op op = opMapper.selectByPrimaryKey(username, null);
-        if (op == null) {
-            return new Result(CodeMsg.NO_FOUND);
-        }
-        return new Result(CodeMsg.SUCCESS).putData("citys", opUserService.getCitySet(username));
-    }
 
     @AuthRequired("OP权限管理")
     @PostMapping("/api/op/update/auths")
@@ -137,6 +130,18 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+
+    @AuthRequired("OP权限管理")
+    @GetMapping("/api/op/citys")
+    @ResponseBody
+    public Result citys(String username) {
+        Op op = opMapper.selectByPrimaryKey(username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        return new Result(CodeMsg.SUCCESS).putData("citys", opUserService.getCitySet(username));
+    }
+
     @AuthRequired("OP权限管理")
     @PostMapping("/api/op/update/citys")
     @ResponseBody
@@ -149,6 +154,46 @@ public class AuthController extends BaseController {
             citys = "";
         }
         op.setCitys(citys);
+        opMapper.updateByPrimaryKeySelective(op);
+        opUserService.cleanCache(username);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+
+    @AuthRequired("OP权限管理")
+    @GetMapping("/api/op/areas/options")
+    @ResponseBody
+    public Result areas_options() throws NoSuchFieldException, IllegalAccessException {
+        List<Area> areaList = areaService.search(null, new String[]{"area_id", "title", "city", "address"});
+        if (areaList != null && areaList.size() > 0) {
+            areaList.sort((o1, o2) -> o2.getArea_id() - o1.getArea_id());
+        }
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
+    }
+
+    @AuthRequired("OP权限管理")
+    @GetMapping("/api/op/areas")
+    @ResponseBody
+    public Result areas(String username) {
+        Op op = opMapper.selectByPrimaryKey(username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        return new Result(CodeMsg.SUCCESS).putData("areas", opUserService.getAreaSet(username));
+    }
+
+    @AuthRequired("OP权限管理")
+    @PostMapping("/api/op/update/areas")
+    @ResponseBody
+    public Result update_areas(String username, String areas) {
+        Op op = opMapper.selectByPrimaryKey(username, "username");
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        if (StringUtils.isBlank(areas)) {
+            areas = "";
+        }
+        op.setAreas(areas);
         opMapper.updateByPrimaryKeySelective(op);
         opUserService.cleanCache(username);
         return new Result(CodeMsg.SUCCESS);

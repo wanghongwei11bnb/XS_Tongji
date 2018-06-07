@@ -93,6 +93,13 @@ public class IndexController extends BaseController {
                 }
             });
         }
+        Set<Integer> areaSet = opUserService.getAreaSet(op_username);
+        if (areaSet != null && areaSet.size() > 0) {
+            WebMenu webMenu = new WebMenu();
+            webMenu.setTitle("我的场地");
+            webMenu.setPath("/main_area_manage");
+            webMenuListActive.add(webMenu);
+        }
         request.setAttribute("webMenuList", JSON.toJSONString(webMenuListActive));
         return "index";
     }

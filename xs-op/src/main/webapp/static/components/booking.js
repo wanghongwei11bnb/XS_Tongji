@@ -204,6 +204,35 @@ class BookingGridModal extends Modal {
     }
 }
 
+class BookingGridView extends BookingGrid {
+    constructor(props) {
+        super(props);
+        this.state.columns.splice(this.state.columns.length - 1, 1);
+    }
+}
+
+
+class BookingGridViewModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            queryParams: props.queryParams
+        };
+    }
+
+    renderHeader = () => {
+        return '订单列表';
+    };
+
+    renderBody = () => {
+        return <BookingGridView ref="bookingGrid" url={this.props.url}></BookingGridView>;
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.refs.bookingGrid.load(this.state.queryParams);
+    }
+}
 
 class BookingModal extends Modal {
     constructor(props) {
