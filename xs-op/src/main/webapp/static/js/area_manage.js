@@ -12,10 +12,21 @@ class AreaManageGrid extends AreaGrid {
                             onClick={this.showCapsuleModal.bind(this, row.area_id)}>管理头等舱</button>,
                     <button type="button" className="btn btn-sm btn-primary m-1"
                             onClick={this.editTypes.bind(this, row)}>编辑类型</button>,
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.showBooking.bind(this, row.area_id)}>30日内订单</button>,
                 ];
             }
         });
     }
+
+    showBooking = (area_id) => {
+        Modal.open(<BookingGridModal url={`/api/area/${area_id}/booking/search`}
+                                     queryParams={{
+                                         area_id,
+                                         create_date_start: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).format('yyyy-MM-dd')
+                                     }}
+        ></BookingGridModal>);
+    };
 
     showCapsuleModal = (area_id) => {
         Modal.open(<CapsuleManageModal area_id={area_id}></CapsuleManageModal>);

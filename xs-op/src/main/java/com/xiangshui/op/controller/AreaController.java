@@ -5,6 +5,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.CapsuleService;
@@ -17,8 +18,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -148,5 +151,17 @@ public class AreaController extends BaseController {
     @ResponseBody
     public Result device_status(@PathVariable("device_id") String device_id) throws IOException {
         return new Result(CodeMsg.SUCCESS).putData("resp", areaService.deviceStatus(device_id));
+    }
+
+
+    @Autowired
+    BookingController bookingController;
+
+    @GetMapping("/api/area/{area_id:\\d+}/booking/search")
+    @ResponseBody
+    public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws Exception {
+        Booking criteria = new Booking();
+        criteria.setArea_id(area_id);
+        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, false);
     }
 }

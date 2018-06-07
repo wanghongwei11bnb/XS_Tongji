@@ -11,6 +11,7 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.City;
 import com.xiangshui.server.service.*;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -139,5 +141,19 @@ public class CityAreaController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+
+    @Autowired
+    BookingController bookingController;
+
+    @GetMapping("/api/city/{city}/area/{area_id:\\d+}/booking/search")
+    @ResponseBody
+    public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("city") String city, @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws Exception {
+        if (!checkCity(request, city)) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
+        }
+        Booking criteria = new Booking();
+        criteria.setArea_id(area_id);
+        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, false);
+    }
 
 }

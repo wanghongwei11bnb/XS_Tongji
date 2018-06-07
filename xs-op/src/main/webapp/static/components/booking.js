@@ -160,7 +160,7 @@ class BookingGrid extends React.Component {
             this.state.queryParams = queryParams;
         }
         request({
-            url: '/api/booking/search', loading: true,
+            url: this.props.url || '/api/booking/search', loading: true,
             data: this.state.queryParams,
             success: (resp) => {
                 if (resp.code == 0) {
@@ -195,7 +195,7 @@ class BookingGridModal extends Modal {
     };
 
     renderBody = () => {
-        return <BookingGrid ref="bookingGrid"></BookingGrid>;
+        return <BookingGrid ref="bookingGrid" url={this.props.url}></BookingGrid>;
     };
 
     componentDidMount() {
