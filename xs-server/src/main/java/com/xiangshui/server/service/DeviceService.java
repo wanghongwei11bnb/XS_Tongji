@@ -6,6 +6,7 @@ import com.xiangshui.server.dao.DeviceRelationDao;
 import com.xiangshui.server.domain.DeviceRelation;
 import com.xiangshui.server.exception.XiangShuiException;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +67,7 @@ public class DeviceService {
                             + "/api/device/close_device?"
                             + "&device_id=" + device_id
                             + "&device_seq=16")
-                    .header("User-Uin", "100000").execute();
+                    .header("User-Uin", "100000").method(Connection.Method.POST).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
