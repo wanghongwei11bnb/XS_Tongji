@@ -7,6 +7,10 @@ class Table extends React.Component {
     render() {
         const {columns, data} = this.props;
 
+        columns.map((column) => {
+            column.total = null;
+        });
+
         const tbody = <tbody>
         {data ? data.map((row, index) => {
             return <tr>
