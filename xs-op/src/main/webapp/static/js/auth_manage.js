@@ -300,6 +300,8 @@ class Page extends React.Component {
     }
 }
 
+window.areaMapOptions = null;
+window.areaList = [];
 request({
     url: '/api/op/areas/options', success: resp => {
         window.areaList = resp.data.areaList;
