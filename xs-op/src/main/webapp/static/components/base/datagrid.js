@@ -6,21 +6,17 @@ class Table extends React.Component {
 
     render() {
         const {columns, data} = this.props;
-        const theadHtml = <thead>
-        <tr>
-            <th colSpan={columns.length} className="text-danger">
-                {data ? `${data.length}条数据` : null}
-            </th>
-        </tr>
-        <tr>{columns.map((column) => {
-            return <th width={column.width}>{column.title || column.field}</th>
-        })}</tr>
-        </thead>;
-        const tbodyHtml = <tbody>
+
+        const tbody = <tbody>
         {data ? data.map((row, index) => {
             return <tr>
                 {columns.map((column, cIndex) => {
                     let value = column.field ? row[column.field] : null;
+
+                    if (column.totalHandle) {
+                        column.total = column.totalHandle(column.total, value);
+                    }
+
                     if (column.render) {
                         return <td>{column.render(value, row, index)}</td>
                     } else {
@@ -30,8 +26,19 @@ class Table extends React.Component {
             </tr>
         }) : null}
         </tbody>;
+        const thead = <thead>
+        <tr>
+            <th colSpan={columns.length} className="text-danger">
+                {data ? `${data.length}条数据` : null}
+            </th>
+        </tr>
+        <tr>{columns.map((column) => {
+            return <th width={column.width}>{column.title || column.field}{column.totalHandle ?
+                <span className="text-danger">Total（{column.total}）</span> : null}</th>
+        })}</tr>
+        </thead>;
         return (<table className="table table-hover table-bordered">
-            {theadHtml}{tbodyHtml}
+            {thead}{tbody}
         </table>);
     }
 }

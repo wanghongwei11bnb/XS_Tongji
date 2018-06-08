@@ -101,8 +101,24 @@ class BookingGrid extends React.Component {
                         }
                     }
                 },
-                {field: 'final_price', title: '订单总金额', render: value => type(value) == 'Number' ? value / 100 : value},
-                {field: 'use_pay', title: '实际付款金额', render: value => type(value) == 'Number' ? value / 100 : value},
+                {
+                    field: 'final_price', title: '订单总金额',
+                    render: value => type(value) == 'Number' ? value / 100 : value,
+                    totalHandle: (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        if (type(value) !== 'Number') value = 0;
+                        return (total + value / 100).toFixed(2) - 0;
+                    }
+                },
+                {
+                    field: 'use_pay', title: '实际付款金额',
+                    render: value => type(value) == 'Number' ? value / 100 : value,
+                    totalHandle: (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        if (type(value) !== 'Number') value = 0;
+                        return (total + value / 100).toFixed(2) - 0;
+                    }
+                },
                 {
                     field: 'pay_type', title: '支付方式',
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
