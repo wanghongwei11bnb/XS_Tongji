@@ -288,6 +288,7 @@ public class BookingController extends BaseController {
             if (capsule == null) return new Result(-1, "未查到头等舱信息");
             //设备与订单解绑
             deviceService.relieveBooking(capsule.getDevice_id());
+            deviceService.no_order(capsule.getDevice_id());
             //更改舱状态
             capsule.setStatus(CapsuleStatusOption.free.value);
             capsuleDao.updateItem(new PrimaryKey("capsule_id", capsule.getCapsule_id()), capsule, new String[]{"status"});

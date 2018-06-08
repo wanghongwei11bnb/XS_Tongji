@@ -158,13 +158,22 @@ class AreasModal extends Modal {
         });
     };
 
+    clean = () => {
+        areaList.map((area) => {
+            if (this.refs[area.area_id] && this.refs[area.area_id].checked) {
+                this.refs[area.area_id].checked = false;
+            }
+        });
+    };
+
     renderBody = () => {
-        return <table className="table table-bordered">
+        return <table className="table table-bordered table-hover">
             <tbody>
             {areaList.map((area) => {
                 return <tr>
-                    <td><input ref={area.area_id} id={area.area_id} className="form-check-input float-right"
-                               type="checkbox"/></td>
+                    <td className="text-right">
+                        <input ref={area.area_id} className="form-check-input" type="checkbox"/>
+                    </td>
                     <td>{area.title}</td>
                     <td>{area.city}</td>
                     <td>{area.address}</td>
@@ -176,6 +185,7 @@ class AreasModal extends Modal {
 
     renderFooter = () => {
         return [
+            <A className="btn btn-link text-danger float-right" onClick={this.clean}>清空</A>,
             <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
             <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
         ];
@@ -298,21 +308,27 @@ class Page extends React.Component {
             <ModalContainer></ModalContainer>
         </div>;
     }
+
+    componentDidMount() {
+        request({
+            url: '/api/op/areas/options', success: resp => {
+                window.areaList = resp.data.areaList;
+                window.areaMapOptions = new AreaMapOptions(resp.data.areaList);
+                this.setState({});
+            }
+        });
+        request({
+            url: '/api/cityList',
+            success: (resp) => {
+                window.cityList = resp.data.cityList;
+                this.setState({});
+            }
+        });
+    }
 }
 
 window.areaMapOptions = null;
 window.areaList = [];
-request({
-    url: '/api/op/areas/options', success: resp => {
-        window.areaList = resp.data.areaList;
-        window.areaMapOptions = new AreaMapOptions(resp.data.areaList);
-    }
-});
-request({
-    url: '/api/cityList',
-    success: (resp) => {
-        window.cityList = resp.data.cityList;
-    }
-});
+
 
 ReactDOM.render(<Page/>, document.getElementById('root'));
