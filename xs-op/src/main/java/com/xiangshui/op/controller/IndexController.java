@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.WebMenu;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.mapper.OpMapper;
 import com.xiangshui.server.service.OpUserService;
@@ -66,7 +67,7 @@ public class IndexController extends BaseController {
             });
             this.authMenuList = authMenuList;
         }
-        String op_username = (String) request.getAttribute("op_username");
+        String op_username = UsernameLocal.get();
         Set<String> authSet = opUserService.getAuthSet(op_username);
 
 

@@ -1,9 +1,12 @@
 package com.xiangshui.op.interceptor;
 
+import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 public class AuthPassportInterceptor implements HandlerInterceptor {
 
@@ -23,6 +27,9 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
     boolean debug;
     @Autowired
     OpMapper opMapper;
+
+    @Autowired
+    OpUserService opUserService;
 
 
     @Override
@@ -33,20 +40,13 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
         String authName = null;
         AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
         if (authRequired != null) {
-            Session session = (Session) httpServletRequest.getAttribute("session");
+            Session session = SessionLocal.get();
             if (session != null) {
                 authName = authRequired.value();
                 if (StringUtils.isNotBlank(authName)) {
-                    Op op = opMapper.selectByPrimaryKey(session.getUsername(), "auths");
-                    if (op != null && StringUtils.isNotBlank(op.getAuths())) {
-                        String[] authArr = op.getAuths().split(",");
-                        if (authArr != null && authArr.length > 0) {
-                            for (String auth : authArr) {
-                                if (authName.equals(auth)) {
-                                    authed = true;
-                                }
-                            }
-                        }
+                    Set<String> authSet = opUserService.getAuthSet(session.getUsername());
+                    if (authSet.contains(authName)) {
+                        authed = true;
                     }
                 }
             }

@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.CapsuleStatusOption;
@@ -77,6 +78,8 @@ public class BookingController extends BaseController {
     UserService userService;
     @Autowired
     BookingService bookingService;
+    @Autowired
+    OpUserService opUserService;
 
     @Menu(value = "订单管理")
     @AuthRequired("订单管理（全国）")
@@ -91,9 +94,18 @@ public class BookingController extends BaseController {
     public Result search(HttpServletRequest request, HttpServletResponse response,
                          Long booking_id, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end,
                          Boolean download) throws Exception {
+        String op_username = UsernameLocal.get();
+        boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
+        boolean auth_booking_download = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_download);
+
         if (download == null) {
             download = false;
         }
+
+        if (download && !auth_booking_download) {
+            return new Result(CodeMsg.OPAUTH_FAIL);
+        }
+
         List<Booking> bookingList = null;
         if (booking_id != null) {
             Booking booking = bookingService.getBookingById(booking_id);
@@ -104,7 +116,7 @@ public class BookingController extends BaseController {
         } else if (StringUtils.isNotBlank(city)) {
             bookingList = bookingService.getBookingListByCity(city);
         } else {
-            List<ScanFilter> filterList = bookingDao.makeScanFilterList(criteria, "area_id", "capsule_id", "uin", "status");
+            List<ScanFilter> filterList = bookingDao.makeScanFilterList(criteria, "area_id", "capsule_id", "uin", "status", "by_op");
             if (create_date_start != null && create_date_end != null) {
                 filterList.add(new ScanFilter("create_time").between(
                         create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
@@ -134,7 +146,6 @@ public class BookingController extends BaseController {
         List<Area> areaList = null;
         List<UserInfo> userInfoList = null;
         if (bookingList != null && bookingList.size() > 0) {
-            userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
             areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
             Collections.sort(bookingList, new Comparator<Booking>() {
                 @Override
@@ -142,6 +153,10 @@ public class BookingController extends BaseController {
                     return -(int) (o1.getCreate_time() - o2.getCreate_time());
                 }
             });
+            if (auth_booking_show_phone) {
+                userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
+
+            }
         }
         if (download) {
             Map<Integer, Area> areaMap = new HashMap<>();
@@ -258,6 +273,22 @@ public class BookingController extends BaseController {
         }
     }
 
+    @AuthRequired("更改订单")
+    @GetMapping("/api/booking/{booking_id:\\d+}/user/byops")
+    @ResponseBody
+    public Result byops(HttpServletRequest request, HttpServletResponse response, @PathVariable("booking_id") Long booking_id, Date create_date_start, Date create_date_end) throws Exception {
+        Booking booking = bookingService.getBookingById(booking_id);
+        if (booking == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        Integer uin = booking.getUin();
+        booking = new Booking();
+        booking.setUin(uin);
+        booking.setBy_op(1);
+        return search(request, response, null, null, null, booking, create_date_start, create_date_end, false);
+    }
+
+
     @GetMapping("/api/booking/{booking_id:\\d+}")
     @ResponseBody
     public Result get(@PathVariable("booking_id") Long booking_id) {
@@ -278,6 +309,7 @@ public class BookingController extends BaseController {
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
+        booking.setBy_op(1);
         if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
 
         if (status == null || status != 2) return new Result(-1, "只能更改为待支付");
@@ -299,7 +331,8 @@ public class BookingController extends BaseController {
             bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                     "status",
                     "final_price",
-                    "end_time"
+                    "end_time",
+                    "by_op",
             });
             //redis
             redisService.run(object -> {
@@ -313,6 +346,7 @@ public class BookingController extends BaseController {
             booking.setFinal_price(final_price);
             bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                     "final_price",
+                    "by_op",
             });
         }
         return new Result(CodeMsg.SUCCESS);

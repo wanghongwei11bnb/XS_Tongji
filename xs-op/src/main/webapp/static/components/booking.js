@@ -42,8 +42,13 @@ class BookingUpdateModal extends Modal {
         </table>
     };
 
+    byops = () => {
+        Modal.open(<BookingGridByOpModal booking_id={this.state.booking_id}></BookingGridByOpModal>);
+    };
+
     renderFooter = () => {
         return [
+            <A className="btn btn-link text-danger float-right" onClick={this.byops}>查看该用户的30日内订单更改纪录</A>,
             <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
             <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
         ];
@@ -140,7 +145,7 @@ class BookingGrid extends React.Component {
                         return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null;
                     }
                 },
-                {field: 'uin', title: '用户UIN'},
+                {field: 'uin', title: '用户编号'},
                 {
                     field: 'uin', title: '用户手机号', render: (value, row, index) => {
                         return value && this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null;
@@ -159,6 +164,16 @@ class BookingGrid extends React.Component {
                 },
             ],
         };
+        if (!auth_booking_show_phone) {
+            for (let i = 0; i < this.state.columns.length; i++) {
+                if (this.state.columns[i].title === '用户手机号') {
+                    this.state.columns.splice(i, 1);
+                    break;
+                }
+            }
+
+
+        }
     }
 
     update = (booking_id) => {
@@ -197,6 +212,29 @@ class BookingGrid extends React.Component {
         return <Table columns={columns} data={data}></Table>;
     }
 }
+
+
+class BookingGridByOpModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            booking_id: props.booking_id,
+        };
+    }
+
+    renderBody = () => {
+        return <BookingGrid ref="grid" url={`/api/booking/${this.state.booking_id}/user/byops`} queryParams={{
+            create_date_start: new Date().format('yyyy-MM-dd'),
+            create_date_end: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).format('yyyy-MM-dd'),
+        }}></BookingGrid>
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.refs.grid.load();
+    }
+}
+
 
 class BookingGridModal extends Modal {
     constructor(props) {

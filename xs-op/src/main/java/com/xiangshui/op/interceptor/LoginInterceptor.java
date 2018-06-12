@@ -2,6 +2,7 @@ package com.xiangshui.op.interceptor;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
@@ -32,7 +33,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 ) {
             return true;
         }
-        Session session = (Session) httpServletRequest.getAttribute("session");
+        Session session = SessionLocal.get();
         if (session == null) {
             if (httpServletRequest.getRequestURI().startsWith("/api/")) {
                 httpServletResponse.setHeader("Content-Type", "application/json;charset=UTF-8");

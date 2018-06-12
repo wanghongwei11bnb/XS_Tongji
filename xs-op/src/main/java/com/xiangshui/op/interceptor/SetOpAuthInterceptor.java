@@ -2,6 +2,8 @@ package com.xiangshui.op.interceptor;
 
 import com.xiangshui.op.bean.OpRecord;
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.SessionLocal;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
@@ -30,8 +32,6 @@ public class SetOpAuthInterceptor implements HandlerInterceptor {
     RedisService redisService;
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
-        httpServletRequest.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));
-        httpServletRequest.setAttribute("debug", debug);
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -40,8 +40,8 @@ public class SetOpAuthInterceptor implements HandlerInterceptor {
                     if (StringUtils.isNotBlank(op_session)) {
                         Session session = redisService.get(OpPrefix.session, op_session, Session.class);
                         if (session != null) {
-                            httpServletRequest.setAttribute("session", session);
-                            httpServletRequest.setAttribute("op_username", session.getUsername());
+                            SessionLocal.set(session);
+                            UsernameLocal.set(session.getUsername());
                         }
                     }
                 }
@@ -55,6 +55,7 @@ public class SetOpAuthInterceptor implements HandlerInterceptor {
     }
 
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
-
+        UsernameLocal.remove();
+        SessionLocal.remove();
     }
 }

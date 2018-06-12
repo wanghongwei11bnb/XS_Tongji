@@ -15,6 +15,7 @@ import com.xiangshui.server.relation.FailureReportRelation;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.FailureReportService;
 import com.xiangshui.server.service.UserService;
+import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -127,7 +128,7 @@ public class FailureReportController extends BaseController {
                     row.add(failureReport.getUin() + "");
                     row.add(failureReport.getPhone() + "");
                     row.add(failureReport.getBooking_id() + "");
-                    row.add(failureReport.getCreate_time() + "");
+                    row.add(failureReport.getCreate_time() != null ? DateUtils.format(failureReport.getCreate_time() * 1000, "yyyy-MM-dd") : "");
                     row.add(failureReport.getReq_from() + "");
                     row.add(failureReport.getApp_version() + "");
                     row.add(failureReport.getClient_type() + "");

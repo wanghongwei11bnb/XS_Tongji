@@ -1,6 +1,7 @@
 package com.xiangshui.op.controller;
 
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.mysql.Op;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -70,5 +72,13 @@ public class OpController extends BaseController {
             }
         }
         return new Result(CodeMsg.SUCCESS);
+    }
+
+    @PostMapping("/api/authSet")
+    @ResponseBody
+    public Result authSet(HttpServletRequest request) {
+        String op_username = UsernameLocal.get();
+        Set<String> authSet = opUserService.getAuthSet(op_username);
+        return new Result(CodeMsg.SUCCESS).putData("authSet", authSet);
     }
 }

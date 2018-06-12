@@ -7,6 +7,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.CityRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
@@ -53,7 +54,7 @@ public class CityAreaController extends BaseController {
 
 
     public boolean checkCity(HttpServletRequest request, String city) {
-        Session session = (Session) request.getAttribute("session");
+        Session session = SessionLocal.get();
         if (session == null || StringUtils.isBlank(session.getUsername()) || StringUtils.isBlank(city)) {
             return false;
         }

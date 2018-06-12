@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingDao;
@@ -36,6 +37,10 @@ public class BookingService {
 
     public Booking getBookingById(long booking_id) {
         return bookingDao.getItem(new PrimaryKey("booking_id", booking_id));
+    }
+
+    public Booking getBookingById(long booking_id, String[] fields) {
+        return bookingDao.getItem(new GetItemSpec().withPrimaryKey(new PrimaryKey("booking_id", booking_id)).withAttributesToGet(fields));
     }
 
 

@@ -312,6 +312,16 @@ class UserInfoMapOptions extends MapOptions {
     }
 }
 
+class AuthMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option || null;
+    }
+}
+
 function queryString(json) {
     return Object.keys(json).map(function (key) {
         return `${encodeURIComponent(key)}=${encodeURIComponent(json[key])}`;

@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AreaRequired;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
@@ -52,7 +53,7 @@ public class MyAreaController extends BaseController {
     @GetMapping("/api/main_area/search")
     @ResponseBody
     public Result search(HttpServletRequest request) {
-        String op_username = (String) request.getAttribute("op_username");
+        String op_username = UsernameLocal.get();
         Set<Integer> areaSet = opUserService.getAreaSet(op_username);
         List<Area> areaList = areaService.getAreaListByIds(areaSet.toArray(new Integer[areaSet.size()]));
         if (areaList != null && areaList.size() > 0) {

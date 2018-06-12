@@ -59,6 +59,8 @@ public class AuthController extends BaseController {
                     authSet.add(authRequired.value());
                 }
             }
+            authSet.add(AuthRequired.auth_booking_download);
+            authSet.add(AuthRequired.auth_booking_show_phone);
         }
         return this.authSet;
     }
@@ -198,6 +200,5 @@ public class AuthController extends BaseController {
         opUserService.cleanCache(username);
         return new Result(CodeMsg.SUCCESS);
     }
-
 
 }

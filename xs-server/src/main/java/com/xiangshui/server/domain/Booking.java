@@ -33,6 +33,17 @@ public class Booking {
 
     private Integer appraise_flag;
 
+    private Integer by_op;
+
+    public Integer getBy_op() {
+        return by_op;
+    }
+
+    public Booking setBy_op(Integer by_op) {
+        this.by_op = by_op;
+        return this;
+    }
+
     public Long getBooking_id() {
         return booking_id;
     }
