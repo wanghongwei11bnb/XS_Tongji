@@ -1,6 +1,7 @@
 package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
@@ -31,7 +32,7 @@ public class UploadController extends BaseController {
     @Autowired
     S3Service s3Service;
 
-
+    @AuthRequired("上传头等舱图片")
     @PostMapping("/api/upload/area_img")
     @ResponseBody
     public Result upload_area_img(MultipartFile uploadFile) throws IOException {

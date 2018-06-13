@@ -142,10 +142,6 @@ class Page extends React.Component {
                     <li className="nav-item float-right">
                         <A className="nav-link" onClick={this.logout}>退出</A>
                     </li>
-                    <li className="nav-item float-right px-2">
-                        <FileUploadButton className="btn btn-sm btn-success">头等舱图片上传</FileUploadButton>
-                    </li>
-
                 </ul>
                 {showMenu ? <span
                     className="position-absolute bottom-0 left-0 w-100 text-secondary"

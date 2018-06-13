@@ -39,6 +39,7 @@ import redis.clients.jedis.Jedis;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -350,6 +351,14 @@ public class BookingController extends BaseController {
             });
         }
         return new Result(CodeMsg.SUCCESS);
+    }
+
+
+    @PostMapping("/api/booking/{booking_id:\\d+}/checkPrice")
+    @ResponseBody
+    public Result checkPrice(@PathVariable("booking_id") Long booking_id) throws IOException {
+        int price = bookingService.checkPrice(booking_id);
+        return new Result(CodeMsg.SUCCESS).putData("price", price);
     }
 
 

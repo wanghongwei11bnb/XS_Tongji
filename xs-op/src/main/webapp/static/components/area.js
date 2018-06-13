@@ -63,6 +63,7 @@ class AreaModal extends Modal {
         const {create, update} = this.state;
         if (create || update) {
             return [
+                <FileUploadButton className="btn btn-sm btn-success">头等舱图片上传</FileUploadButton>,
                 <button type="button" className="btn btn-link text-primary" onClick={this.submit}>保存</button>,
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>,
             ];

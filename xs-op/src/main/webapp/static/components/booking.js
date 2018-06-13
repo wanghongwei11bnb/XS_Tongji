@@ -21,13 +21,32 @@ class BookingUpdateModal extends Modal {
         });
     };
 
+    checkPrice = () => {
+        request({
+            url: `/api/booking/${this.state.booking_id}/checkPrice`, method: 'post', loading: true,
+            success: resp => {
+                Modal.open(<AlertModal>{(resp.data.price || 0) / 100}</AlertModal>);
+            }
+        });
+    };
+
     renderBody = () => {
         return <table className="table table-bordered">
             <tbody>
             <tr>
                 <th>订单金额</th>
                 <td>
-                    <input ref="final_price" type="text" className="form-control"/>
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <input ref="final_price" type="text" className="form-control"/>
+                        </div>
+                        <div className="col-sm-6">
+                            <button type="button" className="btn btn-sm btn-success m-1"
+                                    onClick={this.checkPrice}>按当前时间计算价格
+                            </button>
+                        </div>
+                    </div>
+
                 </td>
             </tr>
             <tr>

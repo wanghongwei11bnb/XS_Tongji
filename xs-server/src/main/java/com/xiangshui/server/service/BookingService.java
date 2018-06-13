@@ -10,27 +10,39 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.UserRegister;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
+import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.awt.print.Book;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class BookingService {
 
+    @Value("${isdebug}")
+    boolean debug;
+
     @Autowired
     BookingDao bookingDao;
 
     @Autowired
     AreaService areaService;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     CapsuleService capsuleService;
@@ -115,6 +127,35 @@ public class BookingService {
         }
 
         return 0;
+    }
+
+
+    public int checkPrice(long booking_id) throws IOException {
+        Booking booking = getBookingById(booking_id);
+        if (booking == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        UserRegister userRegister = userService.getUserRegisterByUin(booking.getUin());
+
+        if (userRegister == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        if (StringUtils.isBlank(userRegister.getLast_access_token())) {
+            throw new XiangShuiException("未找到 access_token");
+        }
+
+        String body = Jsoup.connect(
+                (debug ? "http://dev.xiangshuispace.com:18083" : "https://www.xiangshuispace.com")
+                        + "/api/booking/checkprice"
+        ).method(Connection.Method.POST).header("User-Uin", String.valueOf(booking.getUin())).header("Client-Token", userRegister.getLast_access_token()).header("Content-Type", "application/json")
+                .requestBody(new JSONObject().fluentPut("booking_id", booking_id).toJSONString()).execute().body();
+        JSONObject resp = JSONObject.parseObject(body);
+        if (resp.getIntValue("ret") == 0) {
+            return resp.getIntValue("price");
+        } else {
+            throw new XiangShuiException("计算失败");
+        }
+
     }
 
 
