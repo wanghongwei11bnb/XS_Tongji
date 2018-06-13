@@ -153,7 +153,7 @@ public class BookingService {
         if (resp.getIntValue("ret") == 0) {
             return resp.getIntValue("price");
         } else {
-            throw new XiangShuiException("计算失败");
+            throw new XiangShuiException(resp.getString("err"));
         }
 
     }
