@@ -62,12 +62,11 @@ public class DeviceService {
             return;
         }
         try {
-            Jsoup.connect(
-                    "https://www.xiangshuispace.com"
-                            + "/api/device/close_device?"
-                            + "&device_id=" + device_id
-                            + "&device_seq=16")
-                    .header("User-Uin", "100000").method(Connection.Method.POST).execute();
+            Jsoup.connect("https://www.xiangshuispace.com" + "/api/device/close_device")
+                    .header("User-Uin", "100000")
+                    .method(Connection.Method.POST)
+                    .requestBody(new JSONObject().fluentPut("device_id", device_id).fluentPut("device_seq", 16).toJSONString())
+                    .execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
