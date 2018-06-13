@@ -32,7 +32,6 @@ public class UploadController extends BaseController {
     @Autowired
     S3Service s3Service;
 
-    @AuthRequired("上传头等舱图片")
     @PostMapping("/api/upload/area_img")
     @ResponseBody
     public Result upload_area_img(MultipartFile uploadFile) throws IOException {
