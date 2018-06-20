@@ -31,6 +31,7 @@ public class MonthCardController extends BaseController {
     }
 
 
+    @AuthRequired("月卡管理")
     @GetMapping("/api/month_card_recode/search")
     @ResponseBody
     public Result search(MonthCardRecode criteria, Date create_date_start, Date create_date_end, Date end_time_start, Date end_time_end) throws NoSuchFieldException, IllegalAccessException {
@@ -38,6 +39,8 @@ public class MonthCardController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("monthCardRecodeList", monthCardRecodeList);
     }
 
+
+    @AuthRequired("月卡管理")
     @GetMapping("/api/month_card_recode/uin_{uin:\\d+}")
     @ResponseBody
     public Result getByUin(@PathVariable("uin") int uin) {
@@ -50,6 +53,7 @@ public class MonthCardController extends BaseController {
     }
 
 
+    @AuthRequired("月卡管理")
     @GetMapping("/api/month_card_recode/uin_{phone:\\d+}")
     @ResponseBody
     public Result getByUin(@PathVariable("phone") String phone) {
