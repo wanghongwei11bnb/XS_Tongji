@@ -9,7 +9,6 @@ import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.*;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
-import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,4 +279,24 @@ abstract public class BaseDynamoDao<T> {
     }
 
 
+    public ScanFilter makeDateRangeFilter(String fieldName, Date start, Date end) {
+        if (start != null && end != null) {
+            return new ScanFilter(fieldName).between(
+                    start.getTime() / 1000, (end.getTime() + 1000 * 60 * 60 * 24) / 1000
+            );
+        } else if (start != null && end == null) {
+            return new ScanFilter(fieldName).gt(start.getTime() / 1000);
+        } else if (start == null && end != null) {
+            return new ScanFilter(fieldName).lt((end.getTime() + 1000 * 60 * 60 * 24) / 1000);
+        }
+        return null;
+    }
+
+
+    public void appendDateRangeFilter(List<ScanFilter> scanFilterList, String fieldName, Date start, Date end) {
+        ScanFilter scanFilter = makeDateRangeFilter(fieldName, start, end);
+        if (scanFilter != null) {
+            scanFilterList.add(scanFilter);
+        }
+    }
 }

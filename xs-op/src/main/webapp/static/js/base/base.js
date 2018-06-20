@@ -327,3 +327,124 @@ function queryString(json) {
         return `${encodeURIComponent(key)}=${encodeURIComponent(json[key])}`;
     }).join("&");
 }
+
+Object.prototype.clone = function () {
+    var copy = (this instanceof Array) ? [] : {};
+    for (attr in this) {
+        if (!obj.hasOwnProperty(attr)) continue;
+        copy[attr] = (typeof this[i] == "object") ? obj[attr].clone() : obj[attr];
+    }
+    return copy;
+};
+
+function clone(obj) {
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+
+    // Handle Date
+    if (obj instanceof Date) {
+        var copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+    // Handle Array
+    if (obj instanceof Array) {
+        var copy = [];
+        for (var i = 0, len = obj.length; i < len; ++i) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+    // Handle Object
+    if (obj instanceof Object) {
+        var copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+window.dateUtils = {
+
+    getWeek: function (date) {
+        date = clone(date);
+        date.setHours(0, 0, 0, 0);
+        const day = date.getDay();
+        const week = [];
+        for (let pre = 1; day - pre >= 0; pre++) {
+            week.unshift(new Date(date.getTime() - (1000 * 60 * 60 * 24 * pre)));
+        }
+        week.push(date);
+        for (let next = 1; day + next <= 6; next++) {
+            week.push(new Date(date.getTime() + (1000 * 60 * 60 * 24 * next)));
+        }
+        return week;
+    },
+    isSameDay: function (date1, date2) {
+        if (!(date1 && date2)) return false;
+        date1 = clone(date1);
+        date2 = clone(date2);
+        return date1.setHours(0, 0, 0, 0) == date2.setHours(0, 0, 0, 0);
+    },
+    isSameMonth: function (date1, date2) {
+        if (!(date1 && date2)) return false;
+        date1 = clone(date1);
+        date2 = clone(date2);
+        date1.setHours(0, 0, 0, 0);
+        date2.setHours(0, 0, 0, 0);
+        date1.setDate(1);
+        date2.setDate(1);
+        return date1.getTime() == date2.getTime();
+    },
+    isSameYear: function (date1, date2) {
+        if (!(date1 && date2)) return false;
+        date1 = clone(date1);
+        date2 = clone(date2);
+        date1.setHours(0, 0, 0, 0);
+        date2.setHours(0, 0, 0, 0);
+        date1.setMonth(0, 1);
+        date2.setMonth(0, 1);
+        return date1.getTime() == date2.getTime();
+    },
+    isSameWeek: function (date1, date2) {
+
+    },
+    isBetweenDay: function (date, startDate, endDate) {
+        if (!(date && startDate && endDate)) {
+            return false;
+        }
+        date = clone(date);
+        startDate = clone(startDate);
+        endDate = clone(endDate);
+        date.setHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        return startDate.getTime() <= date.getTime() && date.getTime() <= endDate.getTime()
+            || startDate.getTime() >= date.getTime() && date.getTime() >= endDate.getTime()
+    },
+    subtractForDay: function (date1, date2) {
+        if (!(date1 && date2)) {
+            return 0;
+        }
+        date1 = clone(date1);
+        date2 = clone(date2);
+        date1.setHours(0, 0, 0, 0);
+        date2.setHours(0, 0, 0, 0);
+        return (date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
+    },
+    subtractForMonth: function (date1, date2) {
+        if (!(date1 && date2)) {
+            return 0;
+        }
+        date1 = clone(date1);
+        date2 = clone(date2);
+        date1.setHours(0, 0, 0, 0);
+        date2.setHours(0, 0, 0, 0);
+        date1.setDate(1);
+        date2.setDate(1);
+        return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
+    },
+};
