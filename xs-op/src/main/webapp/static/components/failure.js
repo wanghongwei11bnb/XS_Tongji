@@ -35,6 +35,13 @@ class FailureModal extends Modal {
         });
     };
 
+    showMonthCardModal = () => {
+        if (!this.refs.uin.value) {
+            return Message.msg('请输用户uin');
+        }
+        Modal.open(<MonthCardRecodeGridModal queryParams={{uin: this.refs.uin.value}}></MonthCardRecodeGridModal>);
+    };
+
     renderHeader = () => {
         return '故障报修';
     };
@@ -151,7 +158,18 @@ class FailureModal extends Modal {
                 <tr>
                     <th>用户uin</th>
                     <td>
-                        <input ref="uin" readOnly={readOnly} disabled={disabled} type="text" className="form-control"/>
+                        <div className="row">
+                            <div className="col-sm-8">
+                                <input ref="uin" readOnly={readOnly} disabled={disabled} type="text"
+                                       className="form-control"/>
+                            </div>
+                            <div className="col-sm-4">
+                                <button type="button" className="btn btn-sm btn-success m-1"
+                                        onClick={this.showMonthCardModal}>查看月卡纪录
+                                </button>
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
                 <tr>

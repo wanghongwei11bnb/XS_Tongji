@@ -225,6 +225,8 @@ class UserGrid extends React.Component {
                                     onClick={this.showUserWallet.bind(this, value)}>钱包／押金查看</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showWalletRecordGridModal.bind(this, value)}>查看钱包记录</button>,
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                         ];
                     }
                 }
@@ -235,6 +237,10 @@ class UserGrid extends React.Component {
 
     showWalletRecordGridModal = (uin) => {
         Modal.open(<WalletRecordGridModal queryParams={{uin}}></WalletRecordGridModal>);
+    };
+
+    showMonthCardModal = (uin) => {
+        Modal.open(<MonthCardRecodeGridModal queryParams={{uin}}></MonthCardRecodeGridModal>);
     };
 
 
