@@ -58,12 +58,16 @@ class MonthCardRecodeGrid extends React.Component {
 class Page extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            cityList: []
+        };
     }
 
     getQueryParams = () => {
         return {
             uin: this.refs.uin.value,
             card_no: this.refs.phone.value,
+            city: this.refs.city.value,
         };
     };
 
@@ -78,8 +82,16 @@ class Page extends React.Component {
     };
 
     render() {
+        const {cityList} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
+                城市：
+                <select ref="city" className="form-control form-control-sm d-inline-block mx-3 w-auto">
+                    <option value=""></option>
+                    {cityList ? cityList.map((city) => {
+                        return <option value={city.city}>{city.city}</option>
+                    }) : null}
+                </select>
                 uin：
                 <input ref="uin" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 手机号：
@@ -95,12 +107,16 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
+        request({
+            url: '/api/cityList',
+            success: (resp) => {
+                if (resp.code == 0) {
+                    this.setState({cityList: resp.data.cityList});
+                }
+            }
+        });
         this.search();
     }
 }
-
-window.areaMapOptions = null;
-window.areaList = [];
-
 
 ReactDOM.render(<div><Page/><ModalContainer/></div>, document.getElementById('root'));
