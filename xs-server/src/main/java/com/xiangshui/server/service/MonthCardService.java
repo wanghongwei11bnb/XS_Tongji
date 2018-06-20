@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.dao.MonthCardRecodeDao;
 import com.xiangshui.server.domain.MonthCardRecode;
 import com.xiangshui.server.exception.XiangShuiException;
@@ -56,7 +57,7 @@ public class MonthCardService {
     public List<MonthCardRecode> search(MonthCardRecode criteria,
                                         Date create_date_start, Date create_date_end,
                                         Date end_time_start, Date end_time_end,
-                                        String[] fields) throws NoSuchFieldException, IllegalAccessException {
+                                        String[] fields, boolean download) throws NoSuchFieldException, IllegalAccessException {
         ScanSpec scanSpec = new ScanSpec();
         if (fields != null && fields.length > 0) {
             scanSpec.withAttributesToGet(fields);
@@ -72,6 +73,9 @@ public class MonthCardService {
         monthCardRecodeDao.appendDateRangeFilter(scanFilterList, "end_time", end_time_start, end_time_end);
         if (scanFilterList.size() > 0) {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        }
+        if (download) {
+            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
         }
         return monthCardRecodeDao.scan(scanSpec);
     }

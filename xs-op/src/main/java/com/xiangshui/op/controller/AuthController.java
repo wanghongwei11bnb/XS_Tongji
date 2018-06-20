@@ -61,6 +61,7 @@ public class AuthController extends BaseController {
             }
             authSet.add(AuthRequired.auth_booking_download);
             authSet.add(AuthRequired.auth_booking_show_phone);
+            authSet.add(AuthRequired.auth_month_card_download);
         }
         return this.authSet;
     }

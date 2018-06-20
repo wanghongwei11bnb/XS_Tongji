@@ -38,6 +38,7 @@ public class BaseController {
         Set<String> authSet = opUserService.getAuthSet(op_username);
         request.setAttribute("auth_booking_show_phone", authSet != null && authSet.contains(AuthRequired.auth_booking_show_phone));
         request.setAttribute("auth_booking_download", authSet != null && authSet.contains(AuthRequired.auth_booking_download));
+        request.setAttribute("auth_month_card_download", authSet != null && authSet.contains(AuthRequired.auth_month_card_download));
         request.setAttribute("authSet", JSON.toJSONString(authSet));
         request.setAttribute("debug", debug);
         request.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));

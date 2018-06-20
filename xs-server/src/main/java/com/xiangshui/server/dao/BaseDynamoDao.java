@@ -27,6 +27,7 @@ abstract public class BaseDynamoDao<T> {
     protected static boolean inited;
 
     public static final int maxResultSize = 1000;
+    public static final int maxDownloadSize = 100000;
 
     static {
         if (!inited) {

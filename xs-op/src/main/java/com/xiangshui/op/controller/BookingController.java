@@ -137,7 +137,7 @@ public class BookingController extends BaseController {
             ScanSpec scanSpec = new ScanSpec();
             scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
             if (download) {
-                scanSpec.withMaxResultSize(10000);
+                scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
             }
             bookingList = bookingDao.scan(scanSpec);
         }

@@ -3,6 +3,7 @@ package com.xiangshui.server.service;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.AreaDao;
+import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.dao.FailureReportDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.FailureReport;
@@ -62,7 +63,7 @@ public class FailureReportService {
     }
 
 
-    public List<FailureReport> search(FailureReport criteria, Date start_date, Date end_date, Integer maxResultSize) throws NoSuchFieldException, IllegalAccessException {
+    public List<FailureReport> search(FailureReport criteria, Date start_date, Date end_date, boolean download) throws NoSuchFieldException, IllegalAccessException {
         ScanSpec scanSpec = new ScanSpec();
         List<ScanFilter> filterList;
         if (criteria != null) {
@@ -86,8 +87,8 @@ public class FailureReportService {
         } else if (start_date == null && end_date != null) {
             filterList.add(new ScanFilter("create_time").lt((end_date.getTime() + 1000 * 60 * 60 * 24) / 1000));
         }
-        if (maxResultSize != null) {
-            scanSpec.withMaxResultSize(maxResultSize);
+        if (download) {
+            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
         }
         return failureReportDao.scan(scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0])));
     }
