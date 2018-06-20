@@ -328,15 +328,6 @@ function queryString(json) {
     }).join("&");
 }
 
-Object.prototype.clone = function () {
-    var copy = (this instanceof Array) ? [] : {};
-    for (attr in this) {
-        if (!obj.hasOwnProperty(attr)) continue;
-        copy[attr] = (typeof this[i] == "object") ? obj[attr].clone() : obj[attr];
-    }
-    return copy;
-};
-
 function clone(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
