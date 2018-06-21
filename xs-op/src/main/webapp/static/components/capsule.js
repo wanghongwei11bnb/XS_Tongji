@@ -3,10 +3,11 @@ function showDeviceStatus(device_id) {
         url: `/api/device/${device_id}/status`, method: 'post', loading: true,
         success: resp => {
             resp = resp.data.resp;
-            if (resp.ret == 0) {
+            if (resp.ret === 0) {
                 Modal.open(<AlertModal>
-                    目前状态：{(resp.status & 1) == 0 ? '关闭' : '打开'}<br/>
-                    wifi链接情况：{resp.wifi_flag == 1 ? '链接成功' : '链接失败'}<br/>
+                    目前状态：{(resp.status & 1) === 0 ? '关闭' : '打开'}<br/>
+                    人体感应模块：{(resp.status & Math.pow(2, 4)) === Math.pow(2, 4) ? '有人' : '无人'}<br/>
+                    wifi链接情况：{resp.wifi_flag === 1 ? '链接成功' : '链接失败'}<br/>
                     最后链接时间：{resp.localtime}<br/>
                 </AlertModal>)
             } else {
