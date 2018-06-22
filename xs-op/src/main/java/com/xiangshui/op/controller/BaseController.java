@@ -1,12 +1,10 @@
 package com.xiangshui.op.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.op.annotation.AnnotationUtils;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.threadLocal.UsernameLocal;
-import com.xiangshui.server.constant.AreaStatusOption;
-import com.xiangshui.server.constant.CapsuleStatusOption;
-import com.xiangshui.server.constant.DeviceVersionOption;
-import com.xiangshui.server.constant.TimeLimitOption;
+import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.DateUtils;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.Set;
 
 public class BaseController {
@@ -36,10 +35,9 @@ public class BaseController {
     public void setClient(HttpServletRequest request) {
         String op_username = UsernameLocal.get();
         Set<String> authSet = opUserService.getAuthSet(op_username);
-        request.setAttribute("auth_booking_show_phone", authSet != null && authSet.contains(AuthRequired.auth_booking_show_phone));
-        request.setAttribute("auth_booking_download", authSet != null && authSet.contains(AuthRequired.auth_booking_download));
-        request.setAttribute("auth_month_card_download", authSet != null && authSet.contains(AuthRequired.auth_month_card_download));
+        Map<String, String> finalAuthMap = AnnotationUtils.getFinalAuthMap();
         request.setAttribute("authSet", JSON.toJSONString(authSet));
+        request.setAttribute("finalAuthMap", JSON.toJSONString(finalAuthMap));
         request.setAttribute("debug", debug);
         request.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));
         request.setAttribute("op_username", UsernameLocal.get());
@@ -65,6 +63,7 @@ public class BaseController {
         request.setAttribute("CapsuleStatusOption", JSON.toJSONString(CapsuleStatusOption.options));
         request.setAttribute("DeviceVersionOption", JSON.toJSONString(DeviceVersionOption.options));
         request.setAttribute("TimeLimitOption", JSON.toJSONString(TimeLimitOption.options));
+        request.setAttribute("AreaContractStatusOption", JSON.toJSONString(AreaContractStatusOption.options));
     }
 
 

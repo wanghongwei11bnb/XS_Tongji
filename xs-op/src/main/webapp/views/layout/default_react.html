@@ -10,6 +10,11 @@
     <meta http-equiv="Cache-Control" content="no-cache"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="-1">
+
+    #if($viewport)
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    #end
+
     <link rel="shortcut icon" href="/static/logo.png">
     <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/build/css/base.css?ts=${ts}">
@@ -25,6 +30,7 @@
         }
     </style>
     <script>
+        var AreaContractStatusOption = $AreaContractStatusOption;
         var AreaStatusOption = $AreaStatusOption;
         var CapsuleStatusOption = $CapsuleStatusOption;
         var DeviceVersionOption = $DeviceVersionOption;
@@ -33,10 +39,8 @@
         var debug = $debug;
         var op_username = '$op_username';
         var authSet = $authSet;
-        var auth_booking_show_phone = $auth_booking_show_phone;
-        var auth_month_card_download = $auth_month_card_download;
-        var auth_booking_download = $auth_booking_download;
         var authMapOptions = new AuthMapOptions(authSet);
+        var finalAuthMap = $finalAuthMap;
     </script>
 
 </head>

@@ -74,11 +74,36 @@ public class OpController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
-    @PostMapping("/api/authSet")
+    @GetMapping("/api/authSet")
     @ResponseBody
-    public Result authSet(HttpServletRequest request) {
+    public Result authSet() {
         String op_username = UsernameLocal.get();
         Set<String> authSet = opUserService.getAuthSet(op_username);
         return new Result(CodeMsg.SUCCESS).putData("authSet", authSet);
+    }
+
+    @GetMapping("/api/getOpInfo")
+    @ResponseBody
+    public Result getOpInfo() {
+        String op_username = UsernameLocal.get();
+        Op op = opUserService.getOpByUsername(op_username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("op", op);
+        }
+    }
+
+
+    @PostMapping("/api/op/update/saler")
+    @ResponseBody
+    public Result update_saler(Op criteria) {
+        String op_username = UsernameLocal.get();
+        Op op = opUserService.getOpByUsername(op_username, null);
+        if (op == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+
+        return null;
     }
 }

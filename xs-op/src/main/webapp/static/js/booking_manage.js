@@ -67,7 +67,7 @@ class Page extends React.Component {
 
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                {auth_booking_download ?
+                {authMapOptions.get(finalAuthMap.auth_booking_download) ?
                     <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
                     : null}
             </div>

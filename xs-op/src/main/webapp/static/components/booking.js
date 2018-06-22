@@ -183,7 +183,7 @@ class BookingGrid extends React.Component {
                 },
             ],
         };
-        if (!auth_booking_show_phone) {
+        if (!authMapOptions.get(finalAuthMap.auth_booking_show_phone)) {
             for (let i = 0; i < this.state.columns.length; i++) {
                 if (this.state.columns[i].title === '用户手机号') {
                     this.state.columns.splice(i, 1);

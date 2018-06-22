@@ -833,6 +833,146 @@ public class OpExample {
             addCriterion("citys not between", value1, value2, "citys");
             return (Criteria) this;
         }
+
+        public Criteria andFullnameIsNull() {
+            addCriterion("fullname is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameIsNotNull() {
+            addCriterion("fullname is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameEqualTo(String value) {
+            addCriterion("fullname =", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameNotEqualTo(String value) {
+            addCriterion("fullname <>", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameGreaterThan(String value) {
+            addCriterion("fullname >", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameGreaterThanOrEqualTo(String value) {
+            addCriterion("fullname >=", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameLessThan(String value) {
+            addCriterion("fullname <", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameLessThanOrEqualTo(String value) {
+            addCriterion("fullname <=", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameLike(String value) {
+            addCriterion("fullname like", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameNotLike(String value) {
+            addCriterion("fullname not like", value, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameIn(List<String> values) {
+            addCriterion("fullname in", values, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameNotIn(List<String> values) {
+            addCriterion("fullname not in", values, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameBetween(String value1, String value2) {
+            addCriterion("fullname between", value1, value2, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andFullnameNotBetween(String value1, String value2) {
+            addCriterion("fullname not between", value1, value2, "fullname");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityIsNull() {
+            addCriterion("city is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityIsNotNull() {
+            addCriterion("city is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityEqualTo(String value) {
+            addCriterion("city =", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityNotEqualTo(String value) {
+            addCriterion("city <>", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityGreaterThan(String value) {
+            addCriterion("city >", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityGreaterThanOrEqualTo(String value) {
+            addCriterion("city >=", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityLessThan(String value) {
+            addCriterion("city <", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityLessThanOrEqualTo(String value) {
+            addCriterion("city <=", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityLike(String value) {
+            addCriterion("city like", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityNotLike(String value) {
+            addCriterion("city not like", value, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityIn(List<String> values) {
+            addCriterion("city in", values, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityNotIn(List<String> values) {
+            addCriterion("city not in", values, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityBetween(String value1, String value2) {
+            addCriterion("city between", value1, value2, "city");
+            return (Criteria) this;
+        }
+
+        public Criteria andCityNotBetween(String value1, String value2) {
+            addCriterion("city not between", value1, value2, "city");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

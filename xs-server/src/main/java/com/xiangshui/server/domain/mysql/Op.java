@@ -21,6 +21,10 @@ public class Op {
 
     private String citys;
 
+    private String fullname;
+
+    private String city;
+
     public String getUsername() {
         return username;
     }
@@ -99,5 +103,21 @@ public class Op {
 
     public void setCitys(String citys) {
         this.citys = citys == null ? null : citys.trim();
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname == null ? null : fullname.trim();
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city == null ? null : city.trim();
     }
 }

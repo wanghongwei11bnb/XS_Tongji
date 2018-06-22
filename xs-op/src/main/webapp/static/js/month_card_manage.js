@@ -1,6 +1,3 @@
-
-
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -43,8 +40,9 @@ class Page extends React.Component {
                 手机号：
                 <input ref="phone" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
-                {auth_month_card_download ? <button type="button" className="btn btn-sm btn-success ml-1"
-                                                    onClick={this.download}>下载</button> : null}
+                {authMapOptions.get(finalAuthMap.auth_month_card_download) ?
+                    <button type="button" className="btn btn-sm btn-success ml-1"
+                            onClick={this.download}>下载</button> : null}
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <MonthCardRecodeGrid ref="grid"></MonthCardRecodeGrid>
