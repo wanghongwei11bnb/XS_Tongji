@@ -59,13 +59,18 @@ class AreaContractGrid extends React.Component {
                     title: <button className="btn btn-sm btn-success m-1" onClick={this.createAreaContract}>新建</button>,
                     render: (value, row) => {
                         return [
-                            row.status === 0 ? <button className="btn btn-sm btn-primary m-1">编辑</button> : null,
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.update.bind(this, value)}>编辑</button>
                         ]
                     }
                 },
             ],
         };
     }
+
+    update = (area_id) => {
+        Modal.open(<AreaContractModal update area_id={area_id} onSuccess={this.load}></AreaContractModal>);
+    };
 
     createAreaContract = () => {
         Modal.open(<AreaContractModal create onSuccess={this.load}></AreaContractModal>);
@@ -133,7 +138,10 @@ class AreaContractModal extends Modal {
             });
         } else if (this.state.update) {
             request({
-                url: `/api/area_contract/${this.refs.area_id.value}/update`, method: 'post', loading: true,
+                url: `/api/area_contract/${this.refs.area_id.value}/update`,
+                contentType: 'application/json',
+                method: 'post',
+                loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -289,13 +297,54 @@ class AreaContractModal extends Modal {
         ];
     };
 
+    setView = (areaContract, area) => {
+        if (areaContract) {
+
+            if (type(areaContract.area_id) === 'Number') this.refs.area_id.value = areaContract.area_id;
+
+            if (type(areaContract.customer) === 'String') this.refs.customer.value = areaContract.customer;
+            if (type(areaContract.customer_email) === 'String') this.refs.customer_email.value = areaContract.customer_email;
+            if (type(areaContract.customer_contact) === 'String') this.refs.customer_contact.value = areaContract.customer_contact;
+            if (type(areaContract.bank_account) === 'String') this.refs.bank_account.value = areaContract.bank_account;
+            if (type(areaContract.bank_branch) === 'String') this.refs.bank_branch.value = areaContract.bank_branch;
+            if (type(areaContract.account_ratio) === 'Number') this.refs.account_ratio.value = areaContract.account_ratio;
+
+            if (type(areaContract.saler) === 'String') this.refs.saler.value = areaContract.saler;
+            if (type(areaContract.saler_city) === 'String') this.refs.saler_city.value = areaContract.saler_city;
+
+            if (type(areaContract.remark) === 'String') this.refs.remark.value = areaContract.remark;
+            if (type(areaContract.status) === 'Number') this.refs.status.value = areaContract.status;
+            if (type(areaContract.create_time) === 'Number')
+                this.refs.create_time.value = new Date(areaContract.create_time * 1000).format('yyyy-MM-dd');
+        }
+        if (area) {
+            if (type(area.title) === 'String') this.refs.area_title.value = area.title;
+            if (type(area.city) === 'String') this.refs.area_city.value = area.city;
+            if (type(area.address) === 'String') this.refs.area_address.value = area.address;
+        }
+    };
+
     componentDidMount() {
         super.componentDidMount();
-        const {areaContract} = this.props;
-        if (areaContract) {
-            if (areaContract.saler) this.refs.saler.value = areaContract.saler;
-            if (areaContract.saler_city) this.refs.saler_city.value = areaContract.saler_city;
-
+        const {area_id, areaContract, create, update} = this.props;
+        if (create && areaContract) {
+            this.setView(areaContract);
+            if (areaContract.area_id) {
+                request({
+                    url: `/api/area/${area_id}`, loading: true,
+                    success: resp => {
+                        this.setView(null, resp.data.area);
+                    }
+                });
+            }
+        }
+        if (update && area_id) {
+            request({
+                url: `/api/area_contract/${area_id}`, loading: true,
+                success: resp => {
+                    this.setView(resp.data.areaContract, resp.data.area);
+                }
+            });
 
         }
     }

@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BaseDynamoDao;
@@ -12,6 +13,8 @@ import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.mysql.Op;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -47,7 +50,7 @@ public class AreaContractController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
-//    @Menu("场地合同管理")
+    @Menu("场地合同管理")
     @GetMapping("/area_contract_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
@@ -101,7 +104,6 @@ public class AreaContractController extends BaseController {
                 .putData("areaList", areaList);
     }
 
-
     @GetMapping("/api/area_contract/{area_id:\\d+}")
     @ResponseBody
     public Result getByAreaId(@PathVariable("area_id") int area_id) {
@@ -119,7 +121,14 @@ public class AreaContractController extends BaseController {
     @PostMapping("/api/area_contract/create")
     @ResponseBody
     public Result create(@RequestBody AreaContract criteria) {
-        areaContractService.create(criteria);
+        areaContractService.create(criteria, null);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+    @PostMapping("/api/area_contract/create/forSaler")
+    @ResponseBody
+    public Result create_forSaler(@RequestBody AreaContract criteria) {
+        areaContractService.create(criteria, UsernameLocal.get());
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -130,7 +139,19 @@ public class AreaContractController extends BaseController {
             criteria = new AreaContract();
         }
         criteria.setArea_id(area_id);
-        areaContractService.update(criteria);
+        areaContractService.update(criteria, null);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+    @PostMapping("/api/area_contract/{area_id:\\d+}/update/forSaler")
+    @ResponseBody
+    public Result update_forSaler(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
+        if (criteria == null) {
+            criteria = new AreaContract();
+        }
+        criteria.setArea_id(area_id);
+
+        areaContractService.update(criteria, UsernameLocal.get());
         return new Result(CodeMsg.SUCCESS);
     }
 

@@ -62,6 +62,10 @@ public class DateUtils {
         return new Date(date.getYear(), date.getMonth(), date.getDate(), 0, 0, 0);
     }
 
+    public static Date copyDateEndMonth(Date date) {
+        return new Date(date.getYear(), date.getMonth(), 1, 0, 0, 0);
+    }
+
     public static Date copyDateEndMinutes(Date date) {
         return new Date(date.getYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), 0);
     }

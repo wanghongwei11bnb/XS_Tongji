@@ -1,13 +1,21 @@
 package com.xiangshui.op.controller;
 
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.bean.Session;
 import com.xiangshui.op.threadLocal.UsernameLocal;
+import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
+import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.mysql.Op;
+import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +37,15 @@ public class OpController extends BaseController {
 
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    OpMapper opMapper;
+
+    @Autowired
+    AreaContractService areaContractService;
+
+    @Autowired
+    AreaContractDao areaContractDao;
 
     @GetMapping("/login")
     public String loginView(HttpServletRequest request) {
@@ -98,12 +116,31 @@ public class OpController extends BaseController {
     @PostMapping("/api/op/update/saler")
     @ResponseBody
     public Result update_saler(Op criteria) {
+
         String op_username = UsernameLocal.get();
         Op op = opUserService.getOpByUsername(op_username, null);
-        if (op == null) {
-            return new Result(CodeMsg.NO_FOUND);
+        if (op == null) return new Result(CodeMsg.NO_FOUND);
+
+        if (StringUtils.isNotBlank(op.getFullname()) && StringUtils.isNotBlank(op.getCity())) {
+            List<AreaContract> areaContractList = areaContractDao.scan(new ScanSpec()
+                    .withMaxResultSize(1)
+                    .withScanFilters(
+                            new ScanFilter("saler").eq(op.getFullname())
+                            , new ScanFilter("saler_city").eq(op.getCity())
+                    ));
+            if (areaContractList != null && areaContractList.size() > 0) {
+                throw new XiangShuiException("不能修改了！！！");
+            }
         }
 
-        return null;
+        if (criteria == null) throw new XiangShuiException("内容不能为空");
+        if (StringUtils.isBlank(criteria.getFullname())) throw new XiangShuiException("姓名不能为空");
+        if (StringUtils.isBlank(criteria.getCity())) throw new XiangShuiException("城市不能为空");
+        Op update = new Op();
+        update.setFullname(criteria.getFullname());
+        update.setCity(criteria.getCity());
+        update.setUsername(op_username);
+        opMapper.updateByPrimaryKey(update);
+        return new Result(CodeMsg.SUCCESS).putData("op_info", opUserService.getOpByUsername(op_username, null));
     }
 }
