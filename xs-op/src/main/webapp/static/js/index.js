@@ -167,7 +167,7 @@ class Page extends React.Component {
     componentDidMount() {
     }
 }
-
+loadOpInfo();
 
 ReactDOM.render(<Page/>, document.getElementById('root'));
 

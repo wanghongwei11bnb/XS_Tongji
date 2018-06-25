@@ -27,6 +27,14 @@ public class AreaContractService {
     }
 
 
+    public void validate(AreaContract criteria, Integer area_id, String saler) {
+        if (criteria == null) throw new XiangShuiException("参数不能为空");
+        if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
+        AreaContract areaContract = getByAreaId(criteria.getArea_id());
+        if (areaContract != null && (area_id == null || !area_id.equals(areaContract.getArea_id())))
+            throw new XiangShuiException("该场地合同已存在");
+    }
+
     public void create(AreaContract criteria) {
         if (criteria == null) throw new XiangShuiException("参数不能为空");
         if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");

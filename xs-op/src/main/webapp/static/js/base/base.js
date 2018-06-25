@@ -439,3 +439,13 @@ window.dateUtils = {
         return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
     },
 };
+
+
+function loadOpInfo() {
+    request({
+        url: '/api/getOpInfo',
+        success: resp => {
+            window.op_info = resp.data.op;
+        }
+    })
+}
