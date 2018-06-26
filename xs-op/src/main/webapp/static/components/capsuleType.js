@@ -9,7 +9,7 @@ class CapsuleTypeModal extends Modal {
 
     onSubmit = () => {
         const {onSuccess} = this.state;
-        if (!this.refs.price.getValue()) return Message.msg('价格 不能为空');
+        // if (!this.refs.price.getValue()) return Message.msg('价格 不能为空');
         if (!this.refs.day_max_price.getValue()) return Message.msg('每日最高费用 不能为空');
         if (!this.refs.price_rule_text.value) return Message.msg('价格文案 不能为空');
         let data = {
