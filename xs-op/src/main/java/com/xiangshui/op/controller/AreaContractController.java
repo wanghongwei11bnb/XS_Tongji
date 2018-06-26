@@ -50,7 +50,7 @@ public class AreaContractController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
-    @Menu("场地合同管理")
+    @Menu("场地合同管理(开发中)")
     @GetMapping("/area_contract_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
