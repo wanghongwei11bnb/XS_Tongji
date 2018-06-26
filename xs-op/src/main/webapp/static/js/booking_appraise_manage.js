@@ -39,6 +39,11 @@ class BookingAppraiseGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'createtime', title: '评论时间', render: value => {
+                        if (type(value) === 'Number') return new Date(value * 1000).format('yyyy-MM-dd hh:mm');
+                    }
+                },
+                {
                     field: 'appraise', title: '描述标签', render: value => {
                         if (type(value) === 'String') {
                             return value;
