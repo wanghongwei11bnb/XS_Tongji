@@ -43,6 +43,7 @@ class BookingAppraiseGrid extends React.Component {
                         if (type(value) === 'Number') return new Date(value * 1000).format('yyyy-MM-dd hh:mm');
                     }
                 },
+                {field: 'score', title: '评论星级'},
                 {
                     field: 'appraise', title: '描述标签', render: value => {
                         if (type(value) === 'String') {
@@ -97,12 +98,12 @@ class Page extends React.Component {
     };
 
     search = () => {
-        this.refs.bookingGrid.load(this.getQueryParams());
+        this.refs.grid.load(this.getQueryParams());
     };
     download = () => {
         let queryParams = this.getQueryParams();
         queryParams.download = true;
-        window.open(`/api/booking/search?${queryString(queryParams)}`)
+        window.open(`/api/booking_appraise/search?${queryString(queryParams)}`)
     };
 
 
@@ -128,9 +129,10 @@ class Page extends React.Component {
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
-            <BookingAppraiseGrid ref="bookingGrid"></BookingAppraiseGrid>
+            <BookingAppraiseGrid ref="grid"></BookingAppraiseGrid>
             <ModalContainer></ModalContainer>
         </div>;
     }
