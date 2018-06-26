@@ -167,7 +167,7 @@ class Page extends React.Component {
 
     componentDidMount() {
         const {now} = this.state;
-        this.refs.start_date.setValue(new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7).format('yyyy-MM-dd'));
+        this.refs.start_date.setValue(new Date(now.getTime() - 1000 * 60 * 60 * 24 * 3).format('yyyy-MM-dd'));
         this.refs.end_date.setValue(now.format('yyyy-MM-dd'));
         this.search();
         request({
