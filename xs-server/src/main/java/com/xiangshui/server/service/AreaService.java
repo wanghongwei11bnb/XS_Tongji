@@ -349,8 +349,8 @@ public class AreaService {
         for (CapsuleType capsuleType : criteria.getTypes()) {
 
 
-            if (capsuleType.getPrice() == null || capsuleType.getPrice() <= 0) {
-                throw new XiangShuiException("价格必须大于0");
+            if (capsuleType.getPrice() == null || capsuleType.getPrice() < 0) {
+                throw new XiangShuiException("价格必须大于等于0");
             }
 
             if (capsuleType.getDay_max_price() == null || capsuleType.getDay_max_price() <= 0) {
