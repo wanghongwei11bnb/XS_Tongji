@@ -51,6 +51,7 @@ public class AreaContractController extends BaseController {
     CapsuleService capsuleService;
 
     @Menu("场地合同管理(开发中)")
+    @AuthRequired("场地合同管理")
     @GetMapping("/area_contract_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
