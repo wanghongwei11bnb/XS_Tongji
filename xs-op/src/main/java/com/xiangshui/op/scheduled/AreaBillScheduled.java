@@ -42,7 +42,7 @@ public class AreaBillScheduled {
 
 
     //    @Scheduled(cron = "0 0 1 1 * ?")
-    @Scheduled(cron = "0/10 * * * * ?")
+//    @Scheduled(cron = "0/10 * * * * ?")
     public void makeBill() {
         final Date now = new Date();
         areaContractDao.scan(new ScanSpec().withScanFilters(new ScanFilter("status").eq(AreaContractStatusOption.adopt.value)), new CallBack<AreaContract>() {
