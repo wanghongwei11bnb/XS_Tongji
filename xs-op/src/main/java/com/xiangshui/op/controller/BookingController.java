@@ -312,7 +312,7 @@ public class BookingController extends BaseController {
         if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
 
         if (status == null || status != 2) return new Result(-1, "只能更改为待支付");
-        if (final_price == null || final_price <= 0) return new Result(-1, "订单金额必须大于0");
+        if (final_price == null || final_price < 0) return new Result(-1, "订单金额必须大于等于0");
 
         if (booking.getStatus() == 1) {
             Capsule capsule = capsuleService.getCapsuleById(booking.getCapsule_id());
