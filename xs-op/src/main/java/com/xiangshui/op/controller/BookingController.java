@@ -327,6 +327,9 @@ public class BookingController extends BaseController {
             booking.setEnd_time(System.currentTimeMillis() / 1000);
             booking.setStatus(status);
             booking.setFinal_price(final_price);
+            if (booking.getFinal_price() == 0) {
+                booking.setStatus(BookingStatusOption.pay.value);
+            }
             bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                     "status",
                     "final_price",
@@ -343,8 +346,13 @@ public class BookingController extends BaseController {
         } else {
             //更改订单
             booking.setFinal_price(final_price);
+            booking.setStatus(BookingStatusOption.unpay2.value);
+            if (booking.getFinal_price() == 0) {
+                booking.setStatus(BookingStatusOption.pay.value);
+            }
             bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                     "final_price",
+                    "status",
                     "by_op",
             });
         }
