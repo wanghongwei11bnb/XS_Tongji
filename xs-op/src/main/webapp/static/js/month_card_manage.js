@@ -11,6 +11,8 @@ class Page extends React.Component {
             uin: this.refs.uin.value,
             card_no: this.refs.phone.value,
             city: this.refs.city.value,
+            create_date_start: this.refs.create_date_start.value,
+            create_date_end: this.refs.create_date_end.value,
         };
     };
 
@@ -28,6 +30,11 @@ class Page extends React.Component {
         const {cityList} = this.state;
         return <div className="container-fluid my-3">
             <div className="m-1">
+                购买时间：
+                <DateInput ref="create_date_start"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_end"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 城市：
                 <select ref="city" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value=""></option>
@@ -51,6 +58,7 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
+        this.refs.create_date_start.setValue(new Date().format('yyyy-MM-dd'));
         request({
             url: '/api/cityList',
             success: (resp) => {

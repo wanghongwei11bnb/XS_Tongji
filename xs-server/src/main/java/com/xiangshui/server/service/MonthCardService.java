@@ -71,6 +71,7 @@ public class MonthCardService {
             scanFilterList = new ArrayList<>();
         }
         monthCardRecodeDao.appendDateRangeFilter(scanFilterList, "end_time", end_time_start, end_time_end);
+        monthCardRecodeDao.appendDateRangeFilter(scanFilterList, "date_time", create_date_start, create_date_end);
         if (scanFilterList.size() > 0) {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }

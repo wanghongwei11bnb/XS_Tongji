@@ -354,8 +354,8 @@ public class BookingController extends BaseController {
 
     @PostMapping("/api/booking/{booking_id:\\d+}/checkPrice")
     @ResponseBody
-    public Result checkPrice(@PathVariable("booking_id") Long booking_id) throws IOException {
-        int price = bookingService.checkPrice(booking_id);
+    public Result checkPrice(@PathVariable("booking_id") Long booking_id, Date end_time) throws IOException {
+        int price = bookingService.checkPrice(booking_id, end_time != null ? end_time.getTime() / 1000 : null);
         return new Result(CodeMsg.SUCCESS).putData("price", price);
     }
 

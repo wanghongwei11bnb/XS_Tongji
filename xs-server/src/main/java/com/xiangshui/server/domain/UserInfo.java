@@ -11,6 +11,8 @@ package com.xiangshui.server.domain;
 //            string out_trade_no = 9;  // 如果没交纳过则没有这个字段
 
 
+import java.util.List;
+
 public class UserInfo {
     /**
      * 用户ID
@@ -36,6 +38,8 @@ public class UserInfo {
     private Long create_time;
     private Integer create_date;
     private Integer appraise_flag;
+
+    private List<String> fail_data;
     /**
      * 0 表示未通过身份证实名认证，1 表示通过了
      */
@@ -46,6 +50,15 @@ public class UserInfo {
      */
     private Integer is_first;
 
+
+    public List<String> getFail_data() {
+        return fail_data;
+    }
+
+    public UserInfo setFail_data(List<String> fail_data) {
+        this.fail_data = fail_data;
+        return this;
+    }
 
     public Integer getUin() {
         return uin;

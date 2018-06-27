@@ -17,6 +17,10 @@ public class DateConverter implements Converter<String, Date> {
                 return new Date(Long.valueOf(s));
             } else if (s.matches("\\d{4}-\\d{1,2}-\\d{1,2}")) {
                 return new SimpleDateFormat("yyyy-MM-dd").parse(s);
+            } else if (s.matches("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{1,2}")) {
+                return new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(s);
+            } else if (s.matches("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{1,2}:\\d{1,2}")) {
+                return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(s);
             } else {
                 return null;
             }

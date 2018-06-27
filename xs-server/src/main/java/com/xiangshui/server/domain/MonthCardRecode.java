@@ -10,7 +10,16 @@ public class MonthCardRecode {
     private String trade_no;
     private Integer uin;
     private Long update_time;
+    private Long date_time;
 
+    public Long getDate_time() {
+        return date_time;
+    }
+
+    public MonthCardRecode setDate_time(Long date_time) {
+        this.date_time = date_time;
+        return this;
+    }
 
     public Long getCard_no() {
         return card_no;

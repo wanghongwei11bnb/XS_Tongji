@@ -7,6 +7,13 @@ class MonthCardRecodeGrid extends React.Component {
                 {field: 'card_no', title: '卡号／手机号'},
                 {field: 'city', title: '城市'},
                 {
+                    field: 'date_time', title: '购买日期', render: value => {
+                        if (type(value) === 'Number') {
+                            return new Date(value * 1000).format('yyyy-MM-dd');
+                        }
+                    }
+                },
+                {
                     field: 'left_seconds', title: '当天剩余月卡时长', render: (value, row) => {
                         if (row.end_time * 1000 - Date.now() <= 0) {
                             return <span className="badge badge-danger m-1">已过期</span>;

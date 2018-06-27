@@ -130,7 +130,7 @@ public class BookingService {
     }
 
 
-    public int checkPrice(long booking_id) throws IOException {
+    public int checkPrice(long booking_id, Long end_time) throws IOException {
         Booking booking = getBookingById(booking_id);
         if (booking == null) {
             throw new XiangShuiException(CodeMsg.NO_FOUND);
@@ -148,7 +148,7 @@ public class BookingService {
                 (debug ? "http://dev.xiangshuispace.com:18083" : "https://www.xiangshuispace.com")
                         + "/api/booking/checkprice"
         ).method(Connection.Method.POST).header("User-Uin", String.valueOf(booking.getUin())).header("Client-Token", userRegister.getLast_access_token()).header("Content-Type", "application/json")
-                .requestBody(new JSONObject().fluentPut("booking_id", booking_id).toJSONString()).execute().body();
+                .requestBody(new JSONObject().fluentPut("booking_id", booking_id).fluentPut("end_time", end_time).toJSONString()).execute().body();
         JSONObject resp = JSONObject.parseObject(body);
         if (resp.getIntValue("ret") == 0) {
             return resp.getIntValue("price");

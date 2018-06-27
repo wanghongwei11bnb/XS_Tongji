@@ -30,6 +30,19 @@ class BookingUpdateModal extends Modal {
         });
     };
 
+    checkPriceForEndTime = () => {
+        Modal.open(<DateTimeModal ok={value => {
+            request({
+                url: `/api/booking/${this.state.booking_id}/checkPrice`, method: 'post', loading: true,
+                data: {end_time: value},
+                success: resp => {
+                    Modal.open(<AlertModal>{(resp.data.price || 0) / 100}</AlertModal>);
+                }
+            });
+        }}></DateTimeModal>);
+
+    };
+
     renderBody = () => {
         return <table className="table table-bordered">
             <tbody>
@@ -44,6 +57,10 @@ class BookingUpdateModal extends Modal {
                             <button type="button" className="btn btn-sm btn-success m-1"
                                     onClick={this.checkPrice}>按当前时间计算价格
                             </button>
+                            <button type="button" className="btn btn-sm btn-success m-1"
+                                    onClick={this.checkPriceForEndTime}>指定结束时间计算价格
+                            </button>
+                            <span ref="month_card_flag_span"></span>
                         </div>
                     </div>
 
@@ -82,7 +99,11 @@ class BookingUpdateModal extends Modal {
                 if (resp.code == 0) {
                     if (resp.data.booking) {
                         this.refs.final_price.value = resp.data.booking.final_price ? resp.data.booking.final_price / 100 : null;
-
+                        if (resp.data.booking.month_card_flag == 1) {
+                            this.refs.month_card_flag_span.innerText = '该订单使用了月卡';
+                        } else {
+                            this.refs.month_card_flag_span.innerText = '该订单未使用月卡';
+                        }
                     }
                 }
             }

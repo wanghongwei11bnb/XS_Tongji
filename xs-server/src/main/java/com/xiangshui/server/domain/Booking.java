@@ -29,6 +29,8 @@ public class Booking {
 
     private Integer test_flag;
 
+    private Integer month_card_flag;
+
     private String req_from;
 
     private Integer appraise_flag;
@@ -41,6 +43,16 @@ public class Booking {
 
     public Booking setBy_op(Integer by_op) {
         this.by_op = by_op;
+        return this;
+    }
+
+
+    public Integer getMonth_card_flag() {
+        return month_card_flag;
+    }
+
+    public Booking setMonth_card_flag(Integer month_card_flag) {
+        this.month_card_flag = month_card_flag;
         return this;
     }
 

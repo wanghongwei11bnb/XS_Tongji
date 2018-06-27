@@ -29,6 +29,7 @@ class CalendarModal extends Modal {
     };
 }
 
+
 class DateInput extends React.Component {
     constructor(props) {
         super(props);
@@ -58,4 +59,48 @@ class DateInput extends React.Component {
         return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
                       onFocus={this.onFocus}/>
     }
+}
+
+class DateTimeModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    renderBody = () => {
+        return [
+            <DateInput ref="date" className="form-control w-auto m-1 d-inline-block"></DateInput>,
+            <select ref="hh" className="form-control w-auto m-1 d-inline-block">
+                {(() => {
+                    const os = [];
+                    for (let i = 0; i <= 23; i++) {
+                        os.push(<option value={i}>{i}</option>);
+                    }
+                    return os;
+                })()}
+            </select>,
+            <select ref="mm" className="form-control w-auto m-1 d-inline-block">
+                {(() => {
+                    const os = [];
+                    for (let i = 0; i <= 59; i++) {
+                        os.push(<option value={i}>{i}</option>);
+                    }
+                    return os;
+                })()}
+            </select>,
+        ]
+    };
+
+    ok = () => {
+        if (!this.refs.date.value) return Message.msg('请选择日期');
+        if (!this.refs.hh.value && this.refs.hh.value != 0) return Message.msg('请选择时间');
+        if (!this.refs.mm.value && this.refs.mm.value != 0) return Message.msg('请选择时间');
+        this.close();
+        if (this.props.ok) this.props.ok(`${this.refs.date.value} ${this.refs.hh.value}:${this.refs.mm.value}`);
+    };
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
 }
