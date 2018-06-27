@@ -7,14 +7,14 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class CrudTemplate<I, T> {
-    private Class<I> iClass;
+public abstract class CrudTemplate<P, T> {
+    private Class<P> iClass;
     private Class<T> tClass;
     private String idFieldName;
 
 
     {
-        iClass = (Class<I>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        iClass = (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         tClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
         idFieldName = getIdFieldName();
     }
@@ -29,12 +29,16 @@ public abstract class CrudTemplate<I, T> {
     }
 
 
-    public T selectById(I id) {
+    public T selectByPrimaryKey(P primaryKey, String columns) {
         return null;
     }
 
-    public void deleteById(I id) {
+    public void deleteById(P primaryKey) {
 
+    }
+
+    public int insert(T t, String[] fields) {
+        return 0;
     }
 
     public void insert(T criteria) {
@@ -42,7 +46,7 @@ public abstract class CrudTemplate<I, T> {
     }
 
 
-    public void updateById(I id, T criteria, String[] fields) throws Exception {
+    public void updateById(P id, T criteria, String[] fields) throws Exception {
 
         List<Object> paramList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -96,12 +100,20 @@ public abstract class CrudTemplate<I, T> {
         }
     }
 
-    public static class WhereItem {
+
+    public static class Condition {
         private WhereItemType type;
         private String fieldName;
+        private Object value;
         private Object value1;
         private Object value2;
         private List valueList;
+    }
+
+
+    public static class Example {
+
+
     }
 
     public static enum WhereItemType {

@@ -195,8 +195,43 @@ class PromptModal extends Modal {
         this.close();
         if (this.props.cancel) this.props.cancel();
     };
+}
 
+class TextareaModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dataType: props.dataType || 'String',
+        };
+    }
 
+    renderHeader = () => {
+        return this.props.title || null;
+    };
+
+    renderBody = () => {
+        return <textarea ref="textarea" className="form-control"/>;
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.cancel}>取消</A>,
+        ];
+    };
+
+    ok = () => {
+        let value = this.refs.textarea.value;
+        if (type(value) == 'Undefined' || type(value) == 'Null' || !value) {
+            return Message.msg('请输入');
+        }
+        this.close();
+        if (this.props.ok) this.props.ok(value);
+    };
+    cancel = () => {
+        this.close();
+        if (this.props.cancel) this.props.cancel();
+    };
 }
 
 

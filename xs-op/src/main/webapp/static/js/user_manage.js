@@ -305,12 +305,33 @@ class Page extends React.Component {
                 手机号：
                 <input ref="phone" type="text" className="form-control form-control-sm d-inline-block w-auto mx-1"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.uin_to_phone}>UIN转手机号
+                </button>
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <UserGrid ref="userGrid"></UserGrid>
             <ModalContainer></ModalContainer>
         </div>;
     }
+
+    uin_to_phone = () => {
+        Modal.open(<TextareaModal ok={text => {
+            let data = text.split("\n");
+            request({
+                url: '/api/user/uin_to_phone', method: 'post', loading: true, contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: resp => {
+                    Modal.open(<AlertModal>
+                        <pre>{resp.data.phoneList.join('\n')}</pre>
+                    </AlertModal>);
+                }
+            });
+
+
+        }}></TextareaModal>);
+
+
+    };
 
     componentDidMount() {
         // this.search();

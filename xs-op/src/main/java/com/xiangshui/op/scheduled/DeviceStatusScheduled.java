@@ -53,8 +53,9 @@ public class DeviceStatusScheduled {
     private BlockingQueue<Capsule> blockingQueue = new LinkedBlockingQueue<Capsule>(100000);
 
 
-    @Scheduled(fixedDelay = 1000 * 60 * 20)
+    @Scheduled(fixedDelay = 1000 * 60 * 30)
     public void put() {
+        if (debug) return;
         log.debug("［定时任务——获取硬件设备状态——入队］");
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withAttributesToGet("capsule_id", "area_id", "device_id", "type", "status", "is_downline"));
         capsuleList.forEach(capsule -> {
@@ -72,6 +73,7 @@ public class DeviceStatusScheduled {
 
     @Scheduled(fixedDelay = 500)
     public void pop() {
+        if (debug) return;
         Capsule capsule = blockingQueue.poll();
         if (capsule == null || StringUtils.isBlank(capsule.getDevice_id())) {
             return;

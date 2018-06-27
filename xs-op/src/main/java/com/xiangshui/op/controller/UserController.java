@@ -10,6 +10,7 @@ import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.domain.UserWallet;
 import com.xiangshui.server.domain.WalletRecord;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.UserInfoRelation;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -19,16 +20,10 @@ import org.aspectj.lang.annotation.Around;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class UserController extends BaseController {
@@ -193,6 +188,37 @@ public class UserController extends BaseController {
             });
         }
         return new Result(CodeMsg.SUCCESS).putData("walletRecordList", walletRecordList);
+    }
+
+
+    @AuthRequired("用户管理")
+    @PostMapping("/api/user/uin_to_phone")
+    @ResponseBody
+    public Result uin_to_phone(@RequestBody List<Integer> uinList) {
+        if (uinList == null || uinList.size() == 0) {
+            throw new XiangShuiException("内容不能为空");
+        }
+        Set<Integer> uinSet = new HashSet<>();
+        for (Integer uin : uinList) {
+            if (uin != null) {
+                uinSet.add(uin);
+            }
+        }
+        if (uinSet.size() == 0) {
+            throw new XiangShuiException("内容不能为空");
+        }
+        List<String> phoneList = new ArrayList<>();
+        for (int uin : uinSet) {
+            UserInfo userInfo = userService.getUserInfoByUin(uin);
+            if (userInfo != null && StringUtils.isNotBlank(userInfo.getPhone())) {
+                phoneList.add(userInfo.getPhone());
+            }
+        }
+        if (phoneList.size() == 0) {
+            return new Result(CodeMsg.NO_FOUND);
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("phoneList", phoneList);
+        }
     }
 
 
