@@ -17,6 +17,25 @@ function showDeviceStatus(device_id) {
     });
 }
 
+function showCapsuleDeviceStatus(capsule_id) {
+    request({
+        url: `/api/capsule/${capsule_id}/device/status`, method: 'post', loading: true,
+        success: resp => {
+            resp = resp.data.resp;
+            if (resp.ret === 0) {
+                Modal.open(<AlertModal>
+                    目前状态：{(resp.status & 1) === 0 ? '关闭' : '打开'}<br/>
+                    人体感应模块：{(resp.status & Math.pow(2, 4)) === Math.pow(2, 4) ? '有人' : '无人'}<br/>
+                    wifi链接情况：{resp.wifi_flag === 1 ? '链接成功' : '链接失败'}<br/>
+                    最后链接时间：{resp.localtime}<br/>
+                </AlertModal>)
+            } else {
+                Message.msg(resp.err || '未知错误');
+            }
+        }
+    });
+}
+
 class CapsuleModal extends Modal {
     constructor(props) {
         super(props);

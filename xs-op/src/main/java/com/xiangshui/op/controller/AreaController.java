@@ -147,12 +147,6 @@ public class AreaController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
-    @PostMapping("/api/device/{device_id}/status")
-    @ResponseBody
-    public Result device_status(@PathVariable("device_id") String device_id) throws IOException {
-        return new Result(CodeMsg.SUCCESS).putData("resp", areaService.deviceStatus(device_id));
-    }
-
 
     @Autowired
     BookingController bookingController;

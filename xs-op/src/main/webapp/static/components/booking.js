@@ -197,6 +197,8 @@ class BookingGrid extends React.Component {
                         return [
                             <button type="button" className="btn btn-primary btn-sm m-1"
                                     onClick={this.update.bind(this, row.booking_id)}>更改订单信息</button>,
+                            <button type="button" className="btn btn-primary btn-sm m-1"
+                                    onClick={showCapsuleDeviceStatus.bind(null, row.capsule_id)}>查看硬件设备状态</button>,
                             <button type="button" className="btn btn-success btn-sm m-1"
                                     onClick={this.makeFailureByBooking.bind(this, row.booking_id)}>创建报修</button>,
                         ]

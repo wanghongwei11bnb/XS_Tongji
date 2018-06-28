@@ -14,7 +14,9 @@ import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -146,6 +148,27 @@ public class DeviceController extends BaseController {
     public Result refresh() {
         deviceStatusScheduled.put();
         return new Result(CodeMsg.SUCCESS).setMsg("操作成功!最新结果正在获取中，请等一等!");
+    }
+
+
+    @PostMapping("/api/device/{device_id}/status")
+    @ResponseBody
+    public Result device_status(@PathVariable("device_id") String device_id) throws IOException {
+        return new Result(CodeMsg.SUCCESS).putData("resp", areaService.deviceStatus(device_id));
+    }
+
+
+    @PostMapping("/api/capsule/{capsule_id:\\d+}/device/status")
+    @ResponseBody
+    public Result capsule_device_status(@PathVariable("capsule_id") Long capsule_id) throws IOException {
+        Capsule capsule = capsuleService.getCapsuleById(capsule_id);
+        if (capsule == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        if (StringUtils.isBlank(capsule.getDevice_id())) {
+            return new Result(-1, "头等舱没有配置设备编号");
+        }
+        return device_status(capsule.getDevice_id());
     }
 
 

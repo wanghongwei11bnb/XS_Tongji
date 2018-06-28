@@ -137,14 +137,22 @@ function request(opt) {
         contentType: opt.contentType,
         dataType: opt.dataType || "json",
         success: (resp) => {
-            if (resp.code == 0) {
-                if (opt.success) opt.success(resp);
-            } else {
-                if (opt.error) opt.error(resp); else Message.error(resp.msg);
+            try {
+                if (resp.code == 0) {
+                    if (opt.success) opt.success(resp);
+                } else {
+                    if (opt.error) opt.error(resp); else Message.error(resp.msg);
+                }
+            } catch (e) {
+                Message.error(e.message);
             }
         },
         error: () => {
-            Message.error('网络异常');
+            try {
+                Message.error('网络异常');
+            } catch (e) {
+                Message.error(e.message);
+            }
         },
         complete: function () {
             if (opt.loading) Loading.close();
