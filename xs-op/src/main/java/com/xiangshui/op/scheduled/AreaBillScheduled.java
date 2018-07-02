@@ -73,7 +73,7 @@ public class AreaBillScheduled {
 
         Date now = new Date();
 
-        long bill_id = area_id * 1000000l + year * 10000 + month;
+        long bill_id = area_id * 1000000l + year * 100 + month;
 
 
         AreaContract areaContract = areaContractService.getByAreaId(area_id);

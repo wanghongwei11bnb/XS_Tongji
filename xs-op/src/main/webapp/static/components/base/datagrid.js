@@ -89,3 +89,22 @@ class Datagrid extends React.Component {
         </table>);
     }
 }
+
+
+class Grid extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    componentWillMount() {
+        if (this.props.handleColumns) {
+            this.props.handleColumns(this, this.state.columns);
+        }
+    }
+
+    render() {
+        return <Table columns={this.state.columns} data={this.state.data}></Table>
+    }
+
+}
+

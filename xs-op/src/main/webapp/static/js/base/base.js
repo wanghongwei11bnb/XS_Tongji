@@ -144,6 +144,7 @@ function request(opt) {
                     if (opt.error) opt.error(resp); else Message.error(resp.msg);
                 }
             } catch (e) {
+                console.error(e);
                 Message.error(e.message);
             }
         },
@@ -151,6 +152,7 @@ function request(opt) {
             try {
                 Message.error('网络异常');
             } catch (e) {
+                console.error(e);
                 Message.error(e.message);
             }
         },
@@ -291,6 +293,16 @@ class MapOptions {
 }
 
 class AreaMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.area_id || null : null;
+    }
+}
+
+class AreaContractMapOptions extends MapOptions {
     constructor(options) {
         super(options);
     }
