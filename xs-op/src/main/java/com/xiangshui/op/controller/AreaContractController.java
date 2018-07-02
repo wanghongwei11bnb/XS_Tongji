@@ -128,21 +128,31 @@ public class AreaContractController extends BaseController {
     @AuthRequired(AuthRequired.area_contract_saler)
     @PostMapping("/api/area_contract/create/forSaler")
     @ResponseBody
-    public Result create_forSaler(@RequestBody AreaContract criteria) {
-        areaContractService.create(criteria, UsernameLocal.get());
+    public Result createForSaler(@RequestBody AreaContract criteria) {
+        String saler_username = UsernameLocal.get();
+        Op op = opUserService.getOpByUsername(saler_username, null);
+        if (StringUtils.isBlank(op.getFullname()) || StringUtils.isBlank(op.getCity())) {
+            return new Result(-1, "请设置您的姓名及城市");
+        }
+        criteria.setSaler(op.getFullname());
+        criteria.setSaler_city(op.getCity());
+        areaContractService.createForSaler(criteria, UsernameLocal.get());
         return new Result(CodeMsg.SUCCESS);
     }
 
     @AuthRequired(AuthRequired.area_contract_saler)
     @PostMapping("/api/area_contract/{area_id:\\d+}/update/forSaler")
     @ResponseBody
-    public Result update_forSaler(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
+    public Result updateForSaler(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
         if (criteria == null) {
             criteria = new AreaContract();
         }
         criteria.setArea_id(area_id);
-
-        areaContractService.update(criteria, UsernameLocal.get());
+        String saler_username = UsernameLocal.get();
+        Op op = opUserService.getOpByUsername(saler_username, null);
+        if (StringUtils.isBlank(op.getFullname()) || StringUtils.isBlank(op.getCity())) {
+            return new Result(-1, "请设置您的姓名及城市");
+        }
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -150,7 +160,7 @@ public class AreaContractController extends BaseController {
     @AuthRequired(AuthRequired.area_contract_verify)
     @PostMapping("/api/area_contract/{area_id:\\d+}/update/verify")
     @ResponseBody
-    public Result update_verify(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
+    public Result updateVerify(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
         if (criteria == null) {
             criteria = new AreaContract();
         }

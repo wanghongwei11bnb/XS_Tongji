@@ -149,4 +149,8 @@ public class OpUserService {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println(MD5.getMD5(password_pre + "1q2w3e4r5t").toLowerCase());
+    }
+
 }

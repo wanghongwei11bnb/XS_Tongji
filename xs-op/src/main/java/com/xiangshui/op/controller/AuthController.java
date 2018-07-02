@@ -1,6 +1,7 @@
 package com.xiangshui.op.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.op.annotation.AnnotationUtils;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.LoginRequired;
 import com.xiangshui.op.annotation.Menu;
@@ -47,7 +48,7 @@ public class AuthController extends BaseController {
 
     public Set<String> getAuthSet(HttpServletRequest request) {
         if (this.authSet == null) {
-            this.authSet = new HashSet<String>();
+            this.authSet = new TreeSet<>();
             WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             RequestMappingHandlerMapping bean = webApplicationContext.getBean(RequestMappingHandlerMapping.class);
             Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
@@ -59,9 +60,10 @@ public class AuthController extends BaseController {
                     authSet.add(authRequired.value());
                 }
             }
-            authSet.add(AuthRequired.auth_booking_download);
-            authSet.add(AuthRequired.auth_booking_show_phone);
-            authSet.add(AuthRequired.auth_month_card_download);
+            Map<String, String> finalAuthMap = AnnotationUtils.getFinalAuthMap();
+            for (String auth : finalAuthMap.values()) {
+                authSet.add(auth);
+            }
         }
         return this.authSet;
     }

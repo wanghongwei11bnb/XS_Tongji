@@ -40,30 +40,14 @@ public class AreaContractService {
             throw new XiangShuiException("分账比例必须在0～100之间");
     }
 
-    public void validateSaler(AreaContract criteria, String saler_username) {
-        if (StringUtils.isBlank(criteria.getSaler())) throw new XiangShuiException("销售人员姓名不能为空");
-        if (StringUtils.isBlank(criteria.getSaler_city())) throw new XiangShuiException("销售人员城市不能为空");
-        if (StringUtils.isNotBlank(saler_username)) {
-            Op op = opUserService.getOpByUsername(saler_username, null);
-            if (StringUtils.isBlank(op.getFullname())) throw new XiangShuiException("请设置您的姓名");
-            if (StringUtils.isBlank(op.getCity())) throw new XiangShuiException("请设置您的城市");
-            if (!op.getCity().equals(criteria.getSaler_city())) throw new XiangShuiException("销售人员信息有误");
-            if (!op.getFullname().equals(criteria.getSaler())) throw new XiangShuiException("销售人员信息有误");
-        }
-    }
 
-
-    public void create(AreaContract criteria, String saler_username) {
+    public void createForSaler(AreaContract criteria, String saler_username) {
         if (criteria == null) throw new XiangShuiException("参数不能为空");
         if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
         AreaContract areaContract = getByAreaId(criteria.getArea_id());
         if (areaContract != null) throw new XiangShuiException("该场地分成对账已存在");
         Area area = areaService.getAreaById(criteria.getArea_id());
         if (area == null) throw new XiangShuiException("场地不存在");
-
-        validateSaler(criteria, saler_username);
-        validateCustomer(criteria);
-
 
         Date now = new Date();
         criteria.setCreate_time(now.getTime() / 1000);
@@ -74,18 +58,24 @@ public class AreaContractService {
     }
 
 
-    public void update(AreaContract criteria, String saler_username) throws Exception {
+    public void updateForSaler(AreaContract criteria, String saler_username) throws Exception {
 
         if (criteria == null) throw new XiangShuiException("参数不能为空");
         if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
         AreaContract areaContract = getByAreaId(criteria.getArea_id());
         if (areaContract == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
 
-        if (StringUtils.isNotBlank(saler_username)) {
-            validateSaler(areaContract, saler_username);
+        if (areaContract.getStatus() != null && areaContract.getStatus().equals(AreaContractStatusOption.adopt.value)) {
+            throw new XiangShuiException("已审核通过，不能再次修改");
         }
 
-        validateSaler(criteria, saler_username);
+        if (StringUtils.isNotBlank(saler_username)) {
+            Op op = opUserService.getOpByUsername(saler_username, null);
+            if (StringUtils.isBlank(op.getFullname())) throw new XiangShuiException("请设置您的姓名");
+            if (StringUtils.isBlank(op.getCity())) throw new XiangShuiException("请设置您的城市");
+            if (!op.getCity().equals(areaContract.getSaler_city())) throw new XiangShuiException(CodeMsg.AUTH_FAIL);
+            if (!op.getFullname().equals(areaContract.getSaler())) throw new XiangShuiException(CodeMsg.AUTH_FAIL);
+        }
         validateCustomer(criteria);
 
 

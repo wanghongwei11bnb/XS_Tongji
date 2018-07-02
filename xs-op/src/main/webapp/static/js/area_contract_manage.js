@@ -1,3 +1,89 @@
+class SalerModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    ok = () => {
+        if (!this.refs.fullname.value) return Message.msg('请输入姓名');
+        if (!this.refs.city.value) return Message.msg('请选择城市');
+        request({
+            url: '/api/op/update/saler', method: 'post', loading: true,
+            data: {
+                fullname: this.refs.fullname.value,
+                city: this.refs.city.value,
+            },
+            success: resp => {
+                Message.msg('操作成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
+    };
+
+    renderBody = () => {
+
+        return <div>
+            <input ref="fullname" type="text" className="form-control d-inline-block w-auto m-3"/>
+            <select ref="city" className="form-control d-inline-block w-auto m-3">
+                <option value=""></option>
+                {activeCityList.map(city => {
+                    return <option value={city.city}>{city.city}</option>;
+                })}
+            </select>
+        </div>
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+}
+
+class Saler extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    load = () => {
+        request({
+            url: '/api/getOpInfo', loading: true,
+            success: resp => {
+                this.setState({op: resp.data.op});
+            }
+        });
+    };
+
+    setting = () => {
+        Modal.open(<SalerModal onSuccess={this.load}></SalerModal>);
+    };
+
+    render() {
+        const {op} = this.state;
+        return <div className="card">
+            <div className="care-body px-3">
+                {op ? (
+                    op.fullname && op.city ?
+                        <div>销售人员：{op.fullname}&nbsp;&nbsp;&nbsp;&nbsp;所属公司：{op.city}</div> :
+                        <div className="text-danger">
+                            您还没有设置姓名及城市，
+                            <A className="btn btn-link text-primary" onClick={this.setting}>请设置</A>
+                        </div>
+                ) : null}
+
+            </div>
+        </div>
+    }
+
+    componentDidMount() {
+        this.load();
+    }
+
+}
+
+
 class AreaContractGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -105,6 +191,7 @@ class AreaContractModal extends Modal {
         this.state = {
             create: props.create || false,
             update: props.update || false,
+            verify: props.verify || false,
             area_id: props.area_id,
         };
     }
@@ -115,8 +202,6 @@ class AreaContractModal extends Modal {
 
         let data = {
             area_id: this.refs.area_id.value,
-            saler: this.refs.saler.value,
-            saler_city: this.refs.saler_city.value,
             customer: this.refs.customer.value,
             customer_email: this.refs.customer_email.value,
             customer_contact: this.refs.customer_contact.value,
@@ -128,7 +213,10 @@ class AreaContractModal extends Modal {
         };
         if (this.state.create) {
             request({
-                url: '/api/area_contract/create', contentType: 'application/json', method: 'post', loading: true,
+                url: '/api/area_contract/create/forSaler',
+                contentType: 'application/json',
+                method: 'post',
+                loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -138,7 +226,7 @@ class AreaContractModal extends Modal {
             });
         } else if (this.state.update) {
             request({
-                url: `/api/area_contract/${this.refs.area_id.value}/update`,
+                url: `/api/area_contract/${this.refs.area_id.value}/update/forSaler`,
                 contentType: 'application/json',
                 method: 'post',
                 loading: true,
@@ -205,13 +293,13 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>销售人员</th>
                 <td>
-                    <input ref="saler" type="text" className="form-control"/>
+                    <input ref="saler" type="text" readOnly={true} disabled={true} className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>所属公司</th>
                 <td>
-                    <input ref="saler_city" type="text" className="form-control"/>
+                    <input ref="saler_city" type="text" readOnly={true} disabled={true} className="form-control"/>
                 </td>
             </tr>
             <tr>
@@ -278,8 +366,7 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>状态</th>
                 <td>
-                    <select ref="status" className="form-control">
-                        <option value=""></option>
+                    <select ref="status" disabled={true} className="form-control">
                         {AreaContractStatusOption.map(option => {
                             return <option value={option.value}>{option.text}</option>
                         })}
@@ -299,19 +386,15 @@ class AreaContractModal extends Modal {
 
     setView = (areaContract, area) => {
         if (areaContract) {
-
             if (type(areaContract.area_id) === 'Number') this.refs.area_id.value = areaContract.area_id;
-
             if (type(areaContract.customer) === 'String') this.refs.customer.value = areaContract.customer;
             if (type(areaContract.customer_email) === 'String') this.refs.customer_email.value = areaContract.customer_email;
             if (type(areaContract.customer_contact) === 'String') this.refs.customer_contact.value = areaContract.customer_contact;
             if (type(areaContract.bank_account) === 'String') this.refs.bank_account.value = areaContract.bank_account;
             if (type(areaContract.bank_branch) === 'String') this.refs.bank_branch.value = areaContract.bank_branch;
             if (type(areaContract.account_ratio) === 'Number') this.refs.account_ratio.value = areaContract.account_ratio;
-
             if (type(areaContract.saler) === 'String') this.refs.saler.value = areaContract.saler;
             if (type(areaContract.saler_city) === 'String') this.refs.saler_city.value = areaContract.saler_city;
-
             if (type(areaContract.remark) === 'String') this.refs.remark.value = areaContract.remark;
             if (type(areaContract.status) === 'Number') this.refs.status.value = areaContract.status;
             if (type(areaContract.create_time) === 'Number')
@@ -432,6 +515,11 @@ class Page extends React.Component {
 
     render() {
         return <div className="container-fluid my-3">
+            {authMapOptions.get(finalAuthMap.area_contract_saler) ?
+                <div className="m-1">
+                    <Saler></Saler>
+                </div> : null}
+
             <div className="m-1">
                 客户公司名称：
                 <input ref="customer" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
