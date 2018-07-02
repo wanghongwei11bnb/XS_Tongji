@@ -10,7 +10,7 @@ public class AreaContractStatusOption extends Option<Integer> {
         super(value, text);
     }
 
-    public static final AreaContractStatusOption normal = new AreaContractStatusOption(0, "审核中");
+    public static final AreaContractStatusOption normal = new AreaContractStatusOption(0, "待审核");
     public static final AreaContractStatusOption adopt = new AreaContractStatusOption(1, "审核通过");
     public static final AreaContractStatusOption refuse = new AreaContractStatusOption(-1, "审核未通过");
     public static final AreaContractStatusOption discard = new AreaContractStatusOption(-2, "废弃");

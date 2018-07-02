@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.bean.DeviceStatus;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaDao;
+import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.dao.CapsuleDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
@@ -57,7 +58,10 @@ public class DeviceStatusScheduled {
     public void put() {
         if (debug) return;
         log.debug("［定时任务——获取硬件设备状态——入队］");
-        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withAttributesToGet("capsule_id", "area_id", "device_id", "type", "status", "is_downline"));
+        List<Capsule> capsuleList = capsuleDao.scan(
+                new ScanSpec()
+                        .withMaxResultSize(BaseDynamoDao.maxDownloadSize)
+                        .withAttributesToGet("capsule_id", "area_id", "device_id", "type", "status", "is_downline"));
         capsuleList.forEach(capsule -> {
             if (capsule == null) {
                 return;

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,46 +43,38 @@ public class AreaBillScheduled {
 
 
     //    @Scheduled(cron = "0 0 1 1 * ?")
-//    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/10 * * * * ?")
     public void makeBill() {
-        final Date now = new Date();
-        areaContractDao.scan(new ScanSpec().withScanFilters(new ScanFilter("status").eq(AreaContractStatusOption.adopt.value)), new CallBack<AreaContract>() {
-            @Override
-            public void run(AreaContract areaContract) {
-                try {
-                    makeBill(areaContract.getArea_id(), now.getYear() + 1900, now.getMonth() + 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.MONTH, -1);
+        areaContractDao.scan(new ScanSpec().withScanFilters(
+                new ScanFilter("status").eq(AreaContractStatusOption.adopt.value)
+        ), areaContract -> {
+            if (areaContract == null) {
+                return;
+            }
+            if (areaContract.getStatus() == null || !areaContract.getStatus().equals(AreaContractStatusOption.adopt.value)) {
+                return;
+            }
+            try {
+                makeBill(areaContract.getArea_id(), calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
 
     public void makeBill(int area_id, int year, int month) {
+
         Date now = new Date();
-        Date month_date = DateUtils.createDate(year, month, 1);
-        Date next_month_date;
-        if (month == 12) {
-            next_month_date = DateUtils.createDate(year + 1, 1, 1);
-        } else {
-            next_month_date = DateUtils.createDate(year, month + 1, 1);
-        }
-        String bill_id = area_id + "_" + DateUtils.format(month_date, "yyyyMM");
 
-        AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
+        long bill_id = area_id * 1000000l + year * 10000 + month;
 
-        if (areaBill == null) {
-            areaBill = new AreaBill();
-            areaBill.setBill_id(bill_id);
-            areaBill.setArea_id(area_id);
-            areaBill.setMonth(Integer.valueOf(DateUtils.format(month_date, "yyyyMM")));
-            areaBill.setCreate_time(now.getTime() / 1000);
-        } else {
-            if (areaBill.getStatus() != null && areaBill.getStatus() == 1) {
-                return;
-            }
-            areaBill.setStatus(0);
-        }
 
         AreaContract areaContract = areaContractService.getByAreaId(area_id);
         if (areaContract == null) {
@@ -96,7 +89,22 @@ public class AreaBillScheduled {
             throw new XiangShuiException("该场地分账比例设置有误");
         }
 
-        areaBill.setAccount_ratio(areaContract.getAccount_ratio());
+
+        Calendar c1 = Calendar.getInstance();
+        c1.set(year, month - 1, 1);
+        c1.set(Calendar.MILLISECOND, 0);
+        c1.set(Calendar.SECOND, 0);
+        c1.set(Calendar.MINUTE, 0);
+        c1.set(Calendar.HOUR_OF_DAY, 0);
+        long l1 = c1.getTimeInMillis() / 1000;
+        Calendar c2 = Calendar.getInstance();
+        c2.set(year, month - 1, 1);
+        c2.add(Calendar.MONTH, 1);
+        c2.set(Calendar.MILLISECOND, 0);
+        c2.set(Calendar.SECOND, 0);
+        c2.set(Calendar.MINUTE, 0);
+        c2.set(Calendar.HOUR_OF_DAY, 0);
+        long l2 = c2.getTimeInMillis() / 1000;
 
 
         List<Booking> bookingList = bookingDao.scan(
@@ -104,12 +112,11 @@ public class AreaBillScheduled {
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("update_time").between(
-                                        month_date.getTime() / 1000 - 1,
-                                        next_month_date.getTime() / 1000
-                                )
+                                new ScanFilter("update_time").between(l1, l2)
                         )
         );
+
+
         int booking_count = 0;
         int final_price = 0;
         int charge_price = 0;
@@ -133,6 +140,25 @@ public class AreaBillScheduled {
         }
 
 
+        AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
+
+
+        if (areaBill == null) {
+            areaBill = new AreaBill();
+            areaBill.setBill_id(bill_id);
+            areaBill.setArea_id(area_id);
+            areaBill.setCreate_time(now.getTime() / 1000);
+        } else {
+            if (areaBill.getStatus() != null && areaBill.getStatus() == 1) {
+                throw new XiangShuiException("已付款的账单");
+            }
+            areaBill.setStatus(0);
+        }
+
+        areaBill.setYear(year);
+        areaBill.setMonth(month);
+
+        areaBill.setAccount_ratio(areaContract.getAccount_ratio());
         areaBill.setBooking_count(booking_count);
         areaBill.setFinal_price(final_price);
         areaBill.setCharge_price(charge_price);

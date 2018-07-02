@@ -8,7 +8,6 @@ import java.util.List;
 public class Option<T> {
     public final T value;
     public final String text;
-
     public String color;
 
 

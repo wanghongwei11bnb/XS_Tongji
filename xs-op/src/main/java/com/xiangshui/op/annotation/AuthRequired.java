@@ -13,4 +13,8 @@ public @interface AuthRequired {
     String auth_booking_show_phone = "订单——查看手机号";
     String auth_booking_download = "订单——下载";
     String auth_month_card_download = "月卡——下载";
+
+    String area_contract = "客户分成对账";
+    String area_contract_saler = "客户分成对账——销售";
+    String area_contract_verify = "客户分成对账——审核";
 }
