@@ -76,10 +76,33 @@ class AreaBillGrid extends Grid {
                         }
                     }
                 },
+                {
+                    field: 'status', title: '状态', render: value => {
+                        if (value == 1) {
+                            return <span className="text-success">已付款</span>;
+                        } else {
+                            return <span className="text-danger">未付款</span>;
+                        }
+                    }
+                },
+                {
+                    field: 'bill_id', title: '操作', render: (value, row) => {
+                        if (value == 1) {
+                        } else {
+                            return [
+                                <button className="btn btn-sm btn-primary m-1"
+                                        onClick={this.updateStatus.bind(this, value)}>修改状态</button>
+                            ];
+                        }
+                    }
+                },
             ],
         };
     }
 
+    updateStatus = (bill_id) => {
+
+    };
 
     load = (queryParams) => {
         if (queryParams) {
