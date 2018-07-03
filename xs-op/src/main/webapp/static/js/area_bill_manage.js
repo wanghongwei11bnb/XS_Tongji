@@ -1,3 +1,96 @@
+class LetterModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            bill_id: props.bill_id || null,
+        };
+    }
+
+    renderBody = () => {
+        const {areaBill, area, areaContract} = this.state;
+        return areaBill ?
+            <div>
+                <h1 className="text-center">企业对账函</h1>
+
+                <p className="text-danger">
+                    {areaContract ? areaContract.customer : null}
+                </p>
+
+                <p style={{textIndent: '2em'}}>
+                    本公司与贵公司往来账，具体数据出自本公司帐薄，请贵公司核对，如无误，本公司将向贵公司付款，请您核对完回函，谢谢！
+                </p>
+                <table className="table table-sm table-bordered">
+                    <tbody>
+                    <tr>
+                        <td>月份</td>
+                        <td>空间名称</td>
+                        <td>订单数（笔）</td>
+                        <td>收款金额（元）</td>
+                        <td>分账比例</td>
+                        <td>分账金额（元）</td>
+                    </tr>
+                    <tr>
+                        <td>{`${areaBill.year}年${areaBill.month}月`}</td>
+                        <td>{area ? area.title : null}</td>
+                        <td>{areaBill.booking_count}</td>
+                        <td>{(areaBill.charge_price + areaBill.pay_price) / 100}</td>
+                        <td>{`${areaBill.account_ratio}%`}</td>
+                        <td>{areaBill.ratio_price / 100}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div className="row">
+                    <div className="col-sm-8">
+                        <table className="table table-sm table-bordered">
+                            <tbody>
+                            <tr>
+                                <th className="text-left" colSpan={2}>请核对银行付款账户信息</th>
+                            </tr>
+                            <tr>
+                                <td>付款账户</td>
+                                <td>{areaContract ? areaContract.customer : null}</td>
+                            </tr>
+                            <tr>
+                                <td>付款帐号</td>
+                                <td>{areaContract ? areaContract.bank_account : null}</td>
+                            </tr>
+                            <tr>
+                                <td>支行信息</td>
+                                <td>{areaContract ? areaContract.bank_branch : null}</td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p className="text-right">北京享睡科技有限公司</p>
+                <p className="text-right">{new Date().format('yyyy年MM月dd日')}</p>
+            </div>
+            : null;
+    };
+
+    load = () => {
+        const {bill_id} = this.state;
+        if (!bill_id) return Message.msg('请传入账单编号');
+        request({
+            url: `/api/area_bill/${bill_id}`, loading: true,
+            success: resp => {
+                this.setState({
+                    areaBill: resp.data.areaBill,
+                    area: resp.data.area,
+                    areaContract: resp.data.areaContract,
+                });
+            }
+        });
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.load();
+    }
+}
+
+
 class AreaBillGrid extends Grid {
     constructor(props) {
         super(props);
@@ -91,7 +184,9 @@ class AreaBillGrid extends Grid {
                         } else {
                             return [
                                 <button className="btn btn-sm btn-primary m-1"
-                                        onClick={this.updateStatus.bind(this, value)}>修改状态</button>
+                                        onClick={this.updateStatus.bind(this, value)}>修改状态</button>,
+                                <button className="btn btn-sm btn-success m-1"
+                                        onClick={this.openLetter.bind(this, value)}>生成对账函</button>,
                             ];
                         }
                     }
@@ -102,6 +197,10 @@ class AreaBillGrid extends Grid {
 
     updateStatus = (bill_id) => {
 
+    };
+
+    openLetter = (bill_id) => {
+        Modal.open(<LetterModal bill_id={bill_id}></LetterModal>);
     };
 
     load = (queryParams) => {

@@ -340,7 +340,6 @@ public class BookingController extends BaseController {
             redisService.run(object -> {
                 object.zrem("time_out", String.valueOf(booking.getUin()));
 //                object.zrem("time_out_new", String.valueOf(booking.getUin()));
-                log.debug(booking.getUin() + "&" + booking.getCapsule_id());
                 object.zrem("time_out_new", booking.getUin() + "&" + booking.getCapsule_id());
                 object.srem("capsule_time", String.valueOf(booking.getCapsule_id()));
             });
