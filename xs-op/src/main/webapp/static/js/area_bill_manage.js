@@ -69,10 +69,16 @@ class AreaBillGrid extends Grid {
                         }
                     }
                 },
+                {
+                    field: 'update_time', title: '账单生成时间', render: value => {
+                        if (type(value) === 'Number') {
+                            return new Date(value * 1000).format();
+                        }
+                    }
+                },
             ],
         };
     }
-
 
 
     load = (queryParams) => {

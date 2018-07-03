@@ -7,6 +7,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
+import com.xiangshui.server.constant.AreaContractStatusOption;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BaseDynamoDao;
@@ -54,7 +55,7 @@ public class AreaContractController extends BaseController {
     @Autowired
     AreaBillScheduled areaBillScheduled;
 
-    @Menu("客户分成对账(开发中)")
+    @Menu("客户分成管理(开发中)")
     @AuthRequired(AuthRequired.area_contract)
     @GetMapping("/area_contract_manage")
     public String index(HttpServletRequest request) {
@@ -67,6 +68,7 @@ public class AreaContractController extends BaseController {
     @GetMapping("/api/area_contract/search")
     @ResponseBody
     public Result search(HttpServletRequest request, HttpServletResponse response, AreaContract criteria, Boolean download) throws NoSuchFieldException, IllegalAccessException {
+        Set<String> authSet = opUserService.getAuthSet(UsernameLocal.get());
         if (download == null) {
             download = false;
         }
@@ -129,14 +131,32 @@ public class AreaContractController extends BaseController {
     @PostMapping("/api/area_contract/create/forSaler")
     @ResponseBody
     public Result createForSaler(@RequestBody AreaContract criteria) {
+        Date now = new Date();
         String saler_username = UsernameLocal.get();
         Op op = opUserService.getOpByUsername(saler_username, null);
         if (StringUtils.isBlank(op.getFullname()) || StringUtils.isBlank(op.getCity())) {
             return new Result(-1, "请设置您的姓名及城市");
         }
+
+        if (criteria == null) throw new XiangShuiException("参数不能为空");
+        if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
+        AreaContract areaContract = areaContractService.getByAreaId(criteria.getArea_id());
+        if (areaContract != null) throw new XiangShuiException("场地重复创建，请核实");
+        Area area = areaService.getAreaById(criteria.getArea_id());
+        if (area == null) throw new XiangShuiException("场地不存在");
+
+        areaContractService.validateCustomer(criteria);
+
+        criteria.setStatus(AreaContractStatusOption.normal.value);
+
         criteria.setSaler(op.getFullname());
         criteria.setSaler_city(op.getCity());
-        areaContractService.createForSaler(criteria, UsernameLocal.get());
+
+        criteria.setCreate_time(now.getTime() / 1000);
+        criteria.setUpdate_time(now.getTime() / 1000);
+
+        areaContractDao.putItem(criteria);
+
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -144,15 +164,41 @@ public class AreaContractController extends BaseController {
     @PostMapping("/api/area_contract/{area_id:\\d+}/update/forSaler")
     @ResponseBody
     public Result updateForSaler(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
-        if (criteria == null) {
-            criteria = new AreaContract();
-        }
-        criteria.setArea_id(area_id);
+
+        Date now = new Date();
         String saler_username = UsernameLocal.get();
         Op op = opUserService.getOpByUsername(saler_username, null);
         if (StringUtils.isBlank(op.getFullname()) || StringUtils.isBlank(op.getCity())) {
             return new Result(-1, "请设置您的姓名及城市");
         }
+
+        if (criteria == null) {
+            criteria = new AreaContract();
+        }
+        criteria.setArea_id(area_id);
+        AreaContract areaContract = areaContractService.getByAreaId(criteria.getArea_id());
+        if (areaContract == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+
+        if (!(op.getFullname().equals(areaContract.getSaler()) && op.getCity().equals(areaContract.getSaler_city()))) {
+            throw new XiangShuiException("没有权限，只能修改自己的场地");
+        }
+
+        if (areaContract.getStatus() != null && areaContract.getStatus().equals(AreaContractStatusOption.adopt.value)) {
+            throw new XiangShuiException("已审核通过，不能再次修改啦");
+        }
+
+        areaContractService.validateCustomer(criteria);
+
+        criteria.setUpdate_time(now.getTime() / 1000);
+        areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                "customer",
+                "customer_email",
+                "customer_contact",
+                "account_ratio",
+                "bank_account",
+                "bank_branch",
+                "remark",
+        });
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -161,11 +207,11 @@ public class AreaContractController extends BaseController {
     @PostMapping("/api/area_contract/{area_id:\\d+}/update/verify")
     @ResponseBody
     public Result updateVerify(@PathVariable("area_id") int area_id, @RequestBody AreaContract criteria) throws Exception {
-        if (criteria == null) {
-            criteria = new AreaContract();
+        if (criteria == null || criteria.getStatus() == null) {
+            throw new XiangShuiException("参数不能为空");
         }
         criteria.setArea_id(area_id);
-        areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{"status"});
+        areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{"status", "remark"});
         return new Result(CodeMsg.SUCCESS);
     }
 

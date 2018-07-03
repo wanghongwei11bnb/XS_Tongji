@@ -14,7 +14,7 @@ public @interface AuthRequired {
     String auth_booking_download = "订单——下载";
     String auth_month_card_download = "月卡——下载";
 
-    String area_contract = "客户分成对账";
-    String area_contract_saler = "客户分成对账——销售";
-    String area_contract_verify = "客户分成对账——审核";
+    String area_contract = "客户分成管理";
+    String area_contract_saler = "客户分成管理——业务员";
+    String area_contract_verify = "客户分成管理——审核员";
 }

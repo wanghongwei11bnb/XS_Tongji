@@ -141,6 +141,7 @@ public class OpController extends BaseController {
         update.setCity(criteria.getCity());
         update.setUsername(op_username);
         opMapper.updateByPrimaryKeySelective(update);
+        opUserService.cleanCache(op_username);
         return new Result(CodeMsg.SUCCESS).putData("op_info", opUserService.getOpByUsername(op_username, null));
     }
 }

@@ -42,8 +42,8 @@ public class AreaBillScheduled {
     BookingDao bookingDao;
 
 
-    //    @Scheduled(cron = "0 0 1 1 * ?")
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0 0 1,2,3 1 * ?")
+//    @Scheduled(cron = "0/10 * * * * ?")
     public void makeBill() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, 1);
@@ -75,10 +75,18 @@ public class AreaBillScheduled {
 
         long bill_id = area_id * 1000000l + year * 100 + month;
 
+        AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
 
+        if (areaBill != null && Integer.valueOf(1).equals(areaBill.getStatus())) {
+            throw new XiangShuiException("账单已计算，不能再次生成啦");
+        }
         AreaContract areaContract = areaContractService.getByAreaId(area_id);
         if (areaContract == null) {
             throw new XiangShuiException("没匹配到场地合同");
+        }
+
+        if (!Integer.valueOf(AreaContractStatusOption.adopt.value).equals(areaContract.getStatus())) {
+            throw new XiangShuiException("审核未通过");
         }
 
         if (areaContract.getAccount_ratio() == null) {
@@ -88,7 +96,6 @@ public class AreaBillScheduled {
         if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() < 100)) {
             throw new XiangShuiException("该场地分账比例设置有误");
         }
-
 
         Calendar c1 = Calendar.getInstance();
         c1.set(year, month - 1, 1);
@@ -138,9 +145,6 @@ public class AreaBillScheduled {
                 }
             }
         }
-
-
-        AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
 
 
         if (areaBill == null) {

@@ -41,21 +41,6 @@ public class AreaContractService {
     }
 
 
-    public void createForSaler(AreaContract criteria, String saler_username) {
-        if (criteria == null) throw new XiangShuiException("参数不能为空");
-        if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
-        AreaContract areaContract = getByAreaId(criteria.getArea_id());
-        if (areaContract != null) throw new XiangShuiException("该场地分成对账已存在");
-        Area area = areaService.getAreaById(criteria.getArea_id());
-        if (area == null) throw new XiangShuiException("场地不存在");
-
-        Date now = new Date();
-        criteria.setCreate_time(now.getTime() / 1000);
-        criteria.setUpdate_time(now.getTime() / 1000);
-        criteria.setStatus(AreaContractStatusOption.normal.value);
-
-        areaContractDao.putItem(criteria);
-    }
 
 
     public void updateForSaler(AreaContract criteria, String saler_username) throws Exception {

@@ -62,18 +62,15 @@ class Saler extends React.Component {
 
     render() {
         const {op} = this.state;
-        return <div className="card">
-            <div className="care-body px-3">
-                {op ? (
-                    op.fullname && op.city ?
-                        <div>销售人员：{op.fullname}&nbsp;&nbsp;&nbsp;&nbsp;所属公司：{op.city}</div> :
-                        <div className="text-danger">
-                            您还没有设置姓名及城市，
-                            <A className="btn btn-link text-primary" onClick={this.setting}>请设置</A>
-                        </div>
-                ) : null}
-
-            </div>
+        return <div className="alert alert-primary">
+            {op ? (
+                op.fullname && op.city ?
+                    <div>销售人员：{op.fullname}&nbsp;&nbsp;&nbsp;&nbsp;所属公司：{op.city}</div> :
+                    <div className="text-danger">
+                        您还没有设置姓名及城市，
+                        <A className="btn btn-link text-primary" onClick={this.setting}>请设置</A>
+                    </div>
+            ) : null}
         </div>
     }
 
@@ -83,6 +80,49 @@ class Saler extends React.Component {
 
 }
 
+class YearMonthSelectModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    renderBody = () => {
+        return <div>
+
+            <select ref="year" className="form-control d-inline-block w-auto m-1">
+                <option value=""></option>
+                {(() => {
+                    let os = [];
+                    for (let i = 2017; i <= 2018; i++) {
+                        os.push(<option value={i}>{i}</option>);
+                    }
+                    return os;
+                })()}
+            </select>
+            <select ref="month" className="form-control d-inline-block w-auto m-1">
+                <option value=""></option>
+                {(() => {
+                    let os = [];
+                    for (let i = 1; i <= 12; i++) {
+                        os.push(<option value={i}>{i}</option>);
+                    }
+                    return os;
+                })()}
+            </select>
+        </div>
+    };
+    ok = () => {
+        if (!this.refs.year.value) return Message.msg('请选择年份');
+        if (!this.refs.month.value) return Message.msg('请选择月份');
+        this.close();
+        if (this.props.onSuccess) this.props.onSuccess(this.refs.year.value, this.refs.month.value);
+    };
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+}
 
 class AreaContractGrid extends React.Component {
     constructor(props) {
@@ -145,8 +185,17 @@ class AreaContractGrid extends React.Component {
                     title: <button className="btn btn-sm btn-success m-1" onClick={this.createAreaContract}>新建</button>,
                     render: (value, row) => {
                         return [
-                            <button className="btn btn-sm btn-primary m-1"
-                                    onClick={this.update.bind(this, value)}>编辑</button>
+                            row.status == 1 ? null :
+                                <button className="btn btn-sm btn-primary m-1"
+                                        onClick={this.update.bind(this, value)}>编辑</button>
+                            ,
+                            <button className="btn btn-sm btn-success m-1"
+                                    onClick={this.verify.bind(this, value)}>审核</button>,
+
+                            row.status == 1 ?
+                                <button className="btn btn-sm btn-success m-1"
+                                        onClick={this.reckon.bind(this, value)}>生成对账单</button> : null,
+
                         ]
                     }
                 },
@@ -156,6 +205,21 @@ class AreaContractGrid extends React.Component {
 
     update = (area_id) => {
         Modal.open(<AreaContractModal update area_id={area_id} onSuccess={this.load}></AreaContractModal>);
+    };
+
+    verify = (area_id) => {
+        Modal.open(<AreaContractModal verify area_id={area_id} onSuccess={this.load}></AreaContractModal>);
+    };
+    reckon = (area_id) => {
+        Modal.open(<YearMonthSelectModal onSuccess={(year, month) => {
+            request({
+                url: `/api/area_contract/${area_id}/reckon`, method: 'post', loading: true,
+                data: {year, month},
+                success: resp => {
+                    Message.msg('操作成功');
+                }
+            });
+        }}></YearMonthSelectModal>);
     };
 
     createAreaContract = () => {
@@ -176,7 +240,6 @@ class AreaContractGrid extends React.Component {
                 });
             }
         });
-
     };
 
     render() {
@@ -196,8 +259,9 @@ class AreaContractModal extends Modal {
         };
     }
 
-    submit = () => {
 
+    submit = () => {
+        const {create, update, verify, area_id} = this.state;
         if (!this.refs.area_id.value) return Message.msg('请选择场地');
 
         let data = {
@@ -211,12 +275,10 @@ class AreaContractModal extends Modal {
             remark: this.refs.remark.value,
             status: this.refs.status.value,
         };
-        if (this.state.create) {
+        if (create) {
             request({
                 url: '/api/area_contract/create/forSaler',
-                contentType: 'application/json',
-                method: 'post',
-                loading: true,
+                contentType: 'application/json', method: 'post', loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -224,12 +286,21 @@ class AreaContractModal extends Modal {
                     if (this.props.onSuccess) this.props.onSuccess();
                 }
             });
-        } else if (this.state.update) {
+        } else if (update) {
             request({
                 url: `/api/area_contract/${this.refs.area_id.value}/update/forSaler`,
-                contentType: 'application/json',
-                method: 'post',
-                loading: true,
+                contentType: 'application/json', method: 'post', loading: true,
+                data: JSON.stringify(data, nullStringReplacer),
+                success: resp => {
+                    Message.msg('保存成功');
+                    this.close();
+                    if (this.props.onSuccess) this.props.onSuccess();
+                }
+            });
+        } else if (verify) {
+            request({
+                url: `/api/area_contract/${this.refs.area_id.value}/update/verify`,
+                contentType: 'application/json', method: 'post', loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -251,6 +322,7 @@ class AreaContractModal extends Modal {
     };
 
     renderBody = () => {
+        const {create, update, verify, area_id} = this.state;
         return <table className="table table-bordered">
             <tbody>
             <tr>
@@ -264,7 +336,9 @@ class AreaContractModal extends Modal {
                             <input ref="area_id" readOnly={true} disabled={true} type="text" className="form-control"/>
                         </div>
                         <div className="col-sm-6">
-                            <button className="btn btn-success btn-sm m-1" onClick={this.selectArea}>选择场地</button>
+                            <button disabled={!create} className="btn btn-success btn-sm m-1"
+                                    onClick={this.selectArea}>选择场地
+                            </button>
                         </div>
                     </div>
                 </td>
@@ -308,31 +382,36 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>客户公司名称</th>
                 <td>
-                    <input ref="customer" type="text" className="form-control"/>
+                    <input ref="customer" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                           className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司邮箱</th>
                 <td>
-                    <input ref="customer_email" type="text" className="form-control"/>
+                    <input ref="customer_email" type="text" readOnly={!(create || update)}
+                           disabled={!(create || update)} className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司联系方式</th>
                 <td>
-                    <input ref="customer_contact" type="text" className="form-control"/>
+                    <input ref="customer_contact" type="text" readOnly={!(create || update)}
+                           disabled={!(create || update)} className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司银行账号</th>
                 <td>
-                    <input ref="bank_account" type="text" className="form-control"/>
+                    <input ref="bank_account" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                           className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司银行支行信息</th>
                 <td>
-                    <input ref="bank_branch" type="text" className="form-control"/>
+                    <input ref="bank_branch" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                           className="form-control"/>
                 </td>
             </tr>
             <tr>
@@ -340,7 +419,8 @@ class AreaContractModal extends Modal {
                 <td>
                     <div className="row">
                         <div className="col-sm-6">
-                            <input ref="account_ratio" type="text" className="form-control"/>
+                            <input ref="account_ratio" type="text" readOnly={!(create || update)}
+                                   disabled={!(create || update)} className="form-control"/>
                         </div>
                         <div className="col-sm-6 pt-1 pl-0">
                             %
@@ -366,7 +446,7 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>状态</th>
                 <td>
-                    <select ref="status" disabled={true} className="form-control">
+                    <select ref="status" disabled={!verify} className="form-control">
                         {AreaContractStatusOption.map(option => {
                             return <option value={option.value}>{option.text}</option>
                         })}
@@ -407,31 +487,19 @@ class AreaContractModal extends Modal {
         }
     };
 
+
     componentDidMount() {
         super.componentDidMount();
-        const {area_id, areaContract, create, update} = this.props;
-        if (create && areaContract) {
-            this.setView(areaContract);
-            if (areaContract.area_id) {
-                request({
-                    url: `/api/area/${area_id}`, loading: true,
-                    success: resp => {
-                        this.setView(null, resp.data.area);
-                    }
-                });
-            }
-        }
-        if (update && area_id) {
+        const {create, update, verify, area_id} = this.state;
+        if ((update || verify) && area_id) {
             request({
                 url: `/api/area_contract/${area_id}`, loading: true,
                 success: resp => {
                     this.setView(resp.data.areaContract, resp.data.area);
                 }
             });
-
         }
     }
-
 }
 
 class AreaSelectModal extends Modal {
