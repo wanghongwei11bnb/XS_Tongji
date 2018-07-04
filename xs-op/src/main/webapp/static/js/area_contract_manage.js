@@ -175,7 +175,7 @@ class AreaContractGrid extends React.Component {
                 {
                     field: 'status', title: '状态', render: value => {
                         if (value === 0) {
-                            return <span className="text-warning">审核中</span>
+                            return <span className="text-warning">待审核</span>
                         } else if (value === 1) {
                             return <span className="text-success">审核通过</span>
                         } else if (value === -1) {
