@@ -59,7 +59,8 @@ public class AreaBillController extends BaseController {
     @Autowired
     AreaBillDao areaBillDao;
 
-    @Menu("分成对账单")
+    @Menu("分成对账单管理（开发中）")
+    @AuthRequired(AuthRequired.area_bill)
     @GetMapping("/area_bill_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
@@ -158,7 +159,6 @@ public class AreaBillController extends BaseController {
         });
         return new Result(CodeMsg.SUCCESS);
     }
-
 
 
 }

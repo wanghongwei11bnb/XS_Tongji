@@ -11,22 +11,26 @@ import com.xiangshui.server.dao.BookingDao;
 import com.xiangshui.server.domain.AreaBill;
 import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.BookingService;
+import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.CallBack;
 import com.xiangshui.util.DateUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Component
-public class AreaBillScheduled {
+public class AreaBillScheduled implements InitializingBean {
 
 
     @Autowired
@@ -40,6 +44,12 @@ public class AreaBillScheduled {
     BookingService bookingService;
     @Autowired
     BookingDao bookingDao;
+
+    @Autowired
+    UserService userService;
+
+    Set<Integer> testUinSet = new HashSet<>();
+    Set<String> testPhoneSet = new HashSet<>();
 
 
     @Scheduled(cron = "0 0 1,2,3 1 * ?")
@@ -120,7 +130,7 @@ public class AreaBillScheduled {
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
                                 new ScanFilter("update_time").between(l1, l2)
-                        )
+                        ).withMaxResultSize(Integer.MAX_VALUE)
         );
 
 
@@ -131,6 +141,9 @@ public class AreaBillScheduled {
         if (bookingList != null && bookingList.size() > 0) {
             for (int i = 0; i < bookingList.size(); i++) {
                 Booking booking = bookingList.get(i);
+                if (testUinSet.contains(booking.getUin())) {
+                    continue;
+                }
                 booking_count++;
                 if (booking.getFinal_price() != null && booking.getFinal_price() > 0) {
                     final_price += booking.getFinal_price();
@@ -175,4 +188,25 @@ public class AreaBillScheduled {
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        try {
+            for (String text : IOUtils.readLines(this.getClass().getResourceAsStream("/test_phone.txt"), "UTF-8")) {
+                if (StringUtils.isNotBlank(text)) {
+                    testPhoneSet.add(text.trim());
+                }
+            }
+            testPhoneSet.forEach(new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    UserInfo userInfo = userService.getUserInfoByPhone(s);
+                    if (userInfo != null) {
+                        testUinSet.add(userInfo.getUin());
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

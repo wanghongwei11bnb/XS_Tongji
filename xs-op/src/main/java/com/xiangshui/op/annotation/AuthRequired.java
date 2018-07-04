@@ -17,4 +17,6 @@ public @interface AuthRequired {
     String area_contract = "客户分成管理";
     String area_contract_saler = "客户分成管理——业务员";
     String area_contract_verify = "客户分成管理——审核员";
+
+    String area_bill = "分成对账单管理";
 }
