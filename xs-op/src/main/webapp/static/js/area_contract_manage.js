@@ -164,8 +164,9 @@ class AreaContractGrid extends React.Component {
                         }
                     }
                 },
-                {field: 'bank_account', title: '客户公司银行账号'},
-                {field: 'bank_branch', title: '客户公司银行支行信息'},
+                {field: 'bank_account_name', title: '客户银行付款账户'},
+                {field: 'bank_account', title: '客户银行付款帐号'},
+                {field: 'bank_branch', title: '客户银行支行信息'},
                 {field: 'remark', title: '备注'},
                 {
                     field: 'status', title: '状态', render: value => {
@@ -270,6 +271,7 @@ class AreaContractModal extends Modal {
             customer_email: this.refs.customer_email.value,
             customer_contact: this.refs.customer_contact.value,
             account_ratio: this.refs.account_ratio.value,
+            bank_account_name: this.refs.bank_account_name.value,
             bank_account: this.refs.bank_account.value,
             bank_branch: this.refs.bank_branch.value,
             remark: this.refs.remark.value,
@@ -401,14 +403,22 @@ class AreaContractModal extends Modal {
                 </td>
             </tr>
             <tr>
-                <th>客户公司银行账号</th>
+                <th>客户银行付款账户</th>
+                <td>
+                    <input ref="bank_account_name" type="text" readOnly={!(create || update)}
+                           disabled={!(create || update)}
+                           className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>客户银行付款帐号</th>
                 <td>
                     <input ref="bank_account" type="text" readOnly={!(create || update)} disabled={!(create || update)}
                            className="form-control"/>
                 </td>
             </tr>
             <tr>
-                <th>客户公司银行支行信息</th>
+                <th>客户银行支行信息</th>
                 <td>
                     <input ref="bank_branch" type="text" readOnly={!(create || update)} disabled={!(create || update)}
                            className="form-control"/>
@@ -470,6 +480,7 @@ class AreaContractModal extends Modal {
             if (type(areaContract.customer) === 'String') this.refs.customer.value = areaContract.customer;
             if (type(areaContract.customer_email) === 'String') this.refs.customer_email.value = areaContract.customer_email;
             if (type(areaContract.customer_contact) === 'String') this.refs.customer_contact.value = areaContract.customer_contact;
+            if (type(areaContract.bank_account_name) === 'String') this.refs.bank_account_name.value = areaContract.bank_account_name;
             if (type(areaContract.bank_account) === 'String') this.refs.bank_account.value = areaContract.bank_account;
             if (type(areaContract.bank_branch) === 'String') this.refs.bank_branch.value = areaContract.bank_branch;
             if (type(areaContract.account_ratio) === 'Number') this.refs.account_ratio.value = areaContract.account_ratio;

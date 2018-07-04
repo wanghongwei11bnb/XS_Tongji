@@ -9,6 +9,7 @@ public class AreaContract {
     private String customer_email;
     private String customer_contact;
     private Integer account_ratio;
+    private String bank_account_name;
     private String bank_account;
     private String bank_branch;
     private String remark;
@@ -16,6 +17,16 @@ public class AreaContract {
     private Long create_time;
     private Long update_time;
     private Integer status;
+
+
+    public String getBank_account_name() {
+        return bank_account_name;
+    }
+
+    public AreaContract setBank_account_name(String bank_account_name) {
+        this.bank_account_name = bank_account_name;
+        return this;
+    }
 
     public Long getUpdate_time() {
         return update_time;

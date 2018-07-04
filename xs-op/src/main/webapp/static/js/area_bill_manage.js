@@ -48,7 +48,7 @@ class LetterModal extends Modal {
                             </tr>
                             <tr>
                                 <td>付款账户</td>
-                                <td>{areaContract ? areaContract.customer : null}</td>
+                                <td>{areaContract ? areaContract.bank_account_name : null}</td>
                             </tr>
                             <tr>
                                 <td>付款帐号</td>
@@ -186,7 +186,7 @@ class AreaBillGrid extends Grid {
                                 <button className="btn btn-sm btn-primary m-1"
                                         onClick={this.updateStatus.bind(this, value)}>修改状态</button>,
                                 <button className="btn btn-sm btn-success m-1"
-                                        onClick={this.openLetter.bind(this, value)}>生成对账函</button>,
+                                        onClick={this.openLetter.bind(this, value)}>制作对账函</button>,
                             ];
                         }
                     }

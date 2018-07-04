@@ -33,14 +33,13 @@ public class AreaContractService {
 
     public void validateCustomer(AreaContract criteria) {
         if (StringUtils.isBlank(criteria.getCustomer())) throw new XiangShuiException("客户公司名称不能为空");
-        if (StringUtils.isBlank(criteria.getBank_account())) throw new XiangShuiException("客户公司银行账号不能为空");
-        if (StringUtils.isBlank(criteria.getBank_branch())) throw new XiangShuiException("客户公司银行支行信息不能为空");
+        if (StringUtils.isBlank(criteria.getBank_account_name())) throw new XiangShuiException("客户银行付款账户不能为空");
+        if (StringUtils.isBlank(criteria.getBank_account())) throw new XiangShuiException("客户银行付款帐号不能为空");
+        if (StringUtils.isBlank(criteria.getBank_branch())) throw new XiangShuiException("客户银行支行信息不能为空");
         if (criteria.getAccount_ratio() == null) throw new XiangShuiException("分账比例不能为空");
         if (!(0 <= criteria.getAccount_ratio() && criteria.getAccount_ratio() < 100))
             throw new XiangShuiException("分账比例必须在0～100之间");
     }
-
-
 
 
     public void updateForSaler(AreaContract criteria, String saler_username) throws Exception {
