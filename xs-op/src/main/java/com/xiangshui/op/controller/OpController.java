@@ -2,6 +2,7 @@ package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.bean.Session;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.AreaContractDao;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.Cookie;
@@ -143,5 +145,28 @@ public class OpController extends BaseController {
         opMapper.updateByPrimaryKeySelective(update);
         opUserService.cleanCache(op_username);
         return new Result(CodeMsg.SUCCESS).putData("op_info", opUserService.getOpByUsername(op_username, null));
+    }
+
+
+    @AuthRequired(AuthRequired.auth_op_auth)
+    @PostMapping("/api/op/create")
+    @ResponseBody
+    public Result create(@RequestBody Op criteria) {
+        if (criteria == null) {
+            return new Result(-1, "参数不能为空");
+        }
+        if (StringUtils.isBlank(criteria.getUsername())) {
+            return new Result(-1, "帐号不能为空");
+        }
+        if (StringUtils.isBlank(criteria.getPassword())) {
+            return new Result(-1, "密码不能为空");
+        }
+        Op op = opUserService.getOpByUsername(criteria.getUsername(), null);
+        if (op != null) {
+            return new Result(-1, "帐号已存在");
+        }
+        criteria.setPassword(opUserService.passwordMd5(criteria.getPassword()));
+        opMapper.insert(criteria);
+        return new Result(CodeMsg.SUCCESS);
     }
 }

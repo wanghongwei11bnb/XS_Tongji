@@ -69,7 +69,7 @@ public class AuthController extends BaseController {
     }
 
     @Menu(value = "OP权限管理")
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/auth_manage")
     public String auth_manage(HttpServletRequest request, HttpServletResponse response) {
         setClient(request);
@@ -77,7 +77,7 @@ public class AuthController extends BaseController {
         return "auth_manage";
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/allAuth")
     @ResponseBody
     public Result getAllUrl(HttpServletRequest request) {
@@ -86,7 +86,7 @@ public class AuthController extends BaseController {
     }
 
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/list")
     @ResponseBody
     public Result op_list() {
@@ -95,7 +95,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("opList", opMapper.selectByExample(example));
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/get")
     @ResponseBody
     public Result getOp(String username) {
@@ -106,7 +106,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("op", op);
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/auths")
     @ResponseBody
     public Result auths(String username) {
@@ -118,7 +118,7 @@ public class AuthController extends BaseController {
     }
 
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @PostMapping("/api/op/update/auths")
     @ResponseBody
     public Result update_auths(String username, String auths) {
@@ -136,7 +136,7 @@ public class AuthController extends BaseController {
     }
 
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/citys")
     @ResponseBody
     public Result citys(String username) {
@@ -147,7 +147,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("citys", opUserService.getCitySet(username));
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @PostMapping("/api/op/update/citys")
     @ResponseBody
     public Result update_citys(String username, String citys) {
@@ -165,7 +165,7 @@ public class AuthController extends BaseController {
     }
 
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/areas/options")
     @ResponseBody
     public Result areas_options() throws NoSuchFieldException, IllegalAccessException {
@@ -176,7 +176,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @GetMapping("/api/op/areas")
     @ResponseBody
     public Result areas(String username) {
@@ -187,7 +187,7 @@ public class AuthController extends BaseController {
         return new Result(CodeMsg.SUCCESS).putData("areas", opUserService.getAreaSet(username));
     }
 
-    @AuthRequired("OP权限管理")
+    @AuthRequired(AuthRequired.auth_op_auth)
     @PostMapping("/api/op/update/areas")
     @ResponseBody
     public Result update_areas(String username, String areas) {

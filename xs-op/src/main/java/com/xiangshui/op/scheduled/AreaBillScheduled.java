@@ -180,7 +180,7 @@ public class AreaBillScheduled implements InitializingBean {
         areaBill.setFinal_price(final_price);
         areaBill.setCharge_price(charge_price);
         areaBill.setPay_price(pay_price);
-        areaBill.setRatio_price((charge_price + pay_price) / 100 * areaContract.getAccount_ratio());
+        areaBill.setRatio_price((charge_price + pay_price) * areaContract.getAccount_ratio() / 100);
 
         areaBill.setUpdate_time(now.getTime() / 1000);
 

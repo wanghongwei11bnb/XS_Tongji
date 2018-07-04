@@ -208,6 +208,56 @@ class AreasModal extends Modal {
 }
 
 
+class OpCreateModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>帐号</th>
+                <td>
+                    <input ref="username" type="text" className="form-control" placeholder="邮箱或手机号"/>
+                </td>
+            </tr>
+            <tr>
+                <th>密码</th>
+                <td>
+                    <input ref="password" type="password" className="form-control"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+    submit = () => {
+        request({
+            url: '/api/op/create', method: 'post', contentType: 'application/json', loading: true,
+            data: JSON.stringify({
+                username: this.refs.username.value,
+                password: this.refs.password.value,
+            }, nullStringReplacer),
+            success: resp => {
+                Message.msg('操作成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
+
+
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>提交</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+
+}
+
 class OpGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -252,7 +302,8 @@ class OpGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'username', title: '操作',
+                    field: 'username',
+                    title: <button className="btn btn-sm btn-success m-1" onClick={this.create}>创建帐号</button>,
                     render: (value) => {
                         return [
                             <button className="btn btn-sm btn-primary m-1"
@@ -267,6 +318,10 @@ class OpGrid extends React.Component {
             ],
         };
     }
+
+    create = () => {
+        Modal.open(<OpCreateModal onSuccess={this.load}></OpCreateModal>);
+    };
 
     updateAuths = (username) => {
         Modal.open(<AuthsModal username={username} onSuccess={this.load}></AuthsModal>);

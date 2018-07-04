@@ -31,11 +31,15 @@ public class OpUserService {
         return authOp(op, password);
     }
 
+    public String passwordMd5(String password) {
+        return MD5.getMD5(password_pre + password).toLowerCase();
+    }
+
     public boolean authOp(Op op, String password) {
         if (op == null) {
             return false;
         }
-        if (op.getPassword().equals(MD5.getMD5(password_pre + password).toLowerCase())) {
+        if (op.getPassword().equals(passwordMd5(password))) {
             return true;
         }
         return false;

@@ -8,7 +8,11 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuthRequired {
+
+
     String value();
+
+    String auth_op_auth = "OP权限管理";
 
     String auth_booking_show_phone = "订单——查看手机号";
     String auth_booking_download = "订单——下载";
