@@ -55,7 +55,7 @@ public class AreaContractController extends BaseController {
     @Autowired
     AreaBillScheduled areaBillScheduled;
 
-    @Menu("客户分成管理(开发中)")
+    @Menu("客户分成管理")
     @AuthRequired(AuthRequired.area_contract)
     @GetMapping("/area_contract_manage")
     public String index(HttpServletRequest request) {

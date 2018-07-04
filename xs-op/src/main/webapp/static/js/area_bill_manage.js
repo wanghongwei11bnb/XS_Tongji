@@ -90,6 +90,72 @@ class LetterModal extends Modal {
     }
 }
 
+class BillStatusUpdateModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            bill_id: props.bill_id || null,
+        };
+    }
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>账单状态</th>
+                <td>
+                    <select ref="status" className="form-control">
+                        <option value={0}>未结算</option>
+                        <option value={1}>已结算</option>
+                    </select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+    load = () => {
+        const {bill_id} = this.state;
+        if (!bill_id) return Message.msg('请传入账单编号');
+        request({
+            url: `/api/area_bill/${bill_id}`, loading: true,
+            success: resp => {
+                this.setState({
+                    areaBill: resp.data.areaBill,
+                    area: resp.data.area,
+                    areaContract: resp.data.areaContract,
+                });
+            }
+        });
+    };
+
+    submit = () => {
+        request({
+            url: `/api/area_bill/${this.state.bill_id}/update/status`, method: 'post', loading: true,
+            data: {
+                status: this.refs.status.value
+            },
+            success: resp => {
+                Message.msg('操作成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.load();
+    }
+}
+
 
 class AreaBillGrid extends Grid {
     constructor(props) {
@@ -101,7 +167,11 @@ class AreaBillGrid extends Grid {
                         return `${row.year}年${row.month}月`;
                     }
                 },
-                {field: 'area_id', title: '场地编号'},
+                {
+                    field: 'area_id', title: '场地编号', render: value => {
+                        return <A onClick={this.showAreaContractModal.bind(this, value)}>{value}</A>
+                    }
+                },
                 {
                     field: 'area_id', title: '场地名称', render: value => {
                         const areaMapOptions = this.state.areaMapOptions;
@@ -182,8 +252,12 @@ class AreaBillGrid extends Grid {
         };
     }
 
-    updateStatus = (bill_id) => {
+    showAreaContractModal = (area_id) => {
+        Modal.open(<AreaContractModal area_id={area_id}></AreaContractModal>);
+    };
 
+    updateStatus = (bill_id) => {
+        Modal.open(<BillStatusUpdateModal bill_id={bill_id} onSuccess={this.load}></BillStatusUpdateModal>);
     };
 
     openLetter = (bill_id) => {

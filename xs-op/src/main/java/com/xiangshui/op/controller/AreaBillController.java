@@ -59,7 +59,7 @@ public class AreaBillController extends BaseController {
     @Autowired
     AreaBillDao areaBillDao;
 
-    @Menu("分成对账单管理（开发中）")
+    @Menu("分成对账单管理")
     @AuthRequired(AuthRequired.area_bill)
     @GetMapping("/area_bill_manage")
     public String index(HttpServletRequest request) {
@@ -69,6 +69,7 @@ public class AreaBillController extends BaseController {
 
 
     @GetMapping("/api/area_bill/search")
+    @AuthRequired(AuthRequired.area_bill)
     @ResponseBody
     public Result search(AreaBill criteria) throws NoSuchFieldException, IllegalAccessException {
         if (criteria == null) {
@@ -122,6 +123,7 @@ public class AreaBillController extends BaseController {
     }
 
     @GetMapping("/api/area_bill/{bill_id:\\d+}")
+    @AuthRequired(AuthRequired.area_bill)
     @ResponseBody
     public Result get(@PathVariable("bill_id") long bill_id) {
 
@@ -142,6 +144,7 @@ public class AreaBillController extends BaseController {
     }
 
     @PostMapping("/api/area_bill/{bill_id:\\d+}/update/status")
+    @AuthRequired(AuthRequired.area_bill)
     @ResponseBody
     public Result update_status(@PathVariable("bill_id") long bill_id, AreaBill criteria) throws Exception {
         AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));

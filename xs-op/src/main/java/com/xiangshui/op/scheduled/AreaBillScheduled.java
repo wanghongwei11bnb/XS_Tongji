@@ -20,6 +20,8 @@ import com.xiangshui.util.CallBack;
 import com.xiangshui.util.DateUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,6 +33,8 @@ import java.util.function.Consumer;
 
 @Component
 public class AreaBillScheduled implements InitializingBean {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     @Autowired
@@ -52,7 +56,8 @@ public class AreaBillScheduled implements InitializingBean {
     Set<String> testPhoneSet = new HashSet<>();
 
 
-    @Scheduled(cron = "0 0 1,2,3 1 * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
+//    @Scheduled(cron = "0 0 1 1 * ?")
 //    @Scheduled(cron = "0/10 * * * * ?")
     public void makeBill() {
         Calendar calendar = Calendar.getInstance();
@@ -190,23 +195,30 @@ public class AreaBillScheduled implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        try {
-            for (String text : IOUtils.readLines(this.getClass().getResourceAsStream("/test_phone.txt"), "UTF-8")) {
-                if (StringUtils.isNotBlank(text)) {
-                    testPhoneSet.add(text.trim());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (String text : IOUtils.readLines(this.getClass().getResourceAsStream("/test_phone.txt"), "UTF-8")) {
+                        if (StringUtils.isNotBlank(text)) {
+                            testPhoneSet.add(text.trim());
+                        }
+                    }
+                    testPhoneSet.forEach(new Consumer<String>() {
+                        @Override
+                        public void accept(String s) {
+                            log.debug("加载测试手机号：" + s);
+                            UserInfo userInfo = userService.getUserInfoByPhone(s);
+                            if (userInfo != null) {
+                                testUinSet.add(userInfo.getUin());
+                            }
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-            testPhoneSet.forEach(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    UserInfo userInfo = userService.getUserInfoByPhone(s);
-                    if (userInfo != null) {
-                        testUinSet.add(userInfo.getUin());
-                    }
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
+
     }
 }
