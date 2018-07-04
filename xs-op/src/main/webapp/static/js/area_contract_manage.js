@@ -129,7 +129,11 @@ class AreaContractGrid extends React.Component {
         super(props);
         this.state = {
             columns: [
-                {field: 'area_id', title: '场地编号'},
+                {
+                    field: 'area_id', title: '场地编号', render: value => {
+                        return <A onClick={this.show.bind(this, value)}>{value}</A>
+                    }
+                },
                 {
                     field: 'area_id', title: '场地名称', render: value => {
                         const areaMapOptions = this.state.areaMapOptions;
@@ -183,17 +187,18 @@ class AreaContractGrid extends React.Component {
                 },
                 {
                     field: 'area_id',
-                    title: <button className="btn btn-sm btn-success m-1" onClick={this.createAreaContract}>新建</button>,
+                    title: authMapOptions.get(finalAuthMap.area_contract_saler) ?
+                        <button className="btn btn-sm btn-success m-1"
+                                onClick={this.createAreaContract}>新建</button> : null,
                     render: (value, row) => {
                         return [
-                            row.status == 1 ? null :
+                            row.status != 1 && authMapOptions.get(finalAuthMap.area_contract_saler) ?
                                 <button className="btn btn-sm btn-primary m-1"
-                                        onClick={this.update.bind(this, value)}>编辑</button>
-                            ,
-                            <button className="btn btn-sm btn-success m-1"
-                                    onClick={this.verify.bind(this, value)}>审核</button>,
-
-                            row.status == 1 ?
+                                        onClick={this.update.bind(this, value)}>编辑</button> : null,
+                            authMapOptions.get(finalAuthMap.area_contract_verify) ?
+                                <button className="btn btn-sm btn-success m-1"
+                                        onClick={this.verify.bind(this, value)}>审核</button> : null,
+                            row.status == 1 && authMapOptions.get(finalAuthMap.area_contract_verify) ?
                                 <button className="btn btn-sm btn-success m-1"
                                         onClick={this.reckon.bind(this, value)}>生成对账单</button> : null,
 
@@ -203,6 +208,10 @@ class AreaContractGrid extends React.Component {
             ],
         };
     }
+
+    show = (area_id) => {
+        Modal.open(<AreaContractModal area_id={area_id} onSuccess={this.load}></AreaContractModal>);
+    };
 
     update = (area_id) => {
         Modal.open(<AreaContractModal update area_id={area_id} onSuccess={this.load}></AreaContractModal>);
@@ -450,7 +459,9 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>备注</th>
                 <td>
-                    <textarea ref="remark" className="form-control"></textarea>
+                    <textarea ref="remark" readOnly={!(create || update || verify)}
+                              disabled={!(create || update || verify)}
+                              className="form-control"></textarea>
                 </td>
             </tr>
             <tr>
@@ -468,10 +479,16 @@ class AreaContractModal extends Modal {
     };
 
     renderFooter = () => {
-        return [
-            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
-            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
-        ];
+        const {create, update, verify, area_id} = this.state;
+        if (create || update || verify) {
+            return [
+                <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+                <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+            ];
+        } else {
+            return <A className="btn btn-link text-secondary float-right" onClick={this.close}>关闭</A>;
+        }
+
     };
 
     setView = (areaContract, area) => {
@@ -502,7 +519,7 @@ class AreaContractModal extends Modal {
     componentDidMount() {
         super.componentDidMount();
         const {create, update, verify, area_id} = this.state;
-        if ((update || verify) && area_id) {
+        if (area_id) {
             request({
                 url: `/api/area_contract/${area_id}`, loading: true,
                 success: resp => {

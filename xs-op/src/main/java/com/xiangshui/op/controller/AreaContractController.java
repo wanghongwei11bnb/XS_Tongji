@@ -69,15 +69,26 @@ public class AreaContractController extends BaseController {
     @ResponseBody
     public Result search(HttpServletRequest request, HttpServletResponse response, AreaContract criteria, Boolean download) throws NoSuchFieldException, IllegalAccessException {
         Set<String> authSet = opUserService.getAuthSet(UsernameLocal.get());
+        if (!(authSet.contains(AuthRequired.area_contract_saler) || authSet.contains(AuthRequired.area_contract_verify))) {
+            return new Result(CodeMsg.AUTH_FAIL);
+        }
         if (download == null) {
             download = false;
         }
         if (criteria == null) {
             criteria = new AreaContract();
         }
-
+        if (!authSet.contains(AuthRequired.area_contract_verify)) {
+            Op op = opUserService.getOpByUsername(UsernameLocal.get(), null);
+            if (StringUtils.isBlank(op.getFullname()) || StringUtils.isBlank(op.getCity())) {
+                return new Result(-1, "您还没有设置姓名或城市");
+            }
+            criteria.setSaler(op.getFullname());
+            criteria.setSaler_city(op.getCity());
+        }
         List<ScanFilter> scanFilterList = areaContractDao.makeScanFilterList(criteria, new String[]{
                 "area_id",
+                "saler",
                 "saler_city",
                 "customer_email",
                 "customer_contact",
@@ -86,9 +97,6 @@ public class AreaContractController extends BaseController {
 
         if (scanFilterList == null) {
             scanFilterList = new ArrayList<>();
-        }
-        if (StringUtils.isNotBlank(criteria.getSaler())) {
-            scanFilterList.add(new ScanFilter("saler").contains(criteria.getSaler()));
         }
         if (StringUtils.isNotBlank(criteria.getCustomer())) {
             scanFilterList.add(new ScanFilter("customer").contains(criteria.getCustomer()));

@@ -126,26 +126,13 @@ class AreaBillGrid extends Grid {
                         }
                     }
                 },
-                {field: 'booking_count', title: '订单数量'},
+                {field: 'booking_count', title: '订单数量（笔）'},
                 {
-                    field: 'final_price', title: '订单总金额', render: value => {
-                        if (type(value) === 'Number') {
-                            return value / 100;
-                        }
-                    }
-                },
-                {
-                    field: 'charge_price', title: '收款金额（充值部分）', render: value => {
-                        if (type(value) === 'Number') {
-                            return value / 100;
-                        }
-                    }
-                },
-                {
-                    field: 'pay_price', title: '收款金额（现金部分）', render: value => {
-                        if (type(value) === 'Number') {
-                            return value / 100;
-                        }
+                    field: 'pay_price', title: '收款金额（元）', render: (value, row) => {
+                        return (
+                            (type(row.charge_price) === 'Number' ? row.charge_price : 0)
+                            + (type(row.pay_price) === 'Number' ? row.pay_price : 0)
+                        ) / 100;
                     }
                 },
                 {
@@ -156,7 +143,7 @@ class AreaBillGrid extends Grid {
                     }
                 },
                 {
-                    field: 'ratio_price', title: '分账金额', render: value => {
+                    field: 'ratio_price', title: '分账金额（元）', render: value => {
                         if (type(value) === 'Number') {
                             return value / 100;
                         }
