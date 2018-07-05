@@ -12,8 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @Service
 public class OpUserService {
@@ -153,8 +156,22 @@ public class OpUserService {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(MD5.getMD5(password_pre + "1q2w3e4r5t").toLowerCase());
+    public List<Op> getSalerList() {
+        List<Op> salerList = new ArrayList<>();
+        OpExample example = new OpExample();
+        example.setFields("fullname,city");
+        example.setLimit(10000);
+        example.createCriteria().andFullnameIsNotNull().andCityIsNotNull().andFullnameNotEqualTo("").andCityNotEqualTo("");
+        List<Op> opList = opMapper.selectByExample(example);
+        if (opList != null && opList.size() > 0) {
+            opList.forEach(op -> {
+                if (op != null && StringUtils.isNotBlank(op.getFullname()) && StringUtils.isNotBlank(op.getCity())) {
+                    salerList.add(op);
+                }
+            });
+        }
+        return salerList;
     }
+
 
 }

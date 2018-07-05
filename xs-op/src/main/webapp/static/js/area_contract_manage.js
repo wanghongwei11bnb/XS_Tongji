@@ -85,6 +85,7 @@ class YearMonthSelectModal extends Modal {
         super(props);
     }
 
+    renderHeader = () => '请选择月份';
     renderBody = () => {
         return <div>
 
@@ -187,12 +188,12 @@ class AreaContractGrid extends React.Component {
                 },
                 {
                     field: 'area_id',
-                    title: authMapOptions.get(finalAuthMap.area_contract_saler) ?
+                    title: authMapOptions.get(finalAuthMap.area_contract_saler) && false ?
                         <button className="btn btn-sm btn-success m-1"
-                                onClick={this.createAreaContract}>新建</button> : null,
+                                onClick={this.createAreaContract}>新建</button> : '操作',
                     render: (value, row) => {
                         return [
-                            row.status != 1 && authMapOptions.get(finalAuthMap.area_contract_saler) ?
+                            row.status != 1 && row.status != -2 && authMapOptions.get(finalAuthMap.area_contract_saler) ?
                                 <button className="btn btn-sm btn-primary m-1"
                                         onClick={this.update.bind(this, value)}>编辑</button> : null,
                             authMapOptions.get(finalAuthMap.area_contract_verify) ?
@@ -256,7 +257,6 @@ class AreaContractGrid extends React.Component {
         return <Table columns={this.state.columns} data={this.state.data}></Table>
     }
 }
-
 
 class AreaSelectModal extends Modal {
     constructor(props) {
@@ -322,7 +322,6 @@ class AreaSelectGrid extends AreaGrid {
     }
 }
 
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -339,11 +338,6 @@ class Page extends React.Component {
 
     render() {
         return <div className="container-fluid my-3">
-            {authMapOptions.get(finalAuthMap.area_contract_saler) ?
-                <div className="m-1">
-                    <Saler></Saler>
-                </div> : null}
-
             <div className="m-1">
                 客户公司名称：
                 <input ref="customer" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>

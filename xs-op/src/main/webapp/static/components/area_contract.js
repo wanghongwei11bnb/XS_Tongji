@@ -269,3 +269,171 @@ class AreaContractModal extends Modal {
         }
     }
 }
+
+class SalerGrid extends Grid {
+    constructor(props) {
+        super(props);
+        this.state = {
+            columns: [
+                {field: 'fullname', title: '姓名'},
+                {field: 'city', title: '城市'},
+            ],
+        };
+    }
+
+    componentDidMount() {
+        request({
+            url: '/api/saler/list', loading: true,
+            success: resp => {
+                this.setState({data: resp.data.salerList});
+            }
+        });
+    }
+}
+
+
+class SelectSalerModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    onSelect = (op) => {
+        this.close();
+        if (this.props.onSuccess) {
+            this.props.onSuccess(op);
+        }
+    };
+
+    renderBody = () => {
+        return <SalerGrid handleColumns={(columns, grid) => {
+            columns.push({
+                title: '操作', render: (value, row) => {
+                    return <button className="btn btn-sm btn-primary m-1"
+                                   onClick={this.onSelect.bind(this, row)}>选择</button>
+                }
+            });
+        }}></SalerGrid>
+    };
+}
+
+
+class OperateAreaContractModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            create: props.create || false,
+            update: props.update || false,
+            verify: props.verify || false,
+            area_id: props.area_id,
+        };
+    }
+
+    renderBody = () => {
+        const {create, update, verify, area_id} = this.state;
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <td colSpan={2} className="text-center text-danger">场地信息</td>
+            </tr>
+            <tr>
+                <th>场地编号</th>
+                <td>
+                    <input ref="area_id" readOnly={true} disabled={true} type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>场地名称</th>
+                <td>
+                    <input ref="area_title" readOnly={true} disabled={true} type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>投放城市</th>
+                <td>
+                    <input ref="area_city" readOnly={true} disabled={true} type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>投放地址</th>
+                <td>
+                    <input ref="area_address" readOnly={true} disabled={true} type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <td colSpan={2} className="text-center text-danger">销售人员</td>
+            </tr>
+            <tr>
+                <th>销售人员</th>
+                <td>
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <input ref="saler" type="text" readOnly={true} disabled={true} className="form-control"/>
+                        </div>
+                        <div className="col-sm-6">
+                            <button className="btn btn-sm btn-success m-1" onClick={this.selectSaler}>选择</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>所属公司</th>
+                <td>
+                    <input ref="saler_city" type="text" readOnly={true} disabled={true} className="form-control"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+    submit = () => {
+        if (!this.refs.area_id.value) return Message.msg('场地编号不能为空');
+        if (!this.refs.saler.value) return Message.msg('销售不能为空');
+        if (!this.refs.saler_city.value) return Message.msg('销售不能为空');
+        request({
+            url: '/api/area_contract/create/forOperate',
+            contentType: 'application/json', method: 'post', loading: true,
+            data: JSON.stringify({
+                area_id: this.refs.area_id.value,
+                saler: this.refs.saler.value,
+                saler_city: this.refs.saler_city.value,
+            }, nullStringReplacer),
+            success: resp => {
+                Message.msg('保存成功');
+                this.close();
+                if (this.props.onSuccess) this.props.onSuccess();
+            }
+        });
+    };
+
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.submit}>保存</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+
+
+    selectSaler = () => {
+        Modal.open(<SelectSalerModal onSuccess={op => {
+            this.refs.saler.value = op.fullname;
+            this.refs.saler_city.value = op.city;
+        }}></SelectSalerModal>);
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        const {area_id} = this.state;
+        if (area_id) {
+            request({
+                url: `/api/area/${area_id}`, loading: true,
+                success: resp => {
+                    let area = resp.data.area;
+                    this.refs.area_id.value = area.area_id;
+                    this.refs.area_title.value = area.title;
+                    this.refs.area_city.value = area.city;
+                    this.refs.area_address.value = area.address;
+                }
+            });
+        }
+    }
+}

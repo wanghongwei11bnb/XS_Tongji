@@ -98,7 +98,7 @@ class Grid extends React.Component {
 
     componentWillMount() {
         if (this.props.handleColumns) {
-            this.props.handleColumns(this, this.state.columns);
+            this.props.handleColumns(this.state.columns, this);
         }
     }
 

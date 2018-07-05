@@ -148,6 +148,15 @@ public class OpController extends BaseController {
     }
 
 
+    @AuthRequired(AuthRequired.area_contract_operate)
+    @GetMapping("/api/saler/list")
+    @ResponseBody
+    public Result salerList() {
+        return new Result(CodeMsg.SUCCESS)
+                .putData("salerList", opUserService.getSalerList());
+    }
+
+
     @AuthRequired(AuthRequired.auth_op_auth)
     @PostMapping("/api/op/create")
     @ResponseBody

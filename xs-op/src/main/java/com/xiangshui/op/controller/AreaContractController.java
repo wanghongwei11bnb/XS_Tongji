@@ -168,6 +168,34 @@ public class AreaContractController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+
+    @AuthRequired(AuthRequired.area_contract_operate)
+    @PostMapping("/api/area_contract/create/forOperate")
+    @ResponseBody
+    public Result createForOperate(@RequestBody AreaContract criteria) {
+        Date now = new Date();
+
+        if (criteria == null) throw new XiangShuiException("参数不能为空");
+        if (criteria.getArea_id() == null) throw new XiangShuiException("场地编号不能为空");
+        AreaContract areaContract = areaContractService.getByAreaId(criteria.getArea_id());
+        if (areaContract != null) throw new XiangShuiException("场地重复创建，请核实");
+        Area area = areaService.getAreaById(criteria.getArea_id());
+        if (area == null) throw new XiangShuiException("场地不存在");
+
+        criteria.setStatus(AreaContractStatusOption.normal.value);
+
+        if (StringUtils.isBlank(criteria.getSaler()) || StringUtils.isBlank(criteria.getSaler_city())) {
+            throw new XiangShuiException("销售不能为空");
+        }
+
+        criteria.setCreate_time(now.getTime() / 1000);
+        criteria.setUpdate_time(now.getTime() / 1000);
+
+        areaContractDao.putItem(criteria);
+
+        return new Result(CodeMsg.SUCCESS);
+    }
+
     @AuthRequired(AuthRequired.area_contract_saler)
     @PostMapping("/api/area_contract/{area_id:\\d+}/update/forSaler")
     @ResponseBody
@@ -203,6 +231,7 @@ public class AreaContractController extends BaseController {
                 "customer_email",
                 "customer_contact",
                 "account_ratio",
+                "bank_account_name",
                 "bank_account",
                 "bank_branch",
                 "remark",

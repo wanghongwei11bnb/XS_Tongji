@@ -225,7 +225,27 @@ class OpCreateModal extends Modal {
             <tr>
                 <th>密码</th>
                 <td>
-                    <input ref="password" type="password" className="form-control"/>
+                    <input ref="password" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th colSpan={2} className="text-center text-danger">如是销售，请填写</th>
+            </tr>
+            <tr>
+                <th>姓名</th>
+                <td>
+                    <input ref="fullname" type="text" className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>城市</th>
+                <td>
+                    <select ref="city" className="form-control">
+                        <option value=""></option>
+                        {cityList.map(city => {
+                            return <option value={city.city}>{city.city}</option>
+                        })}
+                    </select>
                 </td>
             </tr>
             </tbody>
@@ -238,6 +258,8 @@ class OpCreateModal extends Modal {
             data: JSON.stringify({
                 username: this.refs.username.value,
                 password: this.refs.password.value,
+                fullname: this.refs.fullname.value,
+                city: this.refs.city.value,
             }, nullStringReplacer),
             success: resp => {
                 Message.msg('操作成功');
@@ -255,7 +277,6 @@ class OpCreateModal extends Modal {
             <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
         ];
     };
-
 }
 
 class OpGrid extends React.Component {
@@ -263,7 +284,20 @@ class OpGrid extends React.Component {
         super(props);
         this.state = {
             columns: [
-                {field: 'username', title: '帐号'},
+                {
+                    field: 'username', title: '帐号', render: (value, row) => {
+                        return <div>
+                            {value}
+                            <br/>
+                            {row.fullname || row.city ? <div className="alert alert-primary">
+                                {row.fullname}
+                                <br/>
+                                {row.city}
+                            </div> : null}
+
+                        </div>
+                    }
+                },
                 {
                     field: 'auths', title: '权限', render: (value) => {
                         if (type(value) == 'String') {
