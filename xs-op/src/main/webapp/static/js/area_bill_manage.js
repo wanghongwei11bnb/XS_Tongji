@@ -9,10 +9,10 @@ class LetterModal extends Modal {
     renderBody = () => {
         const {areaBill, area, areaContract} = this.state;
         return areaBill ?
-            <div>
+            <div ref="box" className="p-3">
                 <h1 className="text-center">企业对账函</h1>
 
-                <p className="text-danger">
+                <p>
                     {areaContract ? areaContract.customer : null}
                 </p>
 
@@ -80,12 +80,26 @@ class LetterModal extends Modal {
                     area: resp.data.area,
                     areaContract: resp.data.areaContract,
                 });
+                setTimeout(() => {
+                    html2canvas(this.refs.box).then((canvas) => {
+                        this.refs.download.href = canvas.toDataURL('image/png');
+                        this.refs.download.download = `${resp.data.area.title}_${resp.data.areaBill.year}_${resp.data.areaBill.month}.png`;
+                    });
+                }, 100);
             }
         });
     };
 
+    renderFooter = () => {
+        return [
+            <a ref="download" className="btn btn-link text-success float-right">下载截图</a>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>关闭</A>,
+        ];
+    };
+
     componentDidMount() {
         super.componentDidMount();
+        this.refs.download.href = 'javascript:void(0);';
         this.load();
     }
 }
