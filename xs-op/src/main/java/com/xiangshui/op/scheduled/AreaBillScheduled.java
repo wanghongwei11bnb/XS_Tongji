@@ -145,22 +145,32 @@ public class AreaBillScheduled implements InitializingBean {
         int pay_price = 0;
         if (bookingList != null && bookingList.size() > 0) {
             for (int i = 0; i < bookingList.size(); i++) {
+
+
                 Booking booking = bookingList.get(i);
+
+
                 if (testUinSet.contains(booking.getUin())) {
                     continue;
                 }
-                booking_count++;
-                if (booking.getFinal_price() != null && booking.getFinal_price() > 0) {
-                    final_price += booking.getFinal_price();
+                if (booking.getFinal_price() == null || booking.getFinal_price() == 0) {
+                    continue;
+                }
+                if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
+                    continue;
                 }
 
+
+
+                final_price += booking.getFinal_price();
                 if (booking.getFrom_charge() != null && booking.getFrom_charge() > 0) {
                     charge_price += booking.getFrom_charge();
                 }
-
                 if (booking.getUse_pay() != null && booking.getUse_pay() > 0) {
                     pay_price += booking.getUse_pay();
                 }
+
+                booking_count++;
             }
         }
 
