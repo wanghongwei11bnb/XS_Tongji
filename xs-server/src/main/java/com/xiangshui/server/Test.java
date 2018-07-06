@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.AreaContract;
@@ -14,6 +15,7 @@ import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
+import com.xiangshui.server.service.MailService;
 import com.xiangshui.server.service.PartnerService;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.spring.SpringUtils;
@@ -25,8 +27,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @Component
 public class Test {
@@ -72,19 +76,26 @@ public class Test {
 
     }
 
-    public void test() throws Exception {
+    /**
+     * 导入
+     *
+     * @throws Exception
+     */
+    public void importAreaContract() throws Exception {
 
-        Date now=new Date();
+        Date now = new Date();
 
-        List<List<String>> data = ExcelUtils.read(new FileInputStream("/Users/whw/Downloads/分账信息.xlsx"), 0);
+        Set<String> fialSet = new HashSet<>();
+
+        List<List<String>> data = ExcelUtils.read(new FileInputStream("/Users/whw/Downloads/分账信息-技术.xlsx"), 0);
         for (List<String> row : data) {
             try {
                 String area_title = row.get(0);
-                String saler = row.get(3);
-                String customer = row.get(4);
-                String account_ratio_str = row.get(5);
-                String bank_account = row.get(6);
-                String bank_branch = row.get(7);
+                String saler = row.size() > 3 ? row.get(3) : null;
+                String customer = row.size() > 4 ? row.get(4) : null;
+                String account_ratio_str = row.size() > 5 ? row.get(5) : null;
+                String bank_account = row.size() > 6 ? row.get(6) : null;
+                String bank_branch = row.size() > 7 ? row.get(7) : null;
 
                 if (StringUtils.isBlank(area_title)) {
                     continue;
@@ -104,9 +115,19 @@ public class Test {
 
                     if (areaList != null && areaList.size() > 0) {
                         Area area = areaList.get(0);
-                        int account_ratio = (int) (Float.valueOf(account_ratio_str) * 100);
-                        AreaContract areaContract = new AreaContract();
-                        areaContract.setArea_id(area.getArea_id());
+                        Integer account_ratio = null;
+                        try {
+                            account_ratio = (int) (Float.valueOf(account_ratio_str) * 100);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        AreaContract areaContract = areaContractDao.getItem(new PrimaryKey("area_id", area.getArea_id()));
+                        if (areaContract == null) {
+                            areaContract = new AreaContract();
+                            areaContract.setArea_id(area.getArea_id());
+                            areaContract.setCreate_time(now.getTime() / 1000);
+                            areaContract.setStatus(0);
+                        }
                         areaContract.setSaler(op.getFullname());
                         areaContract.setSaler_city(op.getCity());
                         areaContract.setCustomer(customer);
@@ -114,26 +135,52 @@ public class Test {
                         areaContract.setBank_account(bank_account);
                         areaContract.setBank_branch(bank_branch);
                         areaContract.setAccount_ratio(account_ratio);
-                        areaContract.setStatus(0);
-                        areaContract.setCreate_time(now.getTime()/1000);
-                        areaContract.setUpdate_time(now.getTime()/1000);
+                        areaContract.setUpdate_time(now.getTime() / 1000);
                         areaContractDao.putItem(areaContract);
                         continue;
                     }
                 }
-                System.out.println(area_title);
+                fialSet.add(area_title);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        fialSet.forEach(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                System.out.println(s);
+            }
+        });
     }
 
+    public void test12() {
+
+        Set<Area> areaSet = new HashSet<>();
+
+        List<Area> areaList = areaDao.scan(new ScanSpec().withScanFilters(new ScanFilter("status").ne(AreaStatusOption.offline.value)));
+        areaList.forEach(new Consumer<Area>() {
+            @Override
+            public void accept(Area area) {
+                if (areaContractDao.getItem(new PrimaryKey("area_id", area.getArea_id())) == null) {
+                    areaSet.add(area);
+                }
+            }
+        });
+        areaSet.forEach(new Consumer<Area>() {
+            @Override
+            public void accept(Area area) {
+                System.out.println(area.getTitle());
+            }
+        });
+
+    }
 
     public static void main(String[] args) throws Exception {
 
 
         SpringUtils.init();
-        SpringUtils.getBean(Test.class).test();
+        SpringUtils.getBean(Test.class).importAreaContract();
+//        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
 
     }

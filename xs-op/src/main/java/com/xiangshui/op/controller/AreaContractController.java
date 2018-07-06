@@ -18,6 +18,7 @@ import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
+import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -112,7 +113,11 @@ public class AreaContractController extends BaseController {
             Set<Integer> areaIdSet = new HashSet<>();
             areaContractList.forEach(areaContract -> areaIdSet.add(areaContract.getArea_id()));
             if (areaIdSet.size() > 0) {
-                areaList = areaService.getAreaListByIds(areaIdSet.toArray(new Integer[areaIdSet.size()]));
+                areaList = ServiceUtils.division(areaIdSet.toArray(new Integer[0]), 100, new CallBackForResult<Integer[], List<Area>>() {
+                    public List<Area> run(Integer[] object) {
+                        return areaDao.batchGetItem("area_id", object, null);
+                    }
+                }, new Integer[0]);
             }
         }
         return new Result(CodeMsg.SUCCESS)
