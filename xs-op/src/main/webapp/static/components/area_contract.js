@@ -133,43 +133,46 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>客户公司名称</th>
                 <td>
-                    <input ref="customer" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                    <input ref="customer" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)}
                            className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司邮箱</th>
                 <td>
-                    <input ref="customer_email" type="text" readOnly={!(create || update)}
-                           disabled={!(create || update)} className="form-control"/>
+                    <input ref="customer_email" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)} className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户公司联系方式</th>
                 <td>
-                    <input ref="customer_contact" type="text" readOnly={!(create || update)}
-                           disabled={!(create || update)} className="form-control"/>
+                    <input ref="customer_contact" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)} className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户银行付款账户</th>
                 <td>
-                    <input ref="bank_account_name" type="text" readOnly={!(create || update)}
-                           disabled={!(create || update)}
+                    <input ref="bank_account_name" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)}
                            className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户银行付款帐号</th>
                 <td>
-                    <input ref="bank_account" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                    <input ref="bank_account" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)}
                            className="form-control"/>
                 </td>
             </tr>
             <tr>
                 <th>客户银行支行信息</th>
                 <td>
-                    <input ref="bank_branch" type="text" readOnly={!(create || update)} disabled={!(create || update)}
+                    <input ref="bank_branch" type="text" readOnly={!(create || update || verify)}
+                           disabled={!(create || update || verify)}
                            className="form-control"/>
                 </td>
             </tr>
@@ -178,8 +181,8 @@ class AreaContractModal extends Modal {
                 <td>
                     <div className="row">
                         <div className="col-sm-6">
-                            <input ref="account_ratio" type="text" readOnly={!(create || update)}
-                                   disabled={!(create || update)} className="form-control"/>
+                            <input ref="account_ratio" type="text" readOnly={!(create || update || verify)}
+                                   disabled={!(create || update || verify)} className="form-control"/>
                         </div>
                         <div className="col-sm-6 pt-1 pl-0">
                             %
@@ -201,7 +204,7 @@ class AreaContractModal extends Modal {
                 <td>
                     <textarea ref="remark" readOnly={!(create || update || verify)}
                               disabled={!(create || update || verify)}
-                              className="form-control"></textarea>
+                              className="form-control"/>
                 </td>
             </tr>
             <tr>

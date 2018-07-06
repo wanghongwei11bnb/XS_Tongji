@@ -16,8 +16,6 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
-import com.xiangshui.util.CallBack;
-import com.xiangshui.util.DateUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -161,7 +159,6 @@ public class AreaBillScheduled implements InitializingBean {
                 }
 
 
-
                 final_price += booking.getFinal_price();
                 if (booking.getFrom_charge() != null && booking.getFrom_charge() > 0) {
                     charge_price += booking.getFrom_charge();
@@ -200,6 +197,61 @@ public class AreaBillScheduled implements InitializingBean {
         areaBill.setUpdate_time(now.getTime() / 1000);
 
         areaBillDao.putItem(areaBill);
+    }
+
+
+    public List<Booking> billBookingList(int area_id, int year, int month) {
+
+        List<Booking> activeBookingList = new ArrayList<>();
+
+        Calendar c1 = Calendar.getInstance();
+        c1.set(year, month - 1, 1);
+        c1.set(Calendar.MILLISECOND, 0);
+        c1.set(Calendar.SECOND, 0);
+        c1.set(Calendar.MINUTE, 0);
+        c1.set(Calendar.HOUR_OF_DAY, 0);
+        long l1 = c1.getTimeInMillis() / 1000;
+        Calendar c2 = Calendar.getInstance();
+        c2.set(year, month - 1, 1);
+        c2.add(Calendar.MONTH, 1);
+        c2.set(Calendar.MILLISECOND, 0);
+        c2.set(Calendar.SECOND, 0);
+        c2.set(Calendar.MINUTE, 0);
+        c2.set(Calendar.HOUR_OF_DAY, 0);
+        long l2 = c2.getTimeInMillis() / 1000;
+
+
+        List<Booking> bookingList = bookingDao.scan(
+                new ScanSpec()
+                        .withScanFilters(
+                                new ScanFilter("area_id").eq(area_id),
+                                new ScanFilter("status").eq(BookingStatusOption.pay.value),
+                                new ScanFilter("update_time").between(l1, l2)
+                        ).withMaxResultSize(Integer.MAX_VALUE)
+        );
+
+
+        if (bookingList != null && bookingList.size() > 0) {
+            for (int i = 0; i < bookingList.size(); i++) {
+
+                Booking booking = bookingList.get(i);
+
+                if (testUinSet.contains(booking.getUin())) {
+                    continue;
+                }
+                if (booking.getFinal_price() == null || booking.getFinal_price() == 0) {
+                    continue;
+                }
+                if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
+                    continue;
+                }
+
+                activeBookingList.add(booking);
+
+            }
+        }
+        return activeBookingList;
+
     }
 
 

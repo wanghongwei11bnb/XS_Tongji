@@ -8,24 +8,29 @@ import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaContractStatusOption;
+import com.xiangshui.server.constant.AreaStatusOption;
+import com.xiangshui.server.constant.BookingStatusOption;
+import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BaseDynamoDao;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.AreaContract;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -253,7 +258,22 @@ public class AreaContractController extends BaseController {
             throw new XiangShuiException("参数不能为空");
         }
         criteria.setArea_id(area_id);
-        areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{"status", "remark"});
+        AreaContract areaContract = areaContractService.getByAreaId(criteria.getArea_id());
+        if (areaContract == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+
+        areaContractService.validateCustomer(criteria);
+
+        areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                "customer",
+                "customer_email",
+                "customer_contact",
+                "account_ratio",
+                "bank_account_name",
+                "bank_account",
+                "bank_branch",
+                "remark",
+                "status",
+        });
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -270,6 +290,133 @@ public class AreaContractController extends BaseController {
         }
         areaBillScheduled.makeBill(area_id, year, month);
         return new Result(CodeMsg.SUCCESS);
+    }
+
+    @AuthRequired(AuthRequired.area_contract_verify)
+    @GetMapping("/api/area_contract/{area_id:\\d+}/reckon/download")
+    @ResponseBody
+    public Result reckon_download(HttpServletRequest request, HttpServletResponse response,
+                                  @PathVariable("area_id") Integer area_id, Integer year, Integer month) throws IOException {
+        if (year == null) {
+            throw new XiangShuiException("年份不能为空");
+        }
+        if (month == null) {
+            throw new XiangShuiException("月份不能为空");
+        }
+        List<Booking> bookingList = areaBillScheduled.billBookingList(area_id, year, month);
+
+        if (bookingList == null) {
+            bookingList = new ArrayList<>();
+        }
+        List<Area> areaList = null;
+        if (bookingList != null && bookingList.size() > 0) {
+            areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
+            Collections.sort(bookingList, new Comparator<Booking>() {
+                @Override
+                public int compare(Booking o1, Booking o2) {
+                    return -(int) (o1.getCreate_time() - o2.getCreate_time());
+                }
+            });
+
+        }
+
+
+        Map<Integer, Area> areaMap = new HashMap<>();
+        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
+
+        if (areaList != null && areaList.size() > 0) {
+            areaList.forEach(new Consumer<Area>() {
+                @Override
+                public void accept(Area area) {
+                    if (area != null) {
+                        areaMap.put(area.getArea_id(), area);
+                    }
+                }
+            });
+        }
+
+        List<List<String>> data = new ArrayList<>();
+
+        List<String> headRow = new ArrayList<>();
+        headRow.add("订单编号");
+        headRow.add("创建时间");
+        headRow.add("结束时间");
+        headRow.add("订单状态");
+        headRow.add("订单总金额");
+        headRow.add("实际充值金额");
+        headRow.add("系统赠送金额");
+        headRow.add("实际付款金额");
+        headRow.add("支付方式");
+        headRow.add("头等舱编号");
+        headRow.add("场地编号");
+        headRow.add("场地名称");
+        headRow.add("城市");
+        headRow.add("地址");
+        headRow.add("用户UIN");
+        headRow.add("用户手机号");
+        headRow.add("订单来源");
+        data.add(headRow);
+        if (bookingList != null && bookingList.size() > 0) {
+            bookingList.forEach(new Consumer<Booking>() {
+                @Override
+                public void accept(Booking booking) {
+                    if (booking == null) {
+                        return;
+                    }
+                    Area area = areaMap.get(booking.getArea_id());
+                    if (area == null) {
+                        return;
+                    }
+                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
+                        return;
+                    }
+                    List<String> row = new ArrayList<>();
+                    row.add(String.valueOf(booking.getBooking_id()));
+                    row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
+                            DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : ""));
+                    row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
+                            DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : null));
+                    row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
+                    row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
+
+                    row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
+                    row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
+
+                    row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
+                    row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
+                    row.add("" + booking.getCapsule_id());
+                    row.add("" + booking.getArea_id());
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getTitle()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getCity()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getAddress()
+                            : null));
+                    row.add("" + booking.getUin());
+                    row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
+                            userInfoMap.get(booking.getUin()).getPhone()
+                            : null));
+                    row.add(booking.getReq_from());
+                    data.add(row);
+                }
+            });
+        }
+
+        XSSFWorkbook workbook = ExcelUtils.export(data);
+        response.addHeader("Content-Disposition", "attachment;filename=" + new String("booking.xlsx".getBytes()));
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
+        return null;
+
+
     }
 
 

@@ -244,6 +244,8 @@ class AreaBillGrid extends Grid {
                                         onClick={this.updateStatus.bind(this, value)}>修改状态</button>,
                                 <button className="btn btn-sm btn-success m-1"
                                         onClick={this.openLetter.bind(this, value)}>制作对账函</button>,
+                                <button className="btn btn-sm btn-success m-1"
+                                        onClick={this.download.bind(this, row.area_id, row.year, row.month)}>下载订单</button>,
                             ];
                         }
                     }
@@ -251,6 +253,12 @@ class AreaBillGrid extends Grid {
             ],
         };
     }
+
+    download = (area_id, year, month) => {
+        let queryParams = {year, month};
+        queryParams.download = true;
+        window.open(`/api/area_contract/${area_id}/reckon/download?${queryString(queryParams)}`)
+    };
 
     showAreaContractModal = (area_id) => {
         Modal.open(<AreaContractModal area_id={area_id}></AreaContractModal>);
