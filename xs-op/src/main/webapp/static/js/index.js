@@ -142,10 +142,10 @@ class Page extends React.Component {
                     <li className="nav-item float-right">
                         <A className="nav-link" onClick={this.logout}>退出</A>
                     </li>
+                    <li className="nav-item float-right">
+                        {op_username}
+                    </li>
                 </ul>
-                {showMenu ? <span
-                    className="position-absolute bottom-0 left-0 w-100 text-secondary"
-                    style={{wordBreak: 'break-word'}}>{op_username}</span> : null}
             </div>
             <div className="position-absolute top-0 bottom-0 right-0" style={{left: showMenu ? menuWidth : '50px'}}>
                 <Tabs ref="tabs"></Tabs>
