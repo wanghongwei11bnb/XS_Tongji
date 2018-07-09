@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Controller
@@ -93,13 +90,11 @@ public class AreaBillController extends BaseController {
         List<AreaContract> areaContractList = null;
         List<Area> areaList = null;
         if (areaBillList != null && areaBillList.size() > 0) {
+
+            areaBillList.sort((o1, o2) -> (o2.getYear() * 100 + o2.getMonth()) - (o1.getYear() * 100 + o1.getMonth()));
+
             Set<Integer> areaIdSet = new HashSet<>();
-            areaBillList.forEach(new Consumer<AreaBill>() {
-                @Override
-                public void accept(AreaBill areaBill) {
-                    areaIdSet.add(areaBill.getArea_id());
-                }
-            });
+            areaBillList.forEach(areaBill -> areaIdSet.add(areaBill.getArea_id()));
             if (areaIdSet.size() > 0) {
                 areaList = ServiceUtils.division(areaIdSet.toArray(new Integer[areaIdSet.size()]), 100, new CallBackForResult<Integer[], List<Area>>() {
                     @Override

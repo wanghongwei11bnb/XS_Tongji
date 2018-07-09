@@ -32,7 +32,8 @@ class AreaModal extends Modal {
         let data = this.getData();
         if (create) {
             request({
-                url: `/api/area/create`, method: 'post', contentType: 'application/json', loading: true,
+                url: `/api/area/create?saler=${this.refs.saler.value}&saler_city=${this.refs.saler_city.value}`,
+                method: 'post', contentType: 'application/json', loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: (resp) => {
                     if (resp.code == 0) {
@@ -56,6 +57,14 @@ class AreaModal extends Modal {
             });
         }
     };
+
+
+    selectSaler = () => {
+        Modal.open(<SelectSalerModal onSuccess={op => {
+            this.refs.saler.value = op.fullname;
+            this.refs.saler_city.value = op.city;
+        }}></SelectSalerModal>);
+    };
     renderHeader = () => {
         return '场地信息';
     };
@@ -63,6 +72,15 @@ class AreaModal extends Modal {
         const {create, update} = this.state;
         if (create || update) {
             return [
+                create ? <div className="alert alert-primary p-1 m-0 position-absolute left-0 ml-1">
+                    指定销售：
+                    <input ref="saler" type="text" readOnly={true} disabled={true}
+                           className="form-control d-inline-block mx-1 w-auto"/>
+                    <input ref="saler_city" type="text" readOnly={true} disabled={true}
+                           className="form-control d-inline-block mx-1 w-auto"/>
+                    <button type="button" className="btn btn-sm btn-success m-1" onClick={this.selectSaler}>选择销售
+                    </button>
+                </div> : null,
                 <FileUploadButton className="btn btn-sm btn-success">头等舱图片上传</FileUploadButton>,
                 <button type="button" className="btn btn-link text-primary" onClick={this.submit}>保存</button>,
                 <button type="button" className="btn btn-link text-secondary" onClick={this.close}>取消</button>,

@@ -54,40 +54,29 @@ public class UserController extends BaseController {
 
     @GetMapping("/api/user/search")
     @ResponseBody
-    public Result search(UserInfo criteria, Date create_date_start, Date create_date_end) {
-        List<UserInfo> userInfoList = null;
+    public Result search(UserInfo criteria, Date create_date_start, Date create_date_end, Boolean fial_verifie) throws NoSuchFieldException, IllegalAccessException {
+        if (criteria == null) criteria = new UserInfo();
+        if (fial_verifie == null) fial_verifie = false;
+        List<ScanFilter> filterList = userInfoDao.makeScanFilterList(criteria, new String[]{
+                "uin",
+                "phone",
+        });
 
-        if (criteria.getUin() != null) {
-            UserInfo userInfo = userService.getUserInfoByUin(criteria.getUin());
-            if (userInfo == null) {
-                return new Result(CodeMsg.NO_FOUND);
-            }
-            userInfoList = new ArrayList<>();
-            userInfoList.add(userInfo);
-        } else if (StringUtils.isNotBlank(criteria.getPhone())) {
-            UserInfo userInfo = userService.getUserInfoByPhone(criteria.getPhone());
-            if (userInfo == null) {
-                return new Result(CodeMsg.NO_FOUND);
-            }
-            userInfoList = new ArrayList<>();
-            userInfoList.add(userInfo);
-        } else {
-            ScanSpec scanSpec = new ScanSpec();
-            List<ScanFilter> filterList = new ArrayList<ScanFilter>();
-            if (create_date_start != null && create_date_end != null) {
-                filterList.add(new ScanFilter("create_time").between(
-                        create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
-                ));
-            } else if (create_date_start != null && create_date_end == null) {
-                filterList.add(new ScanFilter("create_time").gt(create_date_start.getTime() / 1000 - 1));
-            } else if (create_date_start == null && create_date_end != null) {
-                filterList.add(new ScanFilter("create_time").lt((create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000 + 1));
-            }
-            if (filterList.size() > 0) {
-                scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
-            }
-            userInfoList = userInfoDao.scan(scanSpec);
+        userInfoDao.appendDateRangeFilter(filterList, "create_time", create_date_start, create_date_end);
+
+        if (fial_verifie) {
+            filterList.add(new ScanFilter("fail_count").gt(2));
+            filterList.add(new ScanFilter("fail_data").exists());
+            filterList.add(new ScanFilter("id_verified").ne(1));
         }
+
+        ScanSpec scanSpec = new ScanSpec();
+
+        if (filterList.size() > 0) {
+            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[filterList.size()]));
+        }
+
+        List<UserInfo> userInfoList = userInfoDao.scan(scanSpec);
         if (userInfoList == null) {
             userInfoList = new ArrayList<>();
         }

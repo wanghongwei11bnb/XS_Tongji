@@ -5,6 +5,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
+import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.service.AreaService;
@@ -13,6 +14,7 @@ import com.xiangshui.server.service.CityService;
 import com.xiangshui.server.service.S3Service;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,9 @@ public class AreaController extends BaseController {
     @Autowired
     CapsuleService capsuleService;
 
+    @Autowired
+    AreaContractController areaContractController;
+
     @Menu(value = "场地管理")
     @AuthRequired("场地管理（全国）")
     @GetMapping("/area_manage")
@@ -49,7 +54,7 @@ public class AreaController extends BaseController {
 
     @GetMapping("/api/area/search")
     @ResponseBody
-    public Result search(Area criteria, Long capsule_id) throws NoSuchFieldException, IllegalAccessException {
+    public Result search(Area criteria, Long capsule_id, String device_id) throws NoSuchFieldException, IllegalAccessException {
         if (criteria == null) criteria = new Area();
         if (capsule_id != null) {
             Capsule capsule = capsuleService.getCapsuleById(capsule_id);
@@ -58,6 +63,11 @@ public class AreaController extends BaseController {
             } else {
                 criteria.setArea_id(capsule.getArea_id());
             }
+        }
+
+        if (StringUtils.isNotBlank(device_id)) {
+
+
         }
 
         List<Area> areaList = areaService.search(criteria, null);
@@ -121,8 +131,16 @@ public class AreaController extends BaseController {
 
     @PostMapping("/api/area/create")
     @ResponseBody
-    public Result create(@RequestBody Area criteria) throws Exception {
+    public Result create(@RequestBody Area criteria, String saler, String saler_city) throws Exception {
+        if (StringUtils.isBlank(saler) || StringUtils.isBlank(saler_city)) {
+            return new Result(-1, "请选择销售");
+        }
         areaService.createArea(criteria);
+        AreaContract areaContract = new AreaContract();
+        areaContract.setArea_id(criteria.getArea_id());
+        areaContract.setSaler(saler);
+        areaContract.setSaler_city(saler_city);
+        areaContractController.createForOperate(areaContract);
         return new Result(CodeMsg.SUCCESS);
     }
 

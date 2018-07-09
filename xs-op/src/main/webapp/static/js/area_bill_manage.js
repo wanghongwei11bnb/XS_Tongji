@@ -309,6 +309,24 @@ class AreaBillGrid extends Grid {
     }
 }
 
+
+class AreaBillGridModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {queryParams: props.queryParams};
+    }
+
+    renderBody = () => {
+        return <AreaBillGrid ref="grid"></AreaBillGrid>;
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.refs.grid.load(this.state.queryParams);
+    }
+}
+
+
 class Page extends React.Component {
     constructor(props) {
         super(props);

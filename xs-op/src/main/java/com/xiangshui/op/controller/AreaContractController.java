@@ -115,6 +115,9 @@ public class AreaContractController extends BaseController {
         List<AreaContract> areaContractList = areaContractDao.scan(scanSpec);
         List<Area> areaList = null;
         if (areaContractList != null && areaContractList.size() > 0) {
+
+            areaContractList.sort((o1, o2) -> (o2.getStatus() == 1 ? o2.getStatus() * (-100) - 1 : o2.getStatus() * 100) - (o1.getStatus() == 1 ? o1.getStatus() * (-100) - 1 : o1.getStatus() * 100));
+
             Set<Integer> areaIdSet = new HashSet<>();
             areaContractList.forEach(areaContract -> areaIdSet.add(areaContract.getArea_id()));
             if (areaIdSet.size() > 0) {

@@ -58,18 +58,12 @@ class CityAreaManageGrid extends AreaGrid {
                             onClick={this.editTypes.bind(this, row)}>编辑类型</button>,
                     <button type="button" className="btn btn-sm btn-primary m-1"
                             onClick={this.showBooking.bind(this, row.area_id)}>30日内订单</button>,
-                    authMapOptions.get(finalAuthMap.area_contract_operate) ?
-                        <button type="button" className="btn btn-sm btn-success m-1"
-                                onClick={this.createAreaContract.bind(this, row.area_id)}>分配销售</button> : null,
                 ];
             }
         });
         this.state.city = props.city;
     }
 
-    createAreaContract = (area_id) => {
-        Modal.open(<OperateAreaContractModal area_id={area_id}></OperateAreaContractModal>);
-    };
     showBooking = (area_id) => {
         Modal.open(<BookingGridModal url={`/api/area/${area_id}/booking/search`}
                                      queryParams={{

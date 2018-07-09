@@ -148,7 +148,7 @@ public class OpController extends BaseController {
     }
 
 
-    @AuthRequired(AuthRequired.area_contract_operate)
+    //    @AuthRequired(AuthRequired.area_contract_operate)
     @GetMapping("/api/saler/list")
     @ResponseBody
     public Result salerList() {

@@ -325,7 +325,7 @@ public class AreaService {
             criteria.setStatus(AreaStatusOption.stay.value);
         }
         areaDao.putItem(criteria);
-        cleanCache(area.getArea_id());
+        cleanCache(criteria.getArea_id());
         clean_area_cache_notification();
     }
 
@@ -357,8 +357,8 @@ public class AreaService {
                 throw new XiangShuiException("每日最高费用必须大于0");
             }
 
-            if (capsuleType.getRush_hour_price() == null || capsuleType.getRush_hour_price() <= 0) {
-                throw new XiangShuiException("高峰期价格必须大于0");
+            if (capsuleType.getRush_hour_price() == null || capsuleType.getRush_hour_price() < 0) {
+                throw new XiangShuiException("高峰期价格必须大于等于0");
             }
 
 

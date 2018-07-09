@@ -204,6 +204,42 @@ class UserWalletModal extends Modal {
 }
 
 
+class VerifyModal extends Modal {
+    constructor(props) {
+        super(props);
+        this.state = {
+            uin: props.uin,
+        };
+    }
+
+    renderBody = () => {
+        return <table className="table table-bordered">
+            <tbody>
+            <tr>
+                <th>用户编号</th>
+                <td>
+                    <input ref="uin" type="text" readOnly={true} disabled={true} className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>姓名</th>
+                <td>
+                    <input ref="name" type="text" readOnly={true} disabled={true} className="form-control"/>
+                </td>
+            </tr>
+            <tr>
+                <th>身份证</th>
+                <td>
+                    <input ref="id_number" type="text" readOnly={true} disabled={true} className="form-control"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    };
+
+
+}
+
 class UserGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -217,6 +253,20 @@ class UserGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'id_verified', title: '是否已认证', render: value => {
+                        if (value == 1) return <span className="text-success">已通过认证</span>;
+                        else return <span className="text-danger">未通过认证</span>;
+                    }
+                },
+                {field: 'fail_count', title: '认证失败次数'},
+                {
+                    field: 'fail_data', title: '认证失败数据', render: value => {
+                        if (type(value) === 'Array') {
+                            return value.map(item => <div>{item}</div>);
+                        }
+                    }
+                },
+                {
                     field: 'uin', title: '操作', render: (value) => {
                         return [
                             <button className="btn btn-sm btn-primary m-1"
@@ -227,6 +277,8 @@ class UserGrid extends React.Component {
                                     onClick={this.showWalletRecordGridModal.bind(this, value)}>查看钱包记录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showMonthCardModal.bind(this, value)}>认证失败处理</button>,
                         ];
                     }
                 }
@@ -288,6 +340,7 @@ class Page extends React.Component {
             create_date_end: this.refs.create_date_end.value,
             uin: this.refs.uin.value,
             phone: this.refs.phone.value,
+            fial_verifie: this.refs.fial_verifie.checked,
         });
     };
 
@@ -299,11 +352,13 @@ class Page extends React.Component {
                            className="form-control form-control-sm d-inline-block w-auto mx-1"/>
                 <DateInput ref="create_date_end"
                            className="form-control form-control-sm d-inline-block w-auto mx-1"/>
-
                 uin：
                 <input ref="uin" type="text" className="form-control form-control-sm d-inline-block w-auto mx-1"/>
                 手机号：
                 <input ref="phone" type="text" className="form-control form-control-sm d-inline-block w-auto mx-1"/>
+                三次认证失败：
+                <input ref="fial_verifie" type="checkbox"
+                       className="form-control form-control-sm d-inline-block w-auto mx-1"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.uin_to_phone}>UIN转手机号
                 </button>
