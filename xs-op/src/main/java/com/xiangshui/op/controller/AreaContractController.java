@@ -264,7 +264,7 @@ public class AreaContractController extends BaseController {
         AreaContract areaContract = areaContractService.getByAreaId(criteria.getArea_id());
         if (areaContract == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
 
-        areaContractService.validateCustomer(criteria);
+//        areaContractService.validateCustomer(criteria);
 
         areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
                 "customer",
