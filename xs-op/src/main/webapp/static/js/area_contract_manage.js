@@ -169,9 +169,9 @@ class AreaContractGrid extends React.Component {
                         }
                     }
                 },
-                {field: 'bank_account_name', title: '客户银行付款账户'},
-                {field: 'bank_account', title: '客户银行付款帐号'},
-                {field: 'bank_branch', title: '客户银行支行信息'},
+                // {field: 'bank_account_name', title: '客户银行付款账户'},
+                // {field: 'bank_account', title: '客户银行付款帐号'},
+                // {field: 'bank_branch', title: '客户银行支行信息'},
                 {field: 'remark', title: '备注'},
                 {
                     field: 'status', title: '状态', render: value => {
