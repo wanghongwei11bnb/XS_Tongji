@@ -278,7 +278,8 @@ class UserGrid extends React.Component {
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
-                                    onClick={this.showMonthCardModal.bind(this, value)}>认证失败处理</button>,
+                                    onClick={this.showMonthCardModal.bind(this, value)}
+                                    disabled={true}>认证失败处理（开发中）</button>,
                         ];
                     }
                 }
