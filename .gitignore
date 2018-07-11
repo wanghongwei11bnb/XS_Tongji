@@ -23,3 +23,5 @@ buildNumber.properties
 **/.DS_Store
 
 **/node_modules
+
+xs-op/yarn.lock
