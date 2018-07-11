@@ -202,6 +202,9 @@ class AreaContractGrid extends React.Component {
                             row.status == 1 && authMapOptions.get(finalAuthMap.area_contract_verify) ?
                                 <button className="btn btn-sm btn-success m-1"
                                         onClick={this.reckon.bind(this, value)}>生成对账单</button> : null,
+                            row.status == 1 && authMapOptions.get(finalAuthMap.area_bill) ?
+                                <button className="btn btn-sm btn-success m-1"
+                                        onClick={this.billList.bind(this, value)}>本年历史账单</button> : null,
 
                         ]
                     }
@@ -209,6 +212,10 @@ class AreaContractGrid extends React.Component {
             ],
         };
     }
+
+    billList = (area_id) => {
+        Modal.open(<AreaBillGridModal queryParams={{area_id, year: new Date().getFullYear()}}></AreaBillGridModal>);
+    };
 
     show = (area_id) => {
         Modal.open(<AreaContractModal area_id={area_id} onSuccess={this.load}></AreaContractModal>);
