@@ -2,9 +2,7 @@ package com.xiangshui.server.crud;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.domain.mysql.Partner;
-import com.xiangshui.server.example.OpExample;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.lang.reflect.Field;
@@ -22,6 +20,24 @@ public abstract class CrudTemplate<P, T> {
     private Map<String, String> fieldMap = new HashMap<>();
 
     private String tableName;
+
+
+    private static final String INSERT_INTO = " SELECT ";
+    private static final String DELETE = " SELECT ";
+    private static final String UPDATE = " SELECT ";
+    private static final String SELECT = " SELECT ";
+    private static final String FROM = " SELECT ";
+    private static final String WHERE = " SELECT ";
+    private static final String SET = " SELECT ";
+    private static final String EQ = " SELECT ";
+    private static final String NE = " SELECT ";
+    private static final String IN = " SELECT ";
+    private static final String NIN = " SELECT ";
+    private static final String GT = " SELECT ";
+    private static final String GTE = " SELECT ";
+    private static final String LT = " SELECT ";
+    private static final String LTE = " SELECT ";
+    private static final String LIKE = " SELECT ";
 
     public CrudTemplate() throws CrudTemplateException {
 
@@ -68,32 +84,7 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    public T selectByPrimaryKey(P primaryKey, String columns) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("select ");
-        stringBuilder.append("count(*)");
-        stringBuilder.append(" from ").append(tableName);
-        System.out.println(stringBuilder.toString());
-        return jdbcTemplate.queryForObject(stringBuilder.toString(), tableClass);
-    }
-
-
-    public int count() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("select count(*) from").append(" ").append(tableName);
-        System.out.println(stringBuilder.toString());
-        return jdbcTemplate.queryForObject(stringBuilder.toString(), int.class);
-    }
-
-    public void insertSelective(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        insert(t, fields, true);
-    }
-
-    public void insert(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        insert(t, fields, false);
-    }
-
-    private void insert(T t, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
+    private int insert(T t, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
         List<InsertItem> insertItemList = new ArrayList<>();
         collectFields(t, fields, selective, new CollectCallback() {
             @Override
@@ -130,6 +121,45 @@ public abstract class CrudTemplate<P, T> {
 
         System.out.println(stringBuilder.toString());
         System.out.println(JSON.toJSONString(paramList));
+        String sql = stringBuilder.toString();
+        return jdbcTemplate.update(sql, paramList.toArray());
+    }
+
+    public int insert(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return insert(t, fields, false);
+    }
+
+    public int insertSelective(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return insert(t, fields, true);
+    }
+
+
+    public int deleteByPrimaryKey(P primaryKey) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("DELETE FROM ").append(tableName).append(" WHERE ").append(primaryColumnName).append("=?");
+        String sql = stringBuilder.toString();
+        System.out.println(sql);
+        return jdbcTemplate.update(sql, primaryKey);
+    }
+
+
+    public T selectByPrimaryKey(P primaryKey, String columns) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT ")
+                .append(StringUtils.isNotBlank(columns) ? columns : "*")
+                .append(" FROM ").append(tableName).append(" WHERE ").append(primaryColumnName).append("=?");
+        stringBuilder.append("count(*)");
+        stringBuilder.append(" from ").append(tableName);
+        System.out.println(stringBuilder.toString());
+        return jdbcTemplate.queryForObject(stringBuilder.toString(), tableClass);
+    }
+
+
+    public int count() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("select count(*) from").append(" ").append(tableName);
+        System.out.println(stringBuilder.toString());
+        return jdbcTemplate.queryForObject(stringBuilder.toString(), int.class);
     }
 
 

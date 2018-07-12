@@ -342,6 +342,14 @@ class Page extends React.Component {
         });
     };
 
+    download = () => {
+        let queryParams = {
+            customer: this.refs.customer.value,
+        };
+        queryParams.download = true;
+        window.open(`/api/area_contract/search?${queryString(queryParams)}`);
+    };
+
 
     render() {
         return <div className="container-fluid my-3">
@@ -349,6 +357,7 @@ class Page extends React.Component {
                 客户公司名称：
                 <input ref="customer" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <AreaContractGrid ref="grid"></AreaContractGrid>
             <ModalContainer></ModalContainer>

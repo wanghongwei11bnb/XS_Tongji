@@ -1,5 +1,6 @@
 package com.xiangshui.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -31,6 +32,38 @@ public class ExcelUtils {
         }
         return workbook;
     }
+
+    public static <T> XSSFWorkbook export(List<Column<T>> columnList, List<T> data) {
+        List<List<String>> data2 = new ArrayList<List<String>>();
+        List<String> header = new ArrayList<String>();
+        for (Column<T> column : columnList) {
+            header.add(column.title);
+        }
+        data2.add(header);
+        for (T t : data) {
+            List<String> row = new ArrayList<String>();
+            for (Column<T> column : columnList) {
+                row.add(column.render.render(t));
+            }
+            data2.add(row);
+        }
+        return export(data2);
+    }
+
+    public static class Column<T> {
+        String title;
+        ColumnRender<T> render;
+
+        public Column(String title, ColumnRender<T> render) {
+            this.title = title;
+            this.render = render;
+        }
+    }
+
+    public static abstract class ColumnRender<T> {
+        public abstract String render(T t);
+    }
+
 
     public static List<List<String>> read(InputStream inputStream, int sheetIndex) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
