@@ -43,27 +43,23 @@ public class ExcelUtils {
         for (T t : data) {
             List<String> row = new ArrayList<String>();
             for (Column<T> column : columnList) {
-                row.add(column.render.render(t));
+                row.add(column.render(t));
             }
             data2.add(row);
         }
         return export(data2);
     }
 
-    public static class Column<T> {
+    public static abstract class Column<T> {
         String title;
-        ColumnRender<T> render;
 
-        public Column(String title, ColumnRender<T> render) {
+        public Column(String title) {
             this.title = title;
-            this.render = render;
         }
-    }
 
-    public static abstract class ColumnRender<T> {
         public abstract String render(T t);
-    }
 
+    }
 
     public static List<List<String>> read(InputStream inputStream, int sheetIndex) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);

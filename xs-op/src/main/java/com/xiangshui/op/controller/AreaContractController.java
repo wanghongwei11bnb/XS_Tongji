@@ -142,84 +142,84 @@ public class AreaContractController extends BaseController {
             }
 
             List<ExcelUtils.Column<AreaContract>> columnList = new ArrayList<>();
-            columnList.add(new ExcelUtils.Column<AreaContract>("场地编号", new ExcelUtils.ColumnRender<AreaContract>() {
+            columnList.add(new ExcelUtils.Column<AreaContract>("场地编号") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return String.valueOf(areaContract.getArea_id());
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("场地名称", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("场地名称") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaMap.containsKey(areaContract.getArea_id()) ? areaMap.get(areaContract.getArea_id()).getTitle() : "";
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("投放城市", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("投放城市") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaMap.containsKey(areaContract.getArea_id()) ? areaMap.get(areaContract.getArea_id()).getCity() : "";
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("地址", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("地址") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaMap.containsKey(areaContract.getArea_id()) ? areaMap.get(areaContract.getArea_id()).getAddress() : "";
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("销售", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("销售") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getSaler();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("所属公司", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("所属公司") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getSaler_city();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("客户公司名称", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("客户公司名称") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getCustomer();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号名称", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号名称") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getBank_account_name();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getBank_account();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号开户支行", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("客户银行账号开户支行") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getBank_branch();
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("分账比例", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("分账比例") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getAccount_ratio() != null ? areaContract.getAccount_ratio() + "%" : "";
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("审核状态", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("审核状态") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return Option.getActiveText(AreaContractStatusOption.options, areaContract.getStatus());
                 }
-            }));
-            columnList.add(new ExcelUtils.Column<AreaContract>("备注", new ExcelUtils.ColumnRender<AreaContract>() {
+            });
+            columnList.add(new ExcelUtils.Column<AreaContract>("备注") {
                 @Override
                 public String render(AreaContract areaContract) {
                     return areaContract.getRemark();
                 }
-            }));
+            });
             XSSFWorkbook workbook = ExcelUtils.export(columnList, areaContractList);
             response.addHeader("Content-Disposition", "attachment;filename=" + new String("areaContractList.xlsx".getBytes()));
             ServletOutputStream outputStream = response.getOutputStream();
