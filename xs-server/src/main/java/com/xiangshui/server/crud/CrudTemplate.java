@@ -326,7 +326,34 @@ public abstract class CrudTemplate<P, T> {
     static class Sql {
         private StringBuilder stringBuilder = new StringBuilder();
 
+
+        static final String INSERT_INTO = "INSERT INTO";
+        static final String DELETE = " DELETE ";
+        static final String DELETE_FROM = "DELETE FROM";
+        static final String UPDATE = "UPDATE";
+        static final String SELECT = "SELECT";
+        static final String FROM = "FROM";
+        static final String WHERE = "WHERE";
+        static final String SET = "SET";
+        static final String EQ = "=";
+        static final String NE = "<>";
+        static final String IN = "IN";
+        static final String NIN = "NOT IN";
+        static final String GT = ">";
+        static final String GTE = ">=";
+        static final String LT = "<";
+        static final String LTE = "<=";
+        static final String LIKE = "LIKE";
+        static final String NOT_LIKE = "NOT LIKE";
+        static final String BL = "(";
+        static final String BR = ")";
+        static final String COMMA = ",";
+        static final String VALUES = "VALUES";
+        static final String MARK = "?";
         private final String BLANK = " ";
+        private final String GROUP_BY = "GROUP BY";
+        private final String ORDER_BY = "ORDER BY";
+        private final String LIMIT = "LIMIT";
 
         public Sql append(String fragment) {
             if (stringBuilder.length() > 0) {
@@ -338,88 +365,89 @@ public abstract class CrudTemplate<P, T> {
 
 
         public Sql insertInto(String tableName, String columns) {
-            append("insert into");
+            append(INSERT_INTO);
             append(tableName);
-            append("(");
+            append(BL);
             append(columns);
-            append(")");
+            append(BR);
             return this;
         }
 
 
         public Sql values(String values) {
-            append("values (");
+            append(VALUES);
+            append(BL);
             append(values);
-            append(")");
+            append(BR);
             return this;
         }
 
 
         public Sql deleteFrom(String tableName) {
-            append("select from");
+            append(DELETE_FROM);
             append(tableName);
             return this;
         }
 
 
         public Sql where(String condition) {
-            append("where");
+            append(WHERE);
             append(condition);
             return this;
         }
 
 
         public Sql update(String tableName) {
-            append("update");
+            append(UPDATE);
             append(tableName);
             return this;
         }
 
 
         public Sql groupBy(String groupBy) {
-            append("group by");
+            append(GROUP_BY);
             append(groupBy);
             return this;
         }
 
         public Sql orderBy(String orderBy) {
-            append("order by");
+            append(ORDER_BY);
             append(orderBy);
             return this;
         }
 
 
         public Sql select(String columns) {
-            append("select");
+            append(SELECT);
             append(columns);
             return this;
         }
 
 
         public Sql limit(int limit) {
-            append("limit");
+            append(LIMIT);
             append(String.valueOf(limit));
             return this;
         }
 
         public Sql limit(int skip, int limit) {
-            append("limit");
+            append(LIMIT);
             append(String.valueOf(skip));
-            append(",");
+            append(COMMA);
             append(String.valueOf(limit));
             return this;
         }
 
 
         public Sql from(String tableName) {
-            append("from");
+            append(FROM);
             append(tableName);
             return this;
         }
 
 
         public Sql set(String updating) {
-            append("set");
+            append(SET);
             append(updating);
             return this;
         }
