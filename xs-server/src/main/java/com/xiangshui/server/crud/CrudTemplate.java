@@ -1,43 +1,60 @@
 package com.xiangshui.server.crud;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.server.domain.mysql.Partner;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public abstract class CrudTemplate<P, T> {
 
-    private JdbcTemplate jdbcTemplate;
 
     private Class<P> primaryClass;
     private Class<T> tableClass;
     private String primaryFieldName;
+    private Field primaryField;
     private String primaryColumnName;
-    private Map<String, String> fieldMap = new HashMap<>();
+    private Map<String, String> columnNameMap = new HashMap<>();
+    private Map<String, Field> fieldMap = new HashMap<>();
 
     private String tableName;
 
 
-    private static final String INSERT_INTO = " SELECT ";
-    private static final String DELETE = " SELECT ";
-    private static final String UPDATE = " SELECT ";
-    private static final String SELECT = " SELECT ";
-    private static final String FROM = " SELECT ";
-    private static final String WHERE = " SELECT ";
-    private static final String SET = " SELECT ";
-    private static final String EQ = " SELECT ";
-    private static final String NE = " SELECT ";
-    private static final String IN = " SELECT ";
-    private static final String NIN = " SELECT ";
-    private static final String GT = " SELECT ";
-    private static final String GTE = " SELECT ";
-    private static final String LT = " SELECT ";
-    private static final String LTE = " SELECT ";
-    private static final String LIKE = " SELECT ";
+    static final String INSERT_INTO = " INSERT INTO ";
+    static final String DELETE = " DELETE ";
+    static final String DELETE_FROM = " DELETE FROM ";
+    static final String UPDATE = " UPDATE ";
+    static final String SELECT = " SELECT ";
+    static final String FROM = " FROM ";
+    static final String WHERE = " WHERE ";
+    static final String SET = " SET ";
+    static final String EQ = " = ";
+    static final String NE = " <> ";
+    static final String IN = " IN ";
+    static final String NIN = " NOT IN ";
+    static final String GT = " > ";
+    static final String GTE = " >= ";
+    static final String LT = " < ";
+    static final String LTE = " <= ";
+    static final String LIKE = " LIKE ";
+    static final String NOT_LIKE = " NOT LIKE ";
+    static final String BL = " ( ";
+    static final String BR = " ) ";
+    static final String COMMA = " , ";
+    static final String VALUES = " VALUES ";
+    static final String MARK = " ? ";
 
     public CrudTemplate() throws CrudTemplateException {
 
@@ -52,6 +69,7 @@ public abstract class CrudTemplate<P, T> {
             throw new CrudTemplateException("primaryFieldName 不能为空");
         }
         for (Field field : tableClass.getDeclaredFields()) {
+            field.setAccessible(true);
             String fieldName = field.getName();
             String columnName = defineColumnName(fieldName, field);
             if (StringUtils.isBlank(columnName)) {
@@ -59,17 +77,21 @@ public abstract class CrudTemplate<P, T> {
             }
             if (primaryFieldName.equals(fieldName)) {
                 primaryColumnName = columnName;
+                primaryField = field;
             } else {
                 if (primaryColumnName.equals(columnName) || fieldMap.containsValue(columnName)) {
                     throw new CrudTemplateException("columnName 重复");
                 }
-                fieldMap.put(fieldName, columnName);
+                columnNameMap.put(fieldName, columnName);
+                fieldMap.put(fieldName, field);
             }
         }
         if (StringUtils.isBlank(primaryColumnName)) {
             throw new CrudTemplateException("primaryColumnName 不能为空");
         }
     }
+
+    public abstract JdbcTemplate getJdbcTemplate();
 
     abstract public String getTableName();
 
@@ -94,35 +116,34 @@ public abstract class CrudTemplate<P, T> {
         });
         StringBuilder stringBuilder = new StringBuilder();
         List<Object> paramList = new ArrayList<>();
-        stringBuilder.append("insert into ").append(tableName).append(" ");
-        stringBuilder.append("(");
+        stringBuilder.append(INSERT_INTO).append(tableName).append(BL);
         for (int i = 0; i < insertItemList.size(); i++) {
             InsertItem insertItem = insertItemList.get(i);
             if (i == 0) {
                 stringBuilder.append(insertItem.columnName);
             } else {
-                stringBuilder.append(",").append(insertItem.columnName);
+                stringBuilder.append(COMMA).append(insertItem.columnName);
             }
         }
-        stringBuilder.append(")");
-        stringBuilder.append(" values ");
-        stringBuilder.append("(");
+        stringBuilder.append(BR);
+        stringBuilder.append(VALUES);
+        stringBuilder.append(BL);
 
         for (int i = 0; i < insertItemList.size(); i++) {
             InsertItem insertItem = insertItemList.get(i);
             if (i == 0) {
-                stringBuilder.append("?");
+                stringBuilder.append(MARK);
             } else {
-                stringBuilder.append(",").append("?");
+                stringBuilder.append(COMMA).append(MARK);
             }
             paramList.add(insertItem.columnValue);
         }
-        stringBuilder.append(")");
+        stringBuilder.append(BR);
 
         System.out.println(stringBuilder.toString());
         System.out.println(JSON.toJSONString(paramList));
         String sql = stringBuilder.toString();
-        return jdbcTemplate.update(sql, paramList.toArray());
+        return getJdbcTemplate().update(sql, paramList.toArray());
     }
 
     public int insert(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
@@ -136,30 +157,45 @@ public abstract class CrudTemplate<P, T> {
 
     public int deleteByPrimaryKey(P primaryKey) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("DELETE FROM ").append(tableName).append(" WHERE ").append(primaryColumnName).append("=?");
+        stringBuilder.append(DELETE_FROM).append(tableName).append(WHERE).append(primaryColumnName).append(EQ).append(MARK);
         String sql = stringBuilder.toString();
         System.out.println(sql);
-        return jdbcTemplate.update(sql, primaryKey);
+        return getJdbcTemplate().update(sql, primaryKey);
     }
 
 
     public T selectByPrimaryKey(P primaryKey, String columns) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("SELECT ")
+        stringBuilder.append(SELECT)
                 .append(StringUtils.isNotBlank(columns) ? columns : "*")
-                .append(" FROM ").append(tableName).append(" WHERE ").append(primaryColumnName).append("=?");
-        stringBuilder.append("count(*)");
-        stringBuilder.append(" from ").append(tableName);
+                .append(FROM).append(tableName).append(WHERE).append(primaryColumnName).append(EQ).append(MARK);
         System.out.println(stringBuilder.toString());
-        return jdbcTemplate.queryForObject(stringBuilder.toString(), tableClass);
+        return getJdbcTemplate().query(stringBuilder.toString(), new Object[]{primaryKey}, new ResultSetExtractor<T>() {
+            @Override
+            public T extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                resultSet.next();
+                try {
+                    T t = tableClass.getConstructor().newInstance();
+                    primaryField.set(t, resultSet.getObject(primaryColumnName));
+                    for (String fieldName : fieldMap.keySet()) {
+                        fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
+                    }
+                    return t;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
+
     }
 
 
     public int count() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("select count(*) from").append(" ").append(tableName);
+        stringBuilder.append(SELECT).append("count(*)").append(FROM).append(" ").append(tableName);
         System.out.println(stringBuilder.toString());
-        return jdbcTemplate.queryForObject(stringBuilder.toString(), int.class);
+        return getJdbcTemplate().queryForObject(stringBuilder.toString(), int.class);
     }
 
 
@@ -171,7 +207,7 @@ public abstract class CrudTemplate<P, T> {
                 fieldSet.add(fieldName);
             }
         } else {
-            fieldSet = new HashSet<>(fieldMap.keySet());
+            fieldSet = new HashSet<>(columnNameMap.keySet());
             fieldSet.add(primaryFieldName);
         }
         for (String fieldName : fieldSet) {
@@ -185,7 +221,7 @@ public abstract class CrudTemplate<P, T> {
             if (primaryFieldName.equals(fieldName)) {
                 columnName = primaryColumnName;
             } else {
-                columnName = fieldMap.get(fieldName);
+                columnName = columnNameMap.get(fieldName);
             }
             callback.run(fieldName, field, columnName, columnValue);
         }
@@ -287,46 +323,160 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
+    static class Sql {
+        private StringBuilder stringBuilder = new StringBuilder();
+
+        private final String BLANK = " ";
+
+        public Sql append(String fragment) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(BLANK);
+            }
+            stringBuilder.append(fragment);
+            return this;
+        }
+
+
+        public Sql insertInto(String tableName, String columns) {
+            append("insert into");
+            append(tableName);
+            append("(");
+            append(columns);
+            append(")");
+            return this;
+        }
+
+
+        public Sql values(String values) {
+            append("values (");
+            append(values);
+            append(")");
+            return this;
+        }
+
+
+        public Sql deleteFrom(String tableName) {
+            append("select from");
+            append(tableName);
+            return this;
+        }
+
+
+        public Sql where(String condition) {
+            append("where");
+            append(condition);
+            return this;
+        }
+
+
+        public Sql update(String tableName) {
+            append("update");
+            append(tableName);
+            return this;
+        }
+
+
+        public Sql groupBy(String groupBy) {
+            append("group by");
+            append(groupBy);
+            return this;
+        }
+
+        public Sql orderBy(String orderBy) {
+            append("order by");
+            append(orderBy);
+            return this;
+        }
+
+
+        public Sql select(String columns) {
+            append("select");
+            append(columns);
+            return this;
+        }
+
+
+        public Sql limit(int limit) {
+            append("limit");
+            append(String.valueOf(limit));
+            return this;
+        }
+
+        public Sql limit(int skip, int limit) {
+            append("limit");
+            append(String.valueOf(skip));
+            append(",");
+            append(String.valueOf(limit));
+            return this;
+        }
+
+
+        public Sql from(String tableName) {
+            append("from");
+            append(tableName);
+            return this;
+        }
+
+
+        public Sql set(String updating) {
+            append("set");
+            append(updating);
+            return this;
+        }
+
+
+        @Override
+        public String toString() {
+            return stringBuilder.toString();
+        }
+    }
+
+
     public static void main(String[] args) throws Exception {
 
 
-        CrudTemplate template = new CrudTemplate<Integer, Partner>() {
-            @Override
-            public String getTableName() {
-                return "partner";
-            }
+//        CrudTemplate template = new CrudTemplate<Integer, Partner>() {
+//            @Override
+//            public JdbcTemplate getJdbcTemplate() {
+//                return null;
+//            }
+//
+//            @Override
+//            public String getTableName() {
+//                return "partner";
+//            }
+//
+//            @Override
+//            public String getPrimaryFieldName() {
+//                return "id";
+//            }
+//
+//            @Override
+//            public String defineColumnName(String fieldName, Field field) {
+//                if ("createTime".equals(fieldName)) {
+//                    return "create_time";
+//                }
+//                if ("updateTime".equals(fieldName)) {
+//                    return "update_time";
+//                }
+//                if ("lastLoginTime".equals(fieldName)) {
+//                    return "last_login_time";
+//                }
+//                return super.defineColumnName(fieldName, field);
+//            }
+//        };
+//
+//        Partner partner = new Partner();
+//        partner.setId(2342);
+//        partner.setAddress("sdfsf");
+//        partner.setUpdateTime(new Date());
+//
+//        template.insertSelective(partner, new String[]{
+//                "address",
+//                "remark",
+//        });
 
-            @Override
-            public String getPrimaryFieldName() {
-                return "id";
-            }
-
-            @Override
-            public String defineColumnName(String fieldName, Field field) {
-                if ("createTime".equals(fieldName)) {
-                    return "create_time";
-                }
-                if ("updateTime".equals(fieldName)) {
-                    return "update_time";
-                }
-                if ("lastLoginTime".equals(fieldName)) {
-                    return "last_login_time";
-                }
-                return super.defineColumnName(fieldName, field);
-            }
-        };
-
-        Partner partner = new Partner();
-        partner.setId(2342);
-        partner.setAddress("sdfsf");
-        partner.setUpdateTime(new Date());
-
-        template.insertSelective(partner, new String[]{
-                "address",
-                "remark",
-        });
-
-        System.out.println();
+        System.out.println(new Sql().select("*").from("article").limit(5, 5));
     }
 
 }

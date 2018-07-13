@@ -18,6 +18,7 @@ import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 
 @Component
 public class AreaBillScheduled implements InitializingBean {
@@ -54,17 +54,9 @@ public class AreaBillScheduled implements InitializingBean {
     Set<String> testPhoneSet = new HashSet<>();
 
 
-    @Scheduled(cron = "0 0 1 * * ?")
-//    @Scheduled(cron = "0 0 1 1 * ?")
-//    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0 0 1 1 * ?")
     public void makeBill() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DATE, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.add(Calendar.MONTH, -1);
+        LocalDate localDate = LocalDate.now().minusMonths(1);
         areaContractDao.scan(new ScanSpec().withScanFilters(
                 new ScanFilter("status").eq(AreaContractStatusOption.adopt.value)
         ), areaContract -> {
@@ -75,7 +67,7 @@ public class AreaBillScheduled implements InitializingBean {
                 return;
             }
             try {
-                makeBill(areaContract.getArea_id(), calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1);
+                makeBill(areaContract.getArea_id(), localDate.getYear(), localDate.getMonthOfYear());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -204,29 +196,16 @@ public class AreaBillScheduled implements InitializingBean {
 
         List<Booking> activeBookingList = new ArrayList<>();
 
-        Calendar c1 = Calendar.getInstance();
-        c1.set(year, month - 1, 1);
-        c1.set(Calendar.MILLISECOND, 0);
-        c1.set(Calendar.SECOND, 0);
-        c1.set(Calendar.MINUTE, 0);
-        c1.set(Calendar.HOUR_OF_DAY, 0);
-        long l1 = c1.getTimeInMillis() / 1000;
-        Calendar c2 = Calendar.getInstance();
-        c2.set(year, month - 1, 1);
-        c2.add(Calendar.MONTH, 1);
-        c2.set(Calendar.MILLISECOND, 0);
-        c2.set(Calendar.SECOND, 0);
-        c2.set(Calendar.MINUTE, 0);
-        c2.set(Calendar.HOUR_OF_DAY, 0);
-        long l2 = c2.getTimeInMillis() / 1000;
-
-
         List<Booking> bookingList = bookingDao.scan(
                 new ScanSpec()
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("update_time").between(l1, l2)
+                                new ScanFilter("update_time").between(
+                                        new LocalDate(year, month, 1).toDate().getTime() / 1000
+                                        ,
+                                        new LocalDate(year, month + 1, 1).toDate().getTime() / 1000
+                                )
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
 
@@ -256,7 +235,7 @@ public class AreaBillScheduled implements InitializingBean {
 
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -266,14 +245,11 @@ public class AreaBillScheduled implements InitializingBean {
                             testPhoneSet.add(text.trim());
                         }
                     }
-                    testPhoneSet.forEach(new Consumer<String>() {
-                        @Override
-                        public void accept(String s) {
-                            log.debug("加载测试手机号：" + s);
-                            UserInfo userInfo = userService.getUserInfoByPhone(s);
-                            if (userInfo != null) {
-                                testUinSet.add(userInfo.getUin());
-                            }
+                    testPhoneSet.forEach(s -> {
+                        log.debug("加载测试手机号：" + s);
+                        UserInfo userInfo = userService.getUserInfoByPhone(s);
+                        if (userInfo != null) {
+                            testUinSet.add(userInfo.getUin());
                         }
                     });
                 } catch (IOException e) {
