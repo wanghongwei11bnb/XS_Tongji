@@ -1,60 +1,35 @@
 package com.xiangshui.server.crud;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.xiangshui.server.domain.mysql.Partner;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Consumer;
+
+import static com.xiangshui.server.crud.CrudTemplate.WhereItemType.or;
 
 public abstract class CrudTemplate<P, T> {
 
-
     private Class<P> primaryClass;
     private Class<T> tableClass;
+
     private String primaryFieldName;
     private Field primaryField;
     private String primaryColumnName;
+
     private Map<String, String> columnNameMap = new HashMap<>();
     private Map<String, Field> fieldMap = new HashMap<>();
 
     private String tableName;
 
+    ResultSetExtractor<T> resultSetExtractor;
+    RowMapper<T> rowMapper;
 
-    static final String INSERT_INTO = " INSERT INTO ";
-    static final String DELETE = " DELETE ";
-    static final String DELETE_FROM = " DELETE FROM ";
-    static final String UPDATE = " UPDATE ";
-    static final String SELECT = " SELECT ";
-    static final String FROM = " FROM ";
-    static final String WHERE = " WHERE ";
-    static final String SET = " SET ";
-    static final String EQ = " = ";
-    static final String NE = " <> ";
-    static final String IN = " IN ";
-    static final String NIN = " NOT IN ";
-    static final String GT = " > ";
-    static final String GTE = " >= ";
-    static final String LT = " < ";
-    static final String LTE = " <= ";
-    static final String LIKE = " LIKE ";
-    static final String NOT_LIKE = " NOT LIKE ";
-    static final String BL = " ( ";
-    static final String BR = " ) ";
-    static final String COMMA = " , ";
-    static final String VALUES = " VALUES ";
-    static final String MARK = " ? ";
 
     public CrudTemplate() throws CrudTemplateException {
 
@@ -89,6 +64,23 @@ public abstract class CrudTemplate<P, T> {
         if (StringUtils.isBlank(primaryColumnName)) {
             throw new CrudTemplateException("primaryColumnName 不能为空");
         }
+
+
+        resultSetExtractor = resultSet -> {
+            resultSet.next();
+            try {
+                T t = tableClass.getConstructor().newInstance();
+                primaryField.set(t, resultSet.getObject(primaryColumnName));
+                for (String fieldName : fieldMap.keySet()) {
+                    fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
+                }
+                return t;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        };
+        rowMapper = new BeanPropertyRowMapper<T>();
     }
 
     public abstract JdbcTemplate getJdbcTemplate();
@@ -114,36 +106,8 @@ public abstract class CrudTemplate<P, T> {
                 insertItemList.add(new InsertItem(columnName, columnValue));
             }
         });
-        StringBuilder stringBuilder = new StringBuilder();
-        List<Object> paramList = new ArrayList<>();
-        stringBuilder.append(INSERT_INTO).append(tableName).append(BL);
-        for (int i = 0; i < insertItemList.size(); i++) {
-            InsertItem insertItem = insertItemList.get(i);
-            if (i == 0) {
-                stringBuilder.append(insertItem.columnName);
-            } else {
-                stringBuilder.append(COMMA).append(insertItem.columnName);
-            }
-        }
-        stringBuilder.append(BR);
-        stringBuilder.append(VALUES);
-        stringBuilder.append(BL);
-
-        for (int i = 0; i < insertItemList.size(); i++) {
-            InsertItem insertItem = insertItemList.get(i);
-            if (i == 0) {
-                stringBuilder.append(MARK);
-            } else {
-                stringBuilder.append(COMMA).append(MARK);
-            }
-            paramList.add(insertItem.columnValue);
-        }
-        stringBuilder.append(BR);
-
-        System.out.println(stringBuilder.toString());
-        System.out.println(JSON.toJSONString(paramList));
-        String sql = stringBuilder.toString();
-        return getJdbcTemplate().update(sql, paramList.toArray());
+        Sql sql = new Sql().insertInto(getFullTableName(), InsertItem.sqlColumns(insertItemList)).values(InsertItem.sqlValues(insertItemList));
+        return getJdbcTemplate().update(sql.toString(), InsertItem.params(insertItemList));
     }
 
     public int insert(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
@@ -156,46 +120,26 @@ public abstract class CrudTemplate<P, T> {
 
 
     public int deleteByPrimaryKey(P primaryKey) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(DELETE_FROM).append(tableName).append(WHERE).append(primaryColumnName).append(EQ).append(MARK);
-        String sql = stringBuilder.toString();
-        System.out.println(sql);
-        return getJdbcTemplate().update(sql, primaryKey);
+        Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+        return getJdbcTemplate().update(sql.toString(), primaryKey);
     }
 
 
     public T selectByPrimaryKey(P primaryKey, String columns) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(SELECT)
-                .append(StringUtils.isNotBlank(columns) ? columns : "*")
-                .append(FROM).append(tableName).append(WHERE).append(primaryColumnName).append(EQ).append(MARK);
-        System.out.println(stringBuilder.toString());
-        return getJdbcTemplate().query(stringBuilder.toString(), new Object[]{primaryKey}, new ResultSetExtractor<T>() {
-            @Override
-            public T extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                resultSet.next();
-                try {
-                    T t = tableClass.getConstructor().newInstance();
-                    primaryField.set(t, resultSet.getObject(primaryColumnName));
-                    for (String fieldName : fieldMap.keySet()) {
-                        fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
-                    }
-                    return t;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        });
-
+        Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : "*").from(getFullTableName()).where(primaryColumnName + "=?");
+        return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, resultSetExtractor);
     }
 
 
-    public int count() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(SELECT).append("count(*)").append(FROM).append(" ").append(tableName);
-        System.out.println(stringBuilder.toString());
-        return getJdbcTemplate().queryForObject(stringBuilder.toString(), int.class);
+    public List<T> selectByExample() {
+        Sql sql = new Sql();
+        return getJdbcTemplate().query(sql.toString(), new Object[]{}, rowMapper);
+    }
+
+
+    public int countByExample() {
+        Sql sql = new Sql().select("count(*)").from(getFullTableName());
+        return getJdbcTemplate().queryForObject(sql.toString(), int.class);
     }
 
 
@@ -236,6 +180,47 @@ public abstract class CrudTemplate<P, T> {
             this.columnName = columnName;
             this.columnValue = columnValue;
         }
+
+
+        public static String sqlColumns(List<InsertItem> insertItemList) {
+            Sql sql = new Sql();
+            insertItemList.forEach(new Consumer<InsertItem>() {
+                @Override
+                public void accept(InsertItem insertItem) {
+                    if (sql.length() > 0) {
+                        sql.append(",");
+                    }
+                    sql.append(insertItem.columnName);
+                }
+            });
+            return sql.toString();
+        }
+
+        public static String sqlValues(List<InsertItem> insertItemList) {
+            Sql sql = new Sql();
+            insertItemList.forEach(new Consumer<InsertItem>() {
+                @Override
+                public void accept(InsertItem insertItem) {
+                    if (sql.length() > 0) {
+                        sql.append(",");
+                    }
+                    sql.append("?");
+                }
+            });
+            return sql.toString();
+        }
+
+        public static Object[] params(List<InsertItem> insertItemList) {
+            List paramList = new ArrayList();
+            insertItemList.forEach(new Consumer<InsertItem>() {
+                @Override
+                public void accept(InsertItem insertItem) {
+                    paramList.add(insertItem.columnValue);
+                }
+            });
+            return paramList.toArray();
+        }
+
     }
 
 
@@ -265,50 +250,95 @@ public abstract class CrudTemplate<P, T> {
 
     public static class WhereItem {
         public WhereItemType type;
-        public String fieldName;
+        public String condition;
         public Object value;
-        public Object value1;
-        public Object value2;
-        public List valueList;
+        public Object secondValue;
+        public List listValue;
         public List<WhereItem> whereItemList;
 
-        private WhereItem() {
-        }
-
-        public WhereItem(WhereItemType type, String fieldName, Object value) {
+        private WhereItem(WhereItemType type, String condition, Object value, Object secondValue, List listValue, List<WhereItem> whereItemList) {
             this.type = type;
-            this.fieldName = fieldName;
+            this.condition = condition;
             this.value = value;
+            this.secondValue = secondValue;
+            this.listValue = listValue;
+            this.whereItemList = whereItemList;
         }
 
-        public WhereItem(WhereItemType type, String fieldName, Object value1, Object value2) {
-            this.type = type;
-            this.fieldName = fieldName;
-            this.value1 = value1;
-            this.value2 = value2;
+        public static WhereItem noValue(String condition) {
+            return new WhereItem(WhereItemType.noValue, condition, null, null, null, null);
         }
 
-        public WhereItem(WhereItemType type, String fieldName, List valueList) {
-            this.type = type;
-            this.fieldName = fieldName;
-            this.valueList = valueList;
+        public static WhereItem singleValue(String condition, Object value) {
+            return new WhereItem(WhereItemType.singleValue, condition, value, null, null, null);
+        }
+
+        public static WhereItem betweenValue(String condition, Object value, Object secondValue) {
+            return new WhereItem(WhereItemType.betweenValue, condition, value, secondValue, null, null);
+        }
+
+        public static WhereItem listValue(String condition, List listValue) {
+            return new WhereItem(WhereItemType.listValue, condition, null, null, listValue, null);
         }
 
         public static WhereItem or(String fieldName, List<WhereItem> whereItemList) {
-            WhereItem whereItem = new WhereItem();
-            whereItem.type = WhereItemType.or;
-            whereItem.whereItemList = whereItemList;
-            return whereItem;
+            return new WhereItem(or, null, null, null, null, whereItemList);
         }
 
         public static WhereItem or(String fieldName, WhereItem... whereItems) {
             return or(fieldName, Arrays.asList(whereItems));
         }
+
+        public static String sql(List<WhereItem> whereItemList) {
+            Sql sql = new Sql();
+            sql.append(Sql.BL);
+            for (int i = 0; i < whereItemList.size(); i++) {
+                WhereItem whereItem = whereItemList.get(i);
+                if (i > 0) {
+                    if (whereItem.type == or) {
+                        sql.append(Sql.OR);
+                    } else {
+                        sql.append(Sql.AND);
+                    }
+                }
+                switch (whereItem.type) {
+                    case or:
+                        sql.append(sql(whereItem.whereItemList));
+                        break;
+                    case noValue:
+                        sql.append(whereItem.condition);
+                        break;
+                    case singleValue:
+                        sql.append(whereItem.condition).append(Sql.MARK);
+                        break;
+                    case betweenValue:
+                        sql.append(whereItem.condition).append(Sql.BETWEEN).append(Sql.MARK).append(Sql.AND).append(Sql.MARK);
+                        break;
+                    case listValue:
+                        sql.append(whereItem.condition);
+                        List listValue = whereItem.listValue;
+                        sql.append(Sql.BL);
+                        for (int j = 0; j < listValue.size(); j++) {
+                            if (j > 0) {
+                                sql.append(Sql.COMMA);
+                            }
+                            sql.append(Sql.MARK);
+                        }
+                        sql.append(Sql.BR);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            sql.append(Sql.BR);
+            return sql.toString();
+        }
+
     }
 
 
-    public static enum WhereItemType {
-        eq, neq, in, nin, lt, lte, gt, gte, between, like, isnull, or
+    public enum WhereItemType {
+        noValue, singleValue, betweenValue, listValue, or
     }
 
 
@@ -350,10 +380,13 @@ public abstract class CrudTemplate<P, T> {
         static final String COMMA = ",";
         static final String VALUES = "VALUES";
         static final String MARK = "?";
-        private final String BLANK = " ";
-        private final String GROUP_BY = "GROUP BY";
-        private final String ORDER_BY = "ORDER BY";
-        private final String LIMIT = "LIMIT";
+        static final String BLANK = " ";
+        static final String GROUP_BY = "GROUP BY";
+        static final String ORDER_BY = "ORDER BY";
+        static final String LIMIT = "LIMIT";
+        static final String BETWEEN = "BETWEEN";
+        static final String OR = "OR";
+        static final String AND = "AND";
 
         public Sql append(String fragment) {
             if (stringBuilder.length() > 0) {
@@ -452,59 +485,14 @@ public abstract class CrudTemplate<P, T> {
             return this;
         }
 
+        public int length() {
+            return stringBuilder.length();
+        }
 
         @Override
         public String toString() {
             return stringBuilder.toString();
         }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-
-
-//        CrudTemplate template = new CrudTemplate<Integer, Partner>() {
-//            @Override
-//            public JdbcTemplate getJdbcTemplate() {
-//                return null;
-//            }
-//
-//            @Override
-//            public String getTableName() {
-//                return "partner";
-//            }
-//
-//            @Override
-//            public String getPrimaryFieldName() {
-//                return "id";
-//            }
-//
-//            @Override
-//            public String defineColumnName(String fieldName, Field field) {
-//                if ("createTime".equals(fieldName)) {
-//                    return "create_time";
-//                }
-//                if ("updateTime".equals(fieldName)) {
-//                    return "update_time";
-//                }
-//                if ("lastLoginTime".equals(fieldName)) {
-//                    return "last_login_time";
-//                }
-//                return super.defineColumnName(fieldName, field);
-//            }
-//        };
-//
-//        Partner partner = new Partner();
-//        partner.setId(2342);
-//        partner.setAddress("sdfsf");
-//        partner.setUpdateTime(new Date());
-//
-//        template.insertSelective(partner, new String[]{
-//                "address",
-//                "remark",
-//        });
-
-        System.out.println(new Sql().select("*").from("article").limit(5, 5));
     }
 
 }

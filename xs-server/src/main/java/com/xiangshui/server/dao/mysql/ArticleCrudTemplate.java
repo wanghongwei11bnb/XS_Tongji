@@ -47,7 +47,6 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
 //        articleCrudTemplate.insertSelective(article, null);
 
         log.debug(JSON.toJSONString(articleCrudTemplate.selectByPrimaryKey(1, null)));
-
     }
 
 }
