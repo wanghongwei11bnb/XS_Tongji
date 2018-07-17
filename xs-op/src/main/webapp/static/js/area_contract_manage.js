@@ -173,7 +173,7 @@ class AreaContractGrid extends React.Component {
                 // {field: 'bank_account', title: '客户银行付款帐号'},
                 // {field: 'bank_branch', title: '客户银行支行信息'},
                 {
-                    field: 'create_time', title: '创建日期', render: value => {
+                    field: 'create_time', title: '创建日期', width: 120, render: value => {
                         return type(value) === 'Number' ? new Date(value * 1000).format('yyyy-MM-dd') : value;
                     }
                 },
