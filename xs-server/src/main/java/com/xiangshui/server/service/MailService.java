@@ -1,5 +1,12 @@
 package com.xiangshui.server.service;
 
+import com.xiangshui.util.spring.SpringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.StringWriter;
 
 @Component
 public class MailService {
@@ -60,5 +68,15 @@ public class MailService {
 
     public void send(String to, String subject, String text) {
         send("technology@xiangshuispace.com", to, subject, text);
+    }
+
+
+    public void test() throws MessagingException {
+        sendHtml("hongwei@xiangshuispace.com", "测试", "<div class='alert'>123123</div>");
+    }
+
+    public static void main(String[] args) throws MessagingException {
+        SpringUtils.init();
+        SpringUtils.getBean(MailService.class).test();
     }
 }

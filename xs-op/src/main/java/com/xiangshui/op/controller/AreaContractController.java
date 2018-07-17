@@ -375,6 +375,8 @@ public class AreaContractController extends BaseController {
 //        areaContractService.validateCustomer(criteria);
 
         areaContractDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
+                "saler",
+                "saler_city",
                 "customer",
                 "customer_email",
                 "customer_contact",

@@ -16,6 +16,8 @@ class AreaContractModal extends Modal {
 
         let data = {
             area_id: this.refs.area_id.value,
+            saler: this.refs.saler.value,
+            saler_city: this.refs.saler_city.value,
             customer: this.refs.customer.value,
             customer_email: this.refs.customer_email.value,
             customer_contact: this.refs.customer_contact.value,
@@ -72,6 +74,13 @@ class AreaContractModal extends Modal {
         }}></AreaSelectModal>);
     };
 
+    selectSaler = () => {
+        Modal.open(<SelectSalerModal onSuccess={op => {
+            this.refs.saler.value = op.fullname;
+            this.refs.saler_city.value = op.city;
+        }}></SelectSalerModal>);
+    };
+
     renderBody = () => {
         const {create, update, verify, area_id} = this.state;
         return <table className="table table-bordered">
@@ -118,7 +127,16 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>销售人员</th>
                 <td>
-                    <input ref="saler" type="text" readOnly={true} disabled={true} className="form-control"/>
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <input ref="saler" type="text" readOnly={true} disabled={true} className="form-control"/>
+                        </div>
+                        <div className="col-sm-6">
+                            <button disabled={!(create || verify)} className="btn btn-sm btn-success m-1"
+                                    onClick={this.selectSaler}>选择
+                            </button>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <tr>
