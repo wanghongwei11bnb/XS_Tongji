@@ -50,6 +50,17 @@ public class Area {
     private List<CapsuleType> types;
 
 
+    private Long create_time;
+
+    public Long getCreate_time() {
+        return create_time;
+    }
+
+    public Area setCreate_time(Long create_time) {
+        this.create_time = create_time;
+        return this;
+    }
+
     public Integer getIs_external() {
         return is_external;
     }
