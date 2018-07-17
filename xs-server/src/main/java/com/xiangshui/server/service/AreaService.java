@@ -324,6 +324,7 @@ public class AreaService {
         if (criteria.getStatus() == null) {
             criteria.setStatus(AreaStatusOption.stay.value);
         }
+        criteria.setCreate_time(System.currentTimeMillis() / 1000);
         areaDao.putItem(criteria);
         cleanCache(criteria.getArea_id());
         clean_area_cache_notification();
