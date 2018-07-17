@@ -2,6 +2,7 @@ package com.xiangshui.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -99,25 +100,28 @@ public class ExcelUtils {
     }
 
     private static String getValue(XSSFCell cell) {
-        if (cell == null) {
-            return "---";
+        if (cell != null) {
+            cell.setCellType(CellType.STRING);
+            switch (cell.getCellTypeEnum()) {
+                case _NONE:
+                    break;
+                case NUMERIC:
+                    return String.valueOf(cell.getNumericCellValue());
+                case STRING:
+                    return cell.getStringCellValue();
+                case FORMULA:
+                    break;
+                case BLANK:
+                    break;
+                case BOOLEAN:
+                    return String.valueOf(cell.getBooleanCellValue());
+                case ERROR:
+                    break;
+                default:
+                    break;
+            }
         }
-        if (cell.getCellType() == cell.CELL_TYPE_BOOLEAN) {
-            return String.valueOf(cell.getBooleanCellValue());
-        } else if (cell.getCellType() == cell.CELL_TYPE_NUMERIC) {
-            double cur = cell.getNumericCellValue();
-            long longVal = Math.round(cur);
-            Object inputValue = null;
-            if (Double.parseDouble(longVal + ".0") == cur)
-                inputValue = longVal;
-            else
-                inputValue = cur;
-            return String.valueOf(inputValue);
-        } else if (cell.getCellType() == cell.CELL_TYPE_BLANK || cell.getCellType() == cell.CELL_TYPE_ERROR) {
-            return "---";
-        } else {
-            return String.valueOf(cell.getStringCellValue());
-        }
+        return null;
     }
 
     public static void main(String[] args) throws IOException {

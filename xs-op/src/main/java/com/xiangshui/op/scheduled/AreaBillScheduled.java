@@ -204,7 +204,7 @@ public class AreaBillScheduled implements InitializingBean {
                                 new ScanFilter("update_time").between(
                                         new LocalDate(year, month, 1).toDate().getTime() / 1000
                                         ,
-                                        new LocalDate(year, month + 1, 1).toDate().getTime() / 1000
+                                        new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000
                                 )
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );

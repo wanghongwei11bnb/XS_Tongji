@@ -37,6 +37,27 @@ public class Booking {
 
     private Integer by_op;
 
+    private Integer f0;
+    private Integer f1;
+
+    public Integer getF0() {
+        return f0;
+    }
+
+    public Booking setF0(Integer f0) {
+        this.f0 = f0;
+        return this;
+    }
+
+    public Integer getF1() {
+        return f1;
+    }
+
+    public Booking setF1(Integer f1) {
+        this.f1 = f1;
+        return this;
+    }
+
     public Integer getBy_op() {
         return by_op;
     }
