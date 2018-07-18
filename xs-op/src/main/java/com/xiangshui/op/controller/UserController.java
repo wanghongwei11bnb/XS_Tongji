@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
@@ -95,6 +96,24 @@ public class UserController extends BaseController {
         } else {
             return new Result(CodeMsg.NO_FOUND);
         }
+    }
+
+    @PostMapping("/api/user/{uin:\\d+}/update/id_verified")
+    @ResponseBody
+    @AuthRequired("用户管理")
+    public Result userInfo_update_id_verified(@PathVariable("uin") int uin, Integer id_verified) throws Exception {
+        if (id_verified == null) {
+            return new Result(-1, "参数不能为空");
+        }
+        UserInfo userInfo = userService.getUserInfoByUin(uin);
+        if (userInfo == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        userInfo.setId_verified(id_verified);
+        userInfoDao.updateItem(new PrimaryKey("uin", uin), userInfo, new String[]{
+                "id_verified",
+        });
+        return new Result(CodeMsg.SUCCESS);
     }
 
     @GetMapping("/api/user/phone/{phone:\\d+}")

@@ -278,8 +278,7 @@ class UserGrid extends React.Component {
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
-                                    onClick={this.showMonthCardModal.bind(this, value)}
-                                    disabled={true}>认证失败处理（开发中）</button>,
+                                    onClick={this.update_id_verified.bind(this, value)}>标记为认证成功</button>,
                         ];
                     }
                 }
@@ -287,6 +286,19 @@ class UserGrid extends React.Component {
             queryParams: props.queryParams,
         };
     }
+
+    update_id_verified = (uin) => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: `/api/user/${uin}/update/id_verified`, method: 'post', loading: true,
+                data: {id_verified: 1},
+                success: resp => {
+                    Message.msg('操作成功');
+                    this.load();
+                }
+            });
+        }}>将此用户标记为身份认证通过？</ConfirmModal>);
+    };
 
     showWalletRecordGridModal = (uin) => {
         Modal.open(<WalletRecordGridModal queryParams={{uin}}></WalletRecordGridModal>);

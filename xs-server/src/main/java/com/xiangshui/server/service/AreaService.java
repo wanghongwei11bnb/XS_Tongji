@@ -152,12 +152,12 @@ public class AreaService {
         if (area == null) {
             throw new XiangShuiException("方法参数不能为空");
         }
-        String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?address=" + area.getCity() + " " + area.getAddress() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
+        String string = Jsoup.connect("http://api.map.baidu.com/geocoder/v2/?city=" + area.getCity() + "&address=" + area.getAddress() + "&output=json&ak=" + "71UPECanchHaS66O2KsxPBSetZkCV7wW").execute().body();
         JSONObject resp = JSONObject.parseObject(string);
         if (resp.getIntValue("status") == 0) {
             JSONObject locationJson = resp.getJSONObject("result").getJSONObject("location");
-            float lat = locationJson.getFloatValue("lat");
-            float lng = locationJson.getFloatValue("lng");
+            double lat = locationJson.getDoubleValue("lat");
+            double lng = locationJson.getDoubleValue("lng");
             if (lat > 0 && lng > 0) {
                 Location location = new Location();
                 location.setLatitude((int) (lat * 1000000));

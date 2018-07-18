@@ -1,6 +1,8 @@
 package com.xiangshui.server.crud;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -11,9 +13,11 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.xiangshui.server.crud.CrudTemplate.WhereItemType.or;
+import static com.xiangshui.server.crud.CrudTemplate.CriterionType.*;
 
 public abstract class CrudTemplate<P, T> {
+
+    private static final Logger log = LoggerFactory.getLogger(CrudTemplate.class);
 
     private Class<P> primaryClass;
     private Class<T> tableClass;
@@ -98,52 +102,98 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    private int insert(T t, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
-        List<InsertItem> insertItemList = new ArrayList<>();
-        collectFields(t, fields, selective, new CollectCallback() {
+    private int insert(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
+        Sql columnsSql = new Sql();
+        Sql valuesSql = new Sql();
+        List paramList = new ArrayList();
+        collectFields(record, fields, selective, new CollectCallback() {
             @Override
             public void run(String fieldName, Field field, String columnName, Object columnValue) {
-                insertItemList.add(new InsertItem(columnName, columnValue));
+                if (columnsSql.length() > 0) {
+                    columnsSql.append(Sql.COMMA);
+                }
+                columnsSql.append(columnName);
+                if (valuesSql.length() > 0) {
+                    valuesSql.append(Sql.COMMA);
+                }
+                valuesSql.append(Sql.MARK);
+                paramList.add(columnValue);
             }
         });
-        Sql sql = new Sql().insertInto(getFullTableName(), InsertItem.sqlColumns(insertItemList)).values(InsertItem.sqlValues(insertItemList));
-        return getJdbcTemplate().update(sql.toString(), InsertItem.params(insertItemList));
+        Sql sql = new Sql().insertInto(getFullTableName(), columnsSql.toString()).values(valuesSql.toString());
+        log.debug(sql.toString());
+        return getJdbcTemplate().update(sql.toString(), paramList.toArray());
     }
 
-    public int insert(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        return insert(t, fields, false);
+    public int insert(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return insert(record, fields, false);
     }
 
-    public int insertSelective(T t, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        return insert(t, fields, true);
+    public int insertSelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return insert(record, fields, true);
     }
 
 
     public int deleteByPrimaryKey(P primaryKey) {
         Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+        log.debug(sql.toString());
         return getJdbcTemplate().update(sql.toString(), primaryKey);
+    }
+
+    private int updateByPrimaryKey(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
+        List paramList = new ArrayList();
+        Sql setSql = new Sql();
+        Sql whereSql = new Sql();
+        collectFields(record, fields, selective, new CollectCallback() {
+            @Override
+            public void run(String fieldName, Field field, String columnName, Object columnValue) {
+                if (primaryFieldName.equals(fieldName)) {
+                    return;
+                }
+                if (setSql.length() > 0) {
+                    setSql.append(Sql.COMMA);
+                }
+                setSql.append(columnName).append(Sql.EQ).append(Sql.MARK);
+                paramList.add(columnValue);
+            }
+        });
+        whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+        paramList.add(primaryField.get(record));
+        Sql sql = new Sql().update(getFullTableName()).set(setSql.toString()).where(whereSql.toString());
+        log.debug(sql.toString());
+        return getJdbcTemplate().update(sql.toString(), paramList.toArray());
+    }
+
+    public int updateByPrimaryKey(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return updateByPrimaryKey(record, fields, false);
+    }
+
+    public int updateByPrimaryKeySelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+        return updateByPrimaryKey(record, fields, true);
     }
 
 
     public T selectByPrimaryKey(P primaryKey, String columns) {
         Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : "*").from(getFullTableName()).where(primaryColumnName + "=?");
+        log.debug(sql.toString());
         return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, resultSetExtractor);
     }
 
 
     public List<T> selectByExample() {
         Sql sql = new Sql();
+        log.debug(sql.toString());
         return getJdbcTemplate().query(sql.toString(), new Object[]{}, rowMapper);
     }
 
 
-    public int countByExample() {
+    public int countByExample(Example example) {
         Sql sql = new Sql().select("count(*)").from(getFullTableName());
         return getJdbcTemplate().queryForObject(sql.toString(), int.class);
     }
 
 
-    private void collectFields(T t, String[] fields, boolean selective, CollectCallback callback) throws NoSuchFieldException, IllegalAccessException {
+    private void collectFields(T record, String[] fields, boolean selective, CollectCallback callback) throws NoSuchFieldException, IllegalAccessException {
         Set<String> fieldSet;
         if (fields != null && fields.length > 0) {
             fieldSet = new HashSet<>();
@@ -157,7 +207,7 @@ public abstract class CrudTemplate<P, T> {
         for (String fieldName : fieldSet) {
             Field field = tableClass.getDeclaredField(fieldName);
             field.setAccessible(true);
-            Object columnValue = field.get(t);
+            Object columnValue = field.get(record);
             if (columnValue == null && selective) {
                 continue;
             }
@@ -172,151 +222,79 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    public static class InsertItem {
-        public String columnName;
-        public Object columnValue;
-
-        public InsertItem(String columnName, Object columnValue) {
-            this.columnName = columnName;
-            this.columnValue = columnValue;
-        }
-
-
-        public static String sqlColumns(List<InsertItem> insertItemList) {
-            Sql sql = new Sql();
-            insertItemList.forEach(new Consumer<InsertItem>() {
-                @Override
-                public void accept(InsertItem insertItem) {
-                    if (sql.length() > 0) {
-                        sql.append(",");
-                    }
-                    sql.append(insertItem.columnName);
-                }
-            });
-            return sql.toString();
-        }
-
-        public static String sqlValues(List<InsertItem> insertItemList) {
-            Sql sql = new Sql();
-            insertItemList.forEach(new Consumer<InsertItem>() {
-                @Override
-                public void accept(InsertItem insertItem) {
-                    if (sql.length() > 0) {
-                        sql.append(",");
-                    }
-                    sql.append("?");
-                }
-            });
-            return sql.toString();
-        }
-
-        public static Object[] params(List<InsertItem> insertItemList) {
-            List paramList = new ArrayList();
-            insertItemList.forEach(new Consumer<InsertItem>() {
-                @Override
-                public void accept(InsertItem insertItem) {
-                    paramList.add(insertItem.columnValue);
-                }
-            });
-            return paramList.toArray();
-        }
+    public static class Example {
 
     }
 
-
-    public static class SetItem {
-        private String fieldName;
-        private Object value;
-
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        public SetItem setFieldName(String fieldName) {
-            this.fieldName = fieldName;
-            return this;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public SetItem setValue(Object value) {
-            this.value = value;
-            return this;
-        }
-    }
-
-
-    public static class WhereItem {
-        public WhereItemType type;
+    public static class Criterion {
+        public CriterionType type;
         public String condition;
         public Object value;
         public Object secondValue;
         public List listValue;
-        public List<WhereItem> whereItemList;
+        public List<Criterion> criterionList;
 
-        private WhereItem(WhereItemType type, String condition, Object value, Object secondValue, List listValue, List<WhereItem> whereItemList) {
+        private Criterion(CriterionType type, String condition, Object value, Object secondValue, List listValue, List<Criterion> criterionList) {
             this.type = type;
             this.condition = condition;
             this.value = value;
             this.secondValue = secondValue;
             this.listValue = listValue;
-            this.whereItemList = whereItemList;
+            this.criterionList = criterionList;
         }
 
-        public static WhereItem noValue(String condition) {
-            return new WhereItem(WhereItemType.noValue, condition, null, null, null, null);
+        public static Criterion noValue(String condition) {
+            return new Criterion(noValue, condition, null, null, null, null);
         }
 
-        public static WhereItem singleValue(String condition, Object value) {
-            return new WhereItem(WhereItemType.singleValue, condition, value, null, null, null);
+        public static Criterion singleValue(String condition, Object value) {
+            return new Criterion(singleValue, condition, value, null, null, null);
         }
 
-        public static WhereItem betweenValue(String condition, Object value, Object secondValue) {
-            return new WhereItem(WhereItemType.betweenValue, condition, value, secondValue, null, null);
+        public static Criterion betweenValue(String condition, Object value, Object secondValue) {
+            return new Criterion(betweenValue, condition, value, secondValue, null, null);
         }
 
-        public static WhereItem listValue(String condition, List listValue) {
-            return new WhereItem(WhereItemType.listValue, condition, null, null, listValue, null);
+        public static Criterion listValue(String condition, List listValue) {
+            return new Criterion(CriterionType.listValue, condition, null, null, listValue, null);
         }
 
-        public static WhereItem or(String fieldName, List<WhereItem> whereItemList) {
-            return new WhereItem(or, null, null, null, null, whereItemList);
+        public static Criterion or(String fieldName, List<Criterion> whereItemList) {
+            return new Criterion(or, null, null, null, null, whereItemList);
         }
 
-        public static WhereItem or(String fieldName, WhereItem... whereItems) {
+        public static Criterion or(String fieldName, Criterion... whereItems) {
             return or(fieldName, Arrays.asList(whereItems));
         }
 
-        public static String sql(List<WhereItem> whereItemList) {
+        public static String sql(List<Criterion> criterionList) {
             Sql sql = new Sql();
             sql.append(Sql.BL);
-            for (int i = 0; i < whereItemList.size(); i++) {
-                WhereItem whereItem = whereItemList.get(i);
+            for (int i = 0; i < criterionList.size(); i++) {
+                Criterion criterion = criterionList.get(i);
                 if (i > 0) {
-                    if (whereItem.type == or) {
+                    if (criterion.type == or) {
                         sql.append(Sql.OR);
                     } else {
                         sql.append(Sql.AND);
                     }
                 }
-                switch (whereItem.type) {
+                switch (criterion.type) {
                     case or:
-                        sql.append(sql(whereItem.whereItemList));
+                        sql.append(sql(criterion.criterionList));
                         break;
                     case noValue:
-                        sql.append(whereItem.condition);
+                        sql.append(criterion.condition);
                         break;
                     case singleValue:
-                        sql.append(whereItem.condition).append(Sql.MARK);
+                        sql.append(criterion.condition).append(Sql.MARK);
                         break;
                     case betweenValue:
-                        sql.append(whereItem.condition).append(Sql.BETWEEN).append(Sql.MARK).append(Sql.AND).append(Sql.MARK);
+                        sql.append(criterion.condition).append(Sql.BETWEEN).append(Sql.MARK).append(Sql.AND).append(Sql.MARK);
                         break;
                     case listValue:
-                        sql.append(whereItem.condition);
-                        List listValue = whereItem.listValue;
+                        sql.append(criterion.condition);
+                        List listValue = criterion.listValue;
                         sql.append(Sql.BL);
                         for (int j = 0; j < listValue.size(); j++) {
                             if (j > 0) {
@@ -337,8 +315,8 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    public enum WhereItemType {
-        noValue, singleValue, betweenValue, listValue, or
+    public enum CriterionType {
+        noValue, singleValue, betweenValue, listValue, or, and
     }
 
 

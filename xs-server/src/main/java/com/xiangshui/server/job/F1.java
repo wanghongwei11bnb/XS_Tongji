@@ -11,21 +11,16 @@ import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.UserInfo;
-import com.xiangshui.server.service.BookingService;
 import com.xiangshui.util.ExcelUtils;
-import com.xiangshui.util.spring.SpringUtils;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.function.Consumer;
 
 @Component
 public class F1 {
@@ -58,6 +53,9 @@ public class F1 {
                 if (userInfo == null) {
                     return;
                 }
+                if (userInfo.getCreate_time() >= end) {
+                    return;
+                }
                 Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
                 if (area == null) {
                     return;
@@ -80,7 +78,7 @@ public class F1 {
                 }
                 for (int i = 0; i < capsuleList.size(); i++) {
                     Capsule capsule = capsuleList.get(i);
-
+                    new LocalDate(userInfo.getCreate_time() * 1000);
 
                 }
 
@@ -92,8 +90,9 @@ public class F1 {
     }
 
     public static void main(String[] args) throws Exception {
-        SpringUtils.init();
-        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 10);
+//        SpringUtils.init();
+//        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 10);
+        System.out.println(new LocalDate(System.currentTimeMillis()));
     }
 
 

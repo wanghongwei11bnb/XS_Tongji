@@ -45,8 +45,10 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
 
 //        Article article = new Article().setTitle("test").setRelease_time(new Date());
 //        articleCrudTemplate.insertSelective(article, null);
-
-        log.debug(JSON.toJSONString(articleCrudTemplate.selectByPrimaryKey(1, null)));
+        Article article = articleCrudTemplate.selectByPrimaryKey(1, null);
+        log.debug(JSON.toJSONString(article));
+        article.setTitle("12313123");
+//        articleCrudTemplate.updateByPrimaryKeySelective(article, null);
     }
 
 }
