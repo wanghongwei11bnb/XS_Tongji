@@ -43,7 +43,13 @@ public class CityService {
             List<City> cityList = cityDao.scan(new ScanSpec());
             cityList.sort(new Comparator<City>() {
                 public int compare(City o1, City o2) {
-                    return o1.getCity().compareTo(o2.getCity());
+                    if (o1.getRegion().compareTo(o2.getRegion()) != 0) {
+                        return o1.getRegion().compareTo(o2.getRegion());
+                    } else if (o1.getProvince().compareTo(o2.getProvince()) != 0) {
+                        return o1.getProvince().compareTo(o2.getProvince());
+                    } else {
+                        return o1.getCity().compareTo(o2.getCity());
+                    }
                 }
             });
             redisService.set(CityKeyPrefix.list_all, JSON.toJSONString(cityList));
@@ -69,7 +75,13 @@ public class CityService {
             List<City> cityList = cityDao.batchGetItem("city", citySet.toArray());
             cityList.sort(new Comparator<City>() {
                 public int compare(City o1, City o2) {
-                    return o1.getCity().compareTo(o2.getCity());
+                    if (o1.getRegion().compareTo(o2.getRegion()) != 0) {
+                        return o1.getRegion().compareTo(o2.getRegion());
+                    } else if (o1.getProvince().compareTo(o2.getProvince()) != 0) {
+                        return o1.getProvince().compareTo(o2.getProvince());
+                    } else {
+                        return o1.getCity().compareTo(o2.getCity());
+                    }
                 }
             });
             redisService.set(CityKeyPrefix.list_active, JSON.toJSONString(cityList));

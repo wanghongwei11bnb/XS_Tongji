@@ -64,6 +64,7 @@ public class BaseController {
         request.setAttribute("DeviceVersionOption", JSON.toJSONString(DeviceVersionOption.options));
         request.setAttribute("TimeLimitOption", JSON.toJSONString(TimeLimitOption.options));
         request.setAttribute("AreaContractStatusOption", JSON.toJSONString(AreaContractStatusOption.options));
+        request.setAttribute("CityRegionOption", JSON.toJSONString(CityRegionOption.options));
     }
 
 

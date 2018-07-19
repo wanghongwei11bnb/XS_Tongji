@@ -94,15 +94,88 @@ class CitysModal extends Modal {
         });
     };
 
+
+    region = (region) => {
+        let provinceMap = {};
+        for (let i = 0; i < cityList.length; i++) {
+            let city = cityList[i];
+            if (region == city.region) {
+                provinceMap[city.province] = city.province;
+            }
+        }
+        let provinceListHtml = [];
+        for (let province in provinceMap) {
+            provinceListHtml.push(<tr>
+                <td>{province}</td>
+                <td>{cityList.map(city => {
+                    if (city.region == region && city.province == province) {
+                        return <div>
+                            <input ref={city.city} type="checkbox" className="form-control d-inline-block w-auto"/>
+                            {city.city}
+                        </div>
+                    } else {
+                        return null;
+                    }
+
+                })}</td>
+            </tr>);
+        }
+
+        return <div>
+            {region}
+            <button className="btn btn-sm btn-primary m-1" onClick={this.selectOrClean.bind(this, region, null)}>全选／清空
+            </button>
+            <table className="table table-bordered table-sm">
+                <tbody>{provinceListHtml}</tbody>
+            </table>
+        </div>
+    };
+
+    selectOrClean = (region, province) => {
+        let selected = false;
+        let cityMap = {};
+        for (let i = 0; i < cityList.length; i++) {
+            let city = cityList[i];
+            if (region == city.region && (!province || province == city.province)) {
+                cityMap[city.city] = city.city;
+                if (this.refs[city.city] && this.refs[city.city].checked) {
+                    selected = true;
+                }
+            }
+        }
+        for (let city in cityMap) {
+            this.refs[city].checked = !selected;
+        }
+    };
+
     renderBody = () => {
-        return <div className="row px-3">
-            {cityList.map((city) => {
-                return <div className="col-sm-12 col-md-6 col-lg-4 form-check">
-                    <input ref={city.city} id={city.city} className="form-check-input" type="checkbox"/>
-                    <label className="form-check-label" htmlFor={city.city}>{city.city}</label>
-                </div>
-            })}
-        </div>;
+        // return <div className="row px-3">
+        //     {cityList.map((city) => {
+        //         return <div className="col-sm-12 col-md-6 col-lg-4 form-check">
+        //             <input ref={city.city} id={city.city} className="form-check-input" type="checkbox"/>
+        //             <label className="form-check-label" htmlFor={city.city}>{city.city}</label>
+        //         </div>
+        //     })}
+        // </div>;
+        return <table className="table table-bordered table-sm">
+            <tbody>
+            <tr>
+                <td style={{width: '33%'}}>{this.region('西北')}</td>
+                <td style={{width: '33%'}}>{this.region('华北')}</td>
+                <td style={{width: '33%'}}>{this.region('东北')}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>{this.region('华中')}</td>
+                <td>{this.region('华东')}</td>
+            </tr>
+            <tr>
+                <td>{this.region('西南')}</td>
+                <td>{this.region('华南')}</td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>;
     };
 
     renderFooter = () => {

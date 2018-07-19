@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static com.xiangshui.server.crud.CrudTemplate.CriterionType.*;
 
@@ -174,7 +173,7 @@ public abstract class CrudTemplate<P, T> {
 
 
     public T selectByPrimaryKey(P primaryKey, String columns) {
-        Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : "*").from(getFullTableName()).where(primaryColumnName + "=?");
+        Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : "*").from(getFullTableName()).where(primaryColumnName + "=?").limit(1);
         log.debug(sql.toString());
         return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, resultSetExtractor);
     }
@@ -223,6 +222,11 @@ public abstract class CrudTemplate<P, T> {
 
 
     public static class Example {
+        protected String orderByClause;
+        private String columns;
+        private int skip = 0;
+        private int limit = 5000;
+
 
     }
 

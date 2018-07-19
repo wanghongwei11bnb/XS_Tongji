@@ -52,6 +52,7 @@ public class CityController extends BaseController {
 
     @PostMapping("/api/city/create")
     @ResponseBody
+    @AuthRequired("城市列表管理")
     public Result create(@RequestBody City city) {
         if (city == null) {
             return new Result(-1, "参数不全");
@@ -68,6 +69,9 @@ public class CityController extends BaseController {
         if (StringUtils.isBlank(city.getProvince())) {
             return new Result(-1, "请输入城市省份");
         }
+        if (StringUtils.isBlank(city.getRegion())) {
+            return new Result(-1, "请选择区域");
+        }
 
         if (cityDao.getItem(new PrimaryKey("city", city.getCity())) != null) {
             return new Result(-1, "城市名称已存在");
@@ -80,6 +84,28 @@ public class CityController extends BaseController {
         city.setVisible(1);
         cityDao.putItem(city);
         redisService.del(CityKeyPrefix.list_all);
+        redisService.del(CityKeyPrefix.list_active);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+
+    @PostMapping("/api/city/{city_name}/update/region")
+    @ResponseBody
+    @AuthRequired("城市列表管理")
+    public Result update_region(@PathVariable("city_name") String city_name, String region) throws Exception {
+        City city = cityDao.getItem(new PrimaryKey("city", city_name));
+        if (city == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        if (StringUtils.isBlank(region)) {
+            return new Result(-1, "请选择区域");
+        }
+        city.setRegion(region);
+        cityDao.updateItem(new PrimaryKey("city", city_name), city, new String[]{
+                "region",
+        });
+        redisService.del(CityKeyPrefix.list_all);
+        redisService.del(CityKeyPrefix.list_active);
         return new Result(CodeMsg.SUCCESS);
     }
 

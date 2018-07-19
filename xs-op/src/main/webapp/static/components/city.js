@@ -26,6 +26,7 @@ class SelectCityModal extends Modal {
 
     renderBody = () => {
         const {columns, cityList} = this.state;
+
         return <Table columns={columns} data={cityList}></Table>;
     };
 

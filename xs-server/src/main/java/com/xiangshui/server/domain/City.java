@@ -13,6 +13,16 @@ public class City {
     private Double lng;
     private Double lat;
 
+    private String region;
+
+    public String getRegion() {
+        return region;
+    }
+
+    public City setRegion(String region) {
+        this.region = region;
+        return this;
+    }
 
     public String getCity() {
         return city;
