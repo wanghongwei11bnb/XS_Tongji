@@ -332,6 +332,16 @@ class UserInfoMapOptions extends MapOptions {
     }
 }
 
+class GroupInfoMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.group_id || null : null;
+    }
+}
+
 class AuthMapOptions extends MapOptions {
     constructor(options) {
         super(options);
