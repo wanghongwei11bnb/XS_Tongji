@@ -409,14 +409,22 @@ public abstract class CrudTemplate<P, T> {
                 Criterion criterion = criterionList.get(i);
 
                 switch (criterion.type) {
-                    case singleValue:
+                    case eq:
+                    case not_eq:
+                    case gt:
+                    case gte:
+                    case lt:
+                    case lte:
+                    case like:
+                    case not_like:
                         paramList.add(criterion.value);
                         break;
-                    case betweenValue:
+                    case between:
                         paramList.add(criterion.value);
                         paramList.add(criterion.secondValue);
                         break;
-                    case listValue:
+                    case in:
+                    case not_in:
                         paramList.addAll(criterion.listValue);
                         break;
                     case or:
