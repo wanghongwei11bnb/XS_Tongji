@@ -47,15 +47,15 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
         article.setTitle("12313123");
 //        articleCrudTemplate.updateByPrimaryKeySelective(article, null);
         Example example = new Example();
-        example.getCriteria()
-                .addCriterion(Criterion.singleValue("title =", "12313123"))
-                .addCriterion(
-                        Criterion.or(
-                                Criterion.singleValue("title =", "123"),
-                                Criterion.singleValue("title =", "123")
-                        )
-                )
-        ;
+//        example.getCriteria()
+//                .addCriterion(Criterion.singleValue("title =", "12313123"))
+//                .addCriterion(
+//                        Criterion.or(
+//                                Criterion.singleValue("title =", "123"),
+//                                Criterion.singleValue("title =", "123")
+//                        )
+//                )
+//        ;
         log.debug(JSON.toJSONString(articleCrudTemplate.selectByExample(example)));
     }
 
