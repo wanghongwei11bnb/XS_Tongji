@@ -75,6 +75,13 @@ public class GroupController extends BaseController {
                 groupBookingList = ServiceUtils.division(groupIdSet.toArray(new Long[groupIdSet.size()]), 100, longs -> {
                     return groupBookingDao.scan(new ScanSpec().withScanFilters(new ScanFilter("group_id").in(longs)));
                 }, new Long[0]);
+                if (groupBookingList != null && groupBookingList.size() > 0) {
+                    groupBookingList.forEach(groupBooking -> {
+                        if (groupBooking != null && Integer.valueOf(4).equals(groupBooking.getGroup_status())) {
+                            groupBooking.setStatus(groupBooking.getGroup_status());
+                        }
+                    });
+                }
             }
         }
         return new Result(CodeMsg.SUCCESS)

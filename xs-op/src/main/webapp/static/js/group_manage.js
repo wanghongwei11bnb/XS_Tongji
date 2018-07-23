@@ -28,13 +28,37 @@ class GroupGrid extends React.Component {
                 },
                 {field: 'group_master', title: '开团用户uin'},
                 {
-                    field: 'uin_list', title: '参团用户uin', render: value => {
-                        if (type(value) === 'Array') {
-                            return value.map(uin => <div>{uin}</div>);
+                    field: 'group_id', title: '参团用户uin', render: value => {
+                        const groupBookingList = this.state.groupBookingList;
+                        const trs = [];
+                        for (let i = 0; i < groupBookingList.length; i++) {
+                            let groupBooking = groupBookingList[i];
+                            if (value == groupBooking.group_id) {
+                                let status = groupBooking.status;
+                                trs.push(<tr>
+                                    <td>{groupBooking.uin}</td>
+                                    <td>{status == 1 ? '支付成功'
+                                        : status == 2 ? '支付失败'
+                                            : status == 4 ? '退款成功'
+                                                : status == 3 ? '开始退款'
+                                                    : status == 0 ? '开始支付'
+                                                        : status}</td>
+                                    <td>{(groupBooking.price || 0) / 100}元</td>
+                                </tr>);
+                            }
                         }
+                        return <table className="table table-sm">
+                            <thead>
+                            <tr>
+                                <th>用户编号</th>
+                                <th>支付状态</th>
+                                <th>支付金额</th>
+                            </tr>
+                            </thead>
+                            <tbody>{trs}</tbody>
+                        </table>;
                     }
                 },
-
             ],
         };
     }
@@ -49,7 +73,7 @@ class GroupGrid extends React.Component {
             success: resp => {
                 this.setState({
                     data: resp.data.groupInfoList,
-                    groupBookingList: resp.data.groupBookingList,
+                    groupBookingList: resp.data.groupBookingList || [],
                     groupInfoMapOptions: resp.data.groupInfoList ? new GroupInfoMapOptions(resp.data.groupInfoList) : null,
                 });
             }
