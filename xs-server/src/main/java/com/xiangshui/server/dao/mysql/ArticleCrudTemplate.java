@@ -20,9 +20,6 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public ArticleCrudTemplate() throws CrudTemplateException {
-    }
-
     @Override
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
@@ -49,6 +46,17 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
         log.debug(JSON.toJSONString(article));
         article.setTitle("12313123");
 //        articleCrudTemplate.updateByPrimaryKeySelective(article, null);
+        Example example = new Example();
+        example.getCriteria()
+                .addCriterion(Criterion.singleValue("title =", "12313123"))
+                .addCriterion(
+                        Criterion.or(
+                                Criterion.singleValue("title =", "123"),
+                                Criterion.singleValue("title =", "123")
+                        )
+                )
+        ;
+        log.debug(JSON.toJSONString(articleCrudTemplate.selectByExample(example)));
     }
 
 }
