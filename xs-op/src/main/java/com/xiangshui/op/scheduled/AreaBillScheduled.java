@@ -277,6 +277,21 @@ public class AreaBillScheduled implements InitializingBean {
     AreaService areaService;
 
     public void test(int year, int month) throws IOException {
+
+
+        Set<Long> oldBookingIdSet = new HashSet<>();
+        Set<Long> loseBookingIdSet = new HashSet<>();
+        for (String line : IOUtils.readLines(this.getClass().getResourceAsStream("/test.txt"), "UTF-8")) {
+            try {
+                if (StringUtils.isNotBlank(line)) {
+                    oldBookingIdSet.add(Long.valueOf(line));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
         List<Booking> activeBookingList = new ArrayList<>();
         List<Booking> bookingListOld = bookingDao.scan(
                 new ScanSpec()
@@ -296,9 +311,15 @@ public class AreaBillScheduled implements InitializingBean {
                 Booking booking = bookingListOld.get(i);
 
                 if (testUinSet.contains(booking.getUin())) {
+                    if (oldBookingIdSet.contains(booking.getBooking_id())) {
+                        loseBookingIdSet.add(booking.getBooking_id());
+                    }
                     continue;
                 }
                 if (booking.getFinal_price() == null || booking.getFinal_price() == 0) {
+                    if (oldBookingIdSet.contains(booking.getBooking_id())) {
+                        loseBookingIdSet.add(booking.getBooking_id());
+                    }
                     continue;
                 }
 //                if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
@@ -325,8 +346,6 @@ public class AreaBillScheduled implements InitializingBean {
             });
 
         }
-
-
         Map<Integer, Area> areaMap = new HashMap<>();
         Map<Integer, UserInfo> userInfoMap = new HashMap<>();
 
@@ -373,9 +392,9 @@ public class AreaBillScheduled implements InitializingBean {
                     if (area == null) {
                         return;
                     }
-                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
-                        return;
-                    }
+//                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
+//                        return;
+//                    }
                     List<String> row = new ArrayList<>();
                     row.add(String.valueOf(booking.getBooking_id()));
                     row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
@@ -415,6 +434,9 @@ public class AreaBillScheduled implements InitializingBean {
 
         XSSFWorkbook workbook = ExcelUtils.export(data);
         workbook.write(new FileOutputStream(new File("/Users/whw/Downloads/booking_" + year + "_" + month + ".xlsx")));
+        for (long booking_id : loseBookingIdSet) {
+            System.out.println(booking_id);
+        }
     }
 
     public static void main(String[] args) throws Exception {
