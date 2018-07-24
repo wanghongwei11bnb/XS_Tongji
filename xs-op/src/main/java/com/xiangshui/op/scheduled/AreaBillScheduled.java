@@ -262,9 +262,10 @@ public class AreaBillScheduled implements InitializingBean {
                             testUinSet.add(userInfo.getUin());
                         }
                     });
+//                    List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
 //                    test(2018, 4);
-//                    test(2018, 5);
-//                    test(2018, 6);
+//                    test(bookingList, 2018, 5);
+//                    test(bookingList, 2018, 6);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -279,17 +280,7 @@ public class AreaBillScheduled implements InitializingBean {
     public void test(int year, int month) throws IOException {
 
 
-        Set<Long> oldBookingIdSet = new HashSet<>();
-        Set<Long> loseBookingIdSet = new HashSet<>();
-        for (String line : IOUtils.readLines(this.getClass().getResourceAsStream("/test.txt"), "UTF-8")) {
-            try {
-                if (StringUtils.isNotBlank(line)) {
-                    oldBookingIdSet.add(Long.valueOf(line));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+
 
 
         List<Booking> activeBookingList = new ArrayList<>();
@@ -311,15 +302,11 @@ public class AreaBillScheduled implements InitializingBean {
                 Booking booking = bookingListOld.get(i);
 
                 if (testUinSet.contains(booking.getUin())) {
-                    if (oldBookingIdSet.contains(booking.getBooking_id())) {
-                        loseBookingIdSet.add(booking.getBooking_id());
-                    }
+
                     continue;
                 }
                 if (booking.getFinal_price() == null || booking.getFinal_price() == 0) {
-                    if (oldBookingIdSet.contains(booking.getBooking_id())) {
-                        loseBookingIdSet.add(booking.getBooking_id());
-                    }
+
                     continue;
                 }
 //                if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
@@ -434,9 +421,127 @@ public class AreaBillScheduled implements InitializingBean {
 
         XSSFWorkbook workbook = ExcelUtils.export(data);
         workbook.write(new FileOutputStream(new File("/Users/whw/Downloads/booking_" + year + "_" + month + ".xlsx")));
-        for (long booking_id : loseBookingIdSet) {
-            System.out.println(booking_id);
+
+    }
+
+    public void test(List<Booking> bookingList, int year, int month) throws IOException {
+        Set<Long> bookingIdSet = new HashSet<>();
+        for (String line : IOUtils.readLines(this.getClass().getResourceAsStream("/m" + month + ".txt"), "UTF-8")) {
+            try {
+                if (StringUtils.isNotBlank(line)) {
+                    bookingIdSet.add(Long.valueOf(line));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        List<Booking> activeBookingList = new ArrayList<>();
+        bookingList.forEach(booking -> {
+            if (booking != null && bookingIdSet.contains(booking.getBooking_id())) {
+                activeBookingList.add(booking);
+            }
+        });
+
+
+        List<Area> areaList = null;
+        if (activeBookingList != null && activeBookingList.size() > 0) {
+            areaList = areaService.getAreaListByBooking(activeBookingList, new String[]{"area_id", "title", "city", "address", "status"});
+            Collections.sort(activeBookingList, new Comparator<Booking>() {
+                @Override
+                public int compare(Booking o1, Booking o2) {
+                    return -(int) (o1.getCreate_time() - o2.getCreate_time());
+                }
+            });
+
+        }
+        Map<Integer, Area> areaMap = new HashMap<>();
+        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
+
+        if (areaList != null && areaList.size() > 0) {
+            areaList.forEach(new Consumer<Area>() {
+                @Override
+                public void accept(Area area) {
+                    if (area != null) {
+                        areaMap.put(area.getArea_id(), area);
+                    }
+                }
+            });
+        }
+
+        List<List<String>> data = new ArrayList<>();
+
+        List<String> headRow = new ArrayList<>();
+        headRow.add("订单编号");
+        headRow.add("创建时间");
+        headRow.add("结束时间");
+        headRow.add("订单状态");
+        headRow.add("订单总金额");
+        headRow.add("实际充值金额");
+        headRow.add("系统赠送金额");
+        headRow.add("实际付款金额");
+        headRow.add("支付方式");
+        headRow.add("头等舱编号");
+        headRow.add("场地编号");
+        headRow.add("场地名称");
+        headRow.add("城市");
+        headRow.add("地址");
+        headRow.add("用户UIN");
+        headRow.add("用户手机号");
+        headRow.add("订单来源");
+        data.add(headRow);
+        if (activeBookingList != null && activeBookingList.size() > 0) {
+            activeBookingList.forEach(new Consumer<Booking>() {
+                @Override
+                public void accept(Booking booking) {
+                    if (booking == null) {
+                        return;
+                    }
+                    Area area = areaMap.get(booking.getArea_id());
+                    if (area == null) {
+                        return;
+                    }
+//                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
+//                        return;
+//                    }
+                    List<String> row = new ArrayList<>();
+                    row.add(String.valueOf(booking.getBooking_id()));
+                    row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
+                            DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : ""));
+                    row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
+                            DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : null));
+                    row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
+                    row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
+
+                    row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
+                    row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
+
+                    row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
+                    row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
+                    row.add("" + booking.getCapsule_id());
+                    row.add("" + booking.getArea_id());
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getTitle()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getCity()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getAddress()
+                            : null));
+                    row.add("" + booking.getUin());
+                    row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
+                            userInfoMap.get(booking.getUin()).getPhone()
+                            : null));
+                    row.add(booking.getReq_from());
+                    data.add(row);
+                }
+            });
+        }
+
+        XSSFWorkbook workbook = ExcelUtils.export(data);
+        workbook.write(new FileOutputStream(new File("/Users/whw/Downloads/booking_2_" + year + "_" + month + ".xlsx")));
     }
 
     public static void main(String[] args) throws Exception {
