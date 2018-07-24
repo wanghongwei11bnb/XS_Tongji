@@ -192,8 +192,8 @@ public class BookingController extends BaseController {
             headRow.add("订单状态");
             headRow.add("订单总金额");
             headRow.add("实际充值金额");
-            headRow.add("系统赠送金额");
-            headRow.add("实际付款金额");
+            headRow.add("优惠金额");
+            headRow.add("非会员付费金额");
             headRow.add("支付方式");
             headRow.add("头等舱编号");
             headRow.add("场地编号");
