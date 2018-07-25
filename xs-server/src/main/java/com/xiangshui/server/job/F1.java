@@ -204,7 +204,7 @@ public class F1 {
                                     if (
                                             booking != null
                                                     && booking.getArea_id() == area_id
-                                                    && booking.getCapsule_id() == capsule.getCapsule_id()
+                                                    && booking.getCapsule_id().equals(capsule.getCapsule_id())
                                                     && booking.getCreate_time() < end_time
                                                     && booking.getEnd_time() > create_time
                                             ) {
@@ -251,17 +251,32 @@ public class F1 {
         });
     }
 
-    public void test() {
-        List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(new ScanFilter("f1").eq(1)));
+    public void delete(int year, int month, boolean delete) {
+        List<Booking> bookingList = bookingDao.scan(new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(
+                        new ScanFilter("create_time").lt(new LocalDate(year, month + 1, 1).toDate().getTime() / 1000)
+                        , new ScanFilter("end_time").gt(new LocalDate(year, month, 1).toDate().getTime() / 1000)
+                        , new ScanFilter("f1").eq(1)));
         log.debug(String.valueOf(bookingList.size()));
+        if (delete) {
+            bookingList.forEach(new Consumer<Booking>() {
+                @Override
+                public void accept(Booking booking) {
+                    log.debug("删除订单：{}", booking.getBooking_id());
+                    bookingDao.deleteItem(new PrimaryKey("booking_id", booking.getBooking_id()));
+                }
+            });
+        }
     }
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-//        SpringUtils.getBean(F1.class).test();
-        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 20);
-        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1963, 1);
-        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 90);
+        SpringUtils.getBean(F1.class).delete(2018, 5, true);
+//        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 20);
+        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
+        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
+//        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 90);
     }
 
 
