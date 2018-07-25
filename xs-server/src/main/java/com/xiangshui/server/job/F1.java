@@ -258,10 +258,10 @@ public class F1 {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(F1.class).test();
-//        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 11);
-//        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1963, 1);
-//        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 70);
+//        SpringUtils.getBean(F1.class).test();
+        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 20);
+        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1963, 1);
+        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 90);
     }
 
 

@@ -264,8 +264,8 @@ public class AreaBillScheduled implements InitializingBean {
                     });
 //                    List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
 //                    test(2018, 4);
-//                    test(bookingList, 2018, 5);
-//                    test(bookingList, 2018, 6);
+//                    test(2018, 5);
+//                    test(2018, 6);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -278,10 +278,16 @@ public class AreaBillScheduled implements InitializingBean {
     AreaService areaService;
 
     public void test(int year, int month) throws IOException {
-
-
-
-
+        Set<Long> bookingIdSet = new HashSet<>();
+        for (String line : IOUtils.readLines(this.getClass().getResourceAsStream("/m" + month + ".txt"), "UTF-8")) {
+            try {
+                if (StringUtils.isNotBlank(line)) {
+                    bookingIdSet.add(Long.valueOf(line));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         List<Booking> activeBookingList = new ArrayList<>();
         List<Booking> bookingListOld = bookingDao.scan(
@@ -300,6 +306,14 @@ public class AreaBillScheduled implements InitializingBean {
             for (int i = 0; i < bookingListOld.size(); i++) {
 
                 Booking booking = bookingListOld.get(i);
+                if (new Integer(1).equals(booking.getF1())) {
+                    booking.setFinal_price(booking.getFinal_price() + 200);
+                    booking.setFrom_bonus(booking.getFrom_bonus() + 200);
+                }
+                if (bookingIdSet.contains(booking.getBooking_id())) {
+                    activeBookingList.add(booking);
+                    continue;
+                }
 
                 if (testUinSet.contains(booking.getUin())) {
 
