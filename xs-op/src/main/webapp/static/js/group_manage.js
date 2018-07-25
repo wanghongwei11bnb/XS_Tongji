@@ -93,7 +93,7 @@ class GroupGrid extends React.Component {
                     };
                 }
                 countMap[groupInfo.group_amount].count++;
-                if (groupInfo.group_status === 4) {
+                if (groupInfo.group_status === 2) {
                     countMap[groupInfo.group_amount].success++;
                 }
             }
