@@ -42,21 +42,22 @@ public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
 
 //        Article article = new Article().setTitle("test").setRelease_time(new Date());
 //        articleCrudTemplate.insertSelective(article, null);
-        Article article = articleCrudTemplate.selectByPrimaryKey(1, null);
-        log.debug(JSON.toJSONString(article));
-        article.setTitle("12313123");
+//        Article article = articleCrudTemplate.selectByPrimaryKey(1, null);
+//        log.debug(JSON.toJSONString(article));
+//        article.setTitle("12313123");
 //        articleCrudTemplate.updateByPrimaryKeySelective(article, null);
         Example example = new Example();
-//        example.getCriteria()
-//                .addCriterion(Criterion.singleValue("title =", "12313123"))
-//                .addCriterion(
-//                        Criterion.or(
-//                                Criterion.singleValue("title =", "123"),
-//                                Criterion.singleValue("title =", "123")
-//                        )
-//                )
-//        ;
-        log.debug(JSON.toJSONString(articleCrudTemplate.selectByExample(example)));
+        example.getCriteria()
+                .addCriterion(
+                        Criterion.or(
+                                Criterion.eq("title", "123"),
+                                Criterion.eq("title", "123")
+                        )
+                ).addCriterion(Criterion.eq("title", "12313123"))
+
+        ;
+        log.debug(example.getCriteria().makeSql());
+//        log.debug(JSON.toJSONString(articleCrudTemplate.selectByExample(example)));
     }
 
 }
