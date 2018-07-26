@@ -22,7 +22,7 @@ class YearMonthDate {
             case 6:
             case 9:
             case 11:
-                return 31;
+                return 30;
             default:
                 return;
         }
