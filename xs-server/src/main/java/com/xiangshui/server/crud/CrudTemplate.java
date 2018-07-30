@@ -17,58 +17,54 @@ import java.util.*;
 
 import static com.xiangshui.server.crud.CrudTemplate.CriterionType.*;
 
-public abstract class CrudTemplate<P, T> {
+public abstract class CrudTemplate<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(CrudTemplate.class);
+    protected static final Logger log = LoggerFactory.getLogger(CrudTemplate.class);
 
-    private Class<P> primaryClass;
-    private Class<T> tableClass;
+    protected Class<T> tableClass;
+    protected String tableName;
 
-    private String primaryFieldName;
-    private Field primaryField;
-    private String primaryColumnName;
+    protected String primaryFieldName;
+    protected Field primaryField;
+    protected String primaryColumnName;
 
-    private Map<String, String> columnNameMap = new HashMap<>();
-    private Map<String, Field> fieldMap = new HashMap<>();
+    protected String secondPrimaryFieldName;
+    protected Field secondPrimaryField;
+    protected String secondPrimaryColumnName;
 
-    private String tableName;
+    protected Map<String, String> columnNameMap = new HashMap<>();
+    protected Map<String, Field> fieldMap = new HashMap<>();
 
-    ResultSetExtractor<T> resultSetExtractor;
-    RowMapper<T> rowMapper;
-
+    protected ResultSetExtractor<T> resultSetExtractor;
+    protected RowMapper<T> rowMapper;
 
     public CrudTemplate() {
         try {
-            primaryClass = (Class<P>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            initPrimary();
             tableClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
             tableName = getFullTableName();
             if (StringUtils.isBlank(tableName)) {
                 throw new CrudTemplateException("tableName 不能为空");
             }
-            primaryFieldName = getPrimaryFieldName();
-            if (StringUtils.isBlank(primaryFieldName)) {
-                throw new CrudTemplateException("primaryFieldName 不能为空");
-            }
+
             for (Field field : tableClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
+                if (fieldName.equals(primaryFieldName) || fieldName.equals(secondPrimaryFieldName)) {
+                    continue;
+                }
                 String columnName = defineColumnName(fieldName, field);
                 if (StringUtils.isBlank(columnName)) {
                     throw new CrudTemplateException("columnName 不能为空");
                 }
-                if (primaryFieldName.equals(fieldName)) {
-                    primaryColumnName = columnName;
-                    primaryField = field;
-                } else {
-                    if (primaryColumnName.equals(columnName) || fieldMap.containsValue(columnName)) {
-                        throw new CrudTemplateException("columnName 重复");
-                    }
-                    columnNameMap.put(fieldName, columnName);
-                    fieldMap.put(fieldName, field);
+                if (columnName.equals(primaryColumnName) || columnName.equals(secondPrimaryColumnName)) {
+                    throw new CrudTemplateException("columnName 重复");
                 }
-            }
-            if (StringUtils.isBlank(primaryColumnName)) {
-                throw new CrudTemplateException("primaryColumnName 不能为空");
+                if (columnNameMap.containsValue(columnName)) {
+                    throw new CrudTemplateException("columnName 重复");
+                }
+                fieldMap.put(fieldName, field);
+                columnNameMap.put(fieldName, columnName);
             }
 
 
@@ -109,11 +105,12 @@ public abstract class CrudTemplate<P, T> {
         }
     }
 
+    public void initPrimary() throws NoSuchFieldException {
+    }
+
     public abstract JdbcTemplate getJdbcTemplate();
 
     abstract public String getTableName();
-
-    abstract public String getPrimaryFieldName();
 
     public String getFullTableName() {
         return getTableName();
@@ -156,52 +153,6 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    public int deleteByPrimaryKey(P primaryKey) {
-        Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
-        log.debug(sql.toString());
-        return getJdbcTemplate().update(sql.toString(), primaryKey);
-    }
-
-    private int updateByPrimaryKey(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
-        List paramList = new ArrayList();
-        Sql setSql = new Sql();
-        Sql whereSql = new Sql();
-        collectFields(record, fields, selective, new CollectCallback() {
-            @Override
-            public void run(String fieldName, Field field, String columnName, Object columnValue) {
-                if (primaryFieldName.equals(fieldName)) {
-                    return;
-                }
-                if (setSql.length() > 0) {
-                    setSql.append(Sql.COMMA);
-                }
-                setSql.append(columnName).append(Sql.EQ).append(Sql.MARK);
-                paramList.add(columnValue);
-            }
-        });
-        whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
-        paramList.add(primaryField.get(record));
-        Sql sql = new Sql().update(getFullTableName()).set(setSql.toString()).where(whereSql.toString());
-        log.debug(sql.toString());
-        return getJdbcTemplate().update(sql.toString(), paramList.toArray());
-    }
-
-    public int updateByPrimaryKey(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        return updateByPrimaryKey(record, fields, false);
-    }
-
-    public int updateByPrimaryKeySelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
-        return updateByPrimaryKey(record, fields, true);
-    }
-
-
-    public T selectByPrimaryKey(P primaryKey, String columns) {
-        Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : Sql.STAR).from(getFullTableName()).where(primaryColumnName + "=?").limit(1);
-        log.debug(sql.toString());
-        return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, resultSetExtractor);
-    }
-
-
     public List<T> selectByExample(Example example) {
         String sqlWhere = example.getCriteria().makeSql();
         List paramList = example.getCriteria().makeParamList();
@@ -230,7 +181,7 @@ public abstract class CrudTemplate<P, T> {
     }
 
 
-    private void collectFields(T record, String[] fields, boolean selective, CollectCallback callback) throws NoSuchFieldException, IllegalAccessException {
+    protected void collectFields(T record, String[] fields, boolean selective, CollectCallback callback) throws NoSuchFieldException, IllegalAccessException {
         Set<String> fieldSet;
         if (fields != null && fields.length > 0) {
             fieldSet = new HashSet<>();
@@ -258,6 +209,154 @@ public abstract class CrudTemplate<P, T> {
         }
     }
 
+
+    public static abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
+
+        @Override
+        public void initPrimary() throws NoSuchFieldException {
+            primaryFieldName = getPrimaryFieldName();
+            if (StringUtils.isBlank(primaryFieldName)) {
+                throw new CrudTemplateException("primaryFieldName 不能为空");
+            }
+            primaryField = this.getClass().getDeclaredField(primaryFieldName);
+            if (primaryField == null) {
+                throw new CrudTemplateException("primaryField 不能为空");
+            }
+            primaryField.setAccessible(true);
+            primaryColumnName = defineColumnName(primaryFieldName, primaryField);
+            if (StringUtils.isBlank(primaryColumnName)) {
+                throw new CrudTemplateException("primaryColumnName 不能为空");
+            }
+        }
+
+        abstract public String getPrimaryFieldName();
+
+        public T selectByPrimaryKey(P primaryKey, String columns) {
+            Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : Sql.STAR).from(getFullTableName()).where(primaryColumnName + "=?").limit(1);
+            log.debug(sql.toString());
+            return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, resultSetExtractor);
+        }
+
+        private int updateByPrimaryKey(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
+            List paramList = new ArrayList();
+            Sql setSql = new Sql();
+            Sql whereSql = new Sql();
+            collectFields(record, fields, selective, new CollectCallback() {
+                @Override
+                public void run(String fieldName, Field field, String columnName, Object columnValue) {
+                    if (primaryFieldName.equals(fieldName)) {
+                        return;
+                    }
+                    if (setSql.length() > 0) {
+                        setSql.append(Sql.COMMA);
+                    }
+                    setSql.append(columnName).append(Sql.EQ).append(Sql.MARK);
+                    paramList.add(columnValue);
+                }
+            });
+            whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+            paramList.add(primaryField.get(record));
+            Sql sql = new Sql().update(getFullTableName()).set(setSql.toString()).where(whereSql.toString());
+            log.debug(sql.toString());
+            return getJdbcTemplate().update(sql.toString(), paramList.toArray());
+        }
+
+        public int updateByPrimaryKey(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+            return updateByPrimaryKey(record, fields, false);
+        }
+
+        public int updateByPrimaryKeySelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+            return updateByPrimaryKey(record, fields, true);
+        }
+
+        public int deleteByPrimaryKey(P primaryKey) {
+            Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+            log.debug(sql.toString());
+            return getJdbcTemplate().update(sql.toString(), primaryKey);
+        }
+    }
+
+    public static abstract class DoublePrimaryCrudTemplate<P1, P2, T> extends CrudTemplate<T> {
+
+        @Override
+        public void initPrimary() throws NoSuchFieldException {
+            primaryFieldName = getPrimaryFieldName();
+            if (StringUtils.isBlank(primaryFieldName)) {
+                throw new CrudTemplateException("primaryFieldName 不能为空");
+            }
+            primaryField = this.getClass().getDeclaredField(primaryFieldName);
+            if (primaryField == null) {
+                throw new CrudTemplateException("primaryField 不能为空");
+            }
+            primaryField.setAccessible(true);
+            primaryColumnName = defineColumnName(primaryFieldName, primaryField);
+            if (StringUtils.isBlank(primaryColumnName)) {
+                throw new CrudTemplateException("primaryColumnName 不能为空");
+            }
+            secondPrimaryFieldName = getSecondPrimaryFieldName();
+            if (StringUtils.isBlank(secondPrimaryFieldName)) {
+                throw new CrudTemplateException("secondPrimaryFieldName 不能为空");
+            }
+            secondPrimaryField = this.getClass().getDeclaredField(secondPrimaryFieldName);
+            if (secondPrimaryField == null) {
+                throw new CrudTemplateException("secondPrimaryField 不能为空");
+            }
+            secondPrimaryField.setAccessible(true);
+            secondPrimaryColumnName = defineColumnName(secondPrimaryFieldName, secondPrimaryField);
+            if (StringUtils.isBlank(secondPrimaryColumnName)) {
+                throw new CrudTemplateException("secondPrimaryColumnName 不能为空");
+            }
+        }
+
+        abstract public String getPrimaryFieldName();
+
+        abstract public String getSecondPrimaryFieldName();
+
+        public T selectByPrimaryKey(P1 primaryKey, P2 secondPrimaryKey, String columns) {
+            Sql sql = new Sql().select(StringUtils.isNotBlank(columns) ? columns : Sql.STAR).from(getFullTableName()).where(primaryColumnName + "=? and " + secondPrimaryColumnName + "=?").limit(1);
+            log.debug(sql.toString());
+            return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey, secondPrimaryKey}, resultSetExtractor);
+        }
+
+        private int updateByPrimaryKey(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
+            List paramList = new ArrayList();
+            Sql setSql = new Sql();
+            Sql whereSql = new Sql();
+            collectFields(record, fields, selective, new CollectCallback() {
+                @Override
+                public void run(String fieldName, Field field, String columnName, Object columnValue) {
+                    if (primaryFieldName.equals(fieldName)) {
+                        return;
+                    }
+                    if (setSql.length() > 0) {
+                        setSql.append(Sql.COMMA);
+                    }
+                    setSql.append(columnName).append(Sql.EQ).append(Sql.MARK);
+                    paramList.add(columnValue);
+                }
+            });
+            whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK).append(Sql.AND).append(secondPrimaryColumnName).append(Sql.EQ).append(Sql.MARK);
+            paramList.add(primaryField.get(record));
+            paramList.add(secondPrimaryField.get(record));
+            Sql sql = new Sql().update(getFullTableName()).set(setSql.toString()).where(whereSql.toString());
+            log.debug(sql.toString());
+            return getJdbcTemplate().update(sql.toString(), paramList.toArray());
+        }
+
+        public int updateByPrimaryKey(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+            return updateByPrimaryKey(record, fields, false);
+        }
+
+        public int updateByPrimaryKeySelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+            return updateByPrimaryKey(record, fields, true);
+        }
+
+        public int deleteByPrimaryKey(P1 primaryKey, P2 secondPrimaryKey) {
+            Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK).append(Sql.AND).append(secondPrimaryColumnName).append(Sql.EQ).append(Sql.MARK);
+            log.debug(sql.toString());
+            return getJdbcTemplate().update(sql.toString(), new Object[]{primaryKey, secondPrimaryKey});
+        }
+    }
 
     public static class Example {
         private String orderByClause;
@@ -447,7 +546,6 @@ public abstract class CrudTemplate<P, T> {
         }
     }
 
-
     public static class Criterion {
         public final CriterionType type;
         public final String column;
@@ -537,19 +635,11 @@ public abstract class CrudTemplate<P, T> {
         public static Criterion not_in(String column, List listValue) {
             return new Criterion(not_in, column, null, null, listValue, null);
         }
-
     }
-
 
     public enum CriterionType {
         single, is_null, is_not_null, eq, not_eq, gt, gte, lt, lte, like, not_like, between, in, not_in, or, and
     }
-
-
-    private static abstract class CollectCallback {
-        public abstract void run(String fieldName, Field field, String columnName, Object columnValue);
-    }
-
 
     public static class Sql {
         private StringBuilder stringBuilder = new StringBuilder();
@@ -704,10 +794,13 @@ public abstract class CrudTemplate<P, T> {
         }
     }
 
+    private static abstract class CollectCallback {
+        public abstract void run(String fieldName, Field field, String columnName, Object columnValue);
+    }
+
     public static class CrudTemplateException extends RuntimeException {
         public CrudTemplateException(String message) {
             super(message);
         }
     }
-
 }

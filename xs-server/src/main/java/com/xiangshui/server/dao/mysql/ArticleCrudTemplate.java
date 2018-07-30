@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component()
-public class ArticleCrudTemplate extends CrudTemplate<Integer, Article> {
+public class ArticleCrudTemplate extends CrudTemplate.SinglePrimaryCrudTemplate<Integer, Article> {
 
     private static final Logger log = LoggerFactory.getLogger(ArticleCrudTemplate.class);
 
