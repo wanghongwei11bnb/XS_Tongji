@@ -29,7 +29,7 @@ class CalendarModal extends Modal {
     };
     reSize = () => {
         this.refs.dialog.style.maxWidth = this.refs.dialog.offsetHeight + "px";
-        this.refs.dialog.style.minWidth = this.refs.dialog.offsetHeight + "px";
+        this.refs.dialog.style.minWidth = "0px";
     };
 
     componentDidMount() {
