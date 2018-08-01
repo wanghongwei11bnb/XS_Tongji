@@ -460,6 +460,7 @@ public class AreaContractController extends BaseController {
         headRow.add("系统赠送金额");
         headRow.add("实际付款金额");
         headRow.add("支付方式");
+        headRow.add("是否使用月卡");
         headRow.add("头等舱编号");
         headRow.add("场地编号");
         headRow.add("场地名称");
@@ -499,6 +500,7 @@ public class AreaContractController extends BaseController {
 
                     row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
                     row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
+                    row.add(new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否");
                     row.add("" + booking.getCapsule_id());
                     row.add("" + booking.getArea_id());
                     row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
