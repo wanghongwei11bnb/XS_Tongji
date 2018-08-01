@@ -77,8 +77,10 @@ class Page extends React.Component {
                     title: <A className="btn btn-sm btn-success ml-1 float-right" onClick={this.addNew}>创建报修</A>,
                     width: 80, render: (value, row, index) => {
                         return [
-                            <button type="button" className="btn btn-sm bg-primary text-white"
-                                    onClick={this.edit.bind(this, row)}>编辑处理结果</button>
+                            <button type="button" className="btn btn-sm btn-primary m-1"
+                                    onClick={this.edit.bind(this, row)}>编辑处理结果</button>,
+                            <button type="button" className="btn btn-sm btn-primary m-1"
+                                    onClick={showCapsuleDeviceStatus.bind(this, row.capsule_id)}>查看设备状态</button>,
                         ];
                     }
                 },
