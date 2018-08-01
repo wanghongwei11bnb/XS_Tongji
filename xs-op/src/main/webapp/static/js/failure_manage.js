@@ -8,9 +8,9 @@ class Page extends React.Component {
                         return <div>
                             uin：{row.uin}<br/>
                             手机号：{row.phone}<br/>
-                            场地编号：{row.area_id}<br/>
+                            场地编号：<A onClick={this.showArea.bind(this, row.area_id)}>{row.area_id}</A><br/>
                             头等舱编号：{row.capsule_id}<br/>
-                            订单号：{row.booking_id}<br/>
+                            订单号：<A onClick={this.showBooking.bind(this, row.booking_id)}>{row.booking_id}</A><br/>
                         </div>
                     }
                 },
@@ -85,6 +85,14 @@ class Page extends React.Component {
             ], now: new Date()
         };
     }
+
+    showArea = (area_id) => {
+        Modal.open(<AreaModal area_id={area_id}></AreaModal>);
+    };
+
+    showBooking = (booking_id) => {
+        Modal.open(<BookingGridModal queryParams={{booking_id}}></BookingGridModal>);
+    };
 
     edit = (failure) => {
         Modal.open(<FailureModal failure={failure} onSuccess={this.load}></FailureModal>);
