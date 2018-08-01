@@ -159,6 +159,21 @@ class AreaContractGrid extends React.Component {
                         }
                     }
                 },
+                {
+                    field: 'area_id', title: '运营状态', render: value => {
+                        const areaMapOptions = this.state.areaMapOptions;
+                        if (areaMapOptions && areaMapOptions.get(value)) {
+                            let area = areaMapOptions.get(value);
+                            if (area.status == -1) {
+                                return <span className="text-danger">已下线</span>;
+                            } else if (area.status == -2) {
+                                return <span className="text-warning">待运营</span>;
+                            } else {
+                                return <span className="text-success">正常</span>;
+                            }
+                        }
+                    }
+                },
                 {field: 'saler_city', title: '所属公司'},
                 {field: 'saler', title: '销售人员'},
                 {field: 'customer', title: '客户公司名称'},
