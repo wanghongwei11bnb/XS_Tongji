@@ -7,9 +7,9 @@ class MonthCardRecodeGrid extends React.Component {
                 {field: 'card_no', title: '卡号／手机号'},
                 {field: 'city', title: '城市'},
                 {
-                    field: 'date_time', title: '购买日期', render: value => {
+                    field: 'date_time', title: '购买时间', render: value => {
                         if (type(value) === 'Number') {
-                            return new Date(value * 1000).format('yyyy-MM-dd');
+                            return new Date(value * 1000).format('yyyy-MM-dd hh:mm');
                         }
                     }
                 },

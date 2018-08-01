@@ -1,15 +1,16 @@
 package com.xiangshui.server.crud;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.server.exception.XiangShuiException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,72 +65,19 @@ public abstract class CrudTemplate<T> {
                 fieldMap.put(fieldName, field);
                 columnNameMap.put(fieldName, columnName);
             }
-            resultSetExtractor = new ResultSetExtractor<T>() {
-                boolean isExistColumn(ResultSet resultSet, String columnName) {
-                    try {
-                        if (resultSet.findColumn(columnName) >= 1) {
-                            return true;
-                        }
-                    } catch (SQLException e) {
-                        return false;
-                    }
-                    return false;
+            rowMapper = (resultSet, i) -> {
+                try {
+                    return mapperResultSet(resultSet);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                @Override
-                public T extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                    resultSet.next();
-                    try {
-                        T t = tableClass.getConstructor().newInstance();
-                        if (StringUtils.isNotBlank(primaryFieldName) && isExistColumn(resultSet, primaryColumnName)) {
-                            primaryField.set(t, resultSet.getObject(primaryColumnName));
-                        }
-                        if (StringUtils.isNotBlank(secondPrimaryFieldName) && isExistColumn(resultSet, secondPrimaryColumnName)) {
-                            secondPrimaryField.set(t, resultSet.getObject(secondPrimaryColumnName));
-                        }
-                        for (String fieldName : fieldMap.keySet()) {
-                            if (isExistColumn(resultSet, fieldName)) {
-                                fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
-                            }
-                        }
-                        return t;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
+                return null;
             };
-            rowMapper = new RowMapper<T>() {
-                boolean isExistColumn(ResultSet resultSet, String columnName) {
-                    try {
-                        if (resultSet.findColumn(columnName) >= 1) {
-                            return true;
-                        }
-                    } catch (SQLException e) {
-                        return false;
-                    }
-                    return false;
-                }
 
-                @Override
-                public T mapRow(ResultSet resultSet, int i) throws SQLException {
-                    try {
-                        T t = tableClass.getConstructor().newInstance();
-                        if (StringUtils.isNotBlank(primaryFieldName) && isExistColumn(resultSet, primaryColumnName)) {
-                            primaryField.set(t, resultSet.getObject(primaryColumnName));
-                        }
-                        if (StringUtils.isNotBlank(secondPrimaryFieldName) && isExistColumn(resultSet, secondPrimaryColumnName)) {
-                            secondPrimaryField.set(t, resultSet.getObject(secondPrimaryColumnName));
-                        }
-                        for (String fieldName : fieldMap.keySet()) {
-                            if (isExistColumn(resultSet, fieldName)) {
-                                fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
-                            }
-                        }
-                        return t;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            resultSetExtractor = resultSet -> {
+                if (resultSet.next()) {
+                    return rowMapper.mapRow(resultSet, 1);
+                } else {
                     return null;
                 }
             };
@@ -140,18 +88,46 @@ public abstract class CrudTemplate<T> {
         }
     }
 
-    public void initPrimary() throws NoSuchFieldException {
+    boolean isExistColumn(ResultSet resultSet, String columnName) {
+        try {
+            if (resultSet.findColumn(columnName) >= 1) {
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
+    }
+
+    T mapperResultSet(ResultSet resultSet) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
+        T t = tableClass.getConstructor().newInstance();
+        if (StringUtils.isNotBlank(primaryFieldName) && isExistColumn(resultSet, primaryColumnName)) {
+            primaryField.set(t, resultSet.getObject(primaryColumnName));
+        }
+        if (StringUtils.isNotBlank(secondPrimaryFieldName) && isExistColumn(resultSet, secondPrimaryColumnName)) {
+            secondPrimaryField.set(t, resultSet.getObject(secondPrimaryColumnName));
+        }
+        for (String fieldName : fieldMap.keySet()) {
+            if (isExistColumn(resultSet, fieldName)) {
+                fieldMap.get(fieldName).set(t, resultSet.getObject(columnNameMap.get(fieldName)));
+            }
+        }
+        return t;
+    }
+
+
+    protected void initPrimary() throws NoSuchFieldException {
     }
 
     public abstract JdbcTemplate getJdbcTemplate();
 
-    abstract public String getTableName();
+    abstract protected String getTableName();
 
-    String getFullTableName() {
+    protected String getFullTableName() {
         return getTableName();
     }
 
-    String defineColumnName(String fieldName, Field field) {
+    protected String defineColumnName(String fieldName, Field field) {
         return fieldName;
     }
 
@@ -174,6 +150,9 @@ public abstract class CrudTemplate<T> {
                 paramList.add(columnValue);
             }
         });
+        if (columnsSql.length() == 0) {
+            throw new XiangShuiException("没有要更新的列");
+        }
         Sql sql = new Sql().insertInto(getFullTableName(), columnsSql.toString()).values(valuesSql.toString());
         log.debug(sql.toString());
         return getJdbcTemplate().update(sql.toString(), paramList.toArray());
@@ -201,22 +180,27 @@ public abstract class CrudTemplate<T> {
                         StringUtils.isNotBlank(example.getOrderByClause()) ? new String[]{Sql.ORDER_BY, example.getOrderByClause()} : null
                 )
                 .limit(example.getSkip(), example.getLimit());
-
         log.debug(sql.toString());
         return getJdbcTemplate().query(sql.toString(), paramList.toArray(), rowMapper);
     }
 
 
     public int countByExample(Example example) {
-        Sql sql = new Sql().select(Sql.COUNT_STAR).from(getFullTableName()).where(example.getCriteria().makeSql()).limit(example.getSkip(), example.getLimit());
+        String sqlWhere = example.getCriteria().makeSql();
         List paramList = example.getCriteria().makeParamList();
+        Sql sql = new Sql()
+                .select(Sql.COUNT_STAR)
+                .from(getFullTableName())
+                .append(
+                        StringUtils.isNotBlank(sqlWhere) ? new Sql().where(sqlWhere).toString() : null
+                );
         log.debug(sql.toString());
         log.debug(JSON.toJSONString(paramList));
         return getJdbcTemplate().queryForObject(sql.toString(), paramList.toArray(), int.class);
     }
 
 
-    protected void collectFields(T record, String[] fields, boolean selective, CollectCallback callback) throws NoSuchFieldException, IllegalAccessException {
+    protected void collectFields(T record, String[] fields, boolean selective, CollectCallback callback) throws IllegalAccessException {
         Set<String> fieldSet = new HashSet<>();
         if (fields != null && fields.length > 0) {
             Collections.addAll(fieldSet, fields);

@@ -15,7 +15,7 @@ class CalendarModal extends Modal {
 
     renderBody = () => {
         return <div className="position-relative text-center">
-            <Calendar onDateClick={this.onDateClick}></Calendar>
+            <Calendar ref="calendar" onDateClick={this.onDateClick}></Calendar>
         </div>
     };
 
@@ -27,6 +27,15 @@ class CalendarModal extends Modal {
             <A className="btn btn-link text-secondary" onClick={this.close}>关闭</A>,
         ];
     };
+    reSize = () => {
+        this.refs.dialog.style.maxWidth = this.refs.dialog.offsetHeight + "px";
+        this.refs.dialog.style.minWidth = this.refs.dialog.offsetHeight + "px";
+    };
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.reSize();
+    }
 }
 
 

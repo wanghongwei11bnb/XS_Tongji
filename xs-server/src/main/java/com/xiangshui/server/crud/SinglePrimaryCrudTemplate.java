@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
 
     @Override
-    public void initPrimary() throws NoSuchFieldException {
+    protected void initPrimary() throws NoSuchFieldException {
         primaryFieldName = getPrimaryFieldName();
         if (StringUtils.isBlank(primaryFieldName)) {
             throw new CrudTemplateException("primaryFieldName 不能为空");

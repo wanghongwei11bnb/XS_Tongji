@@ -167,6 +167,10 @@ class Calendar extends React.Component {
         this.setState({});
     };
 
+    height = () => {
+        return this.refs.table.offsetHeight;
+    };
+
     render() {
         const ymd = this.state.ymd.clone().setDate(1);
         ymd.addDate(-ymd.getDay());
@@ -181,7 +185,7 @@ class Calendar extends React.Component {
             }
             trs.push(<tr>{tds}</tr>);
         }
-        return <table className="calendar table table-bordered">
+        return <table ref="table" className="calendar table table-bordered">
             <thead>
             <tr>
                 <th colSpan={7} className="text-center">
