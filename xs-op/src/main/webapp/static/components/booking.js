@@ -215,8 +215,8 @@ class BookingGrid extends React.Component {
         if (op_username === 'wanghongwei@xiangshuispace.com') {
             for (let i = 0; i < this.state.columns.length; i++) {
                 if (this.state.columns[i].field === 'use_pay') {
-                    this.state.columns.splice(i, 0, {
-                        field: 'from_charge', title: '钱包余额支付（充值部分）',
+                    this.state.columns.splice(i + 1, 0, {
+                        field: 'from_charge', title: '充值部分',
                         render: value => type(value) == 'Number' ? value / 100 : value,
                         totalHandle: (total, value) => {
                             if (type(total) !== 'Number') total = 0;
@@ -224,8 +224,8 @@ class BookingGrid extends React.Component {
                             return (total + value / 100).toFixed(2) - 0;
                         }
                     });
-                    this.state.columns.splice(i + 1, 0, {
-                        field: 'from_bonus', title: '钱包余额支付（赠送部分）',
+                    this.state.columns.splice(i + 2, 0, {
+                        field: 'from_bonus', title: '赠送部分',
                         render: value => type(value) == 'Number' ? value / 100 : value,
                         totalHandle: (total, value) => {
                             if (type(total) !== 'Number') total = 0;
