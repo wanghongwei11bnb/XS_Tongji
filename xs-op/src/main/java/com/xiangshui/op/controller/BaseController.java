@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AnnotationUtils;
 import com.xiangshui.op.annotation.AuthRequired;
+import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.BaseDynamoDao;
@@ -31,6 +32,9 @@ public class BaseController {
     @Autowired
     OpUserService opUserService;
 
+    @Autowired
+    AreaBillScheduled areaBillScheduled;
+
 
     public void setClient(HttpServletRequest request) {
         String op_username = UsernameLocal.get();
@@ -44,6 +48,8 @@ public class BaseController {
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);
         request.setAttribute("maxResultSize", BaseDynamoDao.maxResultSize);
+        request.setAttribute("testUinSet", JSON.toJSONString(areaBillScheduled.testUinSet));
+        request.setAttribute("testPhoneSet", JSON.toJSONString(areaBillScheduled.testPhoneSet));
         setOptions(request);
     }
 

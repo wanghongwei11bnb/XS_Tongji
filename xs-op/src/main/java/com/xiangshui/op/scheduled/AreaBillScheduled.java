@@ -60,8 +60,8 @@ public class AreaBillScheduled implements InitializingBean {
     @Autowired
     UserService userService;
 
-    Set<Integer> testUinSet = new HashSet<>();
-    Set<String> testPhoneSet = new HashSet<>();
+    public Set<Integer> testUinSet = new HashSet<>();
+    public Set<String> testPhoneSet = new HashSet<>();
 
 
     @Scheduled(cron = "0 0 1 1 * ?")

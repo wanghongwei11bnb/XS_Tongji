@@ -302,6 +302,16 @@ class AreaMapOptions extends MapOptions {
     }
 }
 
+class StringMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option || null;
+    }
+}
+
 class AreaContractMapOptions extends MapOptions {
     constructor(options) {
         super(options);

@@ -38,7 +38,7 @@ class Table extends React.Component {
         </tr>
         <tr>{columns.map((column) => {
             return <th width={column.width}>{column.title || column.field}{column.totalHandle ?
-                <span className="text-danger">Total（{column.total}）</span> : null}</th>
+                [<br/>, <span className="text-danger">{column.totalName || 'Total'}（{column.total}）</span>] : null}</th>
         })}</tr>
         </thead>;
         return (<table className="table table-hover table-bordered">

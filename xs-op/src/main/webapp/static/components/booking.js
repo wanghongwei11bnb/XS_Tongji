@@ -236,6 +236,27 @@ class BookingGrid extends React.Component {
                     break;
                 }
             }
+
+            for (let i = 0; i < this.state.columns.length; i++) {
+                if (this.state.columns[i].title === '用户编号') {
+                    this.state.columns[i].totalHandle = (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        if (testUinMapOptions.get(value)) {
+                            total++;
+                        }
+                        return total;
+                    };
+                    this.state.columns[i].totalName = '测试';
+                    this.state.columns[i].render = (value) => {
+                        if (testUinMapOptions.get(value)) {
+                            return [value, <br/>, <span className="text-danger">(测试)</span>];
+                        } else {
+                            return value;
+                        }
+                    };
+                    break;
+                }
+            }
         }
         if (!authMapOptions.get(finalAuthMap.auth_booking_show_phone)) {
             for (let i = 0; i < this.state.columns.length; i++) {
