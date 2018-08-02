@@ -1,4 +1,4 @@
-package com.xiangshui.server.crud;
+package com.xiangshui.server.crud.assist;
 
 import java.lang.reflect.Field;
 

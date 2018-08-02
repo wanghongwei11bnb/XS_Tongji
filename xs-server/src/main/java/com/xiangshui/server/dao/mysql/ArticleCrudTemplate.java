@@ -1,8 +1,7 @@
 package com.xiangshui.server.dao.mysql;
 
 import com.alibaba.fastjson.JSON;
-import com.xiangshui.server.crud.Criterion;
-import com.xiangshui.server.crud.Example;
+import com.xiangshui.server.crud.assist.Example;
 import com.xiangshui.server.crud.SinglePrimaryCrudTemplate;
 import com.xiangshui.server.domain.mysql.Article;
 import com.xiangshui.util.spring.SpringUtils;

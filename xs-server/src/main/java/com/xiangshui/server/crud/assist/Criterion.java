@@ -1,4 +1,4 @@
-package com.xiangshui.server.crud;
+package com.xiangshui.server.crud.assist;
 
 import java.util.Arrays;
 import java.util.List;
