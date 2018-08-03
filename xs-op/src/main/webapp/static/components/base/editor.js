@@ -1,20 +1,7 @@
 class Editor extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            editorId: UUID.get(),
-        };
-    }
-
-    render() {
-        return <Fixed>
-            <div id={this.state.editorId}></div>
-        </Fixed>
-    }
-
-    componentDidMount() {
-        this.editor = new wangEditor(`#${this.state.editorId}`);
-        this.editor.create();
+        this.state = {id: UUID.get()};
     }
 
     setValue = (value) => {
@@ -25,4 +12,35 @@ class Editor extends React.Component {
         return this.editor.txt.html();
     };
 
+
+    clear = () => {
+        this.editor.txt.clear();
+    };
+
+    render() {
+        return <Fixed>
+            <div>
+                <div>
+                    <button className="btn btn-sm btn-primary m-1" onClick={() => {
+                        Modal.open(<AlertModal>
+                            {this.editor.txt.html()}
+                        </AlertModal>);
+                    }}>get
+                    </button>
+                    <button className="btn btn-sm btn-primary m-1" onClick={() => {
+                        this.editor.txt.clear()
+                    }}>clean
+                    </button>
+                </div>
+                <div id={this.state.id}>
+                    <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
+                </div>
+            </div>
+        </Fixed>
+    }
+
+    componentDidMount() {
+        this.editor = new window.wangEditor(document.getElementById(this.state.id));
+        this.editor.create()
+    }
 }

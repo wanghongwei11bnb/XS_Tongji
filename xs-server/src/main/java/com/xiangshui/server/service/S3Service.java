@@ -16,6 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 
 @Service
@@ -60,6 +61,12 @@ public class S3Service implements InitializingBean {
             ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
             s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key + "_" + size, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
         }
+
+        EasyImage easyImage = new EasyImage(bytes);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
+        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
+
         return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
     }
 
@@ -74,6 +81,11 @@ public class S3Service implements InitializingBean {
             ImageIO.write(easyImage.getAsBufferedImage(), "jpg", out);
             s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key + "_" + size, new ByteArrayInputStream(out.toByteArray()), new ObjectMetadata()).withAccessControlList(accessControlList));
         }
+        EasyImage easyImage = new EasyImage(bs);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(easyImage.getAsBufferedImage(), "jpg", out);
+        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(out.toByteArray()), new ObjectMetadata()).withAccessControlList(accessControlList));
+
         return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
     }
 
