@@ -306,10 +306,10 @@ public class AreaBillScheduled implements InitializingBean {
             for (int i = 0; i < bookingListOld.size(); i++) {
 
                 Booking booking = bookingListOld.get(i);
-                if (new Integer(1).equals(booking.getF1())) {
-                    booking.setFinal_price(booking.getFinal_price() + 200);
-                    booking.setFrom_bonus(booking.getFrom_bonus() + 200);
-                }
+//                if (new Integer(1).equals(booking.getF1())) {
+//                    booking.setFinal_price(booking.getFinal_price() + 200);
+//                    booking.setFrom_bonus(booking.getFrom_bonus() + 200);
+//                }
                 if (bookingIdSet.contains(booking.getBooking_id())) {
                     activeBookingList.add(booking);
                     continue;

@@ -270,12 +270,33 @@ public class F1 {
         }
     }
 
+    public void update() {
+        List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(new ScanFilter("f1").eq(1)));
+        bookingList.forEach(booking -> {
+            if (booking != null && new Integer(1).equals(booking.getF1())) {
+                booking.setFinal_price(booking.getFinal_price() + 200);
+                booking.setFrom_bonus(booking.getFrom_bonus() + 200);
+                try {
+                    log.debug("update booking:{}", booking.getBooking_id());
+                    bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+                            "final_price",
+                            "from_bonus",
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+    }
+
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(F1.class).delete(2018, 5, true);
+        SpringUtils.getBean(F1.class).update();
+//        SpringUtils.getBean(F1.class).delete(2018, 5, true);
 //        SpringUtils.getBean(F1.class).doWork(2018, 4, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "4月用户候选", 2070, 20);
-        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
-        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
+//        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
+//        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
 //        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 90);
     }
 

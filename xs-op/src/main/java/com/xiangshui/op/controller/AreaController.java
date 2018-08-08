@@ -174,6 +174,6 @@ public class AreaController extends BaseController {
     public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws Exception {
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
-        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, false);
+        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
     }
 }

@@ -154,7 +154,7 @@ public class CityAreaController extends BaseController {
         }
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
-        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, false);
+        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
     }
 
 }
