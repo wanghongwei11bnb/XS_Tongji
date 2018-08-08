@@ -10,6 +10,7 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.domain.UserRegister;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.RushHour;
@@ -157,6 +158,12 @@ public class BookingService {
         }
 
     }
+
+
+//    public List<UserInfo> getUserInfoListByBookingList(List<Booking> bookingList){
+//
+//    }
+
 
 
 }

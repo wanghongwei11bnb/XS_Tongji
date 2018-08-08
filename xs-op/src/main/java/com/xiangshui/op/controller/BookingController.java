@@ -170,24 +170,20 @@ public class BookingController extends BaseController {
             List<Area> areaList = null;
             if (activeBookingList != null && activeBookingList.size() > 0) {
                 areaList = areaService.getAreaListByBooking(activeBookingList, new String[]{"area_id", "title", "city", "address", "status"});
-                Collections.sort(activeBookingList, new Comparator<Booking>() {
-                    @Override
-                    public int compare(Booking o1, Booking o2) {
-                        return -(int) (o1.getCreate_time() - o2.getCreate_time());
-                    }
-                });
+                Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
 
             }
             Map<Integer, Area> areaMap = new HashMap<>();
+            List<UserInfo> userInfoList = userService.getUserInfoList(activeBookingList, new String[]{"uin", "phone"});
             Map<Integer, UserInfo> userInfoMap = new HashMap<>();
+            if (userInfoList != null) {
+                userInfoList.forEach(userInfo -> userInfoMap.put(userInfo.getUin(), userInfo));
+            }
 
             if (areaList != null && areaList.size() > 0) {
-                areaList.forEach(new Consumer<Area>() {
-                    @Override
-                    public void accept(Area area) {
-                        if (area != null) {
-                            areaMap.put(area.getArea_id(), area);
-                        }
+                areaList.forEach(area -> {
+                    if (area != null) {
+                        areaMap.put(area.getArea_id(), area);
                     }
                 });
             }
@@ -215,54 +211,51 @@ public class BookingController extends BaseController {
             headRow.add("订单来源");
             data.add(headRow);
             if (activeBookingList != null && activeBookingList.size() > 0) {
-                activeBookingList.forEach(new Consumer<Booking>() {
-                    @Override
-                    public void accept(Booking booking) {
-                        if (booking == null) {
-                            return;
-                        }
-                        Area area = areaMap.get(booking.getArea_id());
-                        if (area == null) {
-                            return;
-                        }
+                activeBookingList.forEach(booking -> {
+                    if (booking == null) {
+                        return;
+                    }
+                    Area area = areaMap.get(booking.getArea_id());
+                    if (area == null) {
+                        return;
+                    }
 //                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
 //                        return;
 //                    }
-                        List<String> row = new ArrayList<>();
-                        row.add(String.valueOf(booking.getBooking_id()));
-                        row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
-                                DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
-                                : ""));
-                        row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
-                                DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
-                                : null));
-                        row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                        row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
+                    List<String> row = new ArrayList<>();
+                    row.add(String.valueOf(booking.getBooking_id()));
+                    row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
+                            DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : ""));
+                    row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
+                            DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
+                            : null));
+                    row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
+                    row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
 
-                        row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
-                        row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
+                    row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
+                    row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
 
-                        row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
-                        row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
-                        row.add(new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否");
-                        row.add("" + booking.getCapsule_id());
-                        row.add("" + booking.getArea_id());
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getTitle()
-                                : null));
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getCity()
-                                : null));
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getAddress()
-                                : null));
-                        row.add("" + booking.getUin());
-                        row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
-                                userInfoMap.get(booking.getUin()).getPhone()
-                                : null));
-                        row.add(booking.getReq_from());
-                        data.add(row);
-                    }
+                    row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
+                    row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
+                    row.add(new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否");
+                    row.add("" + booking.getCapsule_id());
+                    row.add("" + booking.getArea_id());
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getTitle()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getCity()
+                            : null));
+                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
+                            areaMap.get(booking.getArea_id()).getAddress()
+                            : null));
+                    row.add("" + booking.getUin());
+                    row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
+                            userInfoMap.get(booking.getUin()).getPhone()
+                            : null));
+                    row.add(booking.getReq_from());
+                    data.add(row);
                 });
             }
 
@@ -317,12 +310,7 @@ public class BookingController extends BaseController {
         List<UserInfo> userInfoList = null;
         if (bookingList != null && bookingList.size() > 0) {
             areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
-            Collections.sort(bookingList, new Comparator<Booking>() {
-                @Override
-                public int compare(Booking o1, Booking o2) {
-                    return -(int) (o1.getCreate_time() - o2.getCreate_time());
-                }
-            });
+            Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
             if (auth_booking_show_phone) {
                 userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
 
@@ -332,22 +320,16 @@ public class BookingController extends BaseController {
             Map<Integer, Area> areaMap = new HashMap<>();
             Map<Integer, UserInfo> userInfoMap = new HashMap<>();
             if (userInfoList != null && userInfoList.size() > 0) {
-                userInfoList.forEach(new Consumer<UserInfo>() {
-                    @Override
-                    public void accept(UserInfo userInfo) {
-                        if (userInfo != null) {
-                            userInfoMap.put(userInfo.getUin(), userInfo);
-                        }
+                userInfoList.forEach(userInfo -> {
+                    if (userInfo != null) {
+                        userInfoMap.put(userInfo.getUin(), userInfo);
                     }
                 });
             }
             if (areaList != null && areaList.size() > 0) {
-                areaList.forEach(new Consumer<Area>() {
-                    @Override
-                    public void accept(Area area) {
-                        if (area != null) {
-                            areaMap.put(area.getArea_id(), area);
-                        }
+                areaList.forEach(area -> {
+                    if (area != null) {
+                        areaMap.put(area.getArea_id(), area);
                     }
                 });
             }

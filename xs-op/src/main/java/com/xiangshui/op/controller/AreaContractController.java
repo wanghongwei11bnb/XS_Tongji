@@ -417,36 +417,25 @@ public class AreaContractController extends BaseController {
             throw new XiangShuiException("月份不能为空");
         }
         List<Booking> bookingList = areaBillScheduled.billBookingList(area_id, year, month);
-
+        Map<Integer, Area> areaMap = new HashMap<>();
+        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
-        List<Area> areaList = null;
+
         if (bookingList != null && bookingList.size() > 0) {
-            areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
-            Collections.sort(bookingList, new Comparator<Booking>() {
-                @Override
-                public int compare(Booking o1, Booking o2) {
-                    return -(int) (o1.getCreate_time() - o2.getCreate_time());
-                }
-            });
-
-        }
-
-
-        Map<Integer, Area> areaMap = new HashMap<>();
-        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
-
-        if (areaList != null && areaList.size() > 0) {
-            areaList.forEach(new Consumer<Area>() {
-                @Override
-                public void accept(Area area) {
+            Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
+            List<Area> areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
+            if (areaList != null && areaList.size() > 0) {
+                areaList.forEach(area -> {
                     if (area != null) {
                         areaMap.put(area.getArea_id(), area);
                     }
-                }
-            });
+                });
+            }
+
         }
+
 
         List<List<String>> data = new ArrayList<>();
 

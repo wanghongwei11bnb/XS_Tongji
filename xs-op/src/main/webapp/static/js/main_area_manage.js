@@ -34,10 +34,20 @@ class MainAreaManageGrid extends AreaGrid {
                 return [
                     <button type="button" className="btn btn-sm btn-primary m-1"
                             onClick={this.showBooking.bind(this, row.area_id)}>30日内订单</button>,
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.downloadBill.bind(this, row.area_id)}>下载上月账单</button>,
                 ];
             }
         });
     }
+
+    downloadBill = (area_id) => {
+        let date = new Date();
+        date.setMonth(date.getMonth() - 1);
+        let queryParams = {year: date.getFullYear(), month: date.getMonth() + 1};
+        queryParams.download = true;
+        window.open(`/api/area_contract/${area_id}/reckon/download?${queryString(queryParams)}`)
+    };
 
     showBooking = (area_id) => {
         Modal.open(<BookingGridViewModal url={`/api/area/${area_id}/booking/search`}
