@@ -122,4 +122,15 @@ public class MyAreaController extends BaseController {
         criteria.setArea_id(area_id);
         return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
     }
+
+
+    @Autowired
+    AreaContractController areaContractController;
+
+    @GetMapping("/api/main_area/{area_id:\\d+}/reckon/download")
+    @ResponseBody
+    public Result reckon_download_for_area(HttpServletRequest request, HttpServletResponse response,
+                                           @PathVariable("area_id") Integer area_id, Integer year, Integer month) throws IOException {
+        return areaContractController.reckon_download(request, response, area_id, year, month);
+    }
 }

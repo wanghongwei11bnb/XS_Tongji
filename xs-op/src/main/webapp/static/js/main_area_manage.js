@@ -46,7 +46,7 @@ class MainAreaManageGrid extends AreaGrid {
         date.setMonth(date.getMonth() - 1);
         let queryParams = {year: date.getFullYear(), month: date.getMonth() + 1};
         queryParams.download = true;
-        window.open(`/api/area_contract/${area_id}/reckon/download?${queryString(queryParams)}`)
+        window.open(`/api/main_area//${area_id}/reckon/download?${queryString(queryParams)}`)
     };
 
     showBooking = (area_id) => {
