@@ -408,6 +408,12 @@ class AreaGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'need_deposit', title: '押金限制', render: (value, row, index) => {
+                        return value === 1 ? <span className="text-success">是</span> :
+                            <span className="text-danger">否</span>;
+                    }
+                },
+                {
                     field: 'rushHours', title: '高峰时段', render: (value, row, index) => {
                         return value ? value.map((item) => {
                             return item ? <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div> : null;
