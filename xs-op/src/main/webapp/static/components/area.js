@@ -24,6 +24,7 @@ class AreaModal extends Modal {
             imgs: this.refs.imgs.getData(),
             status: this.refs.status.value,
             is_external: this.refs.is_external.value,
+            need_deposit: this.refs.need_deposit.value,
         };
     };
 
@@ -153,6 +154,16 @@ class AreaModal extends Modal {
                     </td>
                 </tr>
                 <tr>
+                    <th>押金限制</th>
+                    <td>
+                        <select ref="need_deposit" disabled={show} readOnly={show}
+                                className="form-control">
+                            <option value={0}>否</option>
+                            <option value={1}>是</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <th>图片URL</th>
                     <td>
                         <ListEditor ref="imgs" disabled={show} readOnly={show}
@@ -228,6 +239,7 @@ class AreaModal extends Modal {
             if (type(area.is_external) == 'Number') this.refs.is_external.value = area.is_external;
             if (type(area.is_time_limit) == 'Number') this.refs.is_time_limit.value = area.is_time_limit;
             if (type(area.minute_start) == 'Number') this.refs.minute_start.value = area.minute_start;
+            if (type(area.need_deposit) == 'Number') this.refs.need_deposit.value = area.need_deposit || 0;
             this.refs.imgs.setData(area.imgs);
             this.refs.rushHours.setData(area.rushHours);
         }

@@ -259,6 +259,7 @@ public class AreaService {
                     "rushHours",
                     "is_external",
                     "is_time_limit",
+                    "need_deposit",
             });
         } else {
             areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
@@ -272,6 +273,7 @@ public class AreaService {
                     "rushHours",
                     "is_external",
                     "is_time_limit",
+                    "need_deposit",
             });
         }
         cleanCache(area.getArea_id());

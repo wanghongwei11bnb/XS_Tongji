@@ -52,6 +52,20 @@ public class Area {
 
     private Long create_time;
 
+
+
+    private Integer need_deposit;
+
+
+    public Integer getNeed_deposit() {
+        return need_deposit;
+    }
+
+    public Area setNeed_deposit(Integer need_deposit) {
+        this.need_deposit = need_deposit;
+        return this;
+    }
+
     public Long getCreate_time() {
         return create_time;
     }
