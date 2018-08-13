@@ -51,6 +51,17 @@ public class UserInfo {
     private Integer is_first;
 
 
+    private Integer block;
+
+    public Integer getBlock() {
+        return block;
+    }
+
+    public UserInfo setBlock(Integer block) {
+        this.block = block;
+        return this;
+    }
+
     public List<String> getFail_data() {
         return fail_data;
     }

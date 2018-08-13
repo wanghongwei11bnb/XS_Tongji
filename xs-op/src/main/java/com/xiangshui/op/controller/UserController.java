@@ -116,6 +116,24 @@ public class UserController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+    @PostMapping("/api/user/{uin:\\d+}/update/block")
+    @ResponseBody
+    @AuthRequired("用户管理")
+    public Result userInfo_update_block(@PathVariable("uin") int uin, Integer block) throws Exception {
+        if (block == null) {
+            return new Result(-1, "参数不能为空");
+        }
+        UserInfo userInfo = userService.getUserInfoByUin(uin);
+        if (userInfo == null) {
+            return new Result(CodeMsg.NO_FOUND);
+        }
+        userInfo.setBlock(block);
+        userInfoDao.updateItem(new PrimaryKey("uin", uin), userInfo, new String[]{
+                "block",
+        });
+        return new Result(CodeMsg.SUCCESS);
+    }
+
     @GetMapping("/api/user/phone/{phone:\\d+}")
     @ResponseBody
     public Result getByPhone(@PathVariable("phone") String phone) {

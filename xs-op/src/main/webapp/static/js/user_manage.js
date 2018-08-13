@@ -203,7 +203,6 @@ class UserWalletModal extends Modal {
 
 }
 
-
 class VerifyModal extends Modal {
     constructor(props) {
         super(props);
@@ -267,7 +266,12 @@ class UserGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'uin', title: '操作', render: (value) => {
+                    field: 'block', title: '黑名单', render: value => {
+                        return value === 1 ? <span className="text-danger">已拉黑</span> : '';
+                    }
+                },
+                {
+                    field: 'uin', title: '操作', render: (value, row) => {
                         return [
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showBookingList.bind(this, value)}>30日内订单</button>,
@@ -279,6 +283,8 @@ class UserGrid extends React.Component {
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.update_id_verified.bind(this, value)}>标记为认证成功</button>,
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.updateBlock.bind(this, value, row.block === 1 ? 0 : 1)}>{row.block === 1 ? '移除黑名单' : '加入黑名单'}</button>,
                         ];
                     }
                 }
@@ -286,6 +292,17 @@ class UserGrid extends React.Component {
             queryParams: props.queryParams,
         };
     }
+
+    updateBlock = (uin, block) => {
+        request({
+            url: `/api/user/${uin}/update/block`, method: 'post', loading: true,
+            data: {block},
+            success: resp => {
+                Message.msg('操作成功');
+                this.load();
+            }
+        });
+    };
 
     update_id_verified = (uin) => {
         Modal.open(<ConfirmModal ok={() => {
