@@ -1,5 +1,3 @@
-
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -14,6 +12,15 @@ class Page extends React.Component {
             month: this.refs.month.value,
             // status: this.refs.status.value,
         });
+    };
+    download = () => {
+        let queryParams = {
+            area_id: this.refs.area_id.value,
+            year: this.refs.year.value,
+            month: this.refs.month.value,
+        };
+        queryParams.download = true;
+        window.open(`/api/area_bill/search?${queryString(queryParams)}`)
     };
 
 
@@ -46,6 +53,7 @@ class Page extends React.Component {
                 <input ref="area_id" type="text" className="form-control d-inline-block w-auto m-1"/>
 
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <AreaBillGrid ref="grid"></AreaBillGrid>
             <ModalContainer></ModalContainer>

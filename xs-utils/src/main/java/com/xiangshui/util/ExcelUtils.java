@@ -9,6 +9,8 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class ExcelUtils {
             for (int j = 0; j < item.size(); j++) {
                 String value = item.get(j);
                 XSSFCell cell = row.createCell(j);
-                cell.setCellValue(value);
+                cell.setCellValue(value == null || value.equals("null") ? "" : value);
             }
         }
         return workbook;
@@ -49,6 +51,26 @@ public class ExcelUtils {
             data2.add(row);
         }
         return export(data2);
+    }
+
+    public static <T> void export(List<Column<T>> columnList, List<T> data, HttpServletResponse response, String fileName) throws IOException {
+        XSSFWorkbook workbook = export(columnList, data);
+        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
+    }
+
+    public static void export(List<List<String>> data, HttpServletResponse response, String fileName) throws IOException {
+        XSSFWorkbook workbook = export(data);
+        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
     }
 
     public static abstract class Column<T> {

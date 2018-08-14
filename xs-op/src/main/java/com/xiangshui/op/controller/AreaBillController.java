@@ -17,6 +17,8 @@ import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -68,7 +71,8 @@ public class AreaBillController extends BaseController {
     @GetMapping("/api/area_bill/search")
     @AuthRequired(AuthRequired.area_bill)
     @ResponseBody
-    public Result search(AreaBill criteria) throws NoSuchFieldException, IllegalAccessException {
+    public Result search(HttpServletRequest request, HttpServletResponse response, AreaBill criteria, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
+        if (download == null) download = false;
         if (criteria == null) {
             criteria = new AreaBill();
         }
@@ -111,6 +115,153 @@ public class AreaBillController extends BaseController {
                 }, new Integer[0]);
             }
         }
+
+        if (download) {
+            Map<Integer, Area> areaMap = new HashMap<>();
+            if (areaList != null) {
+                areaList.forEach(area -> areaMap.put(area.getArea_id(), area));
+            }
+            Map<Integer, AreaContract> areaContractMap = new HashMap<>();
+            if (areaContractList != null) {
+                areaContractList.forEach(areaContract -> areaContractMap.put(areaContract.getArea_id(), areaContract));
+            }
+
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<AreaBill>("账单月份") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return areaBill.getYear() + "年" + areaBill.getMonth() + "月";
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("场地编号") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return String.valueOf(areaBill.getArea_id());
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("场地名称") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            Area area = areaMap.get(areaBill.getArea_id());
+                            return area != null ? area.getTitle() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("场地投放城市") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            Area area = areaMap.get(areaBill.getArea_id());
+                            return area != null ? area.getCity() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("投放地址") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            Area area = areaMap.get(areaBill.getArea_id());
+                            return area != null ? area.getAddress() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("销售人员") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getSaler() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("所属公司") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getSaler_city() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户公司名称") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getCustomer() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户公司邮箱") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getCustomer_email() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户公司联系方式") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getCustomer_contact() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户银行付款账户") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getBank_account_name() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户银行付款帐号") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getBank_account() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("客户银行支行信息") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getBank_branch() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("订单数量（笔）") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return String.valueOf(areaBill.getBooking_count());
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("收款金额（元）") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return String.valueOf(areaBill.getPay_price());
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("分账比例") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ?
+                                    (areaContract.getAccount_ratio() != null ? areaContract.getAccount_ratio() + "%" : null)
+                                    : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("分账金额（元）") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return String.valueOf(areaBill.getRatio_price());
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("账单生成时间") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return DateUtils.format(areaBill.getUpdate_time() * 1000, "yyyy-MM-dd HH:mm:ss");
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("状态") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            return new Integer(1).equals(areaBill.getStatus()) ? "已付款" : "未付款";
+                        }
+                    }
+
+            ), areaBillList, response, "areaBillList.xlsx");
+
+            return null;
+        }
+
+
         return new Result(CodeMsg.SUCCESS)
                 .putData("areaBillList", areaBillList)
                 .putData("areaList", areaList)
