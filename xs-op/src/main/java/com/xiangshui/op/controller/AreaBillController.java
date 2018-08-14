@@ -225,7 +225,7 @@ public class AreaBillController extends BaseController {
                     new ExcelUtils.Column<AreaBill>("收款金额（元）") {
                         @Override
                         public String render(AreaBill areaBill) {
-                            return String.valueOf(areaBill.getPay_price());
+                            return areaBill.getPay_price() != null ? String.valueOf(areaBill.getPay_price() / 100f) : null;
                         }
                     },
                     new ExcelUtils.Column<AreaBill>("分账比例") {
@@ -240,7 +240,7 @@ public class AreaBillController extends BaseController {
                     new ExcelUtils.Column<AreaBill>("分账金额（元）") {
                         @Override
                         public String render(AreaBill areaBill) {
-                            return String.valueOf(areaBill.getRatio_price());
+                            return areaBill.getRatio_price() != null ? String.valueOf(areaBill.getRatio_price() / 100f) : null;
                         }
                     },
                     new ExcelUtils.Column<AreaBill>("账单生成时间") {
