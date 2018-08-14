@@ -234,7 +234,10 @@ class CapsuleManageModal extends Modal {
                     }
                 },
                 {
-                    title: <A className="btn btn-sm m-1 btn-success" onClick={this.openCreateModal}>创建头等舱</A>,
+                    title: [<button type="button" className="btn btn-sm m-1 btn-success"
+                                    onClick={this.openCreateModal}>创建头等舱</button>,
+                        <button type="button" className="btn btn-sm m-1 btn-success"
+                                onClick={this.load}>刷新</button>],
                     render: (value, row, index) => {
                         return [
                             <button type="button" className="btn btn-sm btn-primary m-1"
