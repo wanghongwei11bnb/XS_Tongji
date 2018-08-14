@@ -171,9 +171,10 @@ public class AreaController extends BaseController {
 
     @GetMapping("/api/area/{area_id:\\d+}/booking/search")
     @ResponseBody
-    public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws Exception {
+    public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("area_id") Integer area_id, Long capsule_id, Date create_date_start, Date create_date_end) throws Exception {
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
+        criteria.setCapsule_id(capsule_id);
         return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
     }
 }

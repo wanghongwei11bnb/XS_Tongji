@@ -246,6 +246,8 @@ class CapsuleManageModal extends Modal {
                                     onClick={this.openUpdateModal.bind(this, row.capsule_id)}>编辑</button>,
                             <button type="button" className="btn btn-sm m-1 btn-primary"
                                     onClick={showDeviceStatus.bind(this, row.device_id)}>查看硬件设备状态</button>,
+                            <button type="button" className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showBooking.bind(this, row.area_id, row.capsule_id)}>30日内订单</button>,
                             <button type="button" className="btn btn-sm m-1 btn-success"
                                     onClick={this.makeFailureByCapsule.bind(this, row.capsule_id)}>创建报修</button>,
 
@@ -257,6 +259,16 @@ class CapsuleManageModal extends Modal {
             data: props.data || [],
         };
     }
+
+
+    showBooking = (area_id, capsule_id) => {
+        Modal.open(<BookingGridModal url={`/api/area/${area_id}/booking/search`}
+                                     queryParams={{
+                                         capsule_id,
+                                         create_date_start: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).format('yyyy-MM-dd')
+                                     }}
+        ></BookingGridModal>);
+    };
 
 
     showQrcode = (capsule_id) => {
