@@ -99,13 +99,19 @@ public class UserController extends BaseController {
                     new ExcelUtils.Column<UserInfo>("手机号") {
                         @Override
                         public String render(UserInfo userInfo) {
-                            return String.valueOf(userInfo.getPhone());
+                            return userInfo.getPhone();
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("昵称") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return userInfo.getNick_name();
                         }
                     },
                     new ExcelUtils.Column<UserInfo>("注册日期") {
                         @Override
                         public String render(UserInfo userInfo) {
-                            return DateUtils.format(userInfo.getCreate_time() * 1000, "yyyy-MM-dd");
+                            return userInfo.getCreate_time() != null ? DateUtils.format(userInfo.getCreate_time() * 1000, "yyyy-MM-dd") : null;
                         }
                     },
                     new ExcelUtils.Column<UserInfo>("是否已认证") {
