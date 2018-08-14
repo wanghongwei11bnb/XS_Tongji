@@ -35,6 +35,7 @@ public class BaseController {
     @Autowired
     AreaBillScheduled areaBillScheduled;
 
+    private long ts = System.currentTimeMillis();
 
     public void setClient(HttpServletRequest request) {
         String op_username = UsernameLocal.get();
@@ -43,7 +44,7 @@ public class BaseController {
         request.setAttribute("authSet", JSON.toJSONString(authSet));
         request.setAttribute("finalAuthMap", JSON.toJSONString(finalAuthMap));
         request.setAttribute("debug", debug);
-        request.setAttribute("ts", debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH"));
+        request.setAttribute("ts", ts + "_" + (debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH")));
         request.setAttribute("op_username", UsernameLocal.get());
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);
