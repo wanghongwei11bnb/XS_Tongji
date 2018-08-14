@@ -7,6 +7,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
+import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.dao.AreaBillDao;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.AreaDao;
@@ -19,6 +20,7 @@ import com.xiangshui.server.service.*;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +92,7 @@ public class AreaBillController extends BaseController {
         if (scanFilterList.size() > 0) {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }
-        if(download){
+        if (download) {
             scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
         }
         List<AreaBill> areaBillList = areaBillDao.scan(scanSpec);
@@ -163,6 +165,13 @@ public class AreaBillController extends BaseController {
                             return area != null ? area.getAddress() : null;
                         }
                     },
+                    new ExcelUtils.Column<AreaBill>("运营状态") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            Area area = areaMap.get(areaBill.getArea_id());
+                            return area != null ? Option.getActiveText(AreaStatusOption.options, area.getStatus()) : null;
+                        }
+                    },
                     new ExcelUtils.Column<AreaBill>("销售人员") {
                         @Override
                         public String render(AreaBill areaBill) {
@@ -219,6 +228,20 @@ public class AreaBillController extends BaseController {
                             return areaContract != null ? areaContract.getBank_branch() : null;
                         }
                     },
+                    new ExcelUtils.Column<AreaBill>("合同创建时间") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? DateUtils.format(areaContract.getCreate_time() * 1000, "yyyy-MM-dd") : null;
+                        }
+                    },
+                    new ExcelUtils.Column<AreaBill>("合同备注") {
+                        @Override
+                        public String render(AreaBill areaBill) {
+                            AreaContract areaContract = areaContractMap.get(areaBill.getArea_id());
+                            return areaContract != null ? areaContract.getRemark() : null;
+                        }
+                    },
                     new ExcelUtils.Column<AreaBill>("订单数量（笔）") {
                         @Override
                         public String render(AreaBill areaBill) {
@@ -258,6 +281,7 @@ public class AreaBillController extends BaseController {
                             return new Integer(1).equals(areaBill.getStatus()) ? "已付款" : "未付款";
                         }
                     }
+
 
             ), areaBillList, response, "areaBillList.xlsx");
 
