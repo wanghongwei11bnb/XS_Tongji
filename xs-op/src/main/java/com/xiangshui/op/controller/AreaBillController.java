@@ -90,6 +90,9 @@ public class AreaBillController extends BaseController {
         if (scanFilterList.size() > 0) {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }
+        if(download){
+            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
+        }
         List<AreaBill> areaBillList = areaBillDao.scan(scanSpec);
         List<AreaContract> areaContractList = null;
         List<Area> areaList = null;

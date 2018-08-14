@@ -374,6 +374,18 @@ class Page extends React.Component {
         });
     };
 
+    download = () => {
+        let queryParams = {
+            create_date_start: this.refs.create_date_start.value,
+            create_date_end: this.refs.create_date_end.value,
+            uin: this.refs.uin.value,
+            phone: this.refs.phone.value,
+            fial_verifie: this.refs.fial_verifie.checked,
+        };
+        queryParams.download = true;
+        window.open(`/api/user/search?${queryString(queryParams)}`)
+    };
+
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
@@ -390,6 +402,7 @@ class Page extends React.Component {
                 <input ref="fial_verifie" type="checkbox"
                        className="form-control form-control-sm d-inline-block w-auto mx-1"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
                 <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.uin_to_phone}>UIN转手机号
                 </button>
             </div>

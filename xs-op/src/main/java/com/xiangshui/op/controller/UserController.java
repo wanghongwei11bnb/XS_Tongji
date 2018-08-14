@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
@@ -14,6 +15,8 @@ import com.xiangshui.server.domain.WalletRecord;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.UserInfoRelation;
 import com.xiangshui.server.service.UserService;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +27,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -55,7 +60,8 @@ public class UserController extends BaseController {
 
     @GetMapping("/api/user/search")
     @ResponseBody
-    public Result search(UserInfo criteria, Date create_date_start, Date create_date_end, Boolean fial_verifie) throws NoSuchFieldException, IllegalAccessException {
+    public Result search(HttpServletRequest request, HttpServletResponse response, UserInfo criteria, Date create_date_start, Date create_date_end, Boolean fial_verifie, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
+        if (download == null) download = false;
         if (criteria == null) criteria = new UserInfo();
         if (fial_verifie == null) fial_verifie = false;
         List<ScanFilter> filterList = userInfoDao.makeScanFilterList(criteria, new String[]{
@@ -72,6 +78,7 @@ public class UserController extends BaseController {
         }
 
         ScanSpec scanSpec = new ScanSpec();
+        if (download) scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
 
         if (filterList.size() > 0) {
             scanSpec.withScanFilters(filterList.toArray(new ScanFilter[filterList.size()]));
@@ -80,6 +87,53 @@ public class UserController extends BaseController {
         List<UserInfo> userInfoList = userInfoDao.scan(scanSpec);
         if (userInfoList == null) {
             userInfoList = new ArrayList<>();
+        }
+        if (download) {
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<UserInfo>("用户uin") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return String.valueOf(userInfo.getUin());
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("手机号") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return String.valueOf(userInfo.getPhone());
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("注册日期") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return DateUtils.format(userInfo.getCreate_time() * 1000, "yyyy-MM-dd");
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("是否已认证") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return new Integer(1).equals(userInfo.getId_verified()) ? "是" : "否";
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("认证失败次数") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return String.valueOf(userInfo.getFail_count());
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("认证失败数据") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return JSON.toJSONString(userInfo.getFail_data());
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("是否加入黑名单") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return new Integer(1).equals(userInfo.getBlock()) ? "是" : "否";
+                        }
+                    }
+            ), userInfoList, response, "userInfoList.xlsx");
+            return null;
         }
         return new Result(CodeMsg.SUCCESS).putData("userInfoList", userInfoList);
     }
