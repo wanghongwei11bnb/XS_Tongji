@@ -191,6 +191,50 @@ window.eventUtil = {
     }
 };
 
+window.domUtil = {
+    scrollTop: function () {
+        if ('pageYOffset' in window) {
+            return window.pageYOffset;
+        } else if (document.compatMode === 'BackCompat') {
+            return document.body.scrollTop;
+        } else {
+            return document.documentElement.scrollTop;
+        }
+    },
+    getX: function (obj) {
+        var parObj = obj;
+        var left = obj.offsetLeft;
+        while (parObj = parObj.offsetParent) {
+            left += parObj.offsetLeft;
+        }
+        return left;
+    },
+    getY: function (obj) {
+        var parObj = obj;
+        var top = obj.offsetTop;
+        while (parObj = parObj.offsetParent) {
+            top += parObj.offsetTop;
+        }
+        return top;
+    },
+    getCoordX: function (event, refer) {
+        var left;
+        left = refer ? this.getX(refer) : 0;
+        return event.clientX - left + document.documentElement.scrollLeft;
+    },
+    getCoordY: function (event, refer) {
+        var top;
+        top = refer ? this.getY(refer) : 0;
+        return event.clientY - top + document.documentElement.scrollTop;
+    },
+    getCoord: function (event, refer) {
+        return {
+            x: this.getCoordX(event, refer),
+            y: this.getCoordY(event, refer),
+        }
+    },
+};
+
 
 class ListOptions {
     constructor() {

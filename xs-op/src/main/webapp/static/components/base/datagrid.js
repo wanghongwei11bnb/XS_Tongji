@@ -11,7 +11,7 @@ class Table extends React.Component {
             column.total = null;
         });
 
-        const tbody = <tbody>
+        const tbody = <tbody ref="tbody">
         {data ? data.map((row, index) => {
             return <tr>
                 {columns.map((column, cIndex) => {
@@ -30,7 +30,7 @@ class Table extends React.Component {
             </tr>
         }) : null}
         </tbody>;
-        const thead = <thead>
+        const thead = <thead ref="thead">
         <tr>
             <th colSpan={columns.length} className="text-danger">
                 {data ? `${data.length}条数据` : null}
@@ -45,6 +45,29 @@ class Table extends React.Component {
             {thead}{tbody}
         </table>);
     }
+
+    fixedThead = (top) => {
+        this.cleanFixedThead();
+        this.handScroll = () => {
+            let scrollTop = domUtil.scrollTop();
+            let y = domUtil.getY(this.refs.thead);
+            if (scrollTop + top - y > 0) {
+                this.refs.thead.style.transform = `translateY(${scrollTop + top - y}px)`;
+            } else {
+                this.refs.thead.style.transform = 'none';
+            }
+        };
+        eventUtil.addHandler(document, 'scroll', this.handScroll);
+    };
+
+    cleanFixedThead = () => {
+        if (this.handScroll) eventUtil.removeHandler(document, 'scroll', this.handScroll);
+    };
+
+    componentWillUnmount() {
+        this.cleanFixedThead();
+    }
+
 }
 
 class Datagrid extends React.Component {
