@@ -70,17 +70,6 @@ Date.prototype.format = function (fmt) {
     return fmt;
 };
 
-Date.prototype.year = function () {
-
-};
-
-
-let areaColumns = [
-    {
-        field: 'area_id', title: '场地编号', type: 'number',
-        gridField: true, formField: true,
-    },
-];
 
 function isWeiXin() {
     let ua = window.navigator.userAgent.toLowerCase();

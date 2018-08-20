@@ -117,20 +117,17 @@ public class F1 {
                     return;
                 }
 
-                List<Booking> bookingListForF1 = filterBookingList(bookingList, new CallBackForResult<Booking, Boolean>() {
-                    @Override
-                    public Boolean run(Booking booking) {
-                        if (
-                                booking != null
-                                        && booking.getUin() == uin
-                                        && booking.getArea_id() == area_id
-                                        && new Integer(1).equals(booking.getF1())
-                                        && start <= booking.getCreate_time() && booking.getCreate_time() <= end
-                                ) {
-                            return true;
-                        }
-                        return false;
+                List<Booking> bookingListForF1 = filterBookingList(bookingList, booking -> {
+                    if (
+                            booking != null
+                                    && booking.getUin() == uin
+                                    && booking.getArea_id() == area_id
+                                    && new Integer(1).equals(booking.getF1())
+                                    && start <= booking.getCreate_time() && booking.getCreate_time() <= end
+                            ) {
+                        return true;
                     }
+                    return false;
                 });
 
                 if ((uin % 100 > plusRatio && bookingListForF1.size() >= 1)
@@ -233,6 +230,7 @@ public class F1 {
                                 if (bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null) {
                                     booking.setBooking_id(booking_id);
                                     bookingDao.putItem(booking);
+                                    bookingList.add(booking);
                                     return;
                                 }
                             }

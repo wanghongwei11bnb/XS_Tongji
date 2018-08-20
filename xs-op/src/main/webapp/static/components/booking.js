@@ -163,6 +163,22 @@ class BookingGrid extends React.Component {
                         if (type(value) !== 'Number') value = 0;
                         return (total + value / 100).toFixed(2) - 0;
                     }
+                }, {
+                    field: 'from_charge', title: '充值部分',
+                    render: value => type(value) == 'Number' ? value / 100 : value,
+                    totalHandle: (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        if (type(value) !== 'Number') value = 0;
+                        return (total + value / 100).toFixed(2) - 0;
+                    }
+                }, {
+                    field: 'from_bonus', title: '赠送部分',
+                    render: value => type(value) == 'Number' ? value / 100 : value,
+                    totalHandle: (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        if (type(value) !== 'Number') value = 0;
+                        return (total + value / 100).toFixed(2) - 0;
+                    }
                 },
                 {
                     field: 'pay_type', title: '支付方式',
@@ -213,29 +229,29 @@ class BookingGrid extends React.Component {
             ],
         };
         if (op_username === 'wanghongwei@xiangshuispace.com') {
-            for (let i = 0; i < this.state.columns.length; i++) {
-                if (this.state.columns[i].field === 'use_pay') {
-                    this.state.columns.splice(i + 1, 0, {
-                        field: 'from_charge', title: '充值部分',
-                        render: value => type(value) == 'Number' ? value / 100 : value,
-                        totalHandle: (total, value) => {
-                            if (type(total) !== 'Number') total = 0;
-                            if (type(value) !== 'Number') value = 0;
-                            return (total + value / 100).toFixed(2) - 0;
-                        }
-                    });
-                    this.state.columns.splice(i + 2, 0, {
-                        field: 'from_bonus', title: '赠送部分',
-                        render: value => type(value) == 'Number' ? value / 100 : value,
-                        totalHandle: (total, value) => {
-                            if (type(total) !== 'Number') total = 0;
-                            if (type(value) !== 'Number') value = 0;
-                            return (total + value / 100).toFixed(2) - 0;
-                        }
-                    });
-                    break;
-                }
-            }
+            // for (let i = 0; i < this.state.columns.length; i++) {
+            //     if (this.state.columns[i].field === 'use_pay') {
+            //         this.state.columns.splice(i + 1, 0, {
+            //             field: 'from_charge', title: '充值部分',
+            //             render: value => type(value) == 'Number' ? value / 100 : value,
+            //             totalHandle: (total, value) => {
+            //                 if (type(total) !== 'Number') total = 0;
+            //                 if (type(value) !== 'Number') value = 0;
+            //                 return (total + value / 100).toFixed(2) - 0;
+            //             }
+            //         });
+            //         this.state.columns.splice(i + 2, 0, {
+            //             field: 'from_bonus', title: '赠送部分',
+            //             render: value => type(value) == 'Number' ? value / 100 : value,
+            //             totalHandle: (total, value) => {
+            //                 if (type(total) !== 'Number') total = 0;
+            //                 if (type(value) !== 'Number') value = 0;
+            //                 return (total + value / 100).toFixed(2) - 0;
+            //             }
+            //         });
+            //         break;
+            //     }
+            // }
 
             for (let i = 0; i < this.state.columns.length; i++) {
                 if (this.state.columns[i].title === '用户编号') {
