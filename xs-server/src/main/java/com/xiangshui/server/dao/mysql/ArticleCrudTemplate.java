@@ -1,6 +1,7 @@
 package com.xiangshui.server.dao.mysql;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.server.crud.assist.Criterion;
 import com.xiangshui.server.crud.assist.Example;
 import com.xiangshui.server.crud.SinglePrimaryCrudTemplate;
 import com.xiangshui.server.domain.mysql.Article;
@@ -10,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Component()
 public class ArticleCrudTemplate extends SinglePrimaryCrudTemplate<Integer, Article> {
@@ -39,16 +42,14 @@ public class ArticleCrudTemplate extends SinglePrimaryCrudTemplate<Integer, Arti
         SpringUtils.init();
         ArticleCrudTemplate articleCrudTemplate = SpringUtils.getBean(ArticleCrudTemplate.class);
 
-//        Article article = new Article().setTitle("test").setRelease_time(new Date());
-//        articleCrudTemplate.insertSelective(article, null);
-        Article article = articleCrudTemplate.selectByPrimaryKey(1, "id,title");
-        log.debug(JSON.toJSONString(article));
-//        article.setTitle("12313123");
-//        articleCrudTemplate.updateByPrimaryKeySelective(article, null);
+        Article article = new Article().setTitle("test").setRelease_time(new Date());
         Example example = new Example();
         example.setColumns("id,title");
-//        example.getCriteria().addCriterion(Criterion.eq("title", "12313123"));
-        log.debug(JSON.toJSONString(articleCrudTemplate.selectByExample(example)));
+        example.getCriteria().addCriterion(Criterion.and(articleCrudTemplate.makeCriterionList(article,new String[]{
+                "id",
+                "title",
+        },false)));
+        log.debug(example.getCriteria().makeSql());
     }
 
 }

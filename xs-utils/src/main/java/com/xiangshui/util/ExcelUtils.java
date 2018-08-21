@@ -40,13 +40,17 @@ public class ExcelUtils {
         List<List<String>> data2 = new ArrayList<List<String>>();
         List<String> header = new ArrayList<String>();
         for (Column<T> column : columnList) {
-            header.add(column.title);
+            if (column != null) {
+                header.add(column.title);
+            }
         }
         data2.add(header);
         for (T t : data) {
             List<String> row = new ArrayList<String>();
             for (Column<T> column : columnList) {
-                row.add(column.render(t));
+                if (column != null) {
+                    row.add(column.render(t));
+                }
             }
             data2.add(row);
         }

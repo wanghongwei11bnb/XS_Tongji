@@ -1,10 +1,7 @@
 package com.xiangshui.server.crud;
 
 import com.alibaba.fastjson.JSON;
-import com.xiangshui.server.crud.assist.CollectCallback;
-import com.xiangshui.server.crud.assist.CrudTemplateException;
-import com.xiangshui.server.crud.assist.Example;
-import com.xiangshui.server.crud.assist.Sql;
+import com.xiangshui.server.crud.assist.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,10 +25,12 @@ public abstract class CrudTemplate<T> {
     protected Class<T> tableClass;
     protected String tableName;
 
+    protected boolean primary;
     protected String primaryFieldName;
     protected Field primaryField;
     protected String primaryColumnName;
 
+    protected boolean secondPrimary;
     protected String secondPrimaryFieldName;
     protected Field secondPrimaryField;
     protected String secondPrimaryColumnName;
@@ -50,6 +49,7 @@ public abstract class CrudTemplate<T> {
                 throw new CrudTemplateException("tableName 不能为空");
             }
             initPrimary();
+            initSecondPrimary();
             for (Field field : tableClass.getDeclaredFields()) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
@@ -60,10 +60,7 @@ public abstract class CrudTemplate<T> {
                 if (StringUtils.isBlank(columnName)) {
                     throw new CrudTemplateException("columnName 不能为空");
                 }
-                if (columnName.equals(primaryColumnName) || columnName.equals(secondPrimaryColumnName)) {
-                    throw new CrudTemplateException("columnName 重复");
-                }
-                if (columnNameMap.containsValue(columnName)) {
+                if (columnName.equals(primaryColumnName) || columnName.equals(secondPrimaryColumnName) || columnNameMap.containsValue(columnName)) {
                     throw new CrudTemplateException("columnName 重复");
                 }
                 fieldMap.put(fieldName, field);
@@ -77,7 +74,6 @@ public abstract class CrudTemplate<T> {
                 }
                 return null;
             };
-
             resultSetExtractor = resultSet -> {
                 if (resultSet.next()) {
                     return rowMapper.mapRow(resultSet, 1);
@@ -85,7 +81,6 @@ public abstract class CrudTemplate<T> {
                     return null;
                 }
             };
-
         } catch (Exception e) {
             log.error("", e);
             throw new CrudTemplateException(e.getMessage());
@@ -105,10 +100,10 @@ public abstract class CrudTemplate<T> {
 
     T mapperResultSet(ResultSet resultSet) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
         T t = tableClass.getConstructor().newInstance();
-        if (StringUtils.isNotBlank(primaryFieldName) && isExistColumn(resultSet, primaryColumnName)) {
+        if (primary && isExistColumn(resultSet, primaryColumnName)) {
             primaryField.set(t, resultSet.getObject(primaryColumnName));
         }
-        if (StringUtils.isNotBlank(secondPrimaryFieldName) && isExistColumn(resultSet, secondPrimaryColumnName)) {
+        if (secondPrimary && isExistColumn(resultSet, secondPrimaryColumnName)) {
             secondPrimaryField.set(t, resultSet.getObject(secondPrimaryColumnName));
         }
         for (String fieldName : fieldMap.keySet()) {
@@ -122,6 +117,10 @@ public abstract class CrudTemplate<T> {
 
     protected void initPrimary() throws NoSuchFieldException {
     }
+
+    protected void initSecondPrimary() throws NoSuchFieldException {
+    }
+
 
     public abstract JdbcTemplate getJdbcTemplate();
 
@@ -155,7 +154,7 @@ public abstract class CrudTemplate<T> {
             }
         });
         if (columnsSql.length() == 0) {
-            throw new XiangShuiException("没有要更新的列");
+            throw new XiangShuiException("没有要写入的字段");
         }
         Sql sql = new Sql().insertInto(getFullTableName(), columnsSql.toString()).values(valuesSql.toString());
         log.debug(sql.toString());
@@ -209,13 +208,13 @@ public abstract class CrudTemplate<T> {
         if (fields != null && fields.length > 0) {
             Collections.addAll(fieldSet, fields);
         } else {
-            if (StringUtils.isNotBlank(secondPrimaryFieldName)) {
-                fieldSet.add(secondPrimaryFieldName);
-            }
-            if (StringUtils.isNotBlank(primaryFieldName)) {
+            if (primary) {
                 fieldSet.add(primaryFieldName);
             }
-            fieldSet.addAll(columnNameMap.keySet());
+            if (secondPrimary) {
+                fieldSet.add(secondPrimaryFieldName);
+            }
+            fieldSet.addAll(fieldMap.keySet());
         }
         for (String fieldName : fieldSet) {
             Field field = getFieldByFieldName(fieldName);
@@ -247,6 +246,22 @@ public abstract class CrudTemplate<T> {
         } else {
             return columnNameMap.get(fieldName);
         }
+    }
+
+    public List<Criterion> makeCriterionList(T record, String[] fields, boolean selective) throws IllegalAccessException {
+        List<Criterion> criterionList = new ArrayList<>();
+        collectFields(record, fields, selective, new CollectCallback() {
+            @Override
+            public void run(String fieldName, Field field, String columnName, Object columnValue) {
+                if (columnValue == null) {
+                    criterionList.add(Criterion.is_null(columnName));
+                } else {
+                    criterionList.add(Criterion.eq(columnName, columnValue));
+                }
+
+            }
+        });
+        return criterionList;
     }
 
 
