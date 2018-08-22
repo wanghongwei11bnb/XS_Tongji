@@ -208,7 +208,7 @@ class AreaContractGrid extends React.Component {
                 },
                 {
                     field: 'area_id',
-                    title: authMapOptions.get(finalAuthMap.area_contract_saler) && false ?
+                    title: authMapOptions.get(finalAuthMap.area_contract_verify) ?
                         <button className="btn btn-sm btn-success m-1"
                                 onClick={this.createAreaContract}>新建</button> : '操作',
                     render: (value, row) => {

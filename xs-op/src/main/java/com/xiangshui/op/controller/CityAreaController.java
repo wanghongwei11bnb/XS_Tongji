@@ -11,10 +11,7 @@ import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.Capsule;
-import com.xiangshui.server.domain.City;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -51,6 +48,8 @@ public class CityAreaController extends BaseController {
     CapsuleService capsuleService;
     @Autowired
     RedisService redisService;
+    @Autowired
+    AreaContractController areaContractController;
 
 
     public boolean checkCity(HttpServletRequest request, String city) {
@@ -101,11 +100,19 @@ public class CityAreaController extends BaseController {
 
     @PostMapping("/api/city/{city}/area/create")
     @ResponseBody
-    public Result create(HttpServletRequest request, @PathVariable("city") String city, @RequestBody Area criteria) throws Exception {
+    public Result create(HttpServletRequest request, @PathVariable("city") String city, @RequestBody Area criteria, String saler, String saler_city) throws Exception {
         if (!checkCity(request, city)) {
             return new Result(CodeMsg.OPAUTH_FAIL);
         }
+        if (StringUtils.isBlank(saler) || StringUtils.isBlank(saler_city)) {
+            return new Result(-1, "请选择销售");
+        }
         areaService.createArea(criteria);
+        AreaContract areaContract = new AreaContract();
+        areaContract.setArea_id(criteria.getArea_id());
+        areaContract.setSaler(saler);
+        areaContract.setSaler_city(saler_city);
+        areaContractController.createForOperate(areaContract);
         return new Result(CodeMsg.SUCCESS);
     }
 

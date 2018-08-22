@@ -30,7 +30,7 @@ class AreaContractModal extends Modal {
         };
         if (create) {
             request({
-                url: '/api/area_contract/create/forSaler',
+                url: '/api/area_contract/create/forVerify',
                 contentType: 'application/json', method: 'post', loading: true,
                 data: JSON.stringify(data, nullStringReplacer),
                 success: resp => {
