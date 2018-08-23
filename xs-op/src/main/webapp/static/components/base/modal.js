@@ -79,9 +79,9 @@ class Modal extends React.Component {
             <div ref="layer" className="modal-layer"/>
             <div ref="dialog" className="modal-dialog m-0">
                 <div ref="dialog" className="modal-content">
-                    <div ref="header" className="modal-header ">{header}</div>
+                    <div ref="header" className="modal-header">{header}</div>
                     <div ref="body" className="modal-body">{body}</div>
-                    <div ref="footer" className="modal-footer ">{footer}</div>
+                    <div ref="footer" className="modal-footer">{footer}</div>
                 </div>
             </div>
         </div>

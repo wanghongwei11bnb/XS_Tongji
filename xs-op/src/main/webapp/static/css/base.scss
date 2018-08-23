@@ -126,6 +126,9 @@ table.calendar {
       min-width: 70%;
       max-width: 95%;
       overflow: auto;
+      .modal-header:empty, .modal-footer:empty {
+        display: none;
+      }
       .modal-body {
         min-height: 100px;
         overflow: auto;

@@ -119,19 +119,19 @@ class BookingGrid extends React.Component {
         this.state = {
             payType: {5: '公众号支付', 7: '支付宝移动页面支付', 9: '微信小程序支付', 30: '新用户注册赠送', 1: '微信支付', 2: '支付宝支付', 20: '钱包余额支付'},
             columns: [
-                {field: 'booking_id', title: '订单编号'},
+                {field: 'booking_id', title: '订单编号', width: '8em'},
                 {
-                    field: 'create_time', title: '创建时间', render: (value, row, index) => {
+                    field: 'create_time', title: '创建时间', width: '8em', render: (value, row, index) => {
                         return value ? new Date(value * 1000).format('yyyy-MM-dd hh:mm') : value;
                     }
                 },
                 {
-                    field: 'end_time', title: '结束时间', render: (value, row, index) => {
+                    field: 'end_time', title: '结束时间', width: '8em', render: (value, row, index) => {
                         return value ? new Date(value * 1000).format('yyyy-MM-dd hh:mm') : value;
                     }
                 },
                 {
-                    field: 'status', title: '订单状态', render: (value, row, index) => {
+                    field: 'status', title: '订单状态', width: '6em', render: (value, row, index) => {
                         switch (value) {
                             case 1:
                                 return <span className="text-success">进行中</span>;
@@ -181,7 +181,7 @@ class BookingGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'pay_type', title: '支付方式',
+                    field: 'pay_type', title: '支付方式', width: '8em',
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
                 },
                 {

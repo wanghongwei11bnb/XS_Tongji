@@ -21,6 +21,7 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
+import com.xiangshui.server.tool.ExcelTools;
 import com.xiangshui.util.CallBack;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
@@ -47,7 +48,8 @@ import java.util.function.Consumer;
 
 @Controller
 public class BookingController extends BaseController {
-
+    @Autowired
+    ExcelTools excelTools;
     @Autowired
     CityService cityService;
     @Autowired
@@ -100,15 +102,12 @@ public class BookingController extends BaseController {
         String op_username = UsernameLocal.get();
         boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
         boolean auth_booking_download = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_download);
-
         if (download == null) {
             download = false;
         }
-
         if (download && !auth_booking_download) {
             return new Result(CodeMsg.OPAUTH_FAIL);
         }
-
         if (download && payMonth != null) {
             int year = payMonth / 100;
             int month = payMonth % 100;
@@ -126,7 +125,6 @@ public class BookingController extends BaseController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             List<Booking> activeBookingList = new ArrayList<>();
             List<Booking> bookingListOld = bookingDao.scan(
                     new ScanSpec()
@@ -138,12 +136,8 @@ public class BookingController extends BaseController {
                                     )
                             ).withMaxResultSize(Integer.MAX_VALUE)
             );
-
-
             if (bookingListOld != null && bookingListOld.size() > 0) {
-                for (int i = 0; i < bookingListOld.size(); i++) {
-
-                    Booking booking = bookingListOld.get(i);
+                for (Booking booking : bookingListOld) {
                     if (bookingIdSet.contains(booking.getBooking_id())) {
                         activeBookingList.add(booking);
                         continue;
@@ -154,12 +148,7 @@ public class BookingController extends BaseController {
                     if (booking.getFinal_price() == null || booking.getFinal_price() == 0) {
                         continue;
                     }
-//                if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
-//                    continue;
-//                }
-
                     activeBookingList.add(booking);
-
                 }
             }
 
@@ -167,105 +156,8 @@ public class BookingController extends BaseController {
             if (activeBookingList == null) {
                 activeBookingList = new ArrayList<>();
             }
-            List<Area> areaList = null;
-            if (activeBookingList != null && activeBookingList.size() > 0) {
-                areaList = areaService.getAreaListByBooking(activeBookingList, new String[]{"area_id", "title", "city", "address", "status"});
-                Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-
-            }
-            Map<Integer, Area> areaMap = new HashMap<>();
-            List<UserInfo> userInfoList = userService.getUserInfoList(activeBookingList, new String[]{"uin", "phone"});
-            Map<Integer, UserInfo> userInfoMap = new HashMap<>();
-            if (userInfoList != null) {
-                userInfoList.forEach(userInfo -> userInfoMap.put(userInfo.getUin(), userInfo));
-            }
-
-            if (areaList != null && areaList.size() > 0) {
-                areaList.forEach(area -> {
-                    if (area != null) {
-                        areaMap.put(area.getArea_id(), area);
-                    }
-                });
-            }
-
-            List<List<String>> data = new ArrayList<>();
-
-            List<String> headRow = new ArrayList<>();
-            headRow.add("订单编号");
-            headRow.add("创建时间");
-            headRow.add("结束时间");
-            headRow.add("订单状态");
-            headRow.add("订单总金额");
-            headRow.add("实际充值金额");
-            headRow.add("系统赠送金额");
-            headRow.add("实际付款金额");
-            headRow.add("支付方式");
-            headRow.add("是否使用月卡");
-            headRow.add("头等舱编号");
-            headRow.add("场地编号");
-            headRow.add("场地名称");
-            headRow.add("城市");
-            headRow.add("地址");
-            headRow.add("用户UIN");
-            headRow.add("用户手机号");
-            headRow.add("订单来源");
-            data.add(headRow);
-            if (activeBookingList != null && activeBookingList.size() > 0) {
-                activeBookingList.forEach(booking -> {
-                    if (booking == null) {
-                        return;
-                    }
-                    Area area = areaMap.get(booking.getArea_id());
-                    if (area == null) {
-                        return;
-                    }
-//                    if (AreaStatusOption.offline.value.equals(area.getStatus())) {
-//                        return;
-//                    }
-                    List<String> row = new ArrayList<>();
-                    row.add(String.valueOf(booking.getBooking_id()));
-                    row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
-                            DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
-                            : ""));
-                    row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
-                            DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
-                            : null));
-                    row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                    row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
-
-                    row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
-                    row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
-
-                    row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
-                    row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
-                    row.add(new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否");
-                    row.add("" + booking.getCapsule_id());
-                    row.add("" + booking.getArea_id());
-                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                            areaMap.get(booking.getArea_id()).getTitle()
-                            : null));
-                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                            areaMap.get(booking.getArea_id()).getCity()
-                            : null));
-                    row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                            areaMap.get(booking.getArea_id()).getAddress()
-                            : null));
-                    row.add("" + booking.getUin());
-                    row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
-                            userInfoMap.get(booking.getUin()).getPhone()
-                            : null));
-                    row.add(booking.getReq_from());
-                    data.add(row);
-                });
-            }
-
-            XSSFWorkbook workbook = ExcelUtils.export(data);
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String("booking.xlsx".getBytes()));
-            ServletOutputStream outputStream = response.getOutputStream();
-            workbook.write(outputStream);
-            outputStream.flush();
-            outputStream.close();
-            workbook.close();
+            Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
+            excelTools.exportBookingList(activeBookingList, auth_booking_show_phone, response, "booking.xlsx");
             return null;
         }
 
@@ -280,16 +172,7 @@ public class BookingController extends BaseController {
             bookingList = bookingService.getBookingListByCity(city);
         } else {
             List<ScanFilter> filterList = bookingDao.makeScanFilterList(criteria, "area_id", "capsule_id", "uin", "status", "by_op");
-            if (create_date_start != null && create_date_end != null) {
-                filterList.add(new ScanFilter("create_time").between(
-                        create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
-                ));
-            } else if (create_date_start != null && create_date_end == null) {
-                filterList.add(new ScanFilter("create_time").gt(create_date_start.getTime() / 1000));
-            } else if (create_date_start == null && create_date_end != null) {
-                filterList.add(new ScanFilter("create_time").lt((create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000));
-            }
-
+            bookingDao.appendDateRangeFilter(filterList, "create_time", create_date_start, create_date_end);
             if (StringUtils.isNotBlank(phone)) {
                 UserInfo userInfo = userService.getUserInfoByPhone(phone);
                 if (userInfo != null) {
@@ -306,121 +189,19 @@ public class BookingController extends BaseController {
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
-        List<Area> areaList = null;
-        List<UserInfo> userInfoList = null;
-        if (bookingList != null && bookingList.size() > 0) {
-            areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
-            Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-            if (auth_booking_show_phone) {
-                userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
 
-            }
+
+        if (bookingList != null && bookingList.size() > 0) {
+            Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
         }
         if (download) {
-            Map<Integer, Area> areaMap = new HashMap<>();
-            Map<Integer, UserInfo> userInfoMap = new HashMap<>();
-            if (userInfoList != null && userInfoList.size() > 0) {
-                userInfoList.forEach(userInfo -> {
-                    if (userInfo != null) {
-                        userInfoMap.put(userInfo.getUin(), userInfo);
-                    }
-                });
-            }
-            if (areaList != null && areaList.size() > 0) {
-                areaList.forEach(area -> {
-                    if (area != null) {
-                        areaMap.put(area.getArea_id(), area);
-                    }
-                });
-            }
-
-            List<List<String>> data = new ArrayList<>();
-
-            List<String> headRow = new ArrayList<>();
-            headRow.add("订单编号");
-            headRow.add("创建时间");
-            headRow.add("结束时间");
-            headRow.add("订单状态");
-            headRow.add("订单总金额");
-            headRow.add("实际充值金额");
-            headRow.add("优惠金额");
-            headRow.add("非会员付费金额");
-            headRow.add("支付方式");
-            headRow.add("是否使用月卡");
-            headRow.add("头等舱编号");
-            headRow.add("场地编号");
-            headRow.add("场地名称");
-            headRow.add("城市");
-            headRow.add("地址");
-            headRow.add("用户UIN");
-            headRow.add("用户手机号");
-            headRow.add("订单来源");
-            data.add(headRow);
-            if (bookingList != null && bookingList.size() > 0) {
-                bookingList.forEach(new Consumer<Booking>() {
-                    @Override
-                    public void accept(Booking booking) {
-                        if (booking == null) {
-                            return;
-                        }
-                        Area area = areaMap.get(booking.getArea_id());
-                        if (area == null) {
-                            return;
-                        }
-                        if (AreaStatusOption.offline.value.equals(area.getStatus())) {
-                            return;
-                        }
-                        List<String> row = new ArrayList<>();
-                        row.add(String.valueOf(booking.getBooking_id()));
-                        row.add((booking.getCreate_time() != null && booking.getCreate_time() > 0 ?
-                                DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm")
-                                : ""));
-                        row.add("" + (booking.getEnd_time() != null && booking.getEnd_time() > 0 ?
-                                DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm")
-                                : null));
-                        row.add("" + Option.getActiveText(BookingStatusOption.options, booking.getStatus()));
-                        row.add(booking.getFinal_price() != null ? String.valueOf(booking.getFinal_price() / 100f) : "");
-
-                        row.add(booking.getFrom_charge() != null ? String.valueOf(booking.getFrom_charge() / 100f) : "");
-                        row.add(booking.getFrom_bonus() != null ? String.valueOf(booking.getFrom_bonus() / 100f) : "");
-
-                        row.add(booking.getUse_pay() != null ? booking.getUse_pay() / 100f + "" : "");
-                        row.add("" + Option.getActiveText(PayTypeOption.options, booking.getPay_type()));
-                        row.add(new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否");
-                        row.add("" + booking.getCapsule_id());
-                        row.add("" + booking.getArea_id());
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getTitle()
-                                : null));
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getCity()
-                                : null));
-                        row.add("" + (areaMap.containsKey(booking.getArea_id()) ?
-                                areaMap.get(booking.getArea_id()).getAddress()
-                                : null));
-                        row.add("" + booking.getUin());
-                        row.add("" + (userInfoMap.containsKey(booking.getUin()) ?
-                                userInfoMap.get(booking.getUin()).getPhone()
-                                : null));
-                        row.add(booking.getReq_from());
-                        data.add(row);
-                    }
-                });
-            }
-
-            XSSFWorkbook workbook = ExcelUtils.export(data);
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String("booking.xlsx".getBytes()));
-            ServletOutputStream outputStream = response.getOutputStream();
-            workbook.write(outputStream);
-            outputStream.flush();
-            outputStream.close();
-            workbook.close();
+            excelTools.exportBookingList(bookingList, auth_booking_show_phone, response, "booking.xlsx");
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)
                     .putData("bookingList", bookingList)
-                    .putData("areaList", areaList)
-                    .putData("userInfoList", userInfoList)
+                    .putData("areaList", areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"}))
+                    .putData("userInfoList", auth_booking_show_phone ? userService.getUserInfoList(bookingList, new String[]{"uin", "phone"}) : null)
                     ;
         }
     }

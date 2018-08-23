@@ -113,3 +113,35 @@ class DateTimeModal extends Modal {
         ];
     };
 }
+
+class DateRangeModal extends Modal {
+    constructor(props) {
+        super(props);
+    }
+
+    renderBody = () => {
+        return <div className="row">
+            <div className="col-sm-6">
+                开始日期：
+                <DateInput ref="start" className="form-control"></DateInput>
+            </div>
+            <div className="col-sm-6">
+                结束日期：
+                <DateInput ref="end" className="form-control"></DateInput>
+            </div>
+        </div>
+    };
+
+    ok = () => {
+        if (!this.refs.start.value) return Message.msg('请选择开始日期');
+        if (!this.refs.end.value) return Message.msg('请选择结束日期');
+        this.close();
+        if (this.props.ok) this.props.ok(this.refs.start.value, this.refs.end.value);
+    };
+    renderFooter = () => {
+        return [
+            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
+            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
+        ];
+    };
+}

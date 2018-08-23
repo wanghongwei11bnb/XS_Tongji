@@ -201,30 +201,19 @@ public class AreaBillScheduled implements InitializingBean {
         areaBillDao.putItem(areaBill);
     }
 
-
-    public List<Booking> billBookingList(int area_id, int year, int month) {
-
+    public List<Booking> billBookingList(int area_id, long create_time_start, long create_time_end) {
         List<Booking> activeBookingList = new ArrayList<>();
-
         List<Booking> bookingList = bookingDao.scan(
                 new ScanSpec()
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("update_time").between(
-                                        new LocalDate(year, month, 1).toDate().getTime() / 1000
-                                        ,
-                                        new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000
-                                )
+                                new ScanFilter("create_time").between(create_time_start, create_time_end)
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
-
-
         if (bookingList != null && bookingList.size() > 0) {
             for (int i = 0; i < bookingList.size(); i++) {
-
                 Booking booking = bookingList.get(i);
-
                 if (testUinSet.contains(booking.getUin())) {
                     continue;
                 }
@@ -234,13 +223,18 @@ public class AreaBillScheduled implements InitializingBean {
                 if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
                     continue;
                 }
-
                 activeBookingList.add(booking);
-
             }
         }
         return activeBookingList;
+    }
 
+    public List<Booking> billBookingList(int area_id, int year, int month) {
+        return billBookingList(
+                area_id,
+                new LocalDate(year, month, 1).toDate().getTime() / 1000,
+                new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000
+        );
     }
 
 

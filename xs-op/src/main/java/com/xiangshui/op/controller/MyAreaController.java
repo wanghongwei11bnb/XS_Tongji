@@ -9,7 +9,9 @@ import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
+import com.xiangshui.server.tool.ExcelTools;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class MyAreaController extends BaseController {
-
+    @Autowired
+    ExcelTools excelTools;
     @Autowired
     CityService cityService;
     @Autowired
@@ -132,5 +132,28 @@ public class MyAreaController extends BaseController {
     public Result reckon_download_for_area(HttpServletRequest request, HttpServletResponse response,
                                            @PathVariable("area_id") Integer area_id, Integer year, Integer month) throws IOException {
         return areaContractController.reckon_download(request, response, area_id, year, month);
+    }
+
+
+    @AuthRequired(AuthRequired.area_contract_verify)
+    @GetMapping("/api/main_area/{area_id:\\d+}/reckon/download/range")
+    @ResponseBody
+    public Result reckon_download_for_area_range(HttpServletRequest request, HttpServletResponse response,
+                                                 @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws IOException {
+        String op_username = UsernameLocal.get();
+        boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
+        if (create_date_start == null) {
+            throw new XiangShuiException("日期不能为空");
+        }
+        if (create_date_end == null) {
+            throw new XiangShuiException("日期不能为空");
+        }
+        List<Booking> bookingList = areaBillScheduled.billBookingList(area_id, create_date_start.getTime() / 1000, create_date_end.getTime() / 1000);
+        if (bookingList == null) {
+            bookingList = new ArrayList<>();
+        }
+        Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
+        excelTools.exportBookingList(bookingList, auth_booking_show_phone, response, "booking.xlsx");
+        return null;
     }
 }

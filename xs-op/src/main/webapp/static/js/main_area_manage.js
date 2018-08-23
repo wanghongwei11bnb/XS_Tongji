@@ -36,6 +36,8 @@ class MainAreaManageGrid extends AreaGrid {
                             onClick={this.showBooking.bind(this, row.area_id)}>30日内订单</button>,
                     <button type="button" className="btn btn-sm btn-primary m-1"
                             onClick={this.downloadBill.bind(this, row.area_id)}>下载上月账单</button>,
+                    <button type="button" className="btn btn-sm btn-primary m-1"
+                            onClick={this.downloadBillRange.bind(this, row.area_id)}>指定日期下载账单</button>,
                 ];
             }
         });
@@ -46,7 +48,14 @@ class MainAreaManageGrid extends AreaGrid {
         date.setMonth(date.getMonth() - 1);
         let queryParams = {year: date.getFullYear(), month: date.getMonth() + 1};
         queryParams.download = true;
-        window.open(`/api/main_area//${area_id}/reckon/download?${queryString(queryParams)}`)
+        window.open(`/api/main_area/${area_id}/reckon/download?${queryString(queryParams)}`);
+    };
+
+    downloadBillRange = (area_id) => {
+        Modal.open(<DateRangeModal ok={(date_start, date_end) => {
+            let queryParams = {create_date_start: date_start, create_date_end: date_end, download: true};
+            window.open(`/api/main_area/${area_id}/reckon/download/range?${queryString(queryParams)}`);
+        }}></DateRangeModal>);
     };
 
     showBooking = (area_id) => {

@@ -37,13 +37,29 @@ class Table extends React.Component {
             </th>
         </tr>
         <tr>{columns.map((column) => {
-            return <th width={column.width}>{column.title || column.field}{column.totalHandle ?
-                [<br/>, <span className="text-danger">{column.totalName || 'Total'}（{column.total}）</span>] : null}</th>
+            let style = {};
+            if (column.width) {
+                let width = type(column.width) === 'Number' ? `${column.width}px` : (type(column.width) === 'String' ? column.width : undefined);
+                style.minWidth = width;
+                style.maxWidth = width;
+            } else if (column.minWidth) {
+                style.minWidth = type(column.minWidth) === 'Number' ? `${column.minWidth}px` : (type(column.minWidth) === 'String' ? column.minWidth : undefined);
+            } else if (column.maxWidth) {
+                style.maxWidth = type(column.maxWidth) === 'Number' ? `${column.maxWidth}px` : (type(column.maxWidth) === 'String' ? column.maxWidth : undefined);
+            }
+            return <th style={style}>
+                {column.title || column.field}
+                {column.totalHandle ?
+                    [<br/>, <span className="text-danger">{column.totalName || 'Total'}（{column.total}）</span>]
+                    : null}
+            </th>
         })}</tr>
         </thead>;
-        return (<table className="table table-hover table-bordered">
-            {thead}{tbody}
-        </table>);
+        return <div className="table-responsive">
+            <table className="table table-hover table-bordered">
+                {thead}{tbody}
+            </table>
+        </div>;
     }
 
     fixedThead = (top) => {
