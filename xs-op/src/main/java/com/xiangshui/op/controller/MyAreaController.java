@@ -135,7 +135,6 @@ public class MyAreaController extends BaseController {
     }
 
 
-    @AuthRequired(AuthRequired.area_contract_verify)
     @GetMapping("/api/main_area/{area_id:\\d+}/reckon/download/range")
     @ResponseBody
     public Result reckon_download_for_area_range(HttpServletRequest request, HttpServletResponse response,
