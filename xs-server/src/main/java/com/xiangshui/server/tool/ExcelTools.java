@@ -82,25 +82,25 @@ public class ExcelTools {
                         return Option.getActiveText(BookingStatusOption.options, booking.getStatus());
                     }
                 },
-                new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() / 100d : total) {
+                new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> Math.floor((booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() / 100d : total) * 100) / 100) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getFinal_price() != null ? booking.getFinal_price() / 100f : null);
                     }
                 },
-                new ExcelUtils.Column<Booking>("非会员付费金额", (total, booking) -> booking != null && booking.getUse_pay() != null ? total + booking.getUse_pay() / 100d : total) {
+                new ExcelUtils.Column<Booking>("非会员付费金额", (total, booking) -> Math.floor((booking != null && booking.getUse_pay() != null ? total + booking.getUse_pay() / 100d : total) * 100) / 100) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getUse_pay() != null ? booking.getUse_pay() / 100f : null);
                     }
                 },
-                new ExcelUtils.Column<Booking>("充值部分", (total, booking) -> booking != null && booking.getFrom_charge() != null ? total + booking.getFrom_charge() / 100d : total) {
+                new ExcelUtils.Column<Booking>("充值部分", (total, booking) -> Math.floor((booking != null && booking.getFrom_charge() != null ? total + booking.getFrom_charge() / 100d : total) * 100) / 100) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getFrom_charge() != null ? booking.getFrom_charge() / 100f : null);
                     }
                 },
-                new ExcelUtils.Column<Booking>("赠送部分", (total, booking) -> booking != null && booking.getFrom_bonus() != null ? total + booking.getFrom_bonus() / 100d : total) {
+                new ExcelUtils.Column<Booking>("赠送部分", (total, booking) -> Math.floor((booking != null && booking.getFrom_bonus() != null ? total + booking.getFrom_bonus() / 100d : total) * 100) / 100) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f : null);
