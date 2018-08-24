@@ -35,9 +35,9 @@ class MainAreaManageGrid extends AreaGrid {
                     <button type="button" className="btn btn-sm btn-primary m-1"
                             onClick={this.showBooking.bind(this, row.area_id)}>30日内订单</button>,
                     <button type="button" className="btn btn-sm btn-primary m-1"
-                            onClick={this.downloadBill.bind(this, row.area_id)}>下载上月账单</button>,
+                            onClick={this.downloadBill.bind(this, row.area_id)}>下载上月订单</button>,
                     <button type="button" className="btn btn-sm btn-primary m-1"
-                            onClick={this.downloadBillRange.bind(this, row.area_id)}>指定日期下载账单</button>,
+                            onClick={this.downloadBillRange.bind(this, row.area_id)}>指定日期下载订单</button>,
                 ];
             }
         });
