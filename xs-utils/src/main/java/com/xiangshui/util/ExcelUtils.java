@@ -91,14 +91,14 @@ public class ExcelUtils {
 
     public static abstract class Column<T> {
         String title;
-        Double total;
-        CallBack2ForResult<Double, T, Double> totalCallBack;
+        Float total;
+        CallBack2ForResult<Float, T, Float> totalCallBack;
 
         public Column(String title) {
             this.title = title;
         }
 
-        public Column(String title, CallBack2ForResult<Double, T, Double> totalCallBack) {
+        public Column(String title, CallBack2ForResult<Float, T, Float> totalCallBack) {
             this.title = title;
             this.totalCallBack = totalCallBack;
         }
