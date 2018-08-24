@@ -134,7 +134,7 @@ public class AreaBillScheduled implements InitializingBean {
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("update_time").between(l1, l2)
+                                new ScanFilter("create_time").between(l1, l2)
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
 

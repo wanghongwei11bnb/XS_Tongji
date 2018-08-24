@@ -1,6 +1,5 @@
 package com.xiangshui.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -12,7 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -37,24 +35,38 @@ public class ExcelUtils {
     }
 
     public static <T> XSSFWorkbook export(List<Column<T>> columnList, List<T> data) {
-        List<List<String>> data2 = new ArrayList<List<String>>();
+        List<List<String>> listDate = new ArrayList<List<String>>();
         List<String> header = new ArrayList<String>();
         for (Column<T> column : columnList) {
             if (column != null) {
                 header.add(column.title);
             }
         }
-        data2.add(header);
+        listDate.add(header);
         for (T t : data) {
             List<String> row = new ArrayList<String>();
             for (Column<T> column : columnList) {
                 if (column != null) {
                     row.add(column.render(t));
+                    if (column.totalCallBack != null) {
+                        column.total = column.totalCallBack.run(column.total != null ? column.total : 0, t);
+                    }
                 }
             }
-            data2.add(row);
+            listDate.add(row);
         }
-        return export(data2);
+        List<String> totalRow = new ArrayList<String>();
+        for (Column<T> column : columnList) {
+            if (column != null) {
+                if (column.total != null) {
+                    totalRow.add(String.valueOf(column.total));
+                } else {
+                    totalRow.add(null);
+                }
+            }
+        }
+        listDate.add(totalRow);
+        return export(listDate);
     }
 
     public static <T> void export(List<Column<T>> columnList, List<T> data, HttpServletResponse response, String fileName) throws IOException {
@@ -79,9 +91,16 @@ public class ExcelUtils {
 
     public static abstract class Column<T> {
         String title;
+        Double total;
+        CallBack2ForResult<Double, T, Double> totalCallBack;
 
         public Column(String title) {
             this.title = title;
+        }
+
+        public Column(String title, CallBack2ForResult<Double, T, Double> totalCallBack) {
+            this.title = title;
+            this.totalCallBack = totalCallBack;
         }
 
         public abstract String render(T t);
