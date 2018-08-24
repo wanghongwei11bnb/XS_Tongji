@@ -46,6 +46,9 @@ public class AreaBillScheduled implements InitializingBean {
 
 
     @Autowired
+    AreaService areaService;
+
+    @Autowired
     AreaBillDao areaBillDao;
     @Autowired
     AreaContractDao areaContractDao;
@@ -134,7 +137,7 @@ public class AreaBillScheduled implements InitializingBean {
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("create_time").between(l1, l2)
+                                new ScanFilter(year * 100 + month > 201807 ? "create_time" : "update_time").between(l1, l2)
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
 
@@ -268,8 +271,6 @@ public class AreaBillScheduled implements InitializingBean {
 
     }
 
-    @Autowired
-    AreaService areaService;
 
     public void test(int year, int month) throws IOException {
         Set<Long> bookingIdSet = new HashSet<>();
