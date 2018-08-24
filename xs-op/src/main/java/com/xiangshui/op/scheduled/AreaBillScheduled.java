@@ -88,13 +88,9 @@ public class AreaBillScheduled implements InitializingBean {
     }
 
     public void makeBill(int area_id, int year, int month) {
-
         Date now = new Date();
-
         long bill_id = area_id * 1000000l + year * 100 + month;
-
         AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
-
         if (areaBill != null && Integer.valueOf(1).equals(areaBill.getStatus())) {
             throw new XiangShuiException("账单已计算，不能再次生成啦");
         }
@@ -102,19 +98,15 @@ public class AreaBillScheduled implements InitializingBean {
         if (areaContract == null) {
             throw new XiangShuiException("没匹配到场地合同");
         }
-
         if (!Integer.valueOf(AreaContractStatusOption.adopt.value).equals(areaContract.getStatus())) {
             throw new XiangShuiException("审核未通过");
         }
-
         if (areaContract.getAccount_ratio() == null) {
             throw new XiangShuiException("该场地没有设置分账比例");
         }
-
         if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() < 100)) {
             throw new XiangShuiException("该场地分账比例设置有误");
         }
-
         Calendar c1 = Calendar.getInstance();
         c1.set(year, month - 1, 1);
         c1.set(Calendar.MILLISECOND, 0);
@@ -130,8 +122,6 @@ public class AreaBillScheduled implements InitializingBean {
         c2.set(Calendar.MINUTE, 0);
         c2.set(Calendar.HOUR_OF_DAY, 0);
         long l2 = c2.getTimeInMillis() / 1000;
-
-
         List<Booking> bookingList = bookingDao.scan(
                 new ScanSpec()
                         .withScanFilters(
@@ -140,19 +130,13 @@ public class AreaBillScheduled implements InitializingBean {
                                 new ScanFilter(year * 100 + month > 201807 ? "create_time" : "update_time").between(l1, l2)
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
-
-
         int booking_count = 0;
         int final_price = 0;
         int charge_price = 0;
         int pay_price = 0;
         if (bookingList != null && bookingList.size() > 0) {
             for (int i = 0; i < bookingList.size(); i++) {
-
-
                 Booking booking = bookingList.get(i);
-
-
                 if (testUinSet.contains(booking.getUin())) {
                     continue;
                 }
@@ -162,8 +146,6 @@ public class AreaBillScheduled implements InitializingBean {
                 if ((booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0) == 0) {
                     continue;
                 }
-
-
                 final_price += booking.getFinal_price();
                 if (booking.getFrom_charge() != null && booking.getFrom_charge() > 0) {
                     charge_price += booking.getFrom_charge();
@@ -171,7 +153,6 @@ public class AreaBillScheduled implements InitializingBean {
                 if (booking.getUse_pay() != null && booking.getUse_pay() > 0) {
                     pay_price += booking.getUse_pay();
                 }
-
                 booking_count++;
             }
         }
@@ -211,7 +192,7 @@ public class AreaBillScheduled implements InitializingBean {
                         .withScanFilters(
                                 new ScanFilter("area_id").eq(area_id),
                                 new ScanFilter("status").eq(BookingStatusOption.pay.value),
-                                new ScanFilter("create_time").between(create_time_start, create_time_end)
+                                new ScanFilter(Integer.valueOf(DateUtils.format(create_time_start * 1000, "yyyyMM")) > 201807 ? "create_time" : "update_time").between(create_time_start, create_time_end)
                         ).withMaxResultSize(Integer.MAX_VALUE)
         );
         if (bookingList != null && bookingList.size() > 0) {
