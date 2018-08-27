@@ -283,7 +283,7 @@ class UserGrid extends React.Component {
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.update_id_verified.bind(this, value)}>标记为认证成功</button>,
-                            <button className="btn btn-sm btn-primary m-1"
+                            <button className="btn btn-sm btn-danger m-1"
                                     onClick={this.updateBlock.bind(this, value, row.block === 1 ? 0 : 1)}>{row.block === 1 ? '移除黑名单' : '加入黑名单'}</button>,
                         ];
                     }

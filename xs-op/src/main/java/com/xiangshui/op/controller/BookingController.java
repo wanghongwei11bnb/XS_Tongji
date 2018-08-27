@@ -276,6 +276,7 @@ public class BookingController extends BaseController {
 //                object.zrem("time_out_new", String.valueOf(booking.getUin()));
                 object.zrem("time_out_new", booking.getUin() + "&" + booking.getCapsule_id());
                 object.srem("capsule_time", String.valueOf(booking.getCapsule_id()));
+                object.zadd("light_on", (System.currentTimeMillis() + 1000 * 60 * 22) / 1000, capsule.getDevice_id());
             });
 
         } else {
