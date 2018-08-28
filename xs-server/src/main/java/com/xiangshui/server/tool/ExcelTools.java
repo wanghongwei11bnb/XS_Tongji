@@ -1,18 +1,23 @@
 package com.xiangshui.server.tool;
 
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingDao;
+import com.xiangshui.server.dao.ChargeRecordDao;
 import com.xiangshui.server.dao.UserInfoDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.ChargeRecord;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,14 +41,21 @@ public class ExcelTools {
     UserInfoDao userInfoDao;
     @Autowired
     AreaDao areaDao;
+    @Autowired
+    ChargeRecordDao chargeRecordDao;
 
-    public XSSFWorkbook exportBookingList(List<Booking> bookingList, boolean exportPhone) {
+
+    public static final long EXPORT_PHONE = (long) Math.pow(2, 0);
+    public static final long EXPORT_MONTH_CARD_BILL = (long) Math.pow(2, 1);
+
+
+    public XSSFWorkbook exportBookingList(List<Booking> bookingList, long exports) {
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
-        Map<Integer, Area> areaMap = new HashMap<>();
-        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
+
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
+        Map<Integer, Area> areaMap = new HashMap<>();
         List<Area> areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
         if (areaList != null) {
             areaList.forEach(area -> {
@@ -52,11 +64,28 @@ public class ExcelTools {
                 }
             });
         }
-        List<UserInfo> userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
-        if (userInfoList != null) {
-            userInfoList.forEach(userInfo -> userInfoMap.put(userInfo.getUin(), userInfo));
+        Map<Integer, UserInfo> userInfoMap = new HashMap<>();
+        if ((exports & EXPORT_PHONE) == EXPORT_PHONE) {
+            List<UserInfo> userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
+            if (userInfoList != null) {
+                userInfoList.forEach(userInfo -> userInfoMap.put(userInfo.getUin(), userInfo));
+            }
         }
-
+        Map<Long, ChargeRecord> chargeRecordMap = new HashMap<>();
+        if ((exports & EXPORT_MONTH_CARD_BILL) == EXPORT_MONTH_CARD_BILL && bookingList.size() > 0) {
+            long create_time_start = new LocalDate(bookingList.get(bookingList.size() - 1).getCreate_time() * 1000).withDayOfMonth(1).toDate().getTime() / 1000;
+            long create_time_end = new LocalDate(bookingList.get(0).getCreate_time() * 1000).plusMonths(1).withDayOfMonth(1).toDate().getTime() / 1000;
+            List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
+                    new ScanFilter("create_time").between(create_time_start, create_time_end),
+                    new ScanFilter("bill_area_id").exists(),
+                    new ScanFilter("bill_booking_id").exists()
+            ));
+            chargeRecordList.forEach(chargeRecord -> {
+                if (chargeRecord != null && chargeRecord.getBill_area_id() != null && chargeRecord.getBill_booking_id() != null) {
+                    chargeRecordMap.put(chargeRecord.getBill_booking_id(), chargeRecord);
+                }
+            });
+        }
         return ExcelUtils.export(Arrays.asList(
                 new ExcelUtils.Column<Booking>("订单编号") {
                     @Override
@@ -118,6 +147,12 @@ public class ExcelTools {
                         return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
                     }
                 },
+                (exports & EXPORT_MONTH_CARD_BILL) == EXPORT_MONTH_CARD_BILL ? new ExcelUtils.Column<Booking>("购买月卡金额", (total, booking) -> chargeRecordMap.containsKey(booking.getBooking_id()) ? total + chargeRecordMap.get(booking.getBooking_id()).getPrice() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(chargeRecordMap.containsKey(booking.getBooking_id()) ? chargeRecordMap.get(booking.getBooking_id()).getPrice() / 100f : null);
+                    }
+                } : null,
                 new ExcelUtils.Column<Booking>("头等舱编号") {
                     @Override
                     public String render(Booking booking) {
@@ -154,7 +189,7 @@ public class ExcelTools {
                         return String.valueOf(booking.getUin());
                     }
                 },
-                exportPhone ? new ExcelUtils.Column<Booking>("用户手机号") {
+                (exports & EXPORT_PHONE) == EXPORT_PHONE ? new ExcelUtils.Column<Booking>("用户手机号") {
                     @Override
                     public String render(Booking booking) {
                         return booking.getUin() != null && userInfoMap.containsKey(booking.getUin()) ? userInfoMap.get(booking.getUin()).getPhone() : null;
@@ -169,8 +204,8 @@ public class ExcelTools {
         ), bookingList);
     }
 
-    public void exportBookingList(List<Booking> bookingList, boolean exportPhone, HttpServletResponse response, String fileName) throws IOException {
-        XSSFWorkbook workbook = exportBookingList(bookingList, exportPhone);
+    public void exportBookingList(List<Booking> bookingList, long exports, HttpServletResponse response, String fileName) throws IOException {
+        XSSFWorkbook workbook = exportBookingList(bookingList, exports);
         response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

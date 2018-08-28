@@ -22,6 +22,8 @@ public class AreaBill {
 
     private Integer charge_price;
 
+    private Integer month_card_price;
+
     private Integer ratio_price;
 
     private Integer status;
@@ -29,6 +31,16 @@ public class AreaBill {
     private Long create_time;
 
     private Long update_time;
+
+    public Integer getMonth_card_price() {
+
+        return month_card_price;
+    }
+
+    public AreaBill setMonth_card_price(Integer month_card_price) {
+        this.month_card_price = month_card_price;
+        return this;
+    }
 
     public Long getBill_id() {
         return bill_id;

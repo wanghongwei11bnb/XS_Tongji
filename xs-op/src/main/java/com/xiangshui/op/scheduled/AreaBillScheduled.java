@@ -7,9 +7,7 @@ import com.xiangshui.server.constant.AreaContractStatusOption;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
-import com.xiangshui.server.dao.AreaBillDao;
-import com.xiangshui.server.dao.AreaContractDao;
-import com.xiangshui.server.dao.BookingDao;
+import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.AreaContractService;
@@ -63,6 +61,12 @@ public class AreaBillScheduled implements InitializingBean {
     @Autowired
     UserService userService;
 
+    @Autowired
+    GroupInfoDao groupInfoDao;
+
+    @Autowired
+    ChargeRecordDao chargeRecordDao;
+
     public Set<Integer> testUinSet = new HashSet<>();
     public Set<String> testPhoneSet = new HashSet<>();
 
@@ -107,21 +111,19 @@ public class AreaBillScheduled implements InitializingBean {
         if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() < 100)) {
             throw new XiangShuiException("该场地分账比例设置有误");
         }
-        Calendar c1 = Calendar.getInstance();
-        c1.set(year, month - 1, 1);
-        c1.set(Calendar.MILLISECOND, 0);
-        c1.set(Calendar.SECOND, 0);
-        c1.set(Calendar.MINUTE, 0);
-        c1.set(Calendar.HOUR_OF_DAY, 0);
-        long l1 = c1.getTimeInMillis() / 1000;
-        Calendar c2 = Calendar.getInstance();
-        c2.set(year, month - 1, 1);
-        c2.add(Calendar.MONTH, 1);
-        c2.set(Calendar.MILLISECOND, 0);
-        c2.set(Calendar.SECOND, 0);
-        c2.set(Calendar.MINUTE, 0);
-        c2.set(Calendar.HOUR_OF_DAY, 0);
-        long l2 = c2.getTimeInMillis() / 1000;
+
+        LocalDate startDate = new LocalDate(year, month, 1);
+        LocalDate endDate = startDate.plusMonths(1).plusDays(-1);
+
+
+        long l1 = startDate.toDate().getTime() / 1000;
+        long l2 = endDate.plusDays(1).toDate().getTime() / 1000;
+
+        List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
+                new ScanFilter("create_time").between(l1, l2),
+                new ScanFilter("bill_area_id").eq(area_id),
+                new ScanFilter("bill_booking_id").exists()
+        ));
         List<Booking> bookingList = bookingDao.scan(
                 new ScanSpec()
                         .withScanFilters(
@@ -134,6 +136,7 @@ public class AreaBillScheduled implements InitializingBean {
         int final_price = 0;
         int charge_price = 0;
         int pay_price = 0;
+
         if (bookingList != null && bookingList.size() > 0) {
             for (int i = 0; i < bookingList.size(); i++) {
                 Booking booking = bookingList.get(i);
@@ -157,6 +160,12 @@ public class AreaBillScheduled implements InitializingBean {
             }
         }
 
+        int month_card_price = 0;
+        for (ChargeRecord chargeRecord : chargeRecordList) {
+            if (chargeRecord != null && chargeRecord.getBill_area_id() != null && chargeRecord.getBill_booking_id() != null && chargeRecord.getPrice() != null) {
+                month_card_price += chargeRecord.getPrice();
+            }
+        }
 
         if (areaBill == null) {
             areaBill = new AreaBill();
@@ -164,9 +173,6 @@ public class AreaBillScheduled implements InitializingBean {
             areaBill.setArea_id(area_id);
             areaBill.setCreate_time(now.getTime() / 1000);
         } else {
-            if (areaBill.getStatus() != null && areaBill.getStatus() == 1) {
-                throw new XiangShuiException("已付款的账单");
-            }
             areaBill.setStatus(0);
         }
 
@@ -178,10 +184,9 @@ public class AreaBillScheduled implements InitializingBean {
         areaBill.setFinal_price(final_price);
         areaBill.setCharge_price(charge_price);
         areaBill.setPay_price(pay_price);
-        areaBill.setRatio_price((charge_price + pay_price) * areaContract.getAccount_ratio() / 100);
-
+        areaBill.setMonth_card_price(month_card_price);
+        areaBill.setRatio_price((charge_price + pay_price + month_card_price) * areaContract.getAccount_ratio() / 100);
         areaBill.setUpdate_time(now.getTime() / 1000);
-
         areaBillDao.putItem(areaBill);
     }
 

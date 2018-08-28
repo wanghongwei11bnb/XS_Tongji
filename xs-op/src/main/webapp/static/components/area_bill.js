@@ -33,7 +33,7 @@ class LetterModal extends Modal {
                         <td>{`${areaBill.year}年${areaBill.month}月`}</td>
                         <td>{area ? area.title : null}</td>
                         <td>{areaBill.booking_count}</td>
-                        <td>{(areaBill.charge_price + areaBill.pay_price) / 100}</td>
+                        <td>{(areaBill.charge_price + areaBill.pay_price + areaBill.month_card_price) / 100}</td>
                         <td>{`${areaBill.account_ratio}%`}</td>
                         <td>{areaBill.ratio_price / 100}</td>
                     </tr>
@@ -215,6 +215,7 @@ class AreaBillGrid extends Grid {
                         return (
                             (type(row.charge_price) === 'Number' ? row.charge_price : 0)
                             + (type(row.pay_price) === 'Number' ? row.pay_price : 0)
+                            + (type(row.month_card_price) === 'Number' ? row.month_card_price : 0)
                         ) / 100;
                     }
                 },

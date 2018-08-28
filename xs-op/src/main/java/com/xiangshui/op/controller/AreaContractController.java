@@ -440,7 +440,7 @@ public class AreaContractController extends BaseController {
             bookingList = new ArrayList<>();
         }
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-        excelTools.exportBookingList(bookingList, auth_booking_show_phone, response, "booking.xlsx");
+        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | ExcelTools.EXPORT_MONTH_CARD_BILL, response, "booking.xlsx");
         return null;
     }
 
