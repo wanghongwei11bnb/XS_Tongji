@@ -160,6 +160,14 @@ class AreaContractGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'area_id', title: '投放数量（台）', render: value => {
+                        const countGroupArea = this.state.countGroupArea;
+                        if (countGroupArea && type(countGroupArea[value]) === 'Number') {
+                            return countGroupArea[value];
+                        }
+                    }
+                },
+                {
                     field: 'area_id', title: '运营状态', render: value => {
                         const areaMapOptions = this.state.areaMapOptions;
                         if (areaMapOptions && areaMapOptions.get(value)) {
@@ -275,6 +283,7 @@ class AreaContractGrid extends React.Component {
                 this.setState({
                     data: resp.data.areaContractList,
                     areaMapOptions: resp.data.areaList ? new AreaMapOptions(resp.data.areaList) : null,
+                    countGroupArea: resp.data.countGroupArea,
                 });
             }
         });

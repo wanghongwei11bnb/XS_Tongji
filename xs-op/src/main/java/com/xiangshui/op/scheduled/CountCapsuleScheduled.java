@@ -1,0 +1,68 @@
+package com.xiangshui.op.scheduled;
+
+import com.xiangshui.server.dao.*;
+import com.xiangshui.server.domain.*;
+import com.xiangshui.server.service.AreaContractService;
+import com.xiangshui.server.service.AreaService;
+import com.xiangshui.server.service.BookingService;
+import com.xiangshui.server.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+@Component
+public class CountCapsuleScheduled {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+
+    @Autowired
+    AreaService areaService;
+
+    @Autowired
+    AreaBillDao areaBillDao;
+    @Autowired
+    AreaContractDao areaContractDao;
+    @Autowired
+    AreaContractService areaContractService;
+
+    @Autowired
+    BookingService bookingService;
+    @Autowired
+    BookingDao bookingDao;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    GroupInfoDao groupInfoDao;
+
+    @Autowired
+    ChargeRecordDao chargeRecordDao;
+    @Autowired
+    CapsuleDao capsuleDao;
+
+    public Map<Integer, Integer> countGroupArea = new HashMap<>();
+
+
+    @Scheduled(fixedDelay = 1000 * 60 * 10)
+    public void task() {
+        Map<Integer, Integer> countGroupArea = new HashMap<>();
+        List<Capsule> capsuleList = capsuleDao.scan();
+        capsuleList.forEach(capsule -> {
+            if (capsule == null || capsule.getArea_id() == null || new Integer(1).equals(capsule.getIs_downline())) {
+                return;
+            }
+            if (countGroupArea.containsKey(capsule.getArea_id())) {
+                countGroupArea.put(capsule.getArea_id(), countGroupArea.get(capsule.getArea_id()) + 1);
+            } else {
+                countGroupArea.put(capsule.getArea_id(), 1);
+            }
+        });
+        this.countGroupArea = countGroupArea;
+    }
+}

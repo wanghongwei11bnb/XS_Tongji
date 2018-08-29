@@ -6,11 +6,9 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
+import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaContractStatusOption;
-import com.xiangshui.server.constant.AreaStatusOption;
-import com.xiangshui.server.constant.BookingStatusOption;
-import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BaseDynamoDao;
@@ -20,18 +18,15 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.server.tool.ExcelTools;
 import com.xiangshui.util.CallBackForResult;
-import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -62,6 +57,9 @@ public class AreaContractController extends BaseController {
 
     @Autowired
     AreaBillScheduled areaBillScheduled;
+
+    @Autowired
+    CountCapsuleScheduled countCapsuleScheduled;
 
     @Menu("客户分成管理")
     @AuthRequired(AuthRequired.area_contract)
@@ -174,6 +172,12 @@ public class AreaContractController extends BaseController {
                     return areaMap.containsKey(areaContract.getArea_id()) ? areaMap.get(areaContract.getArea_id()).getAddress() : "";
                 }
             });
+            columnList.add(new ExcelUtils.Column<AreaContract>("投放数量（台）") {
+                @Override
+                public String render(AreaContract areaContract) {
+                    return countCapsuleScheduled.countGroupArea.containsKey(areaContract.getArea_id()) ? String.valueOf(countCapsuleScheduled.countGroupArea.get(areaContract.getArea_id())) : null;
+                }
+            });
             columnList.add(new ExcelUtils.Column<AreaContract>("销售") {
                 @Override
                 public String render(AreaContract areaContract) {
@@ -233,7 +237,8 @@ public class AreaContractController extends BaseController {
         } else {
             return new Result(CodeMsg.SUCCESS)
                     .putData("areaContractList", areaContractList)
-                    .putData("areaList", areaList);
+                    .putData("areaList", areaList)
+                    .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
         }
     }
 
