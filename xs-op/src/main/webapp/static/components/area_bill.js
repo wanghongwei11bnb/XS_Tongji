@@ -33,7 +33,7 @@ class LetterModal extends Modal {
                         <td>{`${areaBill.year}年${areaBill.month}月`}</td>
                         <td>{area ? area.title : null}</td>
                         <td>{areaBill.booking_count}</td>
-                        <td>{(areaBill.charge_price + areaBill.pay_price + areaBill.month_card_price) / 100}</td>
+                        <td>{(areaBill.charge_price + areaBill.pay_price + (areaBill.month_card_price || 0)) / 100}</td>
                         <td>{`${areaBill.account_ratio}%`}</td>
                         <td>{areaBill.ratio_price / 100}</td>
                     </tr>
