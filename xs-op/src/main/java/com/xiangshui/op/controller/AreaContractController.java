@@ -18,6 +18,7 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.server.tool.ExcelTools;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -172,6 +173,12 @@ public class AreaContractController extends BaseController {
                     return areaMap.containsKey(areaContract.getArea_id()) ? areaMap.get(areaContract.getArea_id()).getAddress() : "";
                 }
             });
+            columnList.add(new ExcelUtils.Column<AreaContract>("投放日期") {
+                @Override
+                public String render(AreaContract areaContract) {
+                    return countCapsuleScheduled.areaCreateTimeMap.containsKey(areaContract.getArea_id()) ? DateUtils.format(countCapsuleScheduled.countGroupArea.get(areaContract.getArea_id()) * 1000, "yyyy-MM-dd") : null;
+                }
+            });
             columnList.add(new ExcelUtils.Column<AreaContract>("投放数量（台）") {
                 @Override
                 public String render(AreaContract areaContract) {
@@ -238,7 +245,8 @@ public class AreaContractController extends BaseController {
             return new Result(CodeMsg.SUCCESS)
                     .putData("areaContractList", areaContractList)
                     .putData("areaList", areaList)
-                    .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
+                    .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
+                    .putData("areaCreateTimeMap", countCapsuleScheduled.areaCreateTimeMap);
         }
     }
 

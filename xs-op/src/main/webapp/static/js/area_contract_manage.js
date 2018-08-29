@@ -160,6 +160,14 @@ class AreaContractGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'area_id', title: '投放日期', render: value => {
+                        const areaCreateTimeMap = this.state.areaCreateTimeMap;
+                        if (areaCreateTimeMap && type(areaCreateTimeMap[value]) === 'Number') {
+                            return new Date(areaCreateTimeMap[value] * 1000).format('yyyy-MM-dd');
+                        }
+                    }
+                },
+                {
                     field: 'area_id', title: '投放数量（台）', render: value => {
                         const countGroupArea = this.state.countGroupArea;
                         if (countGroupArea && type(countGroupArea[value]) === 'Number') {
@@ -284,6 +292,7 @@ class AreaContractGrid extends React.Component {
                     data: resp.data.areaContractList,
                     areaMapOptions: resp.data.areaList ? new AreaMapOptions(resp.data.areaList) : null,
                     countGroupArea: resp.data.countGroupArea,
+                    areaCreateTimeMap: resp.data.areaCreateTimeMap,
                 });
             }
         });

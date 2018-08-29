@@ -48,14 +48,27 @@ public class CountCapsuleScheduled {
     CapsuleDao capsuleDao;
 
     public volatile Map<Integer, Integer> countGroupArea = new HashMap<>();
-
+    public volatile Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
 
     @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void task() {
         Map<Integer, Integer> countGroupArea = new HashMap<>();
+        Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
         capsuleList.forEach(capsule -> {
-            if (capsule == null || capsule.getArea_id() == null || new Integer(1).equals(capsule.getIs_downline())) {
+            if (capsule == null || capsule.getArea_id() == null) {
+                return;
+            }
+            if (capsule.getCreate_time() != null) {
+                if (areaCreateTimeMap.containsKey(capsule.getArea_id())) {
+                    if (capsule.getCreate_time() < areaCreateTimeMap.get(capsule.getArea_id())) {
+                        areaCreateTimeMap.put(capsule.getArea_id(), capsule.getCreate_time());
+                    }
+                } else {
+                    areaCreateTimeMap.put(capsule.getArea_id(), capsule.getCreate_time());
+                }
+            }
+            if (new Integer(1).equals(capsule.getIs_downline())) {
                 return;
             }
             if (countGroupArea.containsKey(capsule.getArea_id())) {
@@ -65,5 +78,6 @@ public class CountCapsuleScheduled {
             }
         });
         this.countGroupArea = countGroupArea;
+        this.areaCreateTimeMap = areaCreateTimeMap;
     }
 }
