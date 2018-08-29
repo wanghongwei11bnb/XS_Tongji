@@ -187,8 +187,12 @@ class BookingGrid extends React.Component {
                 {
                     field: 'month_card_flag',
                     title: '是否使用月卡',
-                    render: value => value === 1 ? <span className="text-success">是</span> :
-                        <span className="text-secondary">否</span>
+                    render: value => value === 1 ?
+                        <span className="text-success">是</span> : <span className="text-secondary">否</span>,
+                    totalHandle: (total, value) => {
+                        if (type(total) !== 'Number') total = 0;
+                        return value === 1 ? total + 1 : total;
+                    }
                 },
                 {field: 'capsule_id', title: '头等舱编号'},
                 {field: 'area_id', title: '场地编号'},
@@ -323,7 +327,8 @@ class BookingGrid extends React.Component {
 }
 
 
-class BookingGridByOpModal extends Modal {
+class BookingGridByOpModal
+    extends Modal {
     constructor(props) {
         super(props);
         this.state = {
