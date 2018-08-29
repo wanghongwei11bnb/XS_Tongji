@@ -145,11 +145,7 @@ public class MonthCardBillScheduled {
     }
 
     public static void main(String[] args) {
-
         SpringUtils.init();
         SpringUtils.getBean(MonthCardBillScheduled.class).makeMonthCardBillTask(2018, 7);
-
     }
-
-
 }
