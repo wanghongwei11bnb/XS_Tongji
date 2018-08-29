@@ -1,5 +1,6 @@
 package com.xiangshui.op.scheduled;
 
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.service.AreaContractService;
@@ -46,13 +47,13 @@ public class CountCapsuleScheduled {
     @Autowired
     CapsuleDao capsuleDao;
 
-    public Map<Integer, Integer> countGroupArea = new HashMap<>();
+    public volatile Map<Integer, Integer> countGroupArea = new HashMap<>();
 
 
     @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void task() {
         Map<Integer, Integer> countGroupArea = new HashMap<>();
-        List<Capsule> capsuleList = capsuleDao.scan();
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
         capsuleList.forEach(capsule -> {
             if (capsule == null || capsule.getArea_id() == null || new Integer(1).equals(capsule.getIs_downline())) {
                 return;
