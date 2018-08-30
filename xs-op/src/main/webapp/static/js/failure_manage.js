@@ -6,7 +6,7 @@ class Page extends React.Component {
                 {
                     title: 'ID', width: 220, render: (value, row, index) => {
                         return <div>
-                            uin：{row.uin}<br/>
+                            uin：<A onClick={this.showUser.bind(this, {uin: row.uin})}>{row.uin}</A><br/>
                             手机号：{row.phone}<br/>
                             场地编号：<A onClick={this.showArea.bind(this, row.area_id)}>{row.area_id}</A><br/>
                             头等舱编号：{row.capsule_id}<br/>
@@ -94,6 +94,10 @@ class Page extends React.Component {
 
     showBooking = (booking_id) => {
         Modal.open(<BookingGridModal queryParams={{booking_id}}></BookingGridModal>);
+    };
+
+    showUser = (queryParams) => {
+        Modal.open(<UserGridModal queryParams={queryParams}></UserGridModal>);
     };
 
     edit = (failure) => {
