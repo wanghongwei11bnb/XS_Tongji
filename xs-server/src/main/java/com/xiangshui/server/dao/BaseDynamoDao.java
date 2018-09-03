@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+import java.util.function.Consumer;
 
 abstract public class BaseDynamoDao<T> {
 
@@ -41,10 +42,21 @@ abstract public class BaseDynamoDao<T> {
     protected boolean debug;
     private Class<T> tClass;
 
+    private CallBack<ScanSpec> handleScanSpec;
+
 
     public BaseDynamoDao() {
         tClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
+    }
+
+    public CallBack<ScanSpec> getHandleScanSpec() {
+        return handleScanSpec;
+    }
+
+    public BaseDynamoDao<T> setHandleScanSpec(CallBack<ScanSpec> handleScanSpec) {
+        this.handleScanSpec = handleScanSpec;
+        return this;
     }
 
     abstract public String getTableName();
@@ -101,24 +113,16 @@ abstract public class BaseDynamoDao<T> {
     }
 
 
-    public List<T> scan() {
-        ScanSpec scanSpec = new ScanSpec();
-        scanSpec.withMaxResultSize(maxResultSize);
-        Table table = getTable();
-        ItemCollection<ScanOutcome> items = table.scan(scanSpec);
-        List<T> list = new ArrayList();
-        Iterator<Item> iter = items.iterator();
-        while (iter.hasNext()) {
-            Item item = iter.next();
-            list.add(JSON.parseObject(item.toJSON(), tClass));
-        }
-        return list;
-    }
-
     public List<T> scan(ScanSpec scanSpec) {
+        if (scanSpec == null) {
+            scanSpec = new ScanSpec();
+        }
         if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0) {
             scanSpec.setMaxResultSize(maxResultSize);
         }
+        if (this.handleScanSpec != null) {
+            this.handleScanSpec.run(scanSpec);
+        }
         Table table = getTable();
         ItemCollection<ScanOutcome> items = table.scan(scanSpec);
         List<T> list = new ArrayList();
@@ -130,17 +134,14 @@ abstract public class BaseDynamoDao<T> {
         return list;
     }
 
+
+    public List<T> scan() {
+        return scan(null);
+    }
+
+
     public void scan(ScanSpec scanSpec, CallBack<T> callback) {
-        if (scanSpec.getMaxResultSize() == null || scanSpec.getMaxResultSize() <= 0 || scanSpec.getMaxResultSize() > maxResultSize) {
-            scanSpec.setMaxResultSize(maxResultSize);
-        }
-        Table table = getTable();
-        ItemCollection<ScanOutcome> items = table.scan(scanSpec);
-        Iterator<Item> iter = items.iterator();
-        while (iter.hasNext()) {
-            Item item = iter.next();
-            callback.run(JSON.parseObject(item.toJSON(), tClass));
-        }
+        scan(scanSpec).forEach(t -> callback.run(t));
     }
 
 

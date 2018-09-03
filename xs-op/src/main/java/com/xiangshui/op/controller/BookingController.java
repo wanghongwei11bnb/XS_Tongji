@@ -34,6 +34,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @Controller
-public class BookingController extends BaseController {
+public class BookingController extends BaseController implements InitializingBean {
     @Autowired
     ExcelTools excelTools;
     @Autowired
@@ -157,7 +158,7 @@ public class BookingController extends BaseController {
                 activeBookingList = new ArrayList<>();
             }
             Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-            excelTools.exportBookingList(activeBookingList,  auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
+            excelTools.exportBookingList(activeBookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
             return null;
         }
 
@@ -195,7 +196,7 @@ public class BookingController extends BaseController {
             Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
         }
         if (download) {
-            excelTools.exportBookingList(bookingList,  auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
+            excelTools.exportBookingList(bookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)
@@ -304,4 +305,32 @@ public class BookingController extends BaseController {
     }
 
 
+    @Override
+    public void afterPropertiesSet() {
+        bookingDao.setHandleScanSpec(scanSpec -> {
+            String op_username = UsernameLocal.get();
+            if (StringUtils.isNotBlank(op_username)) {
+                boolean auth_f1 = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_f1);
+                if (!auth_f1) {
+                    if (scanSpec == null) {
+                        scanSpec = new ScanSpec();
+                    }
+                    if (scanSpec.getScanFilters() == null) {
+                        scanSpec.withScanFilters(new ScanFilter("f1").notExist());
+                    } else {
+                        for (ScanFilter scanFilter : scanSpec.getScanFilters()) {
+                            if (scanFilter.getAttribute().equals("f1")) {
+                                scanFilter.notExist();
+                                return;
+                            }
+                        }
+                        List<ScanFilter> newScanFilter = new ArrayList<>();
+                        newScanFilter.addAll(scanSpec.getScanFilters());
+                        newScanFilter.add(new ScanFilter("f1").notExist());
+                        scanSpec.withScanFilters(newScanFilter.toArray(new ScanFilter[newScanFilter.size()]));
+                    }
+                }
+            }
+        });
+    }
 }

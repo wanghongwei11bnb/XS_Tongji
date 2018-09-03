@@ -25,4 +25,5 @@ public @interface AuthRequired {
 
     String area_bill = "分成对账单管理";
     String group = "拼团管理";
+    String auth_f1 = "F1";
 }
