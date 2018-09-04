@@ -254,7 +254,8 @@ public class AreaBillController extends BaseController {
                             return String.valueOf(
                                     (
                                             (areaBill.getPay_price() != null ? areaBill.getPay_price() : 0)
-                                                    + (areaBill.getPay_price() != null ? areaBill.getPay_price() : 0)
+                                                    + (areaBill.getCharge_price() != null ? areaBill.getCharge_price() : 0)
+                                                    + (areaBill.getMonth_card_price() != null ? areaBill.getMonth_card_price() : 0)
                                     ) / 100f
                             );
                         }
