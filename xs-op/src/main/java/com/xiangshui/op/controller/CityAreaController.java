@@ -7,6 +7,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.CityRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.redis.OpPrefix;
@@ -50,6 +51,9 @@ public class CityAreaController extends BaseController {
     RedisService redisService;
     @Autowired
     AreaContractController areaContractController;
+    @Autowired
+    CountCapsuleScheduled countCapsuleScheduled;
+
 
 
     public boolean checkCity(HttpServletRequest request, String city) {
@@ -94,7 +98,8 @@ public class CityAreaController extends BaseController {
                 }
             });
         }
-        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList)
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 
 

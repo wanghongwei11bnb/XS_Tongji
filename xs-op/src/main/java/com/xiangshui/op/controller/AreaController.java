@@ -3,6 +3,7 @@ package com.xiangshui.op.controller;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.AreaContract;
@@ -44,6 +45,9 @@ public class AreaController extends BaseController {
     @Autowired
     AreaContractController areaContractController;
 
+    @Autowired
+    CountCapsuleScheduled countCapsuleScheduled;
+
     @Menu(value = "场地管理")
     @AuthRequired("场地管理（全国）")
     @GetMapping("/area_manage")
@@ -79,7 +83,9 @@ public class AreaController extends BaseController {
                 }
             });
         }
-        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("areaList", areaList)
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 
 

@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AreaRequired;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
@@ -43,6 +44,8 @@ public class MyAreaController extends BaseController {
 
     @Autowired
     CapsuleService capsuleService;
+    @Autowired
+    CountCapsuleScheduled countCapsuleScheduled;
 
     @GetMapping("/main_area_manage")
     public String area_manage(HttpServletRequest request) {
@@ -59,7 +62,8 @@ public class MyAreaController extends BaseController {
         if (areaList != null && areaList.size() > 0) {
             areaList.sort(Comparator.comparing(Area::getCity));
         }
-        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList);
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList)
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 
 

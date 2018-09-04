@@ -70,7 +70,10 @@ class MainAreaManageGrid extends AreaGrid {
         request({
             url: `/api/main_area/search`, loading: true,
             success: (resp) => {
-                this.setState({data: resp.data.areaList});
+                this.setState({
+                    data: resp.data.areaList,
+                    countGroupArea: resp.data.countGroupArea,
+                });
             }
         });
     };

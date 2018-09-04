@@ -383,6 +383,14 @@ class AreaGrid extends React.Component {
                 {field: 'city', title: '城市'},
                 {field: 'address', title: '地址'},
                 {
+                    field: 'area_id', title: '投放数量（台）', render: value => {
+                        const countGroupArea = this.state.countGroupArea;
+                        if (countGroupArea && type(countGroupArea[value]) === 'Number') {
+                            return countGroupArea[value];
+                        }
+                    }
+                },
+                {
                     field: 'status', title: '状态',
                     render: (value, row, index) => {
                         if (value == -1) {
@@ -395,7 +403,7 @@ class AreaGrid extends React.Component {
                     }
                 },
                 // {field: 'contact', title: '联系方式'},
-                {field: 'minute_start', title: '最少时长（分钟）'},
+                // {field: 'minute_start', title: '最少时长（分钟）'},
                 {
                     field: 'is_time_limit', title: '限时标记', render: (value, row, index) => {
                         value = value || 0;
@@ -437,11 +445,10 @@ class AreaGrid extends React.Component {
             url: '/api/area/search', loading: true,
             data: this.state.queryParams,
             success: (resp) => {
-                if (resp.code == 0) {
-                    this.state.data = resp.data.areaList;
-                    this.setState({});
-                } else {
-                }
+                this.setState({
+                    data: resp.data.areaList,
+                    countGroupArea: resp.data.countGroupArea,
+                });
             }
         });
     };

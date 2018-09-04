@@ -296,7 +296,9 @@ public class F1 {
 //        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
 //        SpringUtils.getBean(F1.class).doWork(2018, 5, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月用户候选", 1700, 27);
 //        SpringUtils.getBean(F1.class).doWork(2018, 6, new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月用户候选", 1418, 90);
-        SpringUtils.getBean(F1.class).doWork(2018, 7, new FileInputStream(new File("/Users/whw/Downloads/7月订单222.xlsx")), "用户列表", 1585, 70);
+//        SpringUtils.getBean(F1.class).doWork(2018, 7, new FileInputStream(new File("/Users/whw/Downloads/7月订单222.xlsx")), "用户列表", 1585, 70);
+        SpringUtils.getBean(F1.class).doWork(2018, 8, new FileInputStream(new File("/Users/whw/Downloads/8月订单.xlsx")), "对应场地", 1705, 15);
+        SpringUtils.getBean(F1.class).doWork(2018, 8, new FileInputStream(new File("/Users/whw/Downloads/8月订单.xlsx")), "对应场地", 1705, 15);
     }
 
 
