@@ -71,7 +71,7 @@ public class AreaBillScheduled implements InitializingBean {
     public Set<String> testPhoneSet = new HashSet<>();
 
 
-    @Scheduled(cron = "0 0 2 1,6 * ?")
+    @Scheduled(cron = "0 0 2 1,5,10,15 * ?")
     public void makeBill() {
         LocalDate localDate = LocalDate.now().minusMonths(1);
         areaContractDao.scan(new ScanSpec().withScanFilters(
