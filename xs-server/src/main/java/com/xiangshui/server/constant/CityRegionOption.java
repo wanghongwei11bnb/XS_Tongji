@@ -14,6 +14,7 @@ public class CityRegionOption extends Option<String> {
     public static final CityRegionOption huanan = new CityRegionOption("华南", "华南");
     public static final CityRegionOption huabei = new CityRegionOption("华北", "华北");
     public static final CityRegionOption huazhong = new CityRegionOption("华中", "华中");
+    public static final CityRegionOption dongbei = new CityRegionOption("东北", "东北");
 
     public static final List<Option> options = getOptions(CityRegionOption.class);
 }

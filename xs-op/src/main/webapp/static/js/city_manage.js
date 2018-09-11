@@ -107,18 +107,18 @@ class CityRegionUpdateModal extends Modal {
             <table className="table table-bordered">
                 <tbody>
                 <tr>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>西北</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '西北')}>西北</A></td>
                     <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>华北</A></td>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>东北</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '东北')}>东北</A></td>
                 </tr>
                 <tr>
                     <td className="text-center"></td>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>华中</A></td>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>华东</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '华中')}>华中</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '华东')}>华东</A></td>
                 </tr>
                 <tr>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>西南</A></td>
-                    <td className="text-center"><A onClick={this.submit.bind(this, '华北')}>华南</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '西南')}>西南</A></td>
+                    <td className="text-center"><A onClick={this.submit.bind(this, '华南')}>华南</A></td>
                     <td className="text-center"></td>
                 </tr>
                 </tbody>
