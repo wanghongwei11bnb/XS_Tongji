@@ -48,25 +48,6 @@ class WalletRecordGrid extends React.Component {
     };
 }
 
-class WalletRecordGridModal extends Modal {
-    constructor(props) {
-        super(props);
-        this.state = {
-            queryParams: props.queryParams,
-        };
-    }
-
-    renderHeader = () => '钱包记录';
-    renderBody = () => {
-        return <WalletRecordGrid ref="grid"></WalletRecordGrid>
-    };
-
-    componentDidMount() {
-        super.componentDidMount();
-        this.refs.grid.load(this.state.queryParams);
-    }
-}
-
 class UserWalletUpdateModal extends Modal {
     constructor(props) {
         super(props);
@@ -278,7 +259,7 @@ class UserGrid extends React.Component {
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showUserWallet.bind(this, value)}>钱包／押金查看</button>,
                             <button className="btn btn-sm btn-primary m-1"
-                                    onClick={this.showWalletRecordGridModal.bind(this, value)}>查看钱包记录</button>,
+                                    onClick={this.showChargeRecordGridModal.bind(this, value)}>查看充值记录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
@@ -317,8 +298,8 @@ class UserGrid extends React.Component {
         }}>将此用户标记为身份认证通过？</ConfirmModal>);
     };
 
-    showWalletRecordGridModal = (uin) => {
-        Modal.open(<WalletRecordGridModal queryParams={{uin}}></WalletRecordGridModal>);
+    showChargeRecordGridModal = (uin) => {
+        Modal.open(<ChargeRecordGridModal queryParams={{uin}}></ChargeRecordGridModal>);
     };
 
     showMonthCardModal = (uin) => {

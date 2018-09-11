@@ -42,13 +42,20 @@ public class AuthPassportInterceptor implements HandlerInterceptor {
         if (authRequired != null) {
             Session session = SessionLocal.get();
             if (session != null) {
-                authName = authRequired.value();
-                if (StringUtils.isNotBlank(authName)) {
-                    Set<String> authSet = opUserService.getAuthSet(session.getUsername());
-                    if (authSet.contains(authName)) {
-                        authed = true;
+                String[] auths = authRequired.value();
+                if (auths != null && auths.length > 0) {
+                    for (int i = 0; i < auths.length; i++) {
+                        authName = auths[i];
+                        if (StringUtils.isNotBlank(authName)) {
+                            Set<String> authSet = opUserService.getAuthSet(session.getUsername());
+                            if (authSet.contains(authName)) {
+                                authed = true;
+                            }
+                        }
                     }
+
                 }
+
             }
         } else {
             authed = true;

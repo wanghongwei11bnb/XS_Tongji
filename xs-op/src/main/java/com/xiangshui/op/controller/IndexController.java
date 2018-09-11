@@ -53,8 +53,10 @@ public class IndexController extends BaseController {
                     webMenu.setPath(requestMappingInfo.getPatternsCondition().getPatterns().iterator().next());
                     webMenu.setSort(menu.sort());
                     AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
-                    if (authRequired != null) {
-                        webMenu.setAuth(authRequired.value());
+                    if (authRequired != null&&authRequired.value()!=null&&authRequired.value().length>0) {
+                        Set<String> auths=new HashSet<>();
+                        auths.addAll(Arrays.asList(authRequired.value()));
+                        webMenu.setAuths(auths);
                     }
                     authMenuList.add(webMenu);
                 }
@@ -75,10 +77,15 @@ public class IndexController extends BaseController {
         this.authMenuList.forEach(new Consumer<WebMenu>() {
             @Override
             public void accept(WebMenu webMenu) {
-                if (StringUtils.isBlank(webMenu.getAuth())) {
+                if (webMenu.getAuths()==null||webMenu.getAuths().size()==0) {
                     webMenuListActive.add(webMenu);
-                } else if (authSet.contains(webMenu.getAuth())) {
-                    webMenuListActive.add(webMenu);
+                } else  {
+                    for(String auth:webMenu.getAuths()){
+                        if(authSet.contains(auth)){
+                            webMenuListActive.add(webMenu);
+                            break;
+                        }
+                    }
                 }
             }
         });

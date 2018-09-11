@@ -1,17 +1,20 @@
 package com.xiangshui.op.bean;
 
+import java.util.Set;
+
 public class WebMenu {
     private String title;
     private String path;
     private int sort;
-    private String auth;
+    private Set<String> auths;
 
-    public String getAuth() {
-        return auth;
+    public Set<String> getAuths() {
+        return auths;
     }
 
-    public void setAuth(String auth) {
-        this.auth = auth;
+    public WebMenu setAuths(Set<String> auths) {
+        this.auths = auths;
+        return this;
     }
 
     public String getTitle() {

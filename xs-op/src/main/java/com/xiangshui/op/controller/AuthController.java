@@ -57,13 +57,11 @@ public class AuthController extends BaseController {
                 Method method = handlerMethod.getMethod();
                 AuthRequired authRequired = method.getAnnotation(AuthRequired.class);
                 if (authRequired != null) {
-                    authSet.add(authRequired.value());
+                    authSet.addAll(Arrays.asList(authRequired.value()));
                 }
             }
             Map<String, String> finalAuthMap = AnnotationUtils.getFinalAuthMap();
-            for (String auth : finalAuthMap.values()) {
-                authSet.add(auth);
-            }
+            authSet.addAll(finalAuthMap.values());
         }
         return this.authSet;
     }

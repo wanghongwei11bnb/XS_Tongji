@@ -34,9 +34,21 @@ class MonthCardRecodeGrid extends React.Component {
                         ]
                     }
                 },
+                {
+                    field: 'uin', title: '操作', render: (value, row) => {
+                        return [
+                            <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showChargeRecordGridModal.bind(this, value)}>查看充值记录</button>,
+                        ];
+                    }
+                }
             ],
         };
     }
+
+    showChargeRecordGridModal = (uin) => {
+        Modal.open(<ChargeRecordGridModal queryParams={{uin}}></ChargeRecordGridModal>);
+    };
 
     load = (queryParams) => {
         if (queryParams) {

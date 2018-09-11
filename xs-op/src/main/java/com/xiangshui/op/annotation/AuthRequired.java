@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 public @interface AuthRequired {
 
 
-    String value();
+    String[] value();
 
     String auth_op_auth = "OP权限管理";
 
