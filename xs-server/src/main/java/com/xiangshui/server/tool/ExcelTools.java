@@ -105,7 +105,7 @@ public class ExcelTools {
                         return booking.getEnd_time() != null ? DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm") : null;
                     }
                 },
-                new ExcelUtils.Column<Booking>("订单状态") {
+                new ExcelUtils.Column<Booking>("订单状态", (total, booking) -> total + 1) {
                     @Override
                     public String render(Booking booking) {
                         return Option.getActiveText(BookingStatusOption.options, booking.getStatus());

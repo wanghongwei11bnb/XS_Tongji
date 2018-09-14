@@ -55,11 +55,7 @@ class Table extends React.Component {
             </th>
         })}</tr>
         </thead>;
-        return <div className="table-responsive">
-            <table className="table table-hover table-bordered">
-                {thead}{tbody}
-            </table>
-        </div>;
+        return <table className="table table-hover table-bordered">{thead}{tbody}</table>;
     }
 
     fixedThead = (top) => {

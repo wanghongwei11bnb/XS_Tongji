@@ -59,7 +59,7 @@ public class ExcelUtils {
         for (Column<T> column : columnList) {
             if (column != null) {
                 if (column.total != null) {
-                    totalRow.add("Total（" + column.total + "）");
+                    totalRow.add(String.valueOf(column.total % 1 == 0 ? column.total.intValue() : column.total));
                 } else {
                     totalRow.add(null);
                 }

@@ -260,6 +260,7 @@ public class AreaService {
                     "is_external",
                     "is_time_limit",
                     "need_deposit",
+                    "remark",
             });
         } else {
             areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
@@ -274,6 +275,7 @@ public class AreaService {
                     "is_external",
                     "is_time_limit",
                     "need_deposit",
+                    "remark",
             });
         }
         cleanCache(area.getArea_id());

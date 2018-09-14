@@ -149,6 +149,7 @@ public class CapsuleService {
                 "device_id",
                 "is_downline",
                 "device_version",
+                "remark",
         });
     }
 

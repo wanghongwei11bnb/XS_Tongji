@@ -25,6 +25,7 @@ class AreaModal extends Modal {
             status: this.refs.status.value,
             is_external: this.refs.is_external.value,
             need_deposit: this.refs.need_deposit.value,
+            remark: this.refs.remark.value,
         };
     };
 
@@ -223,6 +224,13 @@ class AreaModal extends Modal {
                         </select>
                     </td>
                 </tr>
+                <tr>
+                    <th>备注</th>
+                    <td>
+                        <textarea ref="remark" disabled={show} readOnly={show}
+                                  className="form-control"></textarea>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>;
@@ -235,6 +243,7 @@ class AreaModal extends Modal {
             if (type(area.address) == 'String') this.refs.address.value = area.address;
             if (type(area.contact) == 'String') this.refs.contact.value = area.contact;
             if (type(area.notification) == 'String') this.refs.notification.value = area.notification;
+            if (type(area.remark) == 'String') this.refs.remark.value = area.remark;
             if (type(area.status) == 'Number') this.refs.status.value = area.status;
             if (type(area.is_external) == 'Number') this.refs.is_external.value = area.is_external;
             if (type(area.is_time_limit) == 'Number') this.refs.is_time_limit.value = area.is_time_limit;
@@ -434,6 +443,7 @@ class AreaGrid extends React.Component {
                             <span className="text-danger">否</span>;
                     }
                 },
+                {field: 'remark', title: '备注'},
             ],
             queryParams: props.queryParams,
         };

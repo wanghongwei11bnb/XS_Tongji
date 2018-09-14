@@ -17,6 +17,18 @@ public class Capsule {
     //301第三代人体感应，311第三代人体感应，按摩沙发
     private Integer device_version;
 
+
+    private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public Capsule setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
     public Integer getIs_downline() {
         return is_downline;
     }

@@ -62,6 +62,7 @@ class CapsuleModal extends Modal {
                     device_version: this.refs.device_version.value,
                     is_downline: this.refs.is_downline.value,
                     status: this.refs.status.value,
+                    remark: this.refs.remark.value,
                 }, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -79,6 +80,7 @@ class CapsuleModal extends Modal {
                     device_version: this.refs.device_version.value,
                     is_downline: this.refs.is_downline.value,
                     status: this.refs.status.value,
+                    remark: this.refs.remark.value,
                 }, nullStringReplacer),
                 success: resp => {
                     Message.msg('保存成功');
@@ -158,6 +160,13 @@ class CapsuleModal extends Modal {
                     </select>
                 </td>
             </tr>
+            <tr>
+                <th>备注</th>
+                <td>
+                        <textarea ref="remark" disabled={show} readOnly={show}
+                                  className="form-control"></textarea>
+                </td>
+            </tr>
             </tbody>
         </table>
     };
@@ -172,6 +181,7 @@ class CapsuleModal extends Modal {
             this.refs.device_id.value = capsule.device_id || null;
             this.refs.device_version.value = capsule.device_version;
             this.refs.is_downline.value = capsule.is_downline;
+            this.refs.remark.value = capsule.remark;
         }
     };
 
@@ -233,6 +243,7 @@ class CapsuleManageModal extends Modal {
                         return value == 1 ? <span className="text-danger">已下线</span> : null;
                     }
                 },
+                {field: 'remark', title: '备注'},
                 {
                     title: [<button type="button" className="btn btn-sm m-1 btn-success"
                                     onClick={this.openCreateModal}>创建头等舱</button>,

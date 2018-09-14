@@ -67,12 +67,14 @@ public class ChargeRecordController extends BaseController {
             UserInfo userInfo = userService.getUserInfoByPhone(criteria.getPhone());
             if (userInfo != null) {
                 criteria.setUin(userInfo.getUin());
+                criteria.setPhone(null);
             }
         }
 
         List<ScanFilter> scanFilterList = chargeRecordDao.makeScanFilterList(criteria, new String[]{
                 "out_trade_no",
                 "uin",
+                "phone",
                 "subject",
                 "city",
                 "booking_id",

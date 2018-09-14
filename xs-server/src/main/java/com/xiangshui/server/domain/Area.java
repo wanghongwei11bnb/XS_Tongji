@@ -57,6 +57,17 @@ public class Area {
     private Integer need_deposit;
 
 
+    private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public Area setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
     public Integer getNeed_deposit() {
         return need_deposit;
     }
