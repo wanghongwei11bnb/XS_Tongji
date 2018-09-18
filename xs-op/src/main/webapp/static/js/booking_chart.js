@@ -70,6 +70,7 @@ class Page extends React.Component {
                 <select ref="processor" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value=""></option>
                     <option value="CountBookingForCountAtHourUnit">分时段统计下单数量</option>
+                    <option value="CountBookingForCountMonthCardAtHourUnit">分时段统计月卡下单数量</option>
                     <option value="CountBookingForCountAtDayUnit">统计每天下单数量</option>
                     <option value="CountBookingForCountMonthCardAtDayUnit">统计每天月卡下单数量</option>
                     <option value="CountBookingForCountPriceAtDayUnit">统计每天订单金额</option>
