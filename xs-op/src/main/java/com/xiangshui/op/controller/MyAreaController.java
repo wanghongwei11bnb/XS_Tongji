@@ -62,7 +62,7 @@ public class MyAreaController extends BaseController {
         if (areaList != null && areaList.size() > 0) {
             areaList.sort(Comparator.comparing(Area::getCity));
         }
-        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList)
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList).putData("cityList", cityService.getCityList())
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 

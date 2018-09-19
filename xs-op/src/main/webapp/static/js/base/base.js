@@ -323,6 +323,10 @@ class MapOptions {
     get(id) {
         return this.optionMap[id];
     }
+
+    getField(id, field) {
+        return this.optionMap[id] ? this.optionMap[id][field] : null;
+    }
 }
 
 class AreaMapOptions extends MapOptions {
@@ -382,6 +386,16 @@ class GroupInfoMapOptions extends MapOptions {
 
     getIdByOption(option) {
         return option ? option.group_id || null : null;
+    }
+}
+
+class CityMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.city || null : null;
     }
 }
 

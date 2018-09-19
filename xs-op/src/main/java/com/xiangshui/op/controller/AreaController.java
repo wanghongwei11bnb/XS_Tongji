@@ -85,7 +85,7 @@ public class AreaController extends BaseController {
         }
         return new Result(CodeMsg.SUCCESS)
                 .putData("areaList", areaList)
-                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea).putData("cityList", cityService.getCityList());
     }
 
 

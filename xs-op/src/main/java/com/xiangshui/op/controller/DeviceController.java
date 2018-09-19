@@ -137,6 +137,7 @@ public class DeviceController extends BaseController {
             return new Result(CodeMsg.SUCCESS)
                     .putData("deviceStatusList", deviceStatusList)
                     .putData("areaList", areaList)
+                    .putData("cityList", cityService.getCityList())
                     ;
         }
     }

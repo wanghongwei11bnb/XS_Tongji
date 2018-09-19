@@ -202,6 +202,11 @@ class BookingGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'area_id', title: '区域', render: (value) => {
+                        return this.state.cityMapOptions.getField(this.state.areaMapOptions.get(value).city,'region');
+                    }
+                },
+                {
                     field: 'area_id', title: '城市', render: (value, row, index) => {
                         return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).city : null;
                     }
@@ -312,6 +317,7 @@ class BookingGrid extends React.Component {
                         data: resp.data.bookingList,
                         areaMapOptions: new AreaMapOptions(resp.data.areaList),
                         userInfoMapOptions: new UserInfoMapOptions(resp.data.userInfoList),
+                        cityMapOptions: new CityMapOptions(resp.data.cityList),
                     });
                 } else {
                 }

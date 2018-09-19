@@ -200,7 +200,7 @@ public class BookingController extends BaseController implements InitializingBea
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)
-                    .putData("bookingList", bookingList)
+                    .putData("bookingList", bookingList).putData("cityList", cityService.getCityList())
                     .putData("areaList", areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"}))
                     .putData("userInfoList", auth_booking_show_phone ? userService.getUserInfoList(bookingList, new String[]{"uin", "phone"}) : null)
                     ;

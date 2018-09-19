@@ -98,7 +98,7 @@ public class CityAreaController extends BaseController {
                 }
             });
         }
-        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList)
+        return new Result(CodeMsg.SUCCESS).putData("areaList", areaList).putData("cityList", cityService.getCityList())
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 

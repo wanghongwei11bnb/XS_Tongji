@@ -389,6 +389,11 @@ class AreaGrid extends React.Component {
                     }
                 },
                 {field: 'title', title: '标题'},
+                {
+                    field: 'city', title: '区域', render: (value) => {
+                        return this.state.cityMapOptions.getField(value, 'region');
+                    }
+                },
                 {field: 'city', title: '城市'},
                 {field: 'address', title: '地址'},
                 {
@@ -458,6 +463,7 @@ class AreaGrid extends React.Component {
                 this.setState({
                     data: resp.data.areaList,
                     countGroupArea: resp.data.countGroupArea,
+                    cityMapOptions: new CityMapOptions(resp.data.cityList),
                 });
             }
         });

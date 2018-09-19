@@ -184,7 +184,7 @@ public class AreaBillScheduled implements InitializingBean {
         areaBill.setFinal_price(final_price);
         areaBill.setCharge_price(charge_price);
         areaBill.setPay_price(pay_price);
-        areaBill.setMonth_card_price(month_card_price);
+        areaBill.setMonth_card_price(new LocalDate(year, month, 1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0);
         areaBill.setRatio_price((charge_price + pay_price + (new LocalDate(year, month, 1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0)) * areaContract.getAccount_ratio() / 100);
         areaBill.setUpdate_time(now.getTime() / 1000);
         areaBillDao.putItem(areaBill);

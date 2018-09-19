@@ -11,6 +11,11 @@ class Page extends React.Component {
                     }
                 },
                 {
+                    field: 'area_id', title: '区域', render: (value) => {
+                        return this.state.cityMapOptions.getField(this.state.areaMapOptions.get(value).city,'region');
+                    }
+                },
+                {
                     field: 'area_id', title: '城市', render: (value) => {
                         return value && this.state.areaMapOptions && this.state.areaMapOptions.get(value) ?
                             this.state.areaMapOptions.get(value).city : null;
@@ -59,6 +64,7 @@ class Page extends React.Component {
                 this.setState({
                     data: resp.data.deviceStatusList,
                     areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                    cityMapOptions: new CityMapOptions(resp.data.cityList),
                 });
             }
         });
