@@ -73,6 +73,7 @@ class MainAreaManageGrid extends AreaGrid {
                 this.setState({
                     data: resp.data.areaList,
                     countGroupArea: resp.data.countGroupArea,
+                    cityMapOptions: new CityMapOptions(resp.data.cityList),
                 });
             }
         });

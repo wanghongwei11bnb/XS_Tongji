@@ -24,9 +24,9 @@ class Page extends React.Component {
                     }
                 },
                 {
-                    field: 'area_id', title: '城市/地址', width: 200, render: (value, row, index) => {
+                    field: 'area_id', title: '区域/城市/地址', width: 200, render: (value, row, index) => {
                         if (value && this.state.areaMapOptions.get(value)) {
-                            return [this.state.areaMapOptions.get(value).city,
+                            return [this.state.areaRegionMap[value], <br/>, this.state.areaMapOptions.get(value).city,
                                 <br/>, this.state.areaMapOptions.get(value).address];
                         } else {
                             return null;
@@ -140,6 +140,7 @@ class Page extends React.Component {
                 if (resp.code == 0) {
                     this.state.data = resp.data.failureList;
                     this.state.areaMapOptions = new AreaMapOptions(resp.data.areaList);
+                    this.state.areaRegionMap = resp.data.areaRegionMap;
                     this.setState({});
                 } else {
                 }

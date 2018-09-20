@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.scheduled.AreaRegionScheduled;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.relation.FailureReportRelation;
@@ -55,6 +56,8 @@ public class FailureReportController extends BaseController {
     UserService userService;
     @Autowired
     AreaService areaService;
+    @Autowired
+    AreaRegionScheduled areaRegionScheduled;
 
     @Menu(value = "故障报修")
     @AuthRequired("故障报修")
@@ -96,6 +99,7 @@ public class FailureReportController extends BaseController {
             headRow.add("头等舱编号");
             headRow.add("场地编号	");
             headRow.add("场地名称	");
+            headRow.add("区域");
             headRow.add("城市");
             headRow.add("地址");
             headRow.add("用户uin	");
@@ -118,10 +122,12 @@ public class FailureReportController extends BaseController {
                     row.add(failureReport.getArea_id() + "");
                     if (areaMap.containsKey(failureReport.getArea_id())) {
                         row.add(areaMap.get(failureReport.getArea_id()).getTitle());
+                        row.add(areaRegionScheduled.areaRegionMap.get(failureReport.getArea_id()));
                         row.add(areaMap.get(failureReport.getArea_id()).getCity());
                         row.add(areaMap.get(failureReport.getArea_id()).getAddress());
                     } else {
                         row.add("");
+                        row.add(areaRegionScheduled.areaRegionMap.get(failureReport.getArea_id()));
                         row.add("");
                         row.add("");
                     }
@@ -149,7 +155,7 @@ public class FailureReportController extends BaseController {
             workbook.close();
             return null;
         } else {
-            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportList).putData("areaList", areaList);
+            return new Result(CodeMsg.SUCCESS).putData("failureList", failureReportList).putData("areaList", areaList).putData("areaRegionMap", areaRegionScheduled.areaRegionMap);
         }
     }
 

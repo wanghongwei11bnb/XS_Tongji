@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.DeviceStatus;
+import com.xiangshui.op.scheduled.AreaRegionScheduled;
 import com.xiangshui.op.scheduled.DeviceStatusScheduled;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
@@ -46,6 +47,9 @@ public class DeviceController extends BaseController {
 
     @Autowired
     DeviceStatusScheduled deviceStatusScheduled;
+
+    @Autowired
+    AreaRegionScheduled areaRegionScheduled;
 
     @Menu(value = "实时设备状态")
     @AuthRequired("实时设备状态")
@@ -93,6 +97,7 @@ public class DeviceController extends BaseController {
             List<String> headRow = new ArrayList<>();
             headRow.add("场地编号");
             headRow.add("场地名称");
+            headRow.add("区域");
             headRow.add("城市");
             headRow.add("地址");
             headRow.add("头等舱编号");
@@ -113,6 +118,7 @@ public class DeviceController extends BaseController {
                     row.add(String.valueOf(deviceStatus.getArea_id()));
                     row.add(area.getTitle());
                     row.add(area.getCity());
+                    row.add(areaRegionScheduled.areaRegionMap.get(deviceStatus.getArea_id()));
                     row.add(area.getAddress());
                     row.add(String.valueOf(deviceStatus.getCapsule_id()));
                     row.add(deviceStatus.getDevice_id());
