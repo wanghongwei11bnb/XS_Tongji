@@ -76,7 +76,12 @@ class CityAreaManageGrid extends AreaGrid {
         request({
             url: `/api/city/${this.state.city}/area/search`, loading: true,
             success: (resp) => {
-                this.setState({data: resp.data.areaList});
+                this.setState({
+                    data: resp.data.areaList,
+                    countGroupArea: resp.data.countGroupArea,
+                    cityMapOptions: new CityMapOptions(resp.data.cityList),
+                });
+
             }
         });
     };
