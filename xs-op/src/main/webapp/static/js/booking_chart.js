@@ -22,7 +22,7 @@ class Page extends React.Component {
     count = () => {
         let queryParams = this.getQueryParams();
         request({
-            url: '/api/booking/count', method: 'post', loading: true,
+            url: '/api/booking/count', loading: true,
             data: queryParams,
             success: resp => {
                 this.refs.canvasBox.innerHTML = null;
@@ -32,6 +32,12 @@ class Page extends React.Component {
                 new Chart(ctx, {...resp.data.countResult});
             }
         });
+    };
+
+    download = () => {
+        let queryParams = this.getQueryParams();
+        queryParams.download = true;
+        window.open(`/api/booking/count?${queryString(queryParams)}`)
     };
 
     render() {
@@ -76,6 +82,7 @@ class Page extends React.Component {
                     <option value="CountBookingForCountPriceAtDayUnit">统计每天订单金额</option>
                 </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.count}>统计</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <Fixed>
                 <div ref="canvasBox"></div>

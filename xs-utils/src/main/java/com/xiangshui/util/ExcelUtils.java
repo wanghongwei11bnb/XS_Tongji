@@ -71,7 +71,7 @@ public class ExcelUtils {
 
     public static <T> void export(List<Column<T>> columnList, List<T> data, HttpServletResponse response, String fileName) throws IOException {
         XSSFWorkbook workbook = export(columnList, data);
-        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
+        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
         outputStream.flush();
@@ -81,7 +81,7 @@ public class ExcelUtils {
 
     public static void export(List<List<String>> data, HttpServletResponse response, String fileName) throws IOException {
         XSSFWorkbook workbook = export(data);
-        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
+        response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
         outputStream.flush();

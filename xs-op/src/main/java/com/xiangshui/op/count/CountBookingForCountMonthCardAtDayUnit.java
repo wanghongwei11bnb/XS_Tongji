@@ -4,8 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
 import org.joda.time.LocalDate;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 public class CountBookingForCountMonthCardAtDayUnit extends CountProcessor<Booking> {
@@ -94,5 +98,30 @@ public class CountBookingForCountMonthCardAtDayUnit extends CountProcessor<Booki
                 .fluentPut("title", new JSONObject().fluentPut("display", true).fluentPut("text", "统计每天月卡下单数量"))
         );
 
+    }
+
+    @Override
+    public void countForDownload(List<Booking> data,HttpServletResponse response) throws IOException {
+        this.count(data);
+        ExcelUtils.export(Arrays.asList(
+                new ExcelUtils.Column<Long>("日期") {
+                    @Override
+                    public String render(Long aLong) {
+                        return DateUtils.format(aLong, "yyyy-MM-dd");
+                    }
+                },
+                new ExcelUtils.Column<Long>("非月卡下单数量") {
+                    @Override
+                    public String render(Long aLong) {
+                        return String.valueOf(countMap.get(aLong));
+                    }
+                },
+                new ExcelUtils.Column<Long>("月卡下单数量") {
+                    @Override
+                    public String render(Long aLong) {
+                        return String.valueOf(countMapForMonthCard.get(aLong));
+                    }
+                }
+        ), new ArrayList<>(countMap.keySet()), response, "统计每天月卡下单数量.xlsx");
     }
 }

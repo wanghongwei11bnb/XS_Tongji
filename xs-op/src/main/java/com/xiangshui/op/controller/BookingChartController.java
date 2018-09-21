@@ -28,6 +28,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,10 +85,11 @@ public class BookingChartController extends BaseController {
     }
 
 
-    @PostMapping("/api/booking/count")
+    @GetMapping("/api/booking/count")
     @AuthRequired("订单统计")
     @ResponseBody
-    public Result count(HttpServletRequest request, HttpServletResponse response, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end, String processor) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    public Result count(HttpServletRequest request, HttpServletResponse response, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end, String processor, Boolean download) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException, IOException {
+        if (download == null) download = false;
         if (StringUtils.isBlank(processor)) {
             return new Result(-1, "请选择统计类型");
         }
@@ -145,8 +147,13 @@ public class BookingChartController extends BaseController {
         }
         scanSpec.withMaxResultSize(Integer.MAX_VALUE);
         List<Booking> bookingList = bookingDao.scan(scanSpec);
-        CountResult countResult = processorExample.count(bookingList);
-        return new Result(CodeMsg.SUCCESS).putData("countResult", countResult);
+        if (download) {
+            processorExample.countForDownload(bookingList, response);
+            return null;
+        } else {
+            CountResult countResult = processorExample.count(bookingList);
+            return new Result(CodeMsg.SUCCESS).putData("countResult", countResult);
+        }
     }
 
 

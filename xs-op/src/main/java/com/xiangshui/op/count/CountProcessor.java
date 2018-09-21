@@ -1,5 +1,7 @@
 package com.xiangshui.op.count;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 public abstract class CountProcessor<T> {
@@ -25,6 +27,9 @@ public abstract class CountProcessor<T> {
     protected abstract void handStart(List<T> data, CountResult countResult);
 
     protected abstract void handEnd(List<T> data, CountResult countResult);
+
+
+    public abstract void countForDownload(List<T> data, HttpServletResponse response) throws IOException;
 
 
 }
