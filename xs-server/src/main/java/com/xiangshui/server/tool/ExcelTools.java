@@ -111,7 +111,7 @@ public class ExcelTools {
                         return Option.getActiveText(BookingStatusOption.options, booking.getStatus());
                     }
                 },
-                new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
+                new ExcelUtils.Column<Booking>("订单收入", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getFinal_price() != null ? booking.getFinal_price() / 100f : null);

@@ -147,7 +147,7 @@ class BookingGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'final_price', title: '订单总金额',
+                    field: 'final_price', title: '订单收入',
                     render: value => type(value) == 'Number' ? value / 100 : value,
                     totalHandle: (total, value) => {
                         if (type(total) !== 'Number') total = 0;
