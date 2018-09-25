@@ -75,7 +75,8 @@ public class F0 {
 //        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "5月0元订单");
 //        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Documents/4-6月订单副本.xlsx")), "6月0元订单");
 //        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Downloads/7月订单222.xlsx")), "0元订单恢复");
-        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Downloads/8月订单.xlsx")), "0元订单恢复");
+//        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Downloads/8月订单.xlsx")), "0元订单恢复");
+        SpringUtils.getBean(F0.class).doWork(new FileInputStream(new File("/Users/whw/Downloads/9月订单.xlsx")), "Sheet2");
     }
 
 

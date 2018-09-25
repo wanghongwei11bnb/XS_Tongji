@@ -155,31 +155,31 @@ class BookingGrid extends React.Component {
                         return (total + value / 100).toFixed(2) - 0;
                     }
                 },
-                {
-                    field: 'use_pay', title: '非会员付费金额',
-                    render: value => type(value) == 'Number' ? value / 100 : value,
-                    totalHandle: (total, value) => {
-                        if (type(total) !== 'Number') total = 0;
-                        if (type(value) !== 'Number') value = 0;
-                        return (total + value / 100).toFixed(2) - 0;
-                    }
-                }, {
-                    field: 'from_charge', title: '充值部分',
-                    render: value => type(value) == 'Number' ? value / 100 : value,
-                    totalHandle: (total, value) => {
-                        if (type(total) !== 'Number') total = 0;
-                        if (type(value) !== 'Number') value = 0;
-                        return (total + value / 100).toFixed(2) - 0;
-                    }
-                }, {
-                    field: 'from_bonus', title: '赠送部分',
-                    render: value => type(value) == 'Number' ? value / 100 : value,
-                    totalHandle: (total, value) => {
-                        if (type(total) !== 'Number') total = 0;
-                        if (type(value) !== 'Number') value = 0;
-                        return (total + value / 100).toFixed(2) - 0;
-                    }
-                },
+                // {
+                //     field: 'use_pay', title: '非会员付费金额',
+                //     render: value => type(value) == 'Number' ? value / 100 : value,
+                //     totalHandle: (total, value) => {
+                //         if (type(total) !== 'Number') total = 0;
+                //         if (type(value) !== 'Number') value = 0;
+                //         return (total + value / 100).toFixed(2) - 0;
+                //     }
+                // }, {
+                //     field: 'from_charge', title: '充值部分',
+                //     render: value => type(value) == 'Number' ? value / 100 : value,
+                //     totalHandle: (total, value) => {
+                //         if (type(total) !== 'Number') total = 0;
+                //         if (type(value) !== 'Number') value = 0;
+                //         return (total + value / 100).toFixed(2) - 0;
+                //     }
+                // }, {
+                //     field: 'from_bonus', title: '赠送部分',
+                //     render: value => type(value) == 'Number' ? value / 100 : value,
+                //     totalHandle: (total, value) => {
+                //         if (type(total) !== 'Number') total = 0;
+                //         if (type(value) !== 'Number') value = 0;
+                //         return (total + value / 100).toFixed(2) - 0;
+                //     }
+                // },
                 {
                     field: 'pay_type', title: '支付方式', width: '8em',
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
