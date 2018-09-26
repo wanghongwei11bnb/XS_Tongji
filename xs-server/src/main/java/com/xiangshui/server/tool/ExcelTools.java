@@ -111,42 +111,42 @@ public class ExcelTools {
                         return Option.getActiveText(BookingStatusOption.options, booking.getStatus());
                     }
                 },
-                new ExcelUtils.Column<Booking>("订单收入", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
+                new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
                     @Override
                     public String render(Booking booking) {
                         return String.valueOf(booking.getFinal_price() != null ? booking.getFinal_price() / 100f : null);
                     }
                 },
-//                new ExcelUtils.Column<Booking>("非会员付费金额", (total, booking) -> booking != null && booking.getUse_pay() != null ? total + booking.getUse_pay() * 1f / 100 : total) {
-//                    @Override
-//                    public String render(Booking booking) {
-//                        return String.valueOf(booking.getUse_pay() != null ? booking.getUse_pay() / 100f : null);
-//                    }
-//                },
-//                new ExcelUtils.Column<Booking>("充值部分", (total, booking) -> booking != null && booking.getFrom_charge() != null ? total + booking.getFrom_charge() * 1f / 100 : total) {
-//                    @Override
-//                    public String render(Booking booking) {
-//                        return String.valueOf(booking.getFrom_charge() != null ? booking.getFrom_charge() / 100f : null);
-//                    }
-//                },
-//                new ExcelUtils.Column<Booking>("赠送部分", (total, booking) -> booking != null && booking.getFrom_bonus() != null ? total + booking.getFrom_bonus() * 1f / 100 : total) {
-//                    @Override
-//                    public String render(Booking booking) {
-//                        return String.valueOf(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f : null);
-//                    }
-//                },
-//                new ExcelUtils.Column<Booking>("支付方式") {
-//                    @Override
-//                    public String render(Booking booking) {
-//                        return Option.getActiveText(PayTypeOption.options, booking.getPay_type());
-//                    }
-//                },
-//                new ExcelUtils.Column<Booking>("是否使用月卡") {
-//                    @Override
-//                    public String render(Booking booking) {
-//                        return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
-//                    }
-//                },
+                new ExcelUtils.Column<Booking>("非会员付费金额", (total, booking) -> booking != null && booking.getUse_pay() != null ? total + booking.getUse_pay() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getUse_pay() != null ? booking.getUse_pay() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("充值部分", (total, booking) -> booking != null && booking.getFrom_charge() != null ? total + booking.getFrom_charge() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getFrom_charge() != null ? booking.getFrom_charge() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("赠送部分", (total, booking) -> booking != null && booking.getFrom_bonus() != null ? total + booking.getFrom_bonus() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("支付方式") {
+                    @Override
+                    public String render(Booking booking) {
+                        return Option.getActiveText(PayTypeOption.options, booking.getPay_type());
+                    }
+                },
+                new ExcelUtils.Column<Booking>("是否使用月卡") {
+                    @Override
+                    public String render(Booking booking) {
+                        return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
+                    }
+                },
                 (exports & EXPORT_MONTH_CARD_BILL) == EXPORT_MONTH_CARD_BILL ? new ExcelUtils.Column<Booking>("购买月卡金额", (total, booking) -> chargeRecordMap.containsKey(booking.getBooking_id()) ? total + chargeRecordMap.get(booking.getBooking_id()).getPrice() * 1f / 100 : total) {
                     @Override
                     public String render(Booking booking) {
