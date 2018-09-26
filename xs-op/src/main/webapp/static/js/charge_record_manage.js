@@ -1,4 +1,3 @@
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -22,8 +21,7 @@ class Page extends React.Component {
     download = () => {
         let queryParams = this.getQueryParams();
         queryParams.download = true;
-        queryParams.payMonth = this.refs.payMonth.value;
-        window.open(`/api/booking/search?${queryString(queryParams)}`)
+        window.open(`/api/charge_record/search?${queryString(queryParams)}`)
     };
 
 
@@ -52,6 +50,7 @@ class Page extends React.Component {
                 <input ref="phone" type="text"
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <ChargeRecordGrid ref="grid"></ChargeRecordGrid>
             <ModalContainer></ModalContainer>

@@ -10,6 +10,8 @@ import com.xiangshui.server.dao.UserInfoDao;
 import com.xiangshui.server.domain.ChargeRecord;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.service.UserService;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -59,7 +62,7 @@ public class ChargeRecordController extends BaseController {
     @AuthRequired({"用户充值纪录", "用户管理", "月卡管理"})
     @GetMapping("/api/charge_record/search")
     @ResponseBody
-    public Result search(HttpServletRequest request, HttpServletResponse response, ChargeRecord criteria, Date create_date_start, Date create_date_end, Boolean download) throws NoSuchFieldException, IllegalAccessException {
+    public Result search(HttpServletRequest request, HttpServletResponse response, ChargeRecord criteria, Date create_date_start, Date create_date_end, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
         if (download == null) download = false;
         if (criteria == null) criteria = new ChargeRecord();
 
@@ -96,6 +99,83 @@ public class ChargeRecordController extends BaseController {
             chargeRecordList.sort((o1, o2) -> (int) (o2.getCreate_time() - o1.getCreate_time()));
         }
 
+        if (download) {
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<ChargeRecord>("交易编号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getOut_trade_no();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("业务类型") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getSubject();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("用户编号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getUin());
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("用户手机号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getPhone();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("订单编号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getBooking_id());
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("分账场地编号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getBill_area_id());
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("分账订单编号") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getBill_booking_id());
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("城市") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getCity();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("交易金额") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getPrice() != null ? chargeRecord.getPrice() / 100f : null);
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("状态") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return String.valueOf(chargeRecord.getStatus());
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("交易时间") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getCreate_time() != null ? DateUtils.format(chargeRecord.getCreate_time() * 1000, "yyyy-MM-dd") : null;
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("更新时间") {
+                        @Override
+                        public String render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getUpdate_time() != null ? DateUtils.format(chargeRecord.getUpdate_time() * 1000, "yyyy-MM-dd") : null;
+                        }
+                    }
+            ), chargeRecordList, response, "用户充值记录.xlsx");
+            return null;
+        }
         return new Result(CodeMsg.SUCCESS).putData("chargeRecordList", chargeRecordList);
     }
 

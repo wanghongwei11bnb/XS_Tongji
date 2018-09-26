@@ -8,6 +8,8 @@ class ChargeRecordGrid extends React.Component {
                 {field: 'uin', title: '用户编号'},
                 {field: 'phone', title: '用户手机号'},
                 {field: 'booking_id', title: '订单编号'},
+                {field: 'bill_area_id', title: '分账场地编号'},
+                {field: 'bill_booking_id', title: '分账订单编号'},
                 {field: 'city', title: '城市'},
                 {field: 'price', title: '交易金额', render: value => type(value) === 'Number' ? value / 100 : null},
                 {field: 'status', title: '状态'},
@@ -56,6 +58,7 @@ class ChargeRecordGridModal extends Modal {
             queryParams: props.queryParams,
         };
     }
+
     renderBody = () => {
         return <ChargeRecordGrid ref="grid"></ChargeRecordGrid>
     };
