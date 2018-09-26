@@ -135,18 +135,18 @@ public class ExcelTools {
 //                        return String.valueOf(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f : null);
 //                    }
 //                },
-                new ExcelUtils.Column<Booking>("支付方式") {
-                    @Override
-                    public String render(Booking booking) {
-                        return Option.getActiveText(PayTypeOption.options, booking.getPay_type());
-                    }
-                },
-                new ExcelUtils.Column<Booking>("是否使用月卡") {
-                    @Override
-                    public String render(Booking booking) {
-                        return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
-                    }
-                },
+//                new ExcelUtils.Column<Booking>("支付方式") {
+//                    @Override
+//                    public String render(Booking booking) {
+//                        return Option.getActiveText(PayTypeOption.options, booking.getPay_type());
+//                    }
+//                },
+//                new ExcelUtils.Column<Booking>("是否使用月卡") {
+//                    @Override
+//                    public String render(Booking booking) {
+//                        return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
+//                    }
+//                },
                 (exports & EXPORT_MONTH_CARD_BILL) == EXPORT_MONTH_CARD_BILL ? new ExcelUtils.Column<Booking>("购买月卡金额", (total, booking) -> chargeRecordMap.containsKey(booking.getBooking_id()) ? total + chargeRecordMap.get(booking.getBooking_id()).getPrice() * 1f / 100 : total) {
                     @Override
                     public String render(Booking booking) {

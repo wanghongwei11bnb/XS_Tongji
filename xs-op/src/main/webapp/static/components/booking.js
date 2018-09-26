@@ -180,20 +180,20 @@ class BookingGrid extends React.Component {
                 //         return (total + value / 100).toFixed(2) - 0;
                 //     }
                 // },
-                {
-                    field: 'pay_type', title: '支付方式', width: '8em',
-                    render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
-                },
-                {
-                    field: 'month_card_flag',
-                    title: '是否使用月卡',
-                    render: value => value === 1 ?
-                        <span className="text-success">是</span> : <span className="text-secondary">否</span>,
-                    totalHandle: (total, value) => {
-                        if (type(total) !== 'Number') total = 0;
-                        return value === 1 ? total + 1 : total;
-                    }
-                },
+                // {
+                //     field: 'pay_type', title: '支付方式', width: '8em',
+                //     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
+                // },
+                // {
+                //     field: 'month_card_flag',
+                //     title: '是否使用月卡',
+                //     render: value => value === 1 ?
+                //         <span className="text-success">是</span> : <span className="text-secondary">否</span>,
+                //     totalHandle: (total, value) => {
+                //         if (type(total) !== 'Number') total = 0;
+                //         return value === 1 ? total + 1 : total;
+                //     }
+                // },
                 {field: 'capsule_id', title: '头等舱编号'},
                 {field: 'area_id', title: '场地编号'},
                 {
