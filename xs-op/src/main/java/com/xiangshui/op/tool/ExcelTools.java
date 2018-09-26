@@ -1,7 +1,8 @@
-package com.xiangshui.server.tool;
+package com.xiangshui.op.tool;
 
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.scheduled.AreaRegionScheduled;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaDao;
@@ -15,7 +16,9 @@ import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
-import com.xiangshui.util.*;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.util.Option;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,9 @@ public class ExcelTools {
     AreaDao areaDao;
     @Autowired
     ChargeRecordDao chargeRecordDao;
+
+    @Autowired
+    AreaRegionScheduled areaRegionScheduled;
 
 
     public static final long EXPORT_PHONE = (long) Math.pow(2, 0);
@@ -169,6 +175,12 @@ public class ExcelTools {
                     @Override
                     public String render(Booking booking) {
                         return booking.getArea_id() != null && areaMap.containsKey(booking.getArea_id()) ? areaMap.get(booking.getArea_id()).getTitle() : null;
+                    }
+                },
+                new ExcelUtils.Column<Booking>("区域") {
+                    @Override
+                    public String render(Booking booking) {
+                        return booking.getArea_id() != null && areaRegionScheduled.areaRegionMap.containsKey(booking.getArea_id()) ? areaRegionScheduled.areaRegionMap.get(booking.getArea_id()) : null;
                     }
                 },
                 new ExcelUtils.Column<Booking>("城市") {
