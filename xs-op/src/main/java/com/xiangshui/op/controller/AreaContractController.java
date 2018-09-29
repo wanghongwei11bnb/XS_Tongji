@@ -176,7 +176,7 @@ public class AreaContractController extends BaseController {
             columnList.add(new ExcelUtils.Column<AreaContract>("投放日期") {
                 @Override
                 public String render(AreaContract areaContract) {
-                    return countCapsuleScheduled.areaCreateTimeMap.containsKey(areaContract.getArea_id()) ? DateUtils.format(countCapsuleScheduled.countGroupArea.get(areaContract.getArea_id()) * 1000, "yyyy-MM-dd") : null;
+                    return countCapsuleScheduled.areaCreateTimeMap.containsKey(areaContract.getArea_id()) ? DateUtils.format(countCapsuleScheduled.areaCreateTimeMap.get(areaContract.getArea_id()) * 1000, "yyyy-MM-dd") : null;
                 }
             });
             columnList.add(new ExcelUtils.Column<AreaContract>("投放数量（台）") {
