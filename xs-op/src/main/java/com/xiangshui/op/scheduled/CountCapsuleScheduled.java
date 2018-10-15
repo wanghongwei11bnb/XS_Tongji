@@ -7,6 +7,7 @@ import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,9 @@ public class CountCapsuleScheduled {
                 }
             }
             if (new Integer(1).equals(capsule.getIs_downline())) {
+                return;
+            }
+            if (StringUtils.isBlank(capsule.getDevice_id()) || capsule.getDevice_id().trim().length() != 24) {
                 return;
             }
             if (countGroupArea.containsKey(capsule.getArea_id())) {
