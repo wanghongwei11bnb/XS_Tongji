@@ -1,16 +1,13 @@
 package com.xiangshui.server.crud;
 
-import com.xiangshui.server.crud.assist.CollectCallback;
-import com.xiangshui.server.crud.assist.CrudTemplateException;
-import com.xiangshui.server.crud.assist.Sql;
-import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.crud.assist.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
+public abstract class SinglePrimaryCrudTemplate<T, P> extends CrudTemplate<T> {
 
     @Override
     protected void initPrimary() throws NoSuchFieldException {
@@ -57,7 +54,7 @@ public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
             @Override
             public void run(String fieldName, Field field, String columnName, Object columnValue) {
                 if (fieldName.equals(primaryFieldName)) {
-                    throw new CrudTemplateException("不能更新 primaryFieldName 字段");
+                    return;
                 }
                 if (setSql.length() > 0) {
                     setSql.append(Sql.COMMA);
@@ -67,7 +64,7 @@ public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
             }
         });
         if (setSql.length() == 0) {
-            throw new XiangShuiException("没有要更新的字段");
+            throw new CrudTemplateException("没有要更新的字段");
         }
         whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
         paramList.add(primaryKey);
@@ -76,11 +73,11 @@ public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
         return getJdbcTemplate().update(sql.toString(), paramList.toArray());
     }
 
-    public int updateByPrimaryKey(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+    public int updateByPrimaryKey(T record, String[] fields) throws IllegalAccessException {
         return updateByPrimaryKey(record, fields, false);
     }
 
-    public int updateByPrimaryKeySelective(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
+    public int updateByPrimaryKeySelective(T record, String[] fields) throws IllegalAccessException {
         return updateByPrimaryKey(record, fields, true);
     }
 
@@ -92,4 +89,34 @@ public abstract class SinglePrimaryCrudTemplate<P, T> extends CrudTemplate<T> {
         log.debug(sql.toString());
         return getJdbcTemplate().update(sql.toString(), primaryKey);
     }
+
+
+    public List<T> selectByPrimaryKeyList(List<P> primaryKeyList, String columns) {
+        if (primaryKeyList == null || primaryKeyList.size() == 0) {
+            return null;
+        }
+        Example example = new Example();
+        example.setColumns(columns);
+        example.getCriteria().addCriterion(Criterion.in(primaryColumnName, primaryKeyList));
+        example.setLimit(primaryKeyList.size());
+        return selectByExample(example);
+    }
+
+    public List<P> mapperPrimaryKeyList(List<T> data) {
+        List<P> primaryKeyList = new ArrayList<>();
+        if (data != null && data.size() > 0) {
+            data.forEach(t -> {
+                try {
+                    P p = (P) primaryField.get(t);
+                    if (p != null) {
+                        primaryKeyList.add(p);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        return primaryKeyList;
+    }
+
 }

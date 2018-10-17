@@ -81,7 +81,7 @@ public class MonthCardController extends BaseController {
                         row.add(monthCardRecode.getCity());
                         Date end_date = new Date(monthCardRecode.getEnd_time() * 1000);
                         if (end_date.getTime() - now.getTime() > 0) {
-                            long left_seconds = monthCardRecode.getLeft_seconds();
+                            long left_seconds = monthCardRecode.getLeft_seconds() != null ? monthCardRecode.getLeft_seconds() : 0;
                             if (!(
                                     monthCardRecode.getUpdate_time() != null
                                             && DateUtils.format(new Date(monthCardRecode.getUpdate_time() * 1000), "yyyy-MM-dd").equals(DateUtils.format(now, "yyyy-MM-dd"))

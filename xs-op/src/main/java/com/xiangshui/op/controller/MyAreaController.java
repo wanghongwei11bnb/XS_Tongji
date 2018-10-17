@@ -145,6 +145,7 @@ public class MyAreaController extends BaseController {
                                                  @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws IOException {
         String op_username = UsernameLocal.get();
         boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
+        boolean auth_booking_bill_show_month_card = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_bill_show_month_card);
         if (create_date_start == null) {
             throw new XiangShuiException("日期不能为空");
         }
@@ -156,7 +157,7 @@ public class MyAreaController extends BaseController {
             bookingList = new ArrayList<>();
         }
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) /*| ExcelTools.EXPORT_MONTH_CARD_BILL*/, response, "booking.xlsx");
+        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), response, "booking.xlsx");
         return null;
     }
 }

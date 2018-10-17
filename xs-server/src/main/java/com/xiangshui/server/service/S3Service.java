@@ -121,4 +121,24 @@ public class S3Service implements InitializingBean {
     }
 
 
+    public String uploadImage(byte[] bytes, String contentType) throws IOException {
+        String key = MD5.getMD5(bytes);
+        AccessControlList accessControlList = new AccessControlList();
+        accessControlList.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(contentType);
+        String formatName;
+        if (StringUtils.isNotBlank(contentType) && contentType.indexOf("/") > -1 && contentType.indexOf("/") < contentType.length() - 1) {
+            formatName = contentType.substring(contentType.indexOf("/") + 1);
+        } else {
+            formatName = "jpg";
+        }
+        EasyImage easyImage = new EasyImage(bytes);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
+        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
+        return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
+    }
+
+
 }

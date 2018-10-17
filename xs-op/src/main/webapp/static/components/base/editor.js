@@ -25,15 +25,14 @@ class Editor extends React.Component {
                         Modal.open(<AlertModal>
                             {this.editor.txt.html()}
                         </AlertModal>);
-                    }}>get
+                    }}>查看源码
                     </button>
                     <button className="btn btn-sm btn-primary m-1" onClick={() => {
                         this.editor.txt.clear()
-                    }}>clean
+                    }}>清楚
                     </button>
                 </div>
                 <div id={this.state.id}>
-                    <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
                 </div>
             </div>
         </Fixed>
@@ -41,6 +40,19 @@ class Editor extends React.Component {
 
     componentDidMount() {
         this.editor = new window.wangEditor(document.getElementById(this.state.id));
-        this.editor.create()
+        this.editor.customConfig.uploadImgServer = '/api/article/img/upload';
+        this.editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+        this.editor.customConfig.uploadImgMaxLength = 1;
+        this.editor.customConfig.uploadFileName = 'uploadFile';
+        this.editor.customConfig.uploadImgHooks = {
+            customInsert: function (insertImg, result, editor) {
+                if (result.code === 0) {
+                    insertImg(result.data.url)
+                } else {
+                    Message.error(result.msg);
+                }
+            }
+        };
+        this.editor.create();
     }
 }

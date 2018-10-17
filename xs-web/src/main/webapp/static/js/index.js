@@ -1,6 +1,6 @@
 window.onload = function () {
     $('.to_about').click(function () {
-        location.href = 'about.html';
+        location.href = '/about.html';
         var e = window.event || e;
         if (document.all) {  //只有ie识别
             e.cancelBubble = true;
@@ -8,6 +8,7 @@ window.onload = function () {
             e.stopPropagation();
         }
     });
+
     //监听pc导航条跟随屏幕滚动样式的变化
     function wactchScroll() {
         var defaultTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
@@ -125,12 +126,13 @@ window.onload = function () {
     });
 
     //还原phone微信及小程序点击弹出对应二维码
-    function restore(){
+    function restore() {
         $('.phone_link_miniApp_code').removeClass('phone_link_active');
         $('.phone_linkmini2').attr('src', '/static/image/linkmini2.png');
         $('.phone_link_wx_code').removeClass('phone_link_active');
         $('.phone_linkwx2').attr('src', '/static/image/linkwx2.png');
     }
+
     //phone微信及小程序点击弹出对应二维码
     yshuai.event.addEventListener($('.phone_link_wx').get(0), 'touchend', function (e) {
         e.stopPropagation();
@@ -167,7 +169,7 @@ window.onload = function () {
     });
 
     //ie8不支持:last-child
-    if(window.isIE8){
+    if (window.isIE8) {
         $('.link_list ul:nth-child(2)').css({border: 'none'});
     }
 
@@ -199,7 +201,7 @@ window.onload = function () {
                         '</div>' +
                         '<div class="swiper-pagination-temp-text">' +
                         '<h2>注册／登录</h2>' +
-                        '<p>打开享+APP／小程序，首次使用需注</br>册认证，自动手机定位，可查看离你最</br>近的共享头等舱位置</p>'+
+                        '<p>打开享+APP／小程序，首次使用需注</br>册认证，自动手机定位，可查看离你最</br>近的共享头等舱位置</p>' +
                         '</div>' +
                         '</div>';
                 } else if (current == 2) {
@@ -271,7 +273,7 @@ window.onload = function () {
         });
 
         //给每个页码绑定跳转的事件   
-        $('.swiper-pagination01').on('click','img',function(){
+        $('.swiper-pagination01').on('click', 'img', function () {
             swiper1.slideTo(this.dataset.id, 3000, true);
         })
 
@@ -316,12 +318,13 @@ window.onload = function () {
         var swiper2 = new Swiper('.swiper-container02', {
             pagination: '.swiper-pagination',
             paginationClickable: true,
-            autoplay:3000,
+            autoplay: 3000,
             loop: true,
             onSlideChangeEnd: function (swiper) {
                 swiper.startAutoplay();
             }
         });
+
         //播放视频
         function playVideo() {
             var defaultTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
@@ -399,7 +402,7 @@ window.onload = function () {
                     $('.menuList').removeClass('active01');
                     break;
                 case '关于我们':
-                    location.href = 'about.html';
+                    location.href = '/about.html';
                     break;
 
             }
@@ -430,7 +433,7 @@ window.onload = function () {
                     location.href = "index.html?phoneNav=4";
                     break;
                 case '关于我们':
-                    location.href = "about.html";
+                    location.href = "/about.html";
                     break;
             }
 
@@ -442,6 +445,7 @@ window.onload = function () {
         });
         $('.about_content').css('height', $('.about_content_wrap').height() - $('.about_content_nav').height() + 'px');
         $('.phone_about_content').css('height', $('.phone_about_content_wrap').height() - $('.phone_about_content_nav').height() + 'px');
+
         function newsSwiper3Slide() {
             var swiper_news = new Swiper('.swiper-container-news', {
                 paginationClickable: false,

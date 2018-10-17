@@ -55,8 +55,15 @@ class DateInput extends React.Component {
     };
 
     setValue = (value) => {
+        if (type(value, 'Number')) {
+            value = new Date(value).format('yyyy-MM-dd');
+        }
         this.refs.input.value = value;
         this.value = value;
+    };
+
+    getValue = () => {
+        return this.refs.input.value;
     };
 
 

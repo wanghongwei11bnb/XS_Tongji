@@ -1,16 +1,13 @@
 package com.xiangshui.server.crud;
 
-import com.xiangshui.server.crud.assist.CollectCallback;
-import com.xiangshui.server.crud.assist.CrudTemplateException;
-import com.xiangshui.server.crud.assist.Sql;
-import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.crud.assist.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class DoublePrimaryCrudTemplate<P1, P2, T> extends CrudTemplate<T> {
+public abstract class DoublePrimaryCrudTemplate<T, P1, P2> extends CrudTemplate<T> {
 
     @Override
     public void initPrimary() throws NoSuchFieldException {
@@ -69,12 +66,12 @@ public abstract class DoublePrimaryCrudTemplate<P1, P2, T> extends CrudTemplate<
 
     public List<T> selectByPrimaryKey(P1 primaryKey, String columns, int skip, int limit) {
         if (primaryKey == null) {
-            throw new CrudTemplateException("primaryFieldValue 不能为空");
+            throw new CrudTemplateException("primaryKey 不能为空");
         }
-        if (skip > 0) {
+        if (skip < 0) {
             throw new CrudTemplateException("skip 必须大于等于0");
         }
-        if (limit > 1) {
+        if (limit < 1) {
             throw new CrudTemplateException("limit 必须大于等于1");
         }
         Sql sql = new Sql()
@@ -84,6 +81,18 @@ public abstract class DoublePrimaryCrudTemplate<P1, P2, T> extends CrudTemplate<
                 .limit(skip, limit);
         log.debug(sql.toString());
         return getJdbcTemplate().query(sql.toString(), new Object[]{primaryKey}, rowMapper);
+    }
+
+    public int countByPrimaryKey(P1 primaryKey) {
+        if (primaryKey == null) {
+            throw new CrudTemplateException("primaryKey 不能为空");
+        }
+        Sql sql = new Sql()
+                .select(Sql.COUNT_STAR)
+                .from(getFullTableName())
+                .where(new Sql().append(primaryColumnName).append(Sql.EQ).append(Sql.MARK).toString());
+        log.debug(sql.toString());
+        return getJdbcTemplate().queryForObject(sql.toString(), new Object[]{primaryKey}, int.class);
     }
 
     private int updateByPrimaryKey(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
@@ -115,7 +124,7 @@ public abstract class DoublePrimaryCrudTemplate<P1, P2, T> extends CrudTemplate<
             }
         });
         if (setSql.length() == 0) {
-            throw new XiangShuiException("没有要更新的字段");
+            throw new CrudTemplateException("没有要更新的字段");
         }
         whereSql.append(primaryColumnName).append(Sql.EQ).append(Sql.MARK).append(Sql.AND).append(secondPrimaryColumnName).append(Sql.EQ).append(Sql.MARK);
         paramList.add(primaryKey);

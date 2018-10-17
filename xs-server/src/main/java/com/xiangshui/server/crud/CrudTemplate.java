@@ -2,19 +2,20 @@ package com.xiangshui.server.crud;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.crud.assist.*;
-import com.xiangshui.server.exception.XiangShuiException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 
@@ -26,6 +27,7 @@ public abstract class CrudTemplate<T> {
     protected String tableName;
 
     protected boolean primary;
+    protected boolean primaryAutoIncr;
     protected String primaryFieldName;
     protected Field primaryField;
     protected String primaryColumnName;
@@ -44,7 +46,7 @@ public abstract class CrudTemplate<T> {
     public CrudTemplate() {
         try {
             tableName = getFullTableName();
-            tableClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+            tableClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
             if (StringUtils.isBlank(tableName)) {
                 throw new CrudTemplateException("tableName 不能为空");
             }
@@ -134,7 +136,6 @@ public abstract class CrudTemplate<T> {
         return fieldName;
     }
 
-
     private int insert(T record, String[] fields, boolean selective) throws NoSuchFieldException, IllegalAccessException {
         Sql columnsSql = new Sql();
         Sql valuesSql = new Sql();
@@ -154,12 +155,44 @@ public abstract class CrudTemplate<T> {
             }
         });
         if (columnsSql.length() == 0) {
-            throw new XiangShuiException("没有要写入的字段");
+            throw new CrudTemplateException("没有要写入的字段");
         }
         Sql sql = new Sql().insertInto(getFullTableName(), columnsSql.toString()).values(valuesSql.toString());
         log.debug(sql.toString());
-        return getJdbcTemplate().update(sql.toString(), paramList.toArray());
+
+        if (primary && primaryAutoIncr && primaryField.get(record) == null) {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            int result = getJdbcTemplate().update(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
+                    if (paramList != null) {
+                        for (int i = 0; i < paramList.size(); i++) {
+                            preparedStatement.setObject(i + 1, paramList.get(i));
+                        }
+                    }
+                    return preparedStatement;
+                }
+            }, keyHolder);
+            if (primaryField.getType() == byte.class || primaryField.getType() == Byte.class) {
+                primaryField.set(record, keyHolder.getKey().byteValue());
+            } else if (primaryField.getType() == short.class || primaryField.getType() == Short.class) {
+                primaryField.set(record, keyHolder.getKey().shortValue());
+            } else if (primaryField.getType() == int.class || primaryField.getType() == Integer.class) {
+                primaryField.set(record, keyHolder.getKey().intValue());
+            } else if (primaryField.getType() == long.class || primaryField.getType() == Long.class) {
+                primaryField.set(record, keyHolder.getKey().longValue());
+            } else if (primaryField.getType() == float.class || primaryField.getType() == Float.class) {
+                primaryField.set(record, keyHolder.getKey().floatValue());
+            } else if (primaryField.getType() == double.class || primaryField.getType() == Double.class) {
+                primaryField.set(record, keyHolder.getKey().doubleValue());
+            }
+            return result;
+        } else {
+            return getJdbcTemplate().update(sql.toString(), paramList.toArray());
+        }
     }
+
 
     public int insert(T record, String[] fields) throws NoSuchFieldException, IllegalAccessException {
         return insert(record, fields, false);
@@ -171,6 +204,7 @@ public abstract class CrudTemplate<T> {
 
 
     public List<T> selectByExample(Example example) {
+        if (example == null) example = new Example();
         String sqlWhere = example.getCriteria().makeSql();
         List paramList = example.getCriteria().makeParamList();
         Sql sql = new Sql()
@@ -189,6 +223,7 @@ public abstract class CrudTemplate<T> {
 
 
     public int countByExample(Example example) {
+        if (example == null) example = new Example();
         String sqlWhere = example.getCriteria().makeSql();
         List paramList = example.getCriteria().makeParamList();
         Sql sql = new Sql()

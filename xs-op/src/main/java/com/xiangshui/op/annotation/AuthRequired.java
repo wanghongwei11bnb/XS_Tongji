@@ -14,7 +14,10 @@ public @interface AuthRequired {
 
     String auth_op_auth = "OP权限管理";
 
+    String auth_article = "新闻帖子管理";
+
     String auth_booking_show_phone = "订单——查看手机号";
+    String auth_booking_bill_show_month_card = "订单——下载账单显示月卡";
     String auth_booking_download = "订单——下载";
     String auth_month_card_download = "月卡——下载";
 
