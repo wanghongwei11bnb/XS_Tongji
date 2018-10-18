@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.bean.AreaBillResult;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
@@ -24,6 +25,7 @@ import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -431,7 +433,9 @@ public class AreaContractController extends BaseController {
         if (month == null) {
             throw new XiangShuiException("月份不能为空");
         }
-        areaBillScheduled.makeBill(area_id, year, month);
+        LocalDate localDate = new LocalDate(year, month, 1);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000);
+        areaBillScheduled.upsetAreaBill(areaBillResult, year, month);
         return new Result(CodeMsg.SUCCESS);
     }
 
@@ -449,12 +453,14 @@ public class AreaContractController extends BaseController {
         if (month == null) {
             throw new XiangShuiException("月份不能为空");
         }
-        List<Booking> bookingList = areaBillScheduled.billBookingList(area_id, year, month);
+        LocalDate localDate = new LocalDate(year, month, 1);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000);
+        List<Booking> bookingList = areaBillResult.getBookingList();
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), response, "booking.xlsx");
+        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), areaBillResult.getChargeRecordMap(), response, "booking.xlsx");
         return null;
     }
 

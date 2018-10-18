@@ -55,7 +55,7 @@ public class ExcelTools {
     public static final long EXPORT_MONTH_CARD_BILL = (long) Math.pow(2, 1);
 
 
-    public XSSFWorkbook exportBookingList(List<Booking> bookingList, long exports) {
+    public XSSFWorkbook exportBookingList(List<Booking> bookingList, long exports, Map<Long, ChargeRecord> chargeRecordMap) {
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
@@ -76,21 +76,6 @@ public class ExcelTools {
             if (userInfoList != null) {
                 userInfoList.forEach(userInfo -> userInfoMap.put(userInfo.getUin(), userInfo));
             }
-        }
-        Map<Long, ChargeRecord> chargeRecordMap = new HashMap<>();
-        if ((exports & EXPORT_MONTH_CARD_BILL) == EXPORT_MONTH_CARD_BILL && bookingList.size() > 0) {
-            long create_time_start = new LocalDate(bookingList.get(bookingList.size() - 1).getCreate_time() * 1000).withDayOfMonth(1).toDate().getTime() / 1000;
-            long create_time_end = new LocalDate(bookingList.get(0).getCreate_time() * 1000).plusMonths(1).withDayOfMonth(1).toDate().getTime() / 1000;
-            List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
-                    new ScanFilter("create_time").between(create_time_start, create_time_end),
-                    new ScanFilter("bill_area_id").exists(),
-                    new ScanFilter("bill_booking_id").exists()
-            ));
-            chargeRecordList.forEach(chargeRecord -> {
-                if (chargeRecord != null && chargeRecord.getBill_area_id() != null && chargeRecord.getBill_booking_id() != null) {
-                    chargeRecordMap.put(chargeRecord.getBill_booking_id(), chargeRecord);
-                }
-            });
         }
         return ExcelUtils.export(Arrays.asList(
                 new ExcelUtils.Column<Booking>("订单编号") {
@@ -216,8 +201,8 @@ public class ExcelTools {
         ), bookingList);
     }
 
-    public void exportBookingList(List<Booking> bookingList, long exports, HttpServletResponse response, String fileName) throws IOException {
-        XSSFWorkbook workbook = exportBookingList(bookingList, exports);
+    public void exportBookingList(List<Booking> bookingList, long exports, Map<Long, ChargeRecord> chargeRecordMap, HttpServletResponse response, String fileName) throws IOException {
+        XSSFWorkbook workbook = exportBookingList(bookingList, exports, chargeRecordMap);
         response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()));
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

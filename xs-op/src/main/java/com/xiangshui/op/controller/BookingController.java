@@ -158,7 +158,7 @@ public class BookingController extends BaseController implements InitializingBea
                 activeBookingList = new ArrayList<>();
             }
             Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-            excelTools.exportBookingList(activeBookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
+            excelTools.exportBookingList(activeBookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, null, response, "booking.xlsx");
             return null;
         }
 
@@ -196,7 +196,7 @@ public class BookingController extends BaseController implements InitializingBea
             Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
         }
         if (download) {
-            excelTools.exportBookingList(bookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, response, "booking.xlsx");
+            excelTools.exportBookingList(bookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, null, response, "booking.xlsx");
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)

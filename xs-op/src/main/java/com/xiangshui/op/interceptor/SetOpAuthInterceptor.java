@@ -1,19 +1,15 @@
 package com.xiangshui.op.interceptor;
 
-import com.xiangshui.op.bean.OpRecord;
 import com.xiangshui.op.bean.Session;
 import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
-import com.xiangshui.server.domain.mysql.Op;
-import com.xiangshui.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,6 +36,7 @@ public class SetOpAuthInterceptor implements HandlerInterceptor {
                     if (StringUtils.isNotBlank(op_session)) {
                         Session session = redisService.get(OpPrefix.session, op_session, Session.class);
                         if (session != null) {
+                            redisService.expire(OpPrefix.session,op_session);
                             SessionLocal.set(session);
                             UsernameLocal.set(session.getUsername());
                         }

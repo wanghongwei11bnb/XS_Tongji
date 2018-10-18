@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AreaRequired;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.bean.AreaBillResult;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.dao.AreaDao;
@@ -152,12 +153,13 @@ public class MyAreaController extends BaseController {
         if (create_date_end == null) {
             throw new XiangShuiException("日期不能为空");
         }
-        List<Booking> bookingList = areaBillScheduled.billBookingList(area_id, create_date_start.getTime() / 1000, create_date_end.getTime() / 1000);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, create_date_start.getTime() / 1000, create_date_end.getTime() / 1000);
+        List<Booking> bookingList = areaBillResult.getBookingList();
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), response, "booking.xlsx");
+        excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), areaBillResult.getChargeRecordMap(), response, "booking.xlsx");
         return null;
     }
 }
