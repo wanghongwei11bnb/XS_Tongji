@@ -17,13 +17,13 @@ public class IndexController extends BaseController {
     @Autowired
     ArticleDao articleDao;
 
-    @GetMapping(value = {"/", "/index.html"})
+    @GetMapping({"/", "/index.html"})
     public String index() {
         return "index";
     }
 
 
-    @GetMapping("/about.html")
+    @GetMapping({"/about", "/about.html"})
     public String about() {
         return "about";
     }
@@ -31,16 +31,10 @@ public class IndexController extends BaseController {
 
     @GetMapping("/news/list")
     public String news_list(HttpServletRequest request, Integer pageNum) {
+        request.setAttribute("pageNum", 1);
         return news_list_n(request, 1);
     }
 
-
-    @GetMapping("/news/{article_id:\\d+}")
-    public String news_detail(HttpServletRequest request, @PathVariable("article_id") Integer article_id) {
-        Article article = articleDao.selectByPrimaryKey(article_id, null);
-        request.setAttribute("article", article);
-        return "news_detail";
-    }
 
     @GetMapping("/news/list/{pageNum:\\d+}")
     public String news_list_n(HttpServletRequest request, @PathVariable("pageNum") Integer pageNum) {
@@ -49,15 +43,20 @@ public class IndexController extends BaseController {
             pageNum = 1;
         }
         int skip = pageSize * (pageNum - 1);
-        int limit = pageSize;
         Example example = new Example();
         int total = articleDao.countByExample(example);
-        example.setOrderByClause("release_time desc , id desc").setSkip(skip).setLimit(limit);
+        example.setOrderByClause("release_time desc , id desc").setSkip(skip).setLimit(pageSize);
         List<Article> articleList = articleDao.selectByExample(example);
         request.setAttribute("total", total);
         request.setAttribute("articleList", articleList);
         return "news_list";
     }
 
+    @GetMapping("/news/{article_id:\\d+}")
+    public String news_detail(HttpServletRequest request, @PathVariable("article_id") Integer article_id) {
+        Article article = articleDao.selectByPrimaryKey(article_id, null);
+        request.setAttribute("article", article);
+        return "news_detail";
+    }
 
 }

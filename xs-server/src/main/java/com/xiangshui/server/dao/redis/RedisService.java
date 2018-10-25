@@ -279,15 +279,15 @@ public class RedisService implements InitializingBean {
 
 
     public void afterPropertiesSet() throws Exception {
-        GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-        jedisPool = new JedisPool(config, host, port, 1000 * 30);
-        this.del(CityKeyPrefix.list_active);
-        this.del(CityKeyPrefix.list_all);
+        try {
+            GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+            jedisPool = new JedisPool(config, host, port, 1000 * 30);
+            this.del(CityKeyPrefix.list_active);
+            this.del(CityKeyPrefix.list_all);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public static void main(String[] args) {
-        Jedis jedis = new Jedis("dev.xiangshuispace.com", 6379);
-//        jedis.auth("xiangshui@123");
-        jedis.setex("test", 60 * 3, "123123");
-    }
 }

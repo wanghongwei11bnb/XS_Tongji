@@ -1,0 +1,140 @@
+<div class="container p-0">
+    <div class="relative clearfix">
+        <img class="float-left w-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/79BD0E9EBD463E475470FF3D3FA04AD7" alt=""/>
+        <div class="invite absolute cx flex flex-direction-column px-4 pt-4 pb-2" style="width:92%;height:18%;top:43%;">
+            <div class="relative">
+                <input class="phone form-control" type="tel"/>
+            </div>
+            <div class="flex-grow-1"></div>
+            <div class="relative row">
+                <div class="col-8 relative">
+                    <input class="code form-control" type="tel"/>
+                </div>
+                <div class="col-4 relative pl-2">
+                    <button class="btn btn-sm btn-block btn-send" type="button">发送</button>
+                </div>
+            </div>
+            <div class="flex-grow-1"></div>
+            <div class="relative">
+                <button class="btn btn-block btn-submit h-100" type="button">立即领取</button>
+            </div>
+        </div>
+        <div class="result result-success absolute cx flex flex-direction-column px-4 pt-4 pb-2" style="width:92%;height:18%;top:43%;">
+            <div class="text-center" style="color:#333333;font-size: 18px;">恭喜您成功领取</div>
+            <div class="flex-grow-1"></div>
+            <div class="text-center" style="color:#f03838;font-size: 28px;">188元大礼包</div>
+            <div class="flex-grow-1"></div>
+            <div class="text-center" style="color: #747474; font-size: 16px;">已放入您的享+账户：<span class="phone"></span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let domain = 'http://dev.xiangshuispace.com:18083';
+
+
+    function showForm() {
+        $('.invite').show();
+        $('.result').hide();
+    }
+
+    function showResult() {
+        $('.invite').hide();
+        $('.result').show();
+        $('.result .phone').text($('input.phone').val());
+    }
+
+
+    function reViewSendBtn() {
+        let btn_send = $('.btn-send');
+        if (s <= 0) {
+            btn_send.attr('disabled', false);
+            btn_send.removeClass('disabled');
+            btn_send.text('发送');
+        } else {
+            btn_send.attr('disabled', true);
+            btn_send.addClass('disabled');
+            btn_send.text(s + 's');
+        }
+    }
+
+    var s = 0;
+    var timer;
+
+
+    function startTimer() {
+        s = 60;
+        reViewSendBtn();
+        timer = setInterval(function () {
+            --s;
+            reViewSendBtn();
+            if (s <= 0) {
+                clearTimer();
+            }
+        }, 1000);
+    }
+
+    function clearTimer() {
+        s = 0;
+        reViewSendBtn();
+        clearInterval(timer);
+    }
+
+
+    $('.invite .btn-send').on('click', function () {
+        let phone = $('.invite .phone').val();
+        if (!phone) {
+            return Message.msg('请输入手机号码');
+        }
+        if (!/^1\d{10}$/.test(phone)) {
+            return Message.msg('手机号码输入有误');
+        }
+        request({
+            url: domain + '/api/user/getverificationcode', method: 'post', loading: true,
+            data: JSON.stringify({phone: phone}),
+            success: function (resp) {
+                Message.msg('发送成功');
+                startTimer();
+            }
+        });
+    });
+
+
+    $('.invite .btn-submit').on('click', function () {
+        let phone = $('.invite .phone').val();
+        if (!phone) {
+            return Message.msg('请输入手机号码');
+        }
+        if (!/^1\d{10}$/.test(phone)) {
+            return Message.msg('手机号码输入有误');
+        }
+        let code = $('.invite .code').val();
+        if (!code) {
+            return Message.msg('请输入验证码');
+        }
+        if (!/^\d{4}$/.test(code)) {
+            return Message.msg('验证码输入有误');
+        }
+        request({
+            url: domain + '/api/user/signup', method: 'post', loading: true,
+            data: JSON.stringify({phone: phone, verify_code: code}),
+            success: function (resp) {
+                Cookies.set('User-Uin', resp.uin, {expires: 7, path: '/'});
+                Cookies.set('Client-Token', resp.token, {expires: 7, path: '/'});
+                request({
+                    url: domain + '/api/wallet/send_coupon', method: 'post', loading: true,
+                    data: JSON.stringify({third_uin: getParameter('uid')}),
+                    success: function (resp) {
+                        Message.msg('领取成功');
+                        showResult();
+                    }
+                });
+            }
+        });
+    });
+
+    // showForm();
+    showResult();
+
+</script>
