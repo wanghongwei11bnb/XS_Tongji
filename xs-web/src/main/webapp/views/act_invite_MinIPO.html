@@ -32,11 +32,13 @@
 <script>
 
     function showForm() {
+        document.title = 'minIPO投资人专享188元大礼包';
         $('.invite').show();
         $('.result').hide();
     }
 
     function showResult() {
+        document.title = '新用户注册得188元大礼包';
         $('.invite').hide();
         $('.result').show();
         $('.result .phone').text($('input.phone').val());
