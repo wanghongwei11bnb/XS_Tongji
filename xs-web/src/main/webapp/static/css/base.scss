@@ -288,6 +288,7 @@ $grid-breakpoints: (
   }
   .btn {
     height: 35px;
+    border-radius: 5px;
     &.btn-send {
       height: 40px;
       background-color: #f0f0f0;
