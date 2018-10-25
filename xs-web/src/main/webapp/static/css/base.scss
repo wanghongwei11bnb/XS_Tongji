@@ -77,9 +77,6 @@ $grid-breakpoints: (
         xl: 1200px
 ) !default;
 
-
-
-
 @mixin sm {
   @media screen and (min-width: map_get($grid-breakpoints, "sm")) {
     @content;
@@ -287,18 +284,19 @@ $grid-breakpoints: (
     border-radius: 5px;
     border: none;
     outline: none;
-    height: 35px;
+    height: 40px;
   }
   .btn {
     height: 35px;
     &.btn-send {
+      height: 40px;
       background-color: #f0f0f0;
       color: #f03838;
       &.disabled {
         color: #747474;
       }
     }
-    &.btn-submit{
+    &.btn-submit {
       background-color: #ffead6;
       color: #f03838;
     }
