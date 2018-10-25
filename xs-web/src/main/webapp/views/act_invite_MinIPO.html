@@ -31,9 +31,6 @@
 
 <script>
 
-    let domain = 'http://dev.xiangshuispace.com:18083';
-
-
     function showForm() {
         $('.invite').show();
         $('.result').hide();
@@ -91,7 +88,7 @@
             return Message.msg('手机号码输入有误');
         }
         request({
-            url: domain + '/api/user/getverificationcode', method: 'post', loading: true,
+            url: '/api/user/getverificationcode', method: 'post', loading: true,
             data: JSON.stringify({phone: phone}),
             success: function (resp) {
                 Message.msg('发送成功');
@@ -117,13 +114,13 @@
             return Message.msg('验证码输入有误');
         }
         request({
-            url: domain + '/api/user/signup', method: 'post', loading: true,
+            url: '/api/user/signup', method: 'post', loading: true,
             data: JSON.stringify({phone: phone, verify_code: code}),
             success: function (resp) {
                 Cookies.set('User-Uin', resp.uin, {expires: 7, path: '/'});
                 Cookies.set('Client-Token', resp.token, {expires: 7, path: '/'});
                 request({
-                    url: domain + '/api/wallet/send_coupon', method: 'post', loading: true,
+                    url: '/api/wallet/send_coupon', method: 'post', loading: true,
                     data: JSON.stringify({third_uin: getParameter('uid')}),
                     success: function (resp) {
                         Message.msg('领取成功');
@@ -134,7 +131,7 @@
         });
     });
 
-    // showForm();
-    showResult();
+    showForm();
+    // showResult();
 
 </script>

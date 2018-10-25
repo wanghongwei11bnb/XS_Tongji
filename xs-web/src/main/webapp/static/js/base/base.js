@@ -119,7 +119,7 @@ function request(opt) {
     };
     if (opt.loading) Loading.open();
     $.ajax({
-        url: opt.url, method: opt.method || 'get', data: opt.data,
+        url: `${!!window.debug ? '//dev.xiangshuispace.com:18083' : '//www.xiangshuispace.com'}${opt.url}`, method: opt.method || 'get', data: opt.data,
         contentType: opt.contentType, dataType: opt.dataType || "json", headers: header,
         success: (resp) => {
             try {
