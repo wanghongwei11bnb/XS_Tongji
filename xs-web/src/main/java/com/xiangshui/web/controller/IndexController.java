@@ -17,14 +17,21 @@ public class IndexController extends BaseController {
     @Autowired
     ArticleDao articleDao;
 
+    @GetMapping({"/iframe"})
+    public String iframe() {
+        return "iframe";
+    }
+
     @GetMapping({"/", "/index.html"})
-    public String index() {
+    public String index(HttpServletRequest request) {
+        setClient(request);
         return "index";
     }
 
 
     @GetMapping({"/about", "/about.html"})
-    public String about() {
+    public String about(HttpServletRequest request) {
+        setClient(request);
         return "about";
     }
 
@@ -38,6 +45,7 @@ public class IndexController extends BaseController {
 
     @GetMapping("/news/list/{pageNum:\\d+}")
     public String news_list_n(HttpServletRequest request, @PathVariable("pageNum") Integer pageNum) {
+        setClient(request);
         int pageSize = 6;
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
@@ -54,6 +62,7 @@ public class IndexController extends BaseController {
 
     @GetMapping("/news/{article_id:\\d+}")
     public String news_detail(HttpServletRequest request, @PathVariable("article_id") Integer article_id) {
+        setClient(request);
         Article article = articleDao.selectByPrimaryKey(article_id, null);
         request.setAttribute("article", article);
         return "news_detail";

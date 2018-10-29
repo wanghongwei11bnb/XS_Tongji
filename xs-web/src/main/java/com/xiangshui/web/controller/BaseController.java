@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 public class BaseController {
@@ -27,6 +29,7 @@ public class BaseController {
 
     public void setClient(HttpServletRequest request) {
         request.setAttribute("debug", debug);
+        request.setAttribute("isPhone", isPhone(request));
         request.setAttribute("ts", ts + "_" + (debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH")));
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);
@@ -42,5 +45,20 @@ public class BaseController {
         return new Result(CodeMsg.SERVER_ERROR.code, e.getMessage());
     }
 
+
+    static Pattern phonePat = Pattern.compile("\\bNokia|SAMSUNG|MIDP-2|CLDC1.1|SymbianOS|MAUI|UNTRUSTED/1.0"
+            + "|Windows CE|iPhone|iPad|Android|BlackBerry|UCWEB|ucweb|BREW|J2ME|YULONG|YuLong|COOLPAD|TIANYU|TY-"
+            + "|K-Touch|Haier|DOPOD|Lenovo|LENOVO|HUAQIN|AIGO-|CTC/1.0"
+            + "|CTC/2.0|CMCC|DAXIAN|MOT-|SonyEricsson|GIONEE|HTC|ZTE|HUAWEI|webOS|GoBrowser|IEMobile|WAP2.0\\b", Pattern.CASE_INSENSITIVE);
+
+    public static boolean isPhone(HttpServletRequest request) {
+        String userAgent = request.getHeader("USER-AGENT");
+        Matcher matcherPhone = phonePat.matcher(userAgent);
+        if (matcherPhone.find()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

@@ -25,6 +25,11 @@
     #else
     <script>window.debug = false;</script>
     #end
+    #if($isPhone)
+    <script>window.isPhone = true;</script>
+    #else
+    <script>window.isPhone = false;</script>
+    #end
     <script src="/build/js.cookie.js"></script>
     <script src="/build/jquery.min.js"></script>
     <script src="/build/bootstrap/js/bootstrap.min.js"></script>

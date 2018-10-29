@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="/build/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/build/css/base.css">
+<link rel="stylesheet" href="/build/css/index.css">
+
 <div class="section section-nav relative">
     <div class="navbar-box fixed z-index-5 top-0 left-0 w-100">
         <nav class="container navbar navbar-expand-md navbar-dark">
@@ -37,6 +41,267 @@
     </div>
     <div class="title absolute w-100 left-0 cy text-center text-white d-none d-md-block">
         <h2>共享头等舱——健康、休息、办公</h2>
+    </div>
+
+</div>
+
+<script>
+    setInterval(function () {
+        if (isPhone) {
+            if (window.scrollY > 0 || $('.section-nav .navbar-collapse').hasClass('show')) {
+                $('.section-nav').addClass('black');
+            } else {
+                $('.section-nav').removeClass('black');
+            }
+        } else {
+
+            if (window.scrollY > $('.section-nav').height() - $('.navbar-box').height()) {
+                $('.section-nav').addClass('black');
+            } else {
+                $('.section-nav').removeClass('black');
+            }
+
+        }
+    }, 30);
+</script>
+
+
+<link rel="stylesheet" href="/build/swiper/css/swiper.min.css">
+
+<script src="/build/swiper/js/swiper.min.js"></script>
+
+<div class="section section-news container">
+    <div class="text-center mt-5 mb-4" style="color: #3b3d40;font-size: 24px;">媒体报道</div>
+    <div id="certify">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><img class="w-100 h-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F0A53C4FEA224C004B7647ABB1C4C48E"/></div>
+                <div class="swiper-slide"><img class="w-100 h-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F0A53C4FEA224C004B7647ABB1C4C48E"/></div>
+                <div class="swiper-slide"><img class="w-100 h-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F0A53C4FEA224C004B7647ABB1C4C48E"/></div>
+                <div class="swiper-slide"><img class="w-100 h-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F0A53C4FEA224C004B7647ABB1C4C48E"/></div>
+                <div class="swiper-slide"><img class="w-100 h-100" src="https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F0A53C4FEA224C004B7647ABB1C4C48E"/></div>
+
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-3 mb-5" style="font-size: 12px;color: #3b3d40;">享+共享头等舱入驻万达</div>
+</div>
+
+<script>
+    new Swiper('.section-news .swiper-container', {
+        watchSlidesProgress: true,
+        slidesPerView: 'auto',
+        centeredSlides: true,
+        loop: true,
+        loopedSlides: 5,
+        autoplay: true,
+        navigation: {
+            nextEl: '.section-news .swiper-button-next',
+            prevEl: '.section-news .swiper-button-prev',
+        },
+        pagination: {
+            el: '.section-news .swiper-pagination',
+            //clickable :true,
+        },
+        on: {
+            progress: function (progress) {
+                for (i = 0; i < this.slides.length; i++) {
+                    var slide = this.slides.eq(i);
+                    var slideProgress = this.slides[i].progress;
+                    modify = 1;
+                    if (Math.abs(slideProgress) > 1) {
+                        modify = (Math.abs(slideProgress) - 1) * 0.3 + 1;
+                    }
+                    translate = slideProgress * modify * 260 + 'px';
+                    scale = 1 - Math.abs(slideProgress) / 5;
+                    zIndex = 999 - Math.abs(Math.round(10 * slideProgress));
+                    slide.transform('translateX(' + translate + ') scale(' + scale + ')');
+                    slide.css('zIndex', zIndex);
+                    slide.css('opacity', 1);
+                    if (Math.abs(slideProgress) > 3) {
+                        slide.css('opacity', 0);
+                    }
+                }
+            },
+            setTransition: function (transition) {
+                for (var i = 0; i < this.slides.length; i++) {
+                    var slide = this.slides.eq(i)
+                    slide.transition(transition);
+                }
+
+            }
+        }
+
+    })
+</script>
+
+<div id="tiyan" class="position-relative" style="top:-100px;"></div>
+<div class="section section-capsule container">
+    <div class="text-center mt-5 mb-4" style="color: #3b3d40;font-size: 24px;">共享头等舱 健康加油站</div>
+    <div class="row">
+        <div class="col-1">
+            <div class="swiper-button-prev"></div>
+        </div>
+        <div class="col-10">
+            <!-- Swiper -->
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <a href="javascript:void(0)">
+                            <div class="swiper-slide-wrap">
+                                <img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/6B74F9D5E7F3CBEEA4EFC361D94E000F" alt="操作便捷" width="180" height="180"/>
+
+                                <h2>操作便捷</h2>
+
+                                <p>扫码开舱，移动支付，一键结束订单。</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="javascript:void(0)">
+                            <div class="swiper-slide-wrap">
+                                <img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/1045D3967608F93EE5CF7B2CA441A837" alt="自助共享" width="180" height="180"/>
+
+                                <h2>自助共享</h2>
+
+                                <p>自助使用，智能切换，满足您碎片化休息、办公等需求。</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="javascript:void(0)">
+                            <div class="swiper-slide-wrap">
+                                <img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/B03D0BC9272DE7BB70E12AC93105DE58" alt="健康舒适" width="180" height="180"/>
+
+                                <h2>健康舒适</h2>
+
+                                <p>专属休闲空间，可随意调节沙发角度，开启您的舒适之旅。</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="javascript:void(0)">
+
+                            <div class="swiper-slide-wrap">
+                                <img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/B62314201B87BDB3CEA616F23FACF927" alt="安全卫生" width="180" height="180"/>
+
+                                <h2>安全卫生</h2>
+
+                                <p>高阻燃材料，高强度结构；每日维护，干净卫生。</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="javascript:void(0)">
+
+                            <div class="swiper-slide-wrap display_flex flex-direction_column align-items_center justify-content_flex-center">
+                                <img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/A4DBE6D713281F73DF0C76632A5513AB" alt="时尚外观" width="180" height="180">
+
+                                <h2>时尚外观</h2>
+
+                                <p>全新时尚外观，高颜值高性价比的绝佳休息、办公体验。</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="swiper-button-next"></div>
+        </div>
+    </div>
+</div>
+<script>
+    new Swiper('.section-capsule .swiper-container', {
+        slidesPerView: isPhone ? 1 : 3,
+        spaceBetween: 30,
+        navigation: {
+            nextEl: '.section-capsule .swiper-button-next',
+            prevEl: '.section-capsule .swiper-button-prev',
+        },
+    });
+</script>
+
+<div id="hezuo" class="position-relative" style="top:-100px;"></div>
+<div class="section container section-hz">
+    <div class="text-center mt-5 mb-4" style="color: #3b3d40;font-size: 24px;">合作伙伴</div>
+
+    <div class="row">
+        <div class="col-1">
+            <div class="swiper-button-prev"></div>
+        </div>
+        <div class="col-10">
+            <div class="swiper-container">
+                #if($isPhone)
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/FD323C2A15B8949544296DF46B16CB72" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/ABAF0F3D744F0494C5C36417E49B3D47" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/FAFCA56552C5CFEC0B6CC75478E6B481" alt="">
+                    </div>
+                </div>
+                #else
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/7A5ABA1C7AE73279EA4935E1A9EF4A26" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/E47465171EE5FBA9FAE1FF1616A2BB5D" alt="">
+                    </div>
+                    <div class="swiper-slide">
+                        <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/5D7AC63181806D35E69F6ADF417C759B" alt="">
+                    </div>
+                </div>
+                #end
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="swiper-button-next"></div>
+        </div>
+    </div>
+
+    <script>
+        new Swiper('.section-hz .swiper-container', {
+            navigation: {
+                nextEl: '.section-hz .swiper-button-next',
+                prevEl: '.section-hz .swiper-button-prev',
+            },
+        });
+    </script>
+
+</div>
+
+<div class="section container section-download mt-5 pt-5 z-index-1" style="">
+
+    <div class="row">
+        <div class="col-7">
+            <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/D5E0E57EBE78E887A3DCC182DDB8A2DC" alt="">
+        </div>
+        <div class="col-1"></div>
+        <div class="col-4">
+            <div class="d-inline-block position-absolute cxy pb-3">
+                <img class="w-100" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/F760D31F551E2BB7F5F2CEE2AF43EB78" alt="">
+                <div class="text-center mt-3" style="font-size: 12px;">微信扫码体验小程序</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="section section-footer pt-5 pb-2 text-center" style="background-color: #189df9;">
+
+    <img class="mt-5" style="width:141px;height:58px;" src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/84E77261FA7F7976DEBA7FB48A96EA8C" alt="">
+
+    <div class="my-5">
+        <a class="text-white inline-block px-4 py-2 border-right border-white" href="/about">关于我们</a>
+        <a class="text-white inline-block px-4 py-2" href="/about">关于我们</a>
+    </div>
+
+    <div class="text-white" style="font-size: 12px;">
+        <span>© 2017北京享睡科技有限公司丨京ICP备 17038246号<div class="d-block d-sm-none"></div><img src="//s3.cn-north-1.amazonaws.com.cn/areaimgs/D0289DC0A46FC5B15B3363FFA78CF6C7" class="phone_national_emblem">&nbsp;京公安网安备 11010102002938号</span>
     </div>
 
 </div>

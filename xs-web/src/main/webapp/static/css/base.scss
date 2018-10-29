@@ -130,6 +130,8 @@ $grid-breakpoints: (
     #{$key}: 100%;
   }
 }
+
+
 @for $i from 1 through 9 {
   .z-index-#{$i} {
     z-index: $i;
@@ -256,7 +258,16 @@ $grid-breakpoints: (
   //navbar-toggler-icon
   .navbar-toggler-icon {
     background-image: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/E21FC1CCFD4FAD4562AB11D8EF387C95");
+    @at-root .black#{&} {
+      background-image: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/D40D5D9115F563E516FB4BB19ED7C5ED");
+    }
   }
+
+  .navbar-toggler,.navbar-toggler:active{
+    border: none;
+    outline: none;
+  }
+
   //nav-link
   .nav-link {
     color: #fff !important;
@@ -301,5 +312,12 @@ $grid-breakpoints: (
       background-color: #ffead6;
       color: #f03838;
     }
+  }
+}
+
+.section-download{
+  margin-bottom: -50px;
+  @include md{
+    margin-bottom: -100px;
   }
 }
