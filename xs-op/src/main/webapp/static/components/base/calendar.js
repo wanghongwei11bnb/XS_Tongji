@@ -129,6 +129,10 @@ class YearMonthDate {
     clone() {
         return new YearMonthDate(this.year, this.month, this.date);
     }
+
+    toDate() {
+        return new Date(this.year, this.month - 1, this.date);
+    }
 }
 
 YearMonthDate.createByDate = function (date) {

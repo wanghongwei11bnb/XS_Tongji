@@ -47,7 +47,7 @@ class DateInput extends React.Component {
     onClick = () => {
         Modal.open(<CalendarModal
             onDateClick={(ymd) => {
-                this.setValue(`${ymd.year}-${ymd.month}-${ymd.date}`);
+                this.setValue(ymd.toDate().format('yyyy-MM-dd'));
             }}
             onClean={() => {
                 this.setValue(null);
