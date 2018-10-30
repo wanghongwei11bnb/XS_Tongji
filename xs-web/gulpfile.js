@@ -94,6 +94,7 @@ gulp.task('css', function () {
 
     gulp.src([
         './src/main/webapp/static/**/*.scss',
+        '!_define.scss',
     ])
         .pipe(plumber())
         .pipe(sass())

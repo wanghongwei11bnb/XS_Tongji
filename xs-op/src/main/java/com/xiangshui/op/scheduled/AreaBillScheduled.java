@@ -85,7 +85,7 @@ public class AreaBillScheduled implements InitializingBean {
                 return;
             }
             try {
-                AreaBillResult areaBillResult = reckonAreaBill(areaContract.getArea_id(), localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000);
+                AreaBillResult areaBillResult = reckonAreaBill(areaContract.getArea_id(), localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000, false);
                 upsetAreaBill(areaBillResult, localDate.getYear(), localDate.getMonthOfYear());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -94,21 +94,27 @@ public class AreaBillScheduled implements InitializingBean {
     }
 
 
-    public AreaBillResult reckonAreaBill(int area_id, long time_start, long time_end) {
+    public AreaBillResult reckonAreaBill(int area_id, long time_start, long time_end, boolean skipContract) {
         Date now = new Date();
-        AreaContract areaContract = areaContractService.getByAreaId(area_id);
-        if (areaContract == null) {
-            throw new XiangShuiException("没匹配到场地合同");
+        AreaBillResult areaBillResult = new AreaBillResult();
+        if (!skipContract) {
+            AreaContract areaContract = areaContractService.getByAreaId(area_id);
+            if (areaContract == null) {
+                throw new XiangShuiException("没匹配到场地合同");
+            }
+            if (!Integer.valueOf(AreaContractStatusOption.adopt.value).equals(areaContract.getStatus())) {
+                throw new XiangShuiException("审核未通过");
+            }
+            if (areaContract.getAccount_ratio() == null) {
+                throw new XiangShuiException("该场地没有设置分账比例");
+            }
+            if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() < 100)) {
+                throw new XiangShuiException("该场地分账比例设置有误");
+            }
+
+            areaBillResult.setAreaContract(areaContract);
         }
-        if (!Integer.valueOf(AreaContractStatusOption.adopt.value).equals(areaContract.getStatus())) {
-            throw new XiangShuiException("审核未通过");
-        }
-        if (areaContract.getAccount_ratio() == null) {
-            throw new XiangShuiException("该场地没有设置分账比例");
-        }
-        if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() < 100)) {
-            throw new XiangShuiException("该场地分账比例设置有误");
-        }
+
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
                 new ScanFilter("create_time").between(time_start - (60 * 60 * 24 * 31), time_end + (60 * 60 * 24 * 31)),
                 new ScanFilter("bill_area_id").eq(area_id),
@@ -169,7 +175,7 @@ public class AreaBillScheduled implements InitializingBean {
                 }
             }
         }
-        AreaBillResult areaBillResult = new AreaBillResult()
+        areaBillResult
                 .setArea_id(area_id)
                 .setTime_start(time_start)
                 .setTime_end(time_end)
@@ -180,9 +186,12 @@ public class AreaBillScheduled implements InitializingBean {
                 .setFinal_price(final_price)
                 .setPay_price(pay_price)
                 .setCharge_price(charge_price)
-                .setMonth_card_price(month_card_price)
-                .setAccount_ratio(areaContract.getAccount_ratio())
-                .setRatio_price((charge_price + pay_price + (new LocalDate(time_start * 1000).withDayOfMonth(1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0)) * areaContract.getAccount_ratio() / 100);
+                .setMonth_card_price(month_card_price);
+        if (!skipContract) {
+            areaBillResult
+                    .setAccount_ratio(areaBillResult.getAreaContract().getAccount_ratio())
+                    .setRatio_price((charge_price + pay_price + (new LocalDate(time_start * 1000).withDayOfMonth(1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0)) * areaBillResult.getAreaContract().getAccount_ratio() / 100);
+        }
         return areaBillResult;
     }
 

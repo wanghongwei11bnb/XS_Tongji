@@ -33,6 +33,7 @@ public class BaseController {
         request.setAttribute("ts", ts + "_" + (debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH")));
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);
+        request.setAttribute("Math", Math.class);
     }
 
     /**

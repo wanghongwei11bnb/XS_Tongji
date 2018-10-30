@@ -434,7 +434,7 @@ public class AreaContractController extends BaseController {
             throw new XiangShuiException("月份不能为空");
         }
         LocalDate localDate = new LocalDate(year, month, 1);
-        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000, false);
         areaBillScheduled.upsetAreaBill(areaBillResult, year, month);
         return new Result(CodeMsg.SUCCESS);
     }
@@ -454,7 +454,7 @@ public class AreaContractController extends BaseController {
             throw new XiangShuiException("月份不能为空");
         }
         LocalDate localDate = new LocalDate(year, month, 1);
-        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, localDate.toDate().getTime() / 1000, localDate.plusMonths(1).toDate().getTime() / 1000, true);
         List<Booking> bookingList = areaBillResult.getBookingList();
         if (bookingList == null) {
             bookingList = new ArrayList<>();

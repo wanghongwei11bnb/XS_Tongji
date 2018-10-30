@@ -55,6 +55,7 @@ public class IndexController extends BaseController {
         int total = articleDao.countByExample(example);
         example.setOrderByClause("release_time desc , id desc").setSkip(skip).setLimit(pageSize);
         List<Article> articleList = articleDao.selectByExample(example);
+        request.setAttribute("pageSize", pageSize);
         request.setAttribute("total", total);
         request.setAttribute("articleList", articleList);
         return "news_list";

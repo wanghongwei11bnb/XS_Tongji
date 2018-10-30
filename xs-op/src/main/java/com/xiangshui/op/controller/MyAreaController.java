@@ -153,7 +153,7 @@ public class MyAreaController extends BaseController {
         if (create_date_end == null) {
             throw new XiangShuiException("日期不能为空");
         }
-        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, create_date_start.getTime() / 1000, create_date_end.getTime() / 1000);
+        AreaBillResult areaBillResult = areaBillScheduled.reckonAreaBill(area_id, create_date_start.getTime() / 1000, create_date_end.getTime() / 1000, true);
         List<Booking> bookingList = areaBillResult.getBookingList();
         if (bookingList == null) {
             bookingList = new ArrayList<>();

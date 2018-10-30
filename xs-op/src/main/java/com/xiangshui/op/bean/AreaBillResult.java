@@ -1,6 +1,7 @@
 package com.xiangshui.op.bean;
 
 import com.xiangshui.server.domain.AreaBill;
+import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.ChargeRecord;
 
@@ -36,6 +37,17 @@ public class AreaBillResult {
 
     private Integer account_ratio;
 
+    private AreaContract areaContract;
+
+
+    public AreaContract getAreaContract() {
+        return areaContract;
+    }
+
+    public AreaBillResult setAreaContract(AreaContract areaContract) {
+        this.areaContract = areaContract;
+        return this;
+    }
 
     public Integer getArea_id() {
         return area_id;

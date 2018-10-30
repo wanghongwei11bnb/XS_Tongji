@@ -1,0 +1,67 @@
+<div class="section section-nav section-nav-sub relative">
+    <div class="navbar-box fixed z-index-100 top-0 left-0 w-100">
+        <nav class="container navbar navbar-expand-md navbar-dark">
+            <a class="navbar-brand" href="#"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <span style="flex-grow: 1"></span>
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#anli">成功案例</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#tiyan">立刻体验</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#hezuo">合作伙伴</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">关于我们</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/news/list">媒体报道</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="title absolute w-100 left-0 cy text-center text-white d-block d-md-none">
+        <h2>媒体报道</h2>
+    </div>
+    <div class="title absolute w-100 left-0 cy text-center text-white d-none d-md-block">
+        <h2>媒体报道</h2>
+    </div>
+
+</div>
+
+<script>
+    setInterval(function () {
+        if (isPhone) {
+            if (window.scrollY > 0 || $('.section-nav .navbar-collapse').hasClass('show')) {
+                $('.section-nav').addClass('black');
+            } else {
+                $('.section-nav').removeClass('black');
+            }
+        } else {
+
+            if (window.scrollY > $('.section-nav').height() - $('.navbar-box').height()) {
+                $('.section-nav').addClass('black');
+            } else {
+                $('.section-nav').removeClass('black');
+            }
+
+        }
+    }, 1000 / 60);
+    if (isPhone) {
+        $('.section-nav .nav-item').on('click', function () {
+            $('.section-nav .navbar-toggler').trigger('click');
+        });
+    }
+
+</script>

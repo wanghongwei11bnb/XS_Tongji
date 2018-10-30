@@ -1,100 +1,7 @@
-$white: #fff !default;
-$gray-100: #f8f9fa !default;
-$gray-200: #e9ecef !default;
-$gray-300: #dee2e6 !default;
-$gray-400: #ced4da !default;
-$gray-500: #adb5bd !default;
-$gray-600: #6c757d !default;
-$gray-700: #495057 !default;
-$gray-800: #343a40 !default;
-$gray-900: #212529 !default;
-$black: #000 !default;
-
-$grays: (
-        "100": $gray-100,
-        "200": $gray-200,
-        "300": $gray-300,
-        "400": $gray-400,
-        "500": $gray-500,
-        "600": $gray-600,
-        "700": $gray-700,
-        "800": $gray-800,
-        "900": $gray-900
-) !default;
-
-$blue: #007bff !default;
-$indigo: #6610f2 !default;
-$purple: #6f42c1 !default;
-$pink: #e83e8c !default;
-$red: #dc3545 !default;
-$orange: #fd7e14 !default;
-$yellow: #ffc107 !default;
-$green: #28a745 !default;
-$teal: #20c997 !default;
-$cyan: #17a2b8 !default;
-
-$colors: (
-        "blue": $blue,
-        "indigo": $indigo,
-        "purple": $purple,
-        "pink": $pink,
-        "red": $red,
-        "orange": $orange,
-        "yellow": $yellow,
-        "green": $green,
-        "teal": $teal,
-        "cyan": $cyan,
-        "white": $white,
-        "gray": $gray-600,
-        "gray-dark": $gray-800
-) !default;
-
-$primary: $blue !default;
-$secondary: $gray-600 !default;
-$success: $green !default;
-$info: $cyan !default;
-$warning: $yellow !default;
-$danger: $red !default;
-$light: $gray-100 !default;
-$dark: $gray-800 !default;
-
-$theme-colors: (
-        "primary": $primary,
-        "secondary": $secondary,
-        "success": $success,
-        "info": $info,
-        "warning": $warning,
-        "danger": $danger,
-        "light": $light,
-        "dark": $dark
-) !default;
-
-$grid-breakpoints: (
-        xs: 0,
-        sm: 576px,
-        md: 768px,
-        lg: 992px,
-        xl: 1200px
-) !default;
-
-@mixin sm {
-  @media screen and (min-width: map_get($grid-breakpoints, "sm")) {
-    @content;
-  }
-}
-@mixin md {
-  @media screen and (min-width: map_get($grid-breakpoints, "md")) {
-    @content;
-  }
-}
-@mixin lg {
-  @media screen and (min-width: map_get($grid-breakpoints, "lg")) {
-    @content;
-  }
-}
-@mixin xl {
-  @media screen and (min-width: map_get($grid-breakpoints, "xl")) {
-    @content;
+@import "define";
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1300px;
   }
 }
 @each $key in bold, bolder, lighter {
@@ -130,8 +37,6 @@ $grid-breakpoints: (
     #{$key}: 100%;
   }
 }
-
-
 @for $i from 1 through 9 {
   .z-index-#{$i} {
     z-index: $i;
@@ -228,6 +133,16 @@ $grid-breakpoints: (
     background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/13EA158BF0137FFB65A79226CEBAC9A9") no-repeat center;
     background-size: cover;
   }
+  &.section-nav-sub {
+    height: 192px;
+    background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/34D1EBDA0070DC32EEDC11A111E0794F") no-repeat center;
+    background-size: cover;
+    @include md {
+      height: 360px;
+      background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/5463FADCBFA338704D7FE3240D9B85BD") no-repeat center;
+      background-size: cover;
+    }
+  }
 
   //navbar-box
   .navbar-box {
@@ -263,7 +178,7 @@ $grid-breakpoints: (
     }
   }
 
-  .navbar-toggler,.navbar-toggler:active{
+  .navbar-toggler, .navbar-toggler:active {
     border: none;
     outline: none;
   }
@@ -314,10 +229,120 @@ $grid-breakpoints: (
     }
   }
 }
+.swiper-button-prev {
+  background-image: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/E5AE761E132CA93E8146EC5858B5D7CA") !important;
+  @include md {
+    background-image: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/A38D666872D57A654BF6809631CFA92D") !important;
+  }
+  &:active, &:focus {
+    border: none !important;
+    outline: none !important;
+  }
+}
+.swiper-button-next {
+  background-image: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/05A2B3E68522EF789476E3FF5377BF5B") !important;
+  @include md {
+    background-image: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/17F236C89282EF78F787F3E18CDC3EE8") !important;
+  }
+  &:active, &:focus {
+    border: none !important;
+    outline: none !important;
+  }
+}
+.section-news {
 
-.section-download{
+  body {
+    margin: 0;}
+  #certify {
+    position: relative;
+    /*width: 1200px;*/
+    margin: 0 auto
+  }
+  #certify .swiper-container {
+    /*padding-bottom: 60px;*/
+  }
+  #certify .swiper-slide {
+    width: 520px;
+    height: 408px;
+    background: #fff;
+    box-shadow: 0 8px 30px #ddd;
+  }
+  #certify .swiper-slide img {
+    display: block;
+  }
+  #certify .swiper-slide p {
+    line-height: 98px;
+    padding-top: 0;
+    text-align: center;
+    color: #636363;
+    font-size: 1.1em;
+    margin: 0;
+  }
+  #certify .swiper-pagination {
+    width: 100%;
+    bottom: 20px;
+  }
+  #certify .swiper-pagination-bullets .swiper-pagination-bullet {
+    margin: 0 5px;
+    border: 3px solid #fff;
+    background-color: #d5d5d5;
+    width: 10px;
+    height: 10px;
+    opacity: 1;
+  }
+  #certify .swiper-pagination-bullets .swiper-pagination-bullet-active {
+    border: 3px solid #00aadc;
+    background-color: #fff;
+  }
+  #certify .swiper-button-prev {
+    left: -30px;
+    width: 45px;
+    height: 45px;
+    background: url(../images/wm_button_icon.png) no-repeat;
+    background-position: 0 0;
+    background-size: 100%;
+  }
+  #certify .swiper-button-prev:hover {
+    background-position: 0 -46px;
+    background-size: 100%
+  }
+  #certify .swiper-button-next {
+    right: -30px;
+    width: 45px;
+    height: 45px;
+    background: url(../images/wm_button_icon.png) no-repeat;
+    background-position: 0 -93px;
+    background-size: 100%;
+  }
+  #certify .swiper-button-next:hover {
+    background-position: 0 -139px;
+    background-size: 100%
+  }
+}
+.section-capsule {
+  .swiper-slide {
+    text-align: center;
+    color: #3c3d41 !important;
+    h2, p {
+      text-align: center;
+      color: #3c3d41 !important;
+    }
+    h2 {
+      margin-top: 1em;
+      font-size: 18px !important;
+    }
+    p {
+      margin-top: 1em;
+      font-size: 12px !important;
+    }
+    a {
+      text-decoration: none !important;
+    }
+  }
+}
+.section-download {
   margin-bottom: -50px;
-  @include md{
+  @include md {
     margin-bottom: -100px;
   }
 }
