@@ -2,7 +2,9 @@ package com.xiangshui.web.controller;
 
 import com.xiangshui.server.crud.assist.Example;
 import com.xiangshui.server.dao.mysql.ArticleDao;
+import com.xiangshui.server.dao.mysql.HomeMediaDao;
 import com.xiangshui.server.domain.mysql.Article;
+import com.xiangshui.server.domain.mysql.HomeMedia;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,8 @@ public class IndexController extends BaseController {
 
     @Autowired
     ArticleDao articleDao;
+    @Autowired
+    HomeMediaDao homeMediaDao;
 
     @GetMapping({"/iframe"})
     public String iframe() {
@@ -25,6 +29,11 @@ public class IndexController extends BaseController {
     @GetMapping({"/", "/index.html"})
     public String index(HttpServletRequest request) {
         setClient(request);
+        Example example = new Example();
+        example.setOrderByClause("serial desc,id desc");
+        example.setSkip(0).setLimit(5);
+        List<HomeMedia> homeMediaList = homeMediaDao.selectByExample(example);
+        request.setAttribute("homeMediaList", homeMediaList);
         return "index";
     }
 
