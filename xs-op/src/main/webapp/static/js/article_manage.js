@@ -158,6 +158,7 @@ class ArticleGrid extends React.Component {
                     field: 'id', title: <button className="btn btn-sm btn-success" onClick={this.create}>新建</button>, render: value => {
                         return [
                             <button className="btn btn-sm m-1 btn-primary" onClick={this.update.bind(this, value)}>编辑</button>,
+                            <button className="btn btn-sm m-1 btn-danger" onClick={this.delete.bind(this, value)}>删除</button>,
                         ];
                     }
                 },
@@ -191,6 +192,20 @@ class ArticleGrid extends React.Component {
 
     update = (article_id) => {
         Modal.open(<ArticleModal article_id={article_id} update onSuccess={this.load}></ArticleModal>);
+    };
+
+    delete = (article_id) => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: `/api/article/${article_id}/delete`, method: 'post', loading: true,
+                success: resp => {
+                    Message.msg('操作成功！');
+                    this.load();
+                }
+            });
+        }}>
+            确定要删除？
+        </ConfirmModal>);
     };
 
     render() {

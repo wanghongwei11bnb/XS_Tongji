@@ -142,6 +142,21 @@ public class ArticleController extends BaseController {
         return new Result(CodeMsg.SUCCESS);
     }
 
+    @AuthRequired(auth_article)
+    @PostMapping("/api/article/{article_id:\\d+}/delete")
+    @ResponseBody
+    public Result api_article_delete(HttpServletRequest request, HttpServletResponse response, @PathVariable("article_id") Integer article_id) throws IllegalAccessException, NoSuchFieldException {
+        Article article = articleDao.selectByPrimaryKey(article_id, null);
+        if (article == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        int n = articleDao.deleteByPrimaryKey(article_id);
+        if (n <= 0) {
+            throw new XiangShuiException("操作失败");
+        }
+        return new Result(CodeMsg.SUCCESS);
+    }
+
 
     @AuthRequired(auth_article)
     @PostMapping("/api/article/img/upload")
