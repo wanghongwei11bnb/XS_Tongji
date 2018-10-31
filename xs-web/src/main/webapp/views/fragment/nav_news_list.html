@@ -23,9 +23,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/about">关于我们</a>
                     </li>
+                    #if($countArticle > 0)
                     <li class="nav-item">
                         <a class="nav-link" href="/news/list">媒体报道</a>
                     </li>
+                    #end
                 </ul>
             </div>
         </nav>
@@ -49,13 +51,11 @@
                 $('.section-nav').removeClass('black');
             }
         } else {
-
             if (window.scrollY > $('.section-nav').height() - $('.navbar-box').height()) {
                 $('.section-nav').addClass('black');
             } else {
                 $('.section-nav').removeClass('black');
             }
-
         }
     }, 1000 / 60);
     if (isPhone) {

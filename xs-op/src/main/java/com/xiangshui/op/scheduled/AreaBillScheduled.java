@@ -153,7 +153,6 @@ public class AreaBillScheduled implements InitializingBean {
                 activeBookingList.add(booking);
             }
         }
-
         int booking_count = 0;
         int final_price = 0;
         int charge_price = 0;

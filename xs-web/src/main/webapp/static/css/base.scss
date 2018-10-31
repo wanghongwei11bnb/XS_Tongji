@@ -144,6 +144,10 @@
     }
   }
 
+  &.section-nav-detail {
+    background: white !important;
+  }
+
   //navbar-box
   .navbar-box {
     background-color: rgba(0, 0, 0, 0);
@@ -181,6 +185,23 @@
   .navbar-toggler, .navbar-toggler:active {
     border: none;
     outline: none;
+  }
+
+  .nav-item {
+
+    @include md {
+
+      &:hover {
+        border-bottom: solid 2px #189df9;
+        color: #189df9;
+      }
+
+      @at-root .black & {
+
+      }
+
+    }
+
   }
 
   //nav-link
@@ -338,11 +359,73 @@
     a {
       text-decoration: none !important;
     }
+
+    .swiper-slide-wrap {
+      margin: 5px;
+
+      @include md {
+        height: 450px;
+        padding: 10%;
+      }
+
+    }
+    .swiper-slide-wrap:hover {
+      box-shadow: 0 0 5px grey;
+    }
+
   }
+
 }
 .section-download {
   margin-bottom: -50px;
   @include md {
     margin-bottom: -100px;
   }
+}
+.section-news-list {
+
+  .title {
+    color: #333333;
+    font-size: 20px;
+    @include line(2);
+  }
+  .release-time {
+    color: #999999;
+    font-size: 12px;
+  }
+
+  .summary {
+    color: #333333;
+    font-size: 16px;
+    @include line(3);
+  }
+
+}
+.section-about {
+
+  [class*='tab-item-'] {
+    width: 100%;
+    float: left;
+    background-color: #f9f9f9;
+    &.active {
+      font-weight: bold;
+      background: #ffffff;
+    }
+  }
+
+  [class*='tab-content'] {
+    h2 {
+      font-size: 14px;
+      @include md {
+        font-size: 20px;
+      }
+    }
+    p {
+      font-size: 13px;
+      @include md {
+        font-size: 18px;
+      }
+    }
+  }
+
 }

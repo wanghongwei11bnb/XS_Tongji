@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import com.xiangshui.web.scheduled.ArticleScheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +23,9 @@ public class BaseController {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    ArticleScheduled articleScheduled;
+
 
     @Value("${isdebug}")
     boolean debug;
@@ -30,6 +35,7 @@ public class BaseController {
     public void setClient(HttpServletRequest request) {
         request.setAttribute("debug", debug);
         request.setAttribute("isPhone", isPhone(request));
+        request.setAttribute("countArticle", articleScheduled.countArticle);
         request.setAttribute("ts", ts + "_" + (debug ? System.currentTimeMillis() : DateUtils.format("yyyyMMddHH")));
         request.setAttribute("DateUtils", DateUtils.class);
         request.setAttribute("JSON", JSON.class);

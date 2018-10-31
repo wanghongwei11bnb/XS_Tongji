@@ -1,2 +1,55 @@
+#parse('fragment/nav_about.html')
 
-#parse('fragment/nav.html')
+<link rel="stylesheet" href="/build/css/about.css">
+
+<div class="section section-about container z-index-1 mb-5" style="margin-top: -100px;">
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10 bg-white">
+            <div class="relative text-center clearfix" style="line-height: 3em;">
+                <div class="hm inline-block float-left tab-item-about" style="width:50%;">关于享+</div>
+                <div class="hm inline-block float-left tab-item-contact" style="width:50%;">联系我们</div>
+            </div>
+
+            <div class="px-3 px-md-5 tab-content-about">
+                <h2 class="text-center text-primary my-3 my-md-5">关于享+</h2>
+                <p class="text-dark my-3" style="text-indent: 2em;line-height: 2em;">享＋立足健康产业，促进科技与万众创新深度结合，提供碎片化健康、休息、办公解决方案，为用户的健康加油。享＋全球首创共享智能健康服务舱——“共享头等舱沙发”，扫码开舱，科技时尚，自助共享，便捷舒适，超值体验，办公、休息任意切换。2017年5月，享＋1.0产品首先在北京，上海写字楼和联合办公空间等数十个场地投放，引起了全球轰动，获得人民日报，中央电视台，NBC，路透社等数百家媒体报道，成为共享经济浪潮的又一创举。</p>
+                <p class="text-dark my-3" style="text-indent: 2em;line-height: 2em;">站在共享经济的最前沿，享＋组建了一个充满活力的团队，享＋创始团队来自斯坦福大学，清华大学等知名学府，联合创始人分别是美国纽交所上市公司执行董事，CEO和总裁，财富100强企业市场及运营高管。通过有效的资源整合，享＋提供世界级的健康智能产品和服务，为用户提供贴心的健康福利，为社会创造价值。</p>
+                <p class="text-dark my-3" style="text-indent: 2em;line-height: 2em;">目前，享＋已先后获得天善资本和丹华资本的投资。</p>
+            </div>
+
+            <div class="px-3 px-md-5 tab-content-contact">
+                <h2 class="text-center text-primary my-3 my-md-5">联系我们</h2>
+                <p class="text-dark my-3" style="line-height: 2em;">合作邮箱：hz@xjpod.com</p>
+                <p class="text-dark my-3" style="line-height: 2em;">联系电话：400-688-9960</p>
+                <p class="text-dark my-3" style="line-height: 2em;">地址：北京市东城区朝阳门银河SOHO中心A座10601室</p>
+            </div>
+
+
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>
+<script>
+
+    function checkTab(tab) {
+
+        $('.tab-item-about').removeClass('active');
+        $('.tab-item-contact').removeClass('active');
+        $('.tab-item-' + tab).addClass('active');
+
+        $('.tab-content-about').hide();
+        $('.tab-content-contact').hide();
+        $('.tab-content-' + tab).show();
+
+    }
+
+    checkTab('about');
+
+    $('.tab-item-about').on('click', checkTab.bind(null, 'about'));
+    $('.tab-item-contact').on('click', checkTab.bind(null, 'contact'));
+
+</script>
+
+
+#parse('fragment/footer.html')

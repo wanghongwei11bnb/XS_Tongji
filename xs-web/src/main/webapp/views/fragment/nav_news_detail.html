@@ -1,4 +1,4 @@
-<div class="section section-nav relative">
+<div class="section section-nav section-nav-detail black relative border-bottom">
     <div class="navbar-box fixed z-index-100 top-0 left-0 w-100">
         <nav class="container navbar navbar-expand-md navbar-dark">
             <a class="navbar-brand" href="#"></a>
@@ -34,34 +34,22 @@
     </div>
 
     <div class="title absolute w-100 left-0 cy text-center text-white d-block d-md-none">
-        <h2>共享头等舱</h2>
-        <span>健康 休息 办公</span>
+        <h2>媒体报道</h2>
     </div>
     <div class="title absolute w-100 left-0 cy text-center text-white d-none d-md-block">
-        <h2>共享头等舱——健康、休息、办公</h2>
+        <h2>媒体报道</h2>
     </div>
 
 </div>
 
 <script>
-    setInterval(function () {
-        if (isPhone) {
-            if (window.scrollY > 0 || $('.section-nav .navbar-collapse').hasClass('show')) {
-                $('.section-nav').addClass('black');
-            } else {
-                $('.section-nav').removeClass('black');
-            }
-        } else {
-            if (window.scrollY > $('.section-nav').height() - $('.navbar-box').height()) {
-                $('.section-nav').addClass('black');
-            } else {
-                $('.section-nav').removeClass('black');
-            }
-        }
-    }, 1000 / 60);
+
+    $('.section-nav').height($('.section-nav .navbar-box').height());
+
     if (isPhone) {
         $('.section-nav .nav-item').on('click', function () {
             $('.section-nav .navbar-toggler').trigger('click');
         });
     }
+
 </script>
