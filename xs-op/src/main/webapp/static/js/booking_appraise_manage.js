@@ -14,6 +14,14 @@ class BookingAppraiseGrid extends React.Component {
                     }
                 },
                 {
+                    field: 'area_id', title: '场地区域', render: (value) => {
+                        const areaMapOptions = this.state.areaMapOptions;
+                        if (areaMapOptions && areaMapOptions.get(value)) {
+                            return this.state.cityMapOptions.getField(areaMapOptions.get(value).city, 'region');
+                        }
+                    }
+                },
+                {
                     field: 'area_id', title: '场地城市', render: value => {
                         const areaMapOptions = this.state.areaMapOptions;
                         if (areaMapOptions && areaMapOptions.get(value)) {
@@ -68,6 +76,7 @@ class BookingAppraiseGrid extends React.Component {
                     data: resp.data.bookingAppraiseList,
                     areaMapOptions: resp.data.areaList ? new AreaMapOptions(resp.data.areaList) : null,
                     userInfoMapOptions: resp.data.userInfoList ? new UserInfoMapOptions(resp.data.userInfoList) : null,
+                    cityMapOptions: new CityMapOptions(resp.data.cityList),
                 });
             }
         });

@@ -17,6 +17,7 @@ import com.xiangshui.server.domain.Booking;
 import com.xiangshui.server.domain.BookingAppraise;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.service.CityService;
 import com.xiangshui.server.service.ServiceUtils;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.CallBackForResult;
@@ -51,7 +52,8 @@ public class BookingAppraiseController extends BaseController {
     UserService userService;
 
     @Autowired
-
+    CityService cityService;
+    @Autowired
     UserInfoDao userInfoDao;
     @Autowired
     AreaDao areaDao;
@@ -180,6 +182,7 @@ public class BookingAppraiseController extends BaseController {
             headRow.add("订单编号");
             headRow.add("场地编号");
             headRow.add("场地名称");
+            headRow.add("场地区域");
             headRow.add("场地城市");
             headRow.add("场地详细地址");
             headRow.add("用户编号");
@@ -205,9 +208,11 @@ public class BookingAppraiseController extends BaseController {
                         Area area = areaMap.get(bookingAppraise.getArea_id());
                         if (area != null) {
                             row.add(area.getTitle());
+                            row.add(cityService.getByCityName(area.getCity()) != null ? cityService.getByCityName(area.getCity()).getRegion() : null);
                             row.add(area.getCity());
                             row.add(area.getAddress());
                         } else {
+                            row.add(null);
                             row.add(null);
                             row.add(null);
                             row.add(null);
@@ -251,7 +256,8 @@ public class BookingAppraiseController extends BaseController {
             return new Result(CodeMsg.SUCCESS)
                     .putData("bookingAppraiseList", bookingAppraiseList)
                     .putData("areaList", areaList)
-                    .putData("userInfoList", userInfoList);
+                    .putData("userInfoList", userInfoList)
+                    .putData("cityList", cityService.getCityList());
         }
     }
 
