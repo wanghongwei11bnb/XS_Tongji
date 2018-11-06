@@ -80,6 +80,7 @@ class Page extends React.Component {
                     <option value="CountBookingForCountAtDayUnit">统计每天下单数量</option>
                     <option value="CountBookingForCountMonthCardAtDayUnit">统计每天月卡下单数量</option>
                     <option value="CountBookingForCountPriceAtDayUnit">统计每天订单金额</option>
+                    <option value="CountAverageBookingTimeLength">统计平均订单时长</option>
                 </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.count}>统计</button>
                 <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
