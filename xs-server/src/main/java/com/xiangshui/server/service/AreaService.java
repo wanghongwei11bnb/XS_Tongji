@@ -261,7 +261,7 @@ public class AreaService {
                     "is_time_limit",
                     "need_deposit",
                     "remark",
-                    "use_time_limint",
+                    "use_time_limit",
             });
         } else {
             areaDao.updateItem(new PrimaryKey("area_id", criteria.getArea_id()), criteria, new String[]{
@@ -277,7 +277,7 @@ public class AreaService {
                     "is_time_limit",
                     "need_deposit",
                     "remark",
-                    "use_time_limint",
+                    "use_time_limit",
             });
         }
         cleanCache(area.getArea_id());

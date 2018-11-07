@@ -26,7 +26,7 @@ class AreaModal extends Modal {
             is_external: this.refs.is_external.value,
             need_deposit: this.refs.need_deposit.value,
             remark: this.refs.remark.value,
-            use_time_limint: this.refs.use_time_limint.value,
+            use_time_limit: this.refs.use_time_limit.value,
         };
     };
 
@@ -219,7 +219,7 @@ class AreaModal extends Modal {
                     <td>
                         <div className="row">
                             <div className="col-4">
-                                <input ref="use_time_limint" type="text" disabled={show} readOnly={show} className="form-control"/>
+                                <input ref="use_time_limit" type="text" disabled={show} readOnly={show} className="form-control"/>
                             </div>
                             <div className="col-8 text-danger">
                                 不填 或 0 即不限制
@@ -263,7 +263,7 @@ class AreaModal extends Modal {
             if (type(area.is_time_limit) == 'Number') this.refs.is_time_limit.value = area.is_time_limit;
             if (type(area.minute_start) == 'Number') this.refs.minute_start.value = area.minute_start;
             if (type(area.need_deposit) == 'Number') this.refs.need_deposit.value = area.need_deposit || 0;
-            if (type(area.use_time_limint) == 'Number') this.refs.use_time_limint.value = area.use_time_limint || 0;
+            if (type(area.use_time_limit) == 'Number') this.refs.use_time_limit.value = area.use_time_limit || 0;
             this.refs.imgs.setData(area.imgs);
             this.refs.rushHours.setData(area.rushHours);
         }
@@ -458,7 +458,7 @@ class AreaGrid extends React.Component {
                     }
                 },
                 {
-                    field: 'use_time_limint', title: '单笔订单时长限制（单位／分钟）', render: (value, row, index) => {
+                    field: 'use_time_limit', title: '单笔订单时长限制（单位／分钟）', render: (value, row, index) => {
                         if (type(value) === 'Number' && value > 0) {
                             return <span className="text-danger">{value}</span>
                         } else {

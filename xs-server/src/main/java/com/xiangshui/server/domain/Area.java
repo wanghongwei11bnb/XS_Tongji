@@ -62,14 +62,14 @@ public class Area {
      * 单笔订单时长限制（单位／分钟）
      * null 或 0 即不限制
      */
-    private Integer use_time_limint;
+    private Integer use_time_limit;
 
-    public Integer getUse_time_limint() {
-        return use_time_limint;
+    public Integer getUse_time_limit() {
+        return use_time_limit;
     }
 
-    public Area setUse_time_limint(Integer use_time_limint) {
-        this.use_time_limint = use_time_limint;
+    public Area setUse_time_limit(Integer use_time_limit) {
+        this.use_time_limit = use_time_limit;
         return this;
     }
 
