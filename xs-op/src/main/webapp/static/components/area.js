@@ -26,6 +26,7 @@ class AreaModal extends Modal {
             is_external: this.refs.is_external.value,
             need_deposit: this.refs.need_deposit.value,
             remark: this.refs.remark.value,
+            use_time_limint: this.refs.use_time_limint.value,
         };
     };
 
@@ -214,6 +215,19 @@ class AreaModal extends Modal {
                     </td>
                 </tr>
                 <tr>
+                    <th>单笔订单时长限制（单位／分钟）</th>
+                    <td>
+                        <div className="row">
+                            <div className="col-4">
+                                <input ref="use_time_limint" type="text" disabled={show} readOnly={show} className="form-control"/>
+                            </div>
+                            <div className="col-8 text-danger">
+                                不填 或 0 即不限制
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <th>状态</th>
                     <td>
                         <select ref="status" disabled={show} readOnly={show}
@@ -249,6 +263,7 @@ class AreaModal extends Modal {
             if (type(area.is_time_limit) == 'Number') this.refs.is_time_limit.value = area.is_time_limit;
             if (type(area.minute_start) == 'Number') this.refs.minute_start.value = area.minute_start;
             if (type(area.need_deposit) == 'Number') this.refs.need_deposit.value = area.need_deposit || 0;
+            if (type(area.use_time_limint) == 'Number') this.refs.use_time_limint.value = area.use_time_limint || 0;
             this.refs.imgs.setData(area.imgs);
             this.refs.rushHours.setData(area.rushHours);
         }
@@ -440,6 +455,15 @@ class AreaGrid extends React.Component {
                         return value ? value.map((item) => {
                             return item ? <div>开始时间：{item.start_time}，结束时间：{item.end_time}</div> : null;
                         }) : null;
+                    }
+                },
+                {
+                    field: 'use_time_limint', title: '单笔订单时长限制（单位／分钟）', render: (value, row, index) => {
+                        if (type(value) === 'Number' && value > 0) {
+                            return <span className="text-danger">{value}</span>
+                        } else {
+                            return <span className="text-success">不限制</span>
+                        }
                     }
                 },
                 {
