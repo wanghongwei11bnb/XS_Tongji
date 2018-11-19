@@ -12,10 +12,7 @@ import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.BookingAppraiseDao;
 import com.xiangshui.server.dao.UserInfoDao;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.BookingAppraise;
-import com.xiangshui.server.domain.UserInfo;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.CityService;
 import com.xiangshui.server.service.ServiceUtils;
@@ -154,6 +151,9 @@ public class BookingAppraiseController extends BaseController {
         }
 
         if (download) {
+            Map<String,City> cityMap=new HashMap<>();
+            List<City> cityList=cityService.getCityList();
+            cityList.forEach(city -> cityMap.put(city.getCity(),city));
             Map<Integer, Area> areaMap = new HashMap<>();
             Map<Integer, UserInfo> userInfoMap = new HashMap<>();
             if (userInfoList != null && userInfoList.size() > 0) {
@@ -208,7 +208,7 @@ public class BookingAppraiseController extends BaseController {
                         Area area = areaMap.get(bookingAppraise.getArea_id());
                         if (area != null) {
                             row.add(area.getTitle());
-                            row.add(cityService.getByCityName(area.getCity()) != null ? cityService.getByCityName(area.getCity()).getRegion() : null);
+                            row.add(cityMap.containsKey(area.getCity())  ? cityMap.get(area.getCity()).getRegion() : null);
                             row.add(area.getCity());
                             row.add(area.getAddress());
                         } else {
