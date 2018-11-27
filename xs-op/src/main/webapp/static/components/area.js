@@ -27,6 +27,7 @@ class AreaModal extends Modal {
             need_deposit: this.refs.need_deposit.value,
             remark: this.refs.remark.value,
             use_time_limit: this.refs.use_time_limit.value,
+            use_time_scope: this.refs.use_time_scope.value,
         };
     };
 
@@ -215,6 +216,16 @@ class AreaModal extends Modal {
                     </td>
                 </tr>
                 <tr>
+                    <th>单笔订单时长限制作用域</th>
+                    <td>
+                        <select ref="use_time_scope" disabled={show} readOnly={show}
+                                className="form-control">
+                            <option value="0">全天限制</option>
+                            <option value="1">8:00 ～ 21:00</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
                     <th>单笔订单时长限制（单位／分钟）</th>
                     <td>
                         <div className="row">
@@ -264,6 +275,7 @@ class AreaModal extends Modal {
             if (type(area.minute_start) == 'Number') this.refs.minute_start.value = area.minute_start;
             if (type(area.need_deposit) == 'Number') this.refs.need_deposit.value = area.need_deposit || 0;
             if (type(area.use_time_limit) == 'Number') this.refs.use_time_limit.value = area.use_time_limit || 0;
+            if (type(area.use_time_scope) == 'Number') this.refs.use_time_scope.value = area.use_time_scope || 0;
             this.refs.imgs.setData(area.imgs);
             this.refs.rushHours.setData(area.rushHours);
         }

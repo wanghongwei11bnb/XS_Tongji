@@ -63,6 +63,21 @@ public class Area {
      * null 或 0 即不限制
      */
     private Integer use_time_limit;
+    /**
+     * 单笔订单时长限制作用域
+     * null 或 0 表示 全天限制
+     * 1 表示 8:00 ～ 21:00
+     */
+    private Integer use_time_scope;
+
+    public Integer getUse_time_scope() {
+        return use_time_scope;
+    }
+
+    public Area setUse_time_scope(Integer use_time_scope) {
+        this.use_time_scope = use_time_scope;
+        return this;
+    }
 
     public Integer getUse_time_limit() {
         return use_time_limit;
