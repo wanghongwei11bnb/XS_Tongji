@@ -92,6 +92,7 @@
         }
         request({
             url: '/api/user/getverificationcode', method: 'post', loading: true,
+            header: {'User-Uin': 100000},
             data: JSON.stringify({phone: phone}),
             success: function (resp) {
                 Message.msg('发送成功');
