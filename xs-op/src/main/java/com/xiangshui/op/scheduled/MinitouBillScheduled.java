@@ -1,12 +1,8 @@
 package com.xiangshui.op.scheduled;
 
-import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.xiangshui.server.dao.AreaContractDao;
-import com.xiangshui.server.dao.AreaDao;
-import com.xiangshui.server.dao.BookingDao;
-import com.xiangshui.server.dao.CapsuleDao;
+import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -22,6 +18,9 @@ import java.util.*;
 public class MinitouBillScheduled implements InitializingBean {
 
     @Autowired
+    CacheScheduled cacheScheduled;
+
+    @Autowired
     AreaDao areaDao;
     @Autowired
     CapsuleDao capsuleDao;
@@ -31,56 +30,13 @@ public class MinitouBillScheduled implements InitializingBean {
     AreaContractDao areaContractDao;
     @Autowired
     CountCapsuleScheduled countCapsuleScheduled;
+    @Autowired
+    MinitouBillDao minitouBillDao;
 
 
     public Set<Long> capsuleIdSet = new HashSet<>();
 
     public List<AreaContract> areaContractList = new ArrayList<>();
-
-
-    public void makeBill(long capsule_id, int year, int month) {
-
-        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
-        if (capsule == null) {
-            throw new XiangShuiException(CodeMsg.NO_FOUND);
-        }
-        Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
-        if (area == null) {
-            throw new XiangShuiException(CodeMsg.NO_FOUND);
-        }
-        AreaContract areaContract = areaContractDao.getItem(new PrimaryKey("area_id", area.getArea_id()));
-        long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
-        long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
-        ScanSpec scanSpec = new ScanSpec();
-        List<ScanFilter> scanFilterList = new ArrayList<>();
-        scanFilterList.add(new ScanFilter("create_time").between(dateTimeStart, dateTimeEnd));
-        scanFilterList.add(new ScanFilter("status").eq(4));
-        scanFilterList.add(new ScanFilter("final_price").gt(0));
-        scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
-        List<Booking> bookingList = bookingDao.scan(scanSpec);
-
-
-        MinitouBill minitouBill = new MinitouBill();
-        minitouBill.setBill_id(capsule_id * 1000000 + year * 100 + month);
-        minitouBill.setCapsule_id(capsule_id).setYear(year).setMonth(month);
-
-        int final_price = 0;
-        int account_ratio = areaContract != null && areaContract.getAccount_ratio() != null ? areaContract.getAccount_ratio() : 0;
-        int ratio_price = 0;
-        int rent_price = 0;
-        int other_price = 0;
-        int net_price = 0;
-
-        bookingList.forEach(booking -> {
-
-
-
-
-
-        });
-
-
-    }
 
 
     @Override
@@ -91,4 +47,99 @@ public class MinitouBillScheduled implements InitializingBean {
         });
         this.capsuleIdSet = capsuleIdSet;
     }
+
+
+    public MinitouBill makeBill(long capsule_id, int year, int month) {
+
+        Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
+        if (capsule == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        Area area = cacheScheduled.areaMapOptions.get(capsule.getArea_id());
+        if (area == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        AreaContract areaContract = cacheScheduled.areaContractMapOptions.get(capsule.getArea_id());
+        long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
+        long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
+        ScanSpec scanSpec = new ScanSpec();
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        scanFilterList.add(new ScanFilter("capsule_id").eq(capsule_id));
+        scanFilterList.add(new ScanFilter("create_time").between(dateTimeStart, dateTimeEnd));
+        scanFilterList.add(new ScanFilter("status").eq(4));
+        scanFilterList.add(new ScanFilter("final_price").gt(0));
+        scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        return makeBill(capsule_id, year, month, bookingList);
+    }
+
+
+    public MinitouBill makeBill(long capsule_id, int year, int month, List<Booking> bookingList) {
+        Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
+        if (capsule == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        Area area = cacheScheduled.areaMapOptions.get(capsule.getArea_id());
+        if (area == null) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        AreaContract areaContract = cacheScheduled.areaContractMapOptions.get(capsule.getArea_id());
+        MinitouBill minitouBill = new MinitouBill().setUpdate_time(System.currentTimeMillis() / 1000);
+        minitouBill.setBill_id(capsule_id * 1000000 + year * 100 + month);
+        minitouBill.setCapsule_id(capsule_id).setArea_id(area.getArea_id()).setYear(year).setMonth(month);
+        int final_price = 0;
+        int account_ratio = areaContract != null && areaContract.getAccount_ratio() != null ? areaContract.getAccount_ratio() : 0;
+        int ratio_price = 0;
+        int rent_price = 0;
+        int other_price = 0;
+        int net_price = 0;
+        for (Booking booking : bookingList) {
+            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
+        }
+        ratio_price = final_price * account_ratio / 100;
+        rent_price = final_price - ratio_price;
+        other_price = 0;
+        net_price = rent_price - other_price;
+        minitouBill.setFinal_price(final_price)
+                .setAccount_ratio(account_ratio)
+                .setRatio_price(ratio_price)
+                .setRent_price(rent_price)
+                .setOther_price(other_price)
+                .setNet_price(net_price);
+        return minitouBill;
+    }
+
+
+    public List<MinitouBill> makeBill(int year, int month) {
+        long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
+        long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        scanFilterList.add(new ScanFilter("create_time").between(dateTimeStart, dateTimeEnd));
+        scanFilterList.add(new ScanFilter("status").eq(4));
+        scanFilterList.add(new ScanFilter("capsule_id").in(capsuleIdSet.toArray()));
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        List<MinitouBill> minitouBillList = new ArrayList<>();
+        capsuleIdSet.forEach(capsule_id -> {
+            try {
+                List<Booking> capsuleBookingList = new ArrayList<>();
+                bookingList.forEach(booking -> {
+                    if (capsule_id.equals(booking.getCapsule_id())) {
+                        capsuleBookingList.add(booking);
+                    }
+                });
+                MinitouBill minitouBill = makeBill(capsule_id, year, month, capsuleBookingList);
+                if (minitouBill != null) {
+                    minitouBillList.add(minitouBill);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return minitouBillList;
+    }
+
+
 }

@@ -1,6 +1,9 @@
 class MinitouBookingGrid extends BookingGrid {
     constructor(props) {
         super(props);
+
+
+        this.state.columns.splice(this.state.columns.length-1, 1);
     }
 
     load = (queryParams) => {

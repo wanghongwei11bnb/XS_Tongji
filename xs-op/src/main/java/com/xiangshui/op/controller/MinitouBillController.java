@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.scheduled.MinitouBillScheduled;
 import com.xiangshui.server.dao.AreaDao;
@@ -22,6 +23,7 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,8 @@ import static com.xiangshui.op.annotation.AuthRequired.auth_minitou_investor;
 @Controller
 public class MinitouBillController extends BaseController {
 
+    @Autowired
+    CacheScheduled cacheScheduled;
 
     @Autowired
     AreaDao areaDao;
@@ -54,7 +58,7 @@ public class MinitouBillController extends BaseController {
     @Menu("订单列表")
     @GetMapping("/mnt_booking_manage")
     @AuthRequired(auth_minitou_investor)
-    public String index(HttpServletRequest request) {
+    public String mnt_booking_manage(HttpServletRequest request) {
         setClient(request);
         return "mnt_booking_manage";
     }
@@ -71,40 +75,35 @@ public class MinitouBillController extends BaseController {
         scanFilterList.add(new ScanFilter("create_time").between(localDateStart.toDate().getTime() / 1000, localDateStart.plusDays(1).toDate().getTime() / 1000 - 1));
         scanFilterList.add(new ScanFilter("status").eq(4));
         scanFilterList.add(new ScanFilter("final_price").gt(0));
+        scanFilterList.add(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray()));
         scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         List<Booking> bookingList = bookingDao.scan(scanSpec);
-        List<Booking> activeBookingList = new ArrayList<>();
-        if (bookingList.size() > 0) {
-            bookingList.forEach(booking -> {
-                if (minitouBillScheduled.capsuleIdSet.contains(booking.getCapsule_id())) {
-                    activeBookingList.add(booking);
-                }
-            });
-        }
         return new Result(CodeMsg.SUCCESS)
-                .putData("bookingList", activeBookingList)
-                .putData("areaList", areaService.getAreaListByBooking(activeBookingList, null))
+                .putData("bookingList", bookingList)
+                .putData("areaList", areaService.getAreaListByBooking(bookingList, null))
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 
+    @Menu("头等舱报表")
+    @GetMapping("/mnt_bill_manage")
+    @AuthRequired(auth_minitou_investor)
+    public String mnt_bill_manage(HttpServletRequest request) {
+        setClient(request);
+        return "mnt_bill_manage";
+    }
 
-    @GetMapping("/api/mnt/bill/search")
+
+    @PostMapping("/api/mnt/bill/checkout")
     @ResponseBody
     public Result bill_search(Integer year, Integer month) {
         if (year == null || month == null) {
             return new Result(-1, "请选择月份");
         }
-
-        ScanSpec scanSpec = new ScanSpec();
-        scanSpec.withScanFilters(
-                new ScanFilter("year").eq(year),
-                new ScanFilter("month").eq(month)
-        );
-
-        List<MinitouBill> minitouBillList = minitouBillDao.scan(scanSpec);
-        Result result = new Result(CodeMsg.SUCCESS);
-        result.putData("countGroupArea", countCapsuleScheduled.countGroupArea);
-        return result;
+        List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("minitouBillList", minitouBillList)
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
+                .putData("areaList", cacheScheduled.areaMapOptions.values());
     }
 
 

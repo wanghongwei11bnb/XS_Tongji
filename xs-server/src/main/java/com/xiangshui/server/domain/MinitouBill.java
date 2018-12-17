@@ -6,6 +6,7 @@ public class MinitouBill {
     private Integer year;
     private Integer month;
     private Long capsule_id;
+    private Integer area_id;
     private Integer final_price;
     private Integer account_ratio;
     private Integer ratio_price;
@@ -13,6 +14,26 @@ public class MinitouBill {
     private Integer other_price;
     private Integer net_price;
 
+    private Long update_time;
+
+
+    public Integer getArea_id() {
+        return area_id;
+    }
+
+    public MinitouBill setArea_id(Integer area_id) {
+        this.area_id = area_id;
+        return this;
+    }
+
+    public Long getUpdate_time() {
+        return update_time;
+    }
+
+    public MinitouBill setUpdate_time(Long update_time) {
+        this.update_time = update_time;
+        return this;
+    }
 
     public Long getBill_id() {
         return bill_id;
