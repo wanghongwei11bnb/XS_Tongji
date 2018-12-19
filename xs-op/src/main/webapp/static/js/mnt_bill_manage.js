@@ -31,7 +31,7 @@ class Page extends React.Component {
             <MinitouBillGrid renderHeader={(headerHtml, data, columns) => {
                 return [
                     headerHtml,
-                    <span className="text-danger pl-3">利润计算：{columns[3].total}(经营收入)-{columns[4].total}(场地分成费用)-22000(其他费用,固定)={(columns[3].total * 100 - columns[4].total * 100 - 22000 * 100) / 100}(利润)</span>
+                    <span className="text-danger pl-3">本月净利润{(columns[3].total * 100 - columns[4].total * 100 - 22000 * 100) / 100}元（扣除固定成本2.2万元）</span>
                 ];
             }} ref="grid"></MinitouBillGrid>
             <ModalContainer></ModalContainer>
