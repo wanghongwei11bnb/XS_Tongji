@@ -11,6 +11,7 @@ import com.xiangshui.server.dao.redis.AreaKeyPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.FailureReport;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.Location;
@@ -451,6 +452,23 @@ public class AreaService {
             }
         }, new Integer[0]);
 
+    }
+
+
+    public List<Area> getAreaListByCapsule(List<Capsule> capsuleList, String[] attributes) {
+        if (capsuleList == null || capsuleList.size() == 0) {
+            return null;
+        }
+        Set<Integer> areaIdSet = new HashSet<>();
+        capsuleList.forEach(capsule -> {
+            if (capsule != null && capsule.getArea_id() != null) {
+                areaIdSet.add(capsule.getArea_id());
+            }
+        });
+        if (areaIdSet.size() == 0) {
+            return null;
+        }
+        return getAreaListByIds(areaIdSet.toArray(new Integer[areaIdSet.size()]));
     }
 
     public List<Area> getAreaListByFailure(List<FailureReport> failureReportList, final String[] attributes) {

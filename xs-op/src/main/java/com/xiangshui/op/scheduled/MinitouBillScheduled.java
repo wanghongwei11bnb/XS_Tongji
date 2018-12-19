@@ -43,6 +43,10 @@ public class MinitouBillScheduled implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         Set<Long> capsuleIdSet = new HashSet<>();
         IOUtils.readLines(this.getClass().getResourceAsStream("/mnt_capsule_id.txt"), "UTF-8").forEach(string -> {
+            if (capsuleIdSet.contains(Long.valueOf(string))) {
+                System.out.println("重复的 capsule_id ：" + string);
+                return;
+            }
             capsuleIdSet.add(Long.valueOf(string));
         });
         this.capsuleIdSet = capsuleIdSet;

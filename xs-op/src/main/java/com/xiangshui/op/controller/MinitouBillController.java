@@ -7,12 +7,10 @@ import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.scheduled.MinitouBillScheduled;
-import com.xiangshui.server.dao.AreaDao;
-import com.xiangshui.server.dao.BookingDao;
-import com.xiangshui.server.dao.CapsuleDao;
-import com.xiangshui.server.dao.MinitouBillDao;
+import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.MinitouBill;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.ServiceUtils;
@@ -55,7 +53,16 @@ public class MinitouBillController extends BaseController {
     @Autowired
     AreaService areaService;
 
-    @Menu("订单列表")
+
+    @Menu("迷你投设备列表")
+    @GetMapping("/mnt_capsule_manage")
+    @AuthRequired(auth_minitou_investor)
+    public String mnt_capsule_manage(HttpServletRequest request) {
+        setClient(request);
+        return "mnt_capsule_manage";
+    }
+
+    @Menu("迷你投订单列表")
     @GetMapping("/mnt_booking_manage")
     @AuthRequired(auth_minitou_investor)
     public String mnt_booking_manage(HttpServletRequest request) {
@@ -63,33 +70,61 @@ public class MinitouBillController extends BaseController {
         return "mnt_booking_manage";
     }
 
-    @GetMapping("/api/mnt/booking/search")
-    @ResponseBody
-    public Result booking_search(Date date) {
-        if (date == null) {
-            return new Result(-1, "请选择日期");
-        }
-        LocalDate localDateStart = new LocalDate(date);
-        ScanSpec scanSpec = new ScanSpec().withMaxResultSize(Integer.MAX_VALUE);
-        List<ScanFilter> scanFilterList = new ArrayList<>();
-        scanFilterList.add(new ScanFilter("create_time").between(localDateStart.toDate().getTime() / 1000, localDateStart.plusDays(1).toDate().getTime() / 1000 - 1));
-        scanFilterList.add(new ScanFilter("status").eq(4));
-        scanFilterList.add(new ScanFilter("final_price").gt(0));
-        scanFilterList.add(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray()));
-        scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
-        List<Booking> bookingList = bookingDao.scan(scanSpec);
-        return new Result(CodeMsg.SUCCESS)
-                .putData("bookingList", bookingList)
-                .putData("areaList", areaService.getAreaListByBooking(bookingList, null))
-                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
-    }
-
-    @Menu("头等舱报表")
+    @Menu("迷你投设备报表")
     @GetMapping("/mnt_bill_manage")
     @AuthRequired(auth_minitou_investor)
     public String mnt_bill_manage(HttpServletRequest request) {
         setClient(request);
         return "mnt_bill_manage";
+    }
+
+
+    @GetMapping("/api/mnt/capsule/search")
+    @ResponseBody
+    public Result capsule_search() {
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray())));
+        if (capsuleList != null && capsuleList.size() > 0) {
+            capsuleList.sort((o1, o2) -> (int) (o2.getCapsule_id() - o1.getCapsule_id()));
+        }
+        List<Area> areaList = areaService.getAreaListByCapsule(capsuleList, null);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("capsuleList", capsuleList)
+                .putData("areaList", areaList);
+    }
+
+
+    @GetMapping("/api/mnt/booking/search")
+    @ResponseBody
+    public Result booking_search(Date create_date_start, Date create_date_end, Long capsule_id) {
+        if (create_date_start == null || create_date_end == null) {
+            return new Result(-1, "请选择日期");
+        }
+        if (create_date_start.compareTo(create_date_end) > 0) {
+            return new Result(-1, "开始如期不能大于结束日期");
+        }
+        if (capsule_id != null && !minitouBillScheduled.capsuleIdSet.contains(capsule_id)) {
+            return new Result(-1, "设备编号错误");
+        }
+
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        capsuleDao.appendDateRangeFilter(scanFilterList, "create_time", create_date_start, create_date_end);
+
+        if (capsule_id != null) {
+            scanFilterList.add(new ScanFilter("capsule_id").eq(capsule_id));
+        } else {
+            scanFilterList.add(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray()));
+        }
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        if (bookingList != null && bookingList.size() > 0) {
+            bookingList.sort((o1, o2) -> o2.getCreate_time().compareTo(o1.getCreate_time()));
+        }
+        return new Result(CodeMsg.SUCCESS)
+                .putData("bookingList", bookingList)
+                .putData("areaList", areaService.getAreaListByBooking(bookingList, null))
+                .putData("countGroupArea", countCapsuleScheduled.countGroupArea);
     }
 
 
@@ -105,6 +140,4 @@ public class MinitouBillController extends BaseController {
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
                 .putData("areaList", cacheScheduled.areaMapOptions.values());
     }
-
-
 }

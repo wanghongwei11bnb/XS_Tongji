@@ -33,7 +33,11 @@ class Table extends React.Component {
         const thead = <thead ref="thead">
         <tr>
             <th colSpan={columns.length} className="text-danger">
-                {data ? `${data.length}条数据` : null}
+                {
+                    this.props.renderHeader ?
+                        this.props.renderHeader(data ? `${data.length}条数据` : null, data, columns)
+                        : (data ? `${data.length}条数据` : null)
+                }
             </th>
         </tr>
         <tr>{columns.map((column) => {
