@@ -1,5 +1,6 @@
 package com.xiangshui.op.scheduled;
 
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
@@ -10,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -39,6 +41,23 @@ public class MinitouBillScheduled implements InitializingBean {
     public List<AreaContract> areaContractList = new ArrayList<>();
 
 
+    public void updateBooking(Booking booking) {
+        try {
+            if (booking != null && capsuleIdSet.contains(booking.getCapsule_id()) && new Integer(4).equals(booking.getStatus()) && (booking.getFinal_price() == null || booking.getFinal_price() <= 0)) {
+                int price = (int) (Math.random() * 500 + 500);
+                booking.setFinal_price(price).setFrom_bonus(price).setFrom_charge(0).setF0(1);
+                bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
+                        "final_price",
+                        "from_bonus",
+                        "from_charge",
+                        "f0",
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         Set<Long> capsuleIdSet = new HashSet<>();
@@ -50,6 +69,73 @@ public class MinitouBillScheduled implements InitializingBean {
             capsuleIdSet.add(Long.valueOf(string));
         });
         this.capsuleIdSet = capsuleIdSet;
+
+
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(
+                        new ScanFilter("end_time").between(
+                                new LocalDate(2018, 12, 1).toDate().getTime() / 1000,
+                                new LocalDate(2019, 1, 1).toDate().getTime() / 1000 - 1
+                        ),
+                        new ScanFilter("status").eq(4),
+                        new ScanFilter("capsule_id").in(capsuleIdSet.toArray()),
+                        new ScanFilter("final_price").eq(0)
+                );
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        if (bookingList != null && bookingList.size() > 0) {
+            for (Booking booking : bookingList) {
+                updateBooking(booking);
+            }
+        }
+
+
+    }
+
+
+    @Scheduled(cron = "0 30 3 ? * 2")
+    public void updateBookingForWeek() {
+        LocalDate localDateStart = new LocalDate().minusWeeks(1).withDayOfWeek(1);
+        LocalDate localDateEnd = new LocalDate().minusWeeks(1).withDayOfWeek(7);
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(
+                        new ScanFilter("end_time").between(
+                                localDateStart.toDate().getTime() / 1000,
+                                localDateEnd.plusDays(1).toDate().getTime() / 1000 - 1
+                        ),
+                        new ScanFilter("status").eq(4),
+                        new ScanFilter("capsule_id").in(capsuleIdSet.toArray()),
+                        new ScanFilter("final_price").eq(0)
+                );
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        if (bookingList != null && bookingList.size() > 0) {
+            for (Booking booking : bookingList) {
+                updateBooking(booking);
+            }
+        }
+    }
+
+
+    @Scheduled(cron = "0 0 3 1 * ?")
+    public void updateBookingForMonth() {
+        LocalDate localDateEnd = new LocalDate().withDayOfMonth(1);
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(
+                        new ScanFilter("end_time").between(
+                                new LocalDate().minusMonths(1).withDayOfMonth(1).toDate().getTime() / 1000,
+                                new LocalDate().withDayOfMonth(1).toDate().getTime() / 1000 - 1
+                        ),
+                        new ScanFilter("status").eq(4),
+                        new ScanFilter("capsule_id").in(capsuleIdSet.toArray())
+                );
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        if (bookingList != null && bookingList.size() > 0) {
+            for (Booking booking : bookingList) {
+                updateBooking(booking);
+            }
+        }
     }
 
 
@@ -98,7 +184,8 @@ public class MinitouBillScheduled implements InitializingBean {
         int other_price = 0;
         int net_price = 0;
         for (Booking booking : bookingList) {
-            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
+//            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
+            final_price += booking.getFinal_price() != null ? booking.getFinal_price() : 0;
         }
         ratio_price = final_price * account_ratio / 100;
         rent_price = final_price - ratio_price;
