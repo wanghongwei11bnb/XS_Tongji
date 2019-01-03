@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.util.MapOptions;
 import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDate;
@@ -60,13 +61,29 @@ public class MinitouBillScheduled implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
+        MapOptions<Long, Capsule> capsuleMapOptions = new MapOptions<Long, Capsule>(capsuleList) {
+            @Override
+            public Long getPrimary(Capsule capsule) {
+                return capsule.getCapsule_id();
+            }
+        };
         Set<Long> capsuleIdSet = new HashSet<>();
         IOUtils.readLines(this.getClass().getResourceAsStream("/mnt_capsule_id.txt"), "UTF-8").forEach(string -> {
-            if (capsuleIdSet.contains(Long.valueOf(string))) {
-                System.out.println("重复的 capsule_id ：" + string);
-                return;
+            try {
+                if (capsuleIdSet.contains(Long.valueOf(string))) {
+                    System.out.println("重复的 capsule_id ：" + string);
+                    return;
+                }
+                if (!capsuleMapOptions.containsKey(Long.valueOf(string))) {
+                    System.out.println("无效的 capsule_id ：" + string);
+                    return;
+                }
+                capsuleIdSet.add(Long.valueOf(string));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            capsuleIdSet.add(Long.valueOf(string));
+
         });
         this.capsuleIdSet = capsuleIdSet;
 
