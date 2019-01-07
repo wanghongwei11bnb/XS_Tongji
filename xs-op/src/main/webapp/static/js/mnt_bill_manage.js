@@ -14,16 +14,24 @@ class Page extends React.Component {
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
-                <select ref="year" className="form-control d-inline-block w-auto mx-1">
+                <select ref="year" className="form-control d-inline-block w-auto mx-1" onChange={this.setState.bind(this, {})}>
+                    <option></option>
                     <option value={2018}>2018</option>
+                    <option value={2019}>2019</option>
                 </select>
                 <select ref="month" className="form-control d-inline-block w-auto mx-1">
                     {(() => {
-                        let options = [];
-                        for (let i = 1; i <= 12; i++) {
-                            options.push(<option value={i}>{i}</option>)
+                        if (this.refs && this.refs.year && this.refs.year.value) {
+                            if (this.refs.year.value == 2018) {
+                                return <option value={12}>12</option>;
+                            } else if (this.refs.year.value == 2019) {
+                                let options = [];
+                                for (let i = 1; i <= 12; i++) {
+                                    options.push(<option value={i}>{i}</option>);
+                                }
+                                return options;
+                            }
                         }
-                        return options;
                     })()}
                 </select>
                 <button className="btn btn-sm btn-primary mx-1" onClick={this.search}>查看报表</button>

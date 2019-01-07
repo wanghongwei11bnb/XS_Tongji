@@ -15,6 +15,7 @@ import com.xiangshui.server.domain.MinitouBill;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.ServiceUtils;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.joda.time.LocalDate;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.xiangshui.op.annotation.AuthRequired.auth_minitou_investor;
@@ -130,11 +133,53 @@ public class MinitouBillController extends BaseController {
 
     @PostMapping("/api/mnt/bill/checkout")
     @ResponseBody
-    public Result bill_search(Integer year, Integer month) {
+    public Result bill_search(HttpServletRequest request, HttpServletResponse response, Integer year, Integer month, Boolean download) throws IOException {
+        if (download == null) download = false;
         if (year == null || month == null) {
             return new Result(-1, "请选择月份");
         }
         List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
+        if (download) {
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<MinitouBill>("设备编号") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return String.valueOf(minitouBill.getCapsule_id());
+                        }
+                    },
+                    new ExcelUtils.Column<MinitouBill>("场地名称") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return cacheScheduled.areaMapOptions.containsKey(minitouBill.getArea_id()) ? cacheScheduled.areaMapOptions.get(minitouBill.getArea_id()).getTitle() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<MinitouBill>("场地分成比例") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return minitouBill.getAccount_ratio() + "%";
+                        }
+                    },
+                    new ExcelUtils.Column<MinitouBill>("经营收入") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return String.valueOf(minitouBill.getFinal_price() / 100f);
+                        }
+                    },
+                    new ExcelUtils.Column<MinitouBill>("场地分成金额") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return String.valueOf(minitouBill.getRatio_price() / 100f);
+                        }
+                    },
+                    new ExcelUtils.Column<MinitouBill>("利润收入（扣除租金）") {
+                        @Override
+                        public String render(MinitouBill minitouBill) {
+                            return String.valueOf(minitouBill.getRent_price() / 100f);
+                        }
+                    }
+            ), minitouBillList, response, "bill.xlsx");
+            return null;
+        }
         return new Result(CodeMsg.SUCCESS)
                 .putData("minitouBillList", minitouBillList)
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea)

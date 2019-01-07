@@ -16,8 +16,12 @@ class Page extends React.Component {
         return <div className="container-fluid my-3">
             <div className="m-1">
                 订单创建日期：
-                <DateInput ref="create_date_start" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
-                <DateInput ref="create_date_end" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_start" className="form-control form-control-sm d-inline-block mx-3 w-auto" onDateDisabled={(ymd) => {
+                    return ymd.toDate().getTime() < new YearMonthDate(2018, 12, 1).toDate().getTime()
+                }}/>
+                <DateInput ref="create_date_end" className="form-control form-control-sm d-inline-block mx-3 w-auto" onDateDisabled={(ymd) => {
+                    return ymd.toDate().getTime() < new YearMonthDate(2018, 12, 1).toDate().getTime()
+                }}/>
                 设备编号：
                 <input ref="capsule_id" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button className="btn btn-sm btn-primary mx-1" onClick={this.search}>搜索</button>

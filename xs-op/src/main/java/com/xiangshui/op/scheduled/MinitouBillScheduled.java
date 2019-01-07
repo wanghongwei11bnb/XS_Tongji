@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.MapOptions;
 import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.io.IOUtils;
@@ -16,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @Component
 public class MinitouBillScheduled implements InitializingBean {
@@ -35,6 +38,11 @@ public class MinitouBillScheduled implements InitializingBean {
     CountCapsuleScheduled countCapsuleScheduled;
     @Autowired
     MinitouBillDao minitouBillDao;
+
+    @Autowired
+    UserInfoDao userInfoDao;
+
+    MinitouBillTools minitouBillTools = new MinitouBillTools();
 
 
     public Set<Long> capsuleIdSet = new HashSet<>();
@@ -107,6 +115,16 @@ public class MinitouBillScheduled implements InitializingBean {
         }
 
 
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000 * 30);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            capsuleIdSet.forEach(capsule_id -> {
+                insertBooking(capsule_id, 2018, 12, 15, 1330);
+            });
+        }).start();
     }
 
 
@@ -131,6 +149,8 @@ public class MinitouBillScheduled implements InitializingBean {
                 updateBooking(booking);
             }
         }
+
+
     }
 
 
@@ -247,6 +267,82 @@ public class MinitouBillScheduled implements InitializingBean {
             }
         });
         return minitouBillList;
+    }
+
+
+    public void insertBooking(long capsule_id, int year, int month, int amount, int average_price) {
+        if (!cacheScheduled.capsuleMapOptions.containsKey(capsule_id)) {
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+        }
+        if (amount < 1) {
+            throw new XiangShuiException("amount 必须大于0");
+        }
+        if (average_price < 1) {
+            throw new XiangShuiException("average_price 必须大于0");
+        }
+        List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
+                new ScanFilter("capsule_id").eq(capsule_id),
+                new ScanFilter("create_time").between(
+                        new LocalDate(year, month, 1).toDate().getTime() / 1000,
+                        new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1
+                )
+        ));
+        amount -= ListUtils.filter(bookingList, booking -> new Integer(1).equals(booking.getF1())).size();
+        if (amount < 1) {
+            return;
+        }
+        for (int i = amount; i > 0; i--) {
+            Booking newBooking = minitouBillTools.makeBooking(capsule_id, year, month, average_price, bookingList);
+            if (newBooking != null) {
+                bookingList.add(newBooking);
+                bookingDao.putItem(newBooking);
+            }
+        }
+
+    }
+
+
+    class MinitouBillTools {
+        public int makeUin() {
+            for (; ; ) {
+                int uin = (int) (Math.random() * 99999 + 100000);
+                if ((userInfoDao.getItem(new PrimaryKey("uin", uin)) == null)) {
+                    return uin;
+                }
+            }
+        }
+
+        public long makeBookingId() {
+            for (; ; ) {
+                long booking_id = (int) (Math.random() * 999999999 + 1000000000);
+                if ((bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null)) {
+                    return booking_id;
+                }
+            }
+        }
+
+        public Booking makeBooking(long capsule_id, int year, int month, int average_price, List<Booking> bookingList) {
+            Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
+            Booking newBooking = new Booking();
+            for (; ; ) {
+                long start = (long) (Math.random() * (60 * 60 * 24 * 25) + new LocalDate(year, month, 1).toDate().getTime() / 1000);
+                long end = (long) (start + (60 * 60) + Math.random() * (60 * 30));
+                if (ListUtils.filter(bookingList, booking -> {
+                    long create_time = booking.getCreate_time();
+                    long end_time = booking.getEnd_time() != null ? booking.getEnd_time() : System.currentTimeMillis() / 1000;
+                    return !(start > end_time || end < create_time);
+                }).size() == 0) {
+                    newBooking.setCreate_time(start).setEnd_time(end).setUpdate_time(end);
+                    break;
+                }
+            }
+            newBooking.setUin(makeUin()).setBooking_id(makeBookingId()).setCapsule_id(capsule_id).setArea_id(capsule.getArea_id());
+            int price = (int) (Math.random() * 1000 + (average_price - 500));
+            newBooking.setFinal_price(price).setFrom_bonus(price).setPay_type(20).setReq_from("wx-app").setStatus(4);
+            return newBooking;
+        }
+
+
     }
 
 

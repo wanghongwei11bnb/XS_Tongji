@@ -15,7 +15,7 @@ class CalendarModal extends Modal {
 
     renderBody = () => {
         return <div className="position-relative text-center">
-            <Calendar ref="calendar" onDateClick={this.onDateClick}></Calendar>
+            <Calendar ref="calendar" onDateClick={this.onDateClick} onDateDisabled={this.props.onDateDisabled}></Calendar>
         </div>
     };
 
@@ -51,7 +51,8 @@ class DateInput extends React.Component {
             }}
             onClean={() => {
                 this.setValue(null);
-            }}></CalendarModal>);
+            }}
+            onDateDisabled={this.props.onDateDisabled}></CalendarModal>);
     };
 
     setValue = (value) => {
