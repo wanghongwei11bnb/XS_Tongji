@@ -80,51 +80,6 @@ class Saler extends React.Component {
 
 }
 
-class YearMonthSelectModal extends Modal {
-    constructor(props) {
-        super(props);
-    }
-
-    renderHeader = () => '请选择月份';
-    renderBody = () => {
-        return <div>
-
-            <select ref="year" className="form-control d-inline-block w-auto m-1">
-                <option value=""></option>
-                {(() => {
-                    let os = [];
-                    for (let i = 2017; i <= 2018; i++) {
-                        os.push(<option value={i}>{i}</option>);
-                    }
-                    return os;
-                })()}
-            </select>
-            <select ref="month" className="form-control d-inline-block w-auto m-1">
-                <option value=""></option>
-                {(() => {
-                    let os = [];
-                    for (let i = 1; i <= 12; i++) {
-                        os.push(<option value={i}>{i}</option>);
-                    }
-                    return os;
-                })()}
-            </select>
-        </div>
-    };
-    ok = () => {
-        if (!this.refs.year.value) return Message.msg('请选择年份');
-        if (!this.refs.month.value) return Message.msg('请选择月份');
-        this.close();
-        if (this.props.onSuccess) this.props.onSuccess(this.refs.year.value, this.refs.month.value);
-    };
-    renderFooter = () => {
-        return [
-            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
-            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
-        ];
-    };
-}
-
 class AreaContractGrid extends React.Component {
     constructor(props) {
         super(props);

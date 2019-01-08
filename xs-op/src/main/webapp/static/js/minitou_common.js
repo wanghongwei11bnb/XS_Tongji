@@ -11,6 +11,9 @@ class MinitouCapsuleGrid extends React.Component {
                 {
                     field: 'capsule_id', title: '操作', render: value => [
                         <button className="btn btn-sm btn-primary m-1" onClick={this.showBookingFor30Days.bind(this, value)}>30日内订单</button>,
+                        authMapOptions.get(finalAuthMap.auth_minitou_op) ?
+                            <button className="btn btn-sm btn-success mx-1" onClick={this.checkout.bind(this, value)}>生成账单</button>
+                            : null
                     ]
                 },
             ]
@@ -37,6 +40,18 @@ class MinitouCapsuleGrid extends React.Component {
             create_date_start: new Date(Date.now() - (1000 * 60 * 60 * 24 * 30)).format('yyyy-MM-dd'),
             create_date_end: new Date().format('yyyy-MM-dd')
         }}></MinitouBookingGridModal>);
+    };
+
+    checkout = (capsule_id) => {
+        Modal.open(<YearMonthSelectModal onSuccess={(year, month) => {
+            request({
+                url: `/api/mnt/bill/checkout`, method: 'post', loading: true,
+                data: {capsule_id, year, month},
+                success: resp => {
+                    Message.msg('操作成功');
+                }
+            });
+        }}></YearMonthSelectModal>);
     };
 
     render() {
@@ -184,7 +199,7 @@ class MinitouBillGrid extends React.Component {
     load = (queryParams) => {
         if (queryParams) this.state.queryParams = queryParams;
         request({
-            url: `/api/mnt/bill/checkout`, method: 'post', loading: true,
+            url: `/api/mnt/bill/search`, loading: true,
             data: this.state.queryParams,
             success: (resp) => {
                 this.setState({

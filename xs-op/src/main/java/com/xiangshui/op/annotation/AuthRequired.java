@@ -31,4 +31,5 @@ public @interface AuthRequired {
     String auth_f1 = "F1";
 
     String auth_minitou_investor = "迷你投——投资人";
+    String auth_minitou_op = "迷你投——OP";
 }

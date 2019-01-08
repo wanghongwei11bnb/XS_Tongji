@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.MapOptions;
@@ -38,6 +39,10 @@ public class MinitouBillScheduled implements InitializingBean {
     CountCapsuleScheduled countCapsuleScheduled;
     @Autowired
     MinitouBillDao minitouBillDao;
+
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     UserInfoDao userInfoDao;
@@ -115,20 +120,31 @@ public class MinitouBillScheduled implements InitializingBean {
         }
 
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000 * 30);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            capsuleIdSet.forEach(capsule_id -> {
-                insertBooking(capsule_id, 2018, 12, 15, 1330);
-            });
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                Thread.sleep(1000 * 30);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            capsuleIdSet.forEach(capsule_id -> {
+//                insertBooking(capsule_id, 2018, 12, 15, 1330);
+//            });
+//        }).start();
+
+//        new Thread(() -> {
+//            try {
+//                Thread.sleep(1000 * 30);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            capsuleIdSet.forEach(capsule_id -> {
+//                deleteF1Booking(capsule_id, 2018, 12, 15);
+//            });
+//        }).start();
     }
 
 
-    @Scheduled(cron = "0 30 3 ? * 2")
+    @Scheduled(cron = "0 0 3 ? * 2")
     public void updateBookingForWeek() {
         LocalDate localDateStart = new LocalDate().minusWeeks(1).withDayOfWeek(1);
         LocalDate localDateEnd = new LocalDate().minusWeeks(1).withDayOfWeek(7);
@@ -154,9 +170,8 @@ public class MinitouBillScheduled implements InitializingBean {
     }
 
 
-    @Scheduled(cron = "0 0 3 1 * ?")
+    @Scheduled(cron = "0 30 3 1 * ?")
     public void updateBookingForMonth() {
-        LocalDate localDateEnd = new LocalDate().withDayOfMonth(1);
         ScanSpec scanSpec = new ScanSpec()
                 .withMaxResultSize(Integer.MAX_VALUE)
                 .withScanFilters(
@@ -175,6 +190,36 @@ public class MinitouBillScheduled implements InitializingBean {
         }
     }
 
+    @Scheduled(cron = "0 0 4 1 * ?")
+    public void makeBill() {
+        LocalDate localDate = new LocalDate().minusMonths(1);
+        List<MinitouBill> minitouBillList = makeBill(localDate.getYear(), localDate.getMonthOfYear());
+        upsetMinitouBill(minitouBillList);
+    }
+
+    public void upsetMinitouBill(List<MinitouBill> minitouBillList) {
+        if (minitouBillList != null) {
+            for (MinitouBill minitouBill : minitouBillList) {
+                try {
+                    Thread.sleep(1000);
+                    upsetMinitouBill(minitouBill);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void upsetMinitouBill(MinitouBill minitouBill) throws Exception {
+        if (minitouBill == null) {
+            throw new XiangShuiException("minitouBill 不能为空");
+        }
+        if (minitouBillDao.getItem(new PrimaryKey("bill_id", minitouBill.getBill_id())) != null) {
+            minitouBillDao.deleteItem(new PrimaryKey("bill_id", minitouBill.getBill_id()));
+        }
+        minitouBillDao.putItem(minitouBill);
+    }
+
 
     public MinitouBill makeBill(long capsule_id, int year, int month) {
 
@@ -191,10 +236,9 @@ public class MinitouBillScheduled implements InitializingBean {
         long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
         ScanSpec scanSpec = new ScanSpec();
         List<ScanFilter> scanFilterList = new ArrayList<>();
-        scanFilterList.add(new ScanFilter("capsule_id").eq(capsule_id));
-        scanFilterList.add(new ScanFilter("create_time").between(dateTimeStart, dateTimeEnd));
         scanFilterList.add(new ScanFilter("status").eq(4));
-        scanFilterList.add(new ScanFilter("final_price").gt(0));
+        scanFilterList.add(new ScanFilter("update_time").between(dateTimeStart, dateTimeEnd));
+        scanFilterList.add(new ScanFilter("capsule_id").eq(capsule_id));
         scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         List<Booking> bookingList = bookingDao.scan(scanSpec);
         return makeBill(capsule_id, year, month, bookingList);
@@ -242,12 +286,10 @@ public class MinitouBillScheduled implements InitializingBean {
         long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
         long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
         List<ScanFilter> scanFilterList = new ArrayList<>();
-        scanFilterList.add(new ScanFilter("create_time").between(dateTimeStart, dateTimeEnd));
         scanFilterList.add(new ScanFilter("status").eq(4));
+        scanFilterList.add(new ScanFilter("update_time").between(dateTimeStart, dateTimeEnd));
         scanFilterList.add(new ScanFilter("capsule_id").in(capsuleIdSet.toArray()));
-        ScanSpec scanSpec = new ScanSpec()
-                .withMaxResultSize(Integer.MAX_VALUE)
-                .withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        ScanSpec scanSpec = new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         List<Booking> bookingList = bookingDao.scan(scanSpec);
         List<MinitouBill> minitouBillList = new ArrayList<>();
         capsuleIdSet.forEach(capsule_id -> {
@@ -302,6 +344,36 @@ public class MinitouBillScheduled implements InitializingBean {
     }
 
 
+    public void deleteF1Booking(long capsule_id, int year, int month, int retain_amount) {
+        ScanSpec scanSpec = new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
+                new ScanFilter("capsule_id").eq(capsule_id),
+                new ScanFilter("create_time").between(
+                        new LocalDate(year, month, 1).toDate().getTime() / 1000,
+                        new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1
+                )
+        );
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        List<UserInfo> userInfoList = userService.getUserInfoList(bookingList, null);
+        MapOptions<Integer, UserInfo> userInfoMapOptions = new MapOptions<Integer, UserInfo>(userInfoList) {
+            @Override
+            public Integer getPrimary(UserInfo userInfo) {
+                return userInfo.getUin();
+            }
+        };
+
+        List<Booking> f1BookingList = ListUtils.filter(bookingList, booking -> {
+            if (!userInfoMapOptions.containsKey(booking.getUin())) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        while (f1BookingList.size() > retain_amount) {
+            Booking f1Booking = f1BookingList.remove((int) Math.random() * f1BookingList.size());
+            bookingDao.deleteItem(new PrimaryKey("booking_id", f1Booking.getBooking_id()));
+        }
+    }
+
     class MinitouBillTools {
         public int makeUin() {
             for (; ; ) {
@@ -323,7 +395,7 @@ public class MinitouBillScheduled implements InitializingBean {
 
         public Booking makeBooking(long capsule_id, int year, int month, int average_price, List<Booking> bookingList) {
             Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
-            Booking newBooking = new Booking();
+            Booking newBooking = new Booking().setF1(1);
             for (; ; ) {
                 long start = (long) (Math.random() * (60 * 60 * 24 * 25) + new LocalDate(year, month, 1).toDate().getTime() / 1000);
                 long end = (long) (start + (60 * 60) + Math.random() * (60 * 30));

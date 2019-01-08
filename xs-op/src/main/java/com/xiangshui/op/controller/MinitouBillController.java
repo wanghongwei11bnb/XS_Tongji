@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.xiangshui.op.annotation.AuthRequired.auth_minitou_investor;
+import static com.xiangshui.op.annotation.AuthRequired.auth_minitou_op;
 
 @Controller
 public class MinitouBillController extends BaseController {
@@ -83,6 +84,7 @@ public class MinitouBillController extends BaseController {
 
 
     @GetMapping("/api/mnt/capsule/search")
+    @AuthRequired(auth_minitou_investor)
     @ResponseBody
     public Result capsule_search() {
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray())));
@@ -97,6 +99,7 @@ public class MinitouBillController extends BaseController {
 
 
     @GetMapping("/api/mnt/booking/search")
+    @AuthRequired(auth_minitou_investor)
     @ResponseBody
     public Result booking_search(Date create_date_start, Date create_date_end, Long capsule_id) {
         if (create_date_start == null || create_date_end == null) {
@@ -132,13 +135,40 @@ public class MinitouBillController extends BaseController {
 
 
     @PostMapping("/api/mnt/bill/checkout")
+    @AuthRequired(auth_minitou_op)
     @ResponseBody
-    public Result bill_search(HttpServletRequest request, HttpServletResponse response, Integer year, Integer month, Boolean download) throws IOException {
+    public Result bill_checkout(HttpServletRequest request, HttpServletResponse response, Long capsule_id, Integer year, Integer month) throws Exception {
+        if (year == null || month == null) {
+            return new Result(-1, "请选择月份");
+        }
+        if (capsule_id != null) {
+            MinitouBill minitouBill = minitouBillScheduled.makeBill(capsule_id, year, month);
+            minitouBillScheduled.upsetMinitouBill(minitouBill);
+            return new Result(CodeMsg.SUCCESS);
+        } else {
+            List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
+            minitouBillScheduled.upsetMinitouBill(minitouBillList);
+            return new Result(CodeMsg.SUCCESS);
+        }
+    }
+
+
+    @GetMapping("/api/mnt/bill/search")
+    @AuthRequired(auth_minitou_investor)
+    @ResponseBody
+    public Result bill_search(HttpServletRequest request, HttpServletResponse response, Integer year, Integer month, Boolean download) throws IOException, NoSuchFieldException, IllegalAccessException {
         if (download == null) download = false;
         if (year == null || month == null) {
             return new Result(-1, "请选择月份");
         }
-        List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
+        List<ScanFilter> scanFilterList = minitouBillDao.makeScanFilterList(new MinitouBill().setYear(year).setMonth(month), new String[]{
+                "year",
+                "month",
+        });
+        List<MinitouBill> minitouBillList = minitouBillDao.scan(new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]))
+        );
         if (download) {
             ExcelUtils.export(Arrays.asList(
                     new ExcelUtils.Column<MinitouBill>("设备编号") {
@@ -177,7 +207,7 @@ public class MinitouBillController extends BaseController {
                             return String.valueOf(minitouBill.getRent_price() / 100f);
                         }
                     }
-            ), minitouBillList, response, "bill.xlsx");
+            ), minitouBillList, response, "bill_" + year + month + ".xlsx");
             return null;
         }
         return new Result(CodeMsg.SUCCESS)

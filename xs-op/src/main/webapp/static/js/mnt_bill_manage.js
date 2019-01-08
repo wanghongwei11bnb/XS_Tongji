@@ -11,6 +11,26 @@ class Page extends React.Component {
         });
     };
 
+    download = () => {
+        window.open(`/api/mnt/bill/search?${queryString({
+            year: this.refs.year.value,
+            month: this.refs.month.value,
+            download: true
+        })}`);
+    };
+
+    checkout = () => {
+        Modal.open(<YearMonthSelectModal onSuccess={(year, month) => {
+            request({
+                url: `/api/mnt/bill/checkout`, method: 'post', loading: true,
+                data: {year, month},
+                success: resp => {
+                    Message.msg('操作成功');
+                }
+            });
+        }}></YearMonthSelectModal>);
+    };
+
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
@@ -35,6 +55,10 @@ class Page extends React.Component {
                     })()}
                 </select>
                 <button className="btn btn-sm btn-primary mx-1" onClick={this.search}>查看报表</button>
+                <button className="btn btn-sm btn-success mx-1" onClick={this.download}>下载</button>
+                {authMapOptions.get(finalAuthMap.auth_minitou_op) ?
+                    <button className="btn btn-sm btn-danger mx-1" onClick={this.checkout}>生成账单(耗能／慎用)</button>
+                    : null}
             </div>
             <MinitouBillGrid renderHeader={(headerHtml, data, columns) => {
                 return [
