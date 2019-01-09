@@ -149,10 +149,23 @@ class AreaContractGrid extends React.Component {
                 {field: 'saler', title: '销售人员'},
                 {field: 'customer', title: '客户公司名称'},
                 {
-                    field: 'account_ratio', title: '分账比例', render: value => {
-                        if (type(value) === 'Number') {
-                            return `${value}%`;
+                    field: 'account_ratio', title: '分账比例', render: (value, row) => {
+                        let arr = [];
+                        if (row.range_ratio_list && row.range_ratio_list.length > 0) {
+                            row.range_ratio_list.map(range_ratio => {
+                                arr.push(<div>
+                                    {type(range_ratio.lte, 'Number') ? range_ratio.lte / 100 : null}
+                                    ~
+                                    {type(range_ratio.gte, 'Number') ? range_ratio.gte / 100 : null}
+                                    :
+                                    {type(range_ratio.account_ratio, 'Number') ? `${range_ratio.account_ratio}%` : null}
+                                </div>);
+                            });
                         }
+                        if (type(value) === 'Number') {
+                            arr.push(<div>{`${value}%`}</div>);
+                        }
+                        return arr;
                     }
                 },
                 // {field: 'bank_account_name', title: '客户银行付款账户'},

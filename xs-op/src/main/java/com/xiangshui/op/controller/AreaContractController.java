@@ -413,6 +413,7 @@ public class AreaContractController extends BaseController {
                 "customer_email",
                 "customer_contact",
                 "account_ratio",
+                "range_ratio_list",
                 "bank_account_name",
                 "bank_account",
                 "bank_branch",

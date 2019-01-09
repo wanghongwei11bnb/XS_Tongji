@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.ListUtils;
@@ -35,6 +36,8 @@ public class MinitouBillScheduled implements InitializingBean {
     BookingDao bookingDao;
     @Autowired
     AreaContractDao areaContractDao;
+    @Autowired
+    AreaContractService areaContractService;
     @Autowired
     CountCapsuleScheduled countCapsuleScheduled;
     @Autowired
@@ -259,7 +262,6 @@ public class MinitouBillScheduled implements InitializingBean {
         minitouBill.setBill_id(capsule_id * 1000000 + year * 100 + month);
         minitouBill.setCapsule_id(capsule_id).setArea_id(area.getArea_id()).setYear(year).setMonth(month);
         int final_price = 0;
-        int account_ratio = areaContract != null && areaContract.getAccount_ratio() != null ? areaContract.getAccount_ratio() : 0;
         int ratio_price = 0;
         int rent_price = 0;
         int other_price = 0;
@@ -268,6 +270,8 @@ public class MinitouBillScheduled implements InitializingBean {
 //            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
             final_price += booking.getFinal_price() != null ? booking.getFinal_price() : 0;
         }
+        Integer account_ratio = areaContractService.checkAccountRatio(areaContract, final_price);
+        if (account_ratio == null) account_ratio = 0;
         ratio_price = final_price * account_ratio / 100;
         rent_price = final_price - ratio_price;
         other_price = 0;

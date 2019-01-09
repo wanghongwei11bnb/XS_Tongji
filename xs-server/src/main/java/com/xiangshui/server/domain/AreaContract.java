@@ -1,5 +1,9 @@
 package com.xiangshui.server.domain;
 
+import com.xiangshui.server.domain.fragment.RangeRatio;
+
+import java.util.List;
+
 public class AreaContract {
 
     private Integer area_id;
@@ -9,6 +13,7 @@ public class AreaContract {
     private String customer_email;
     private String customer_contact;
     private Integer account_ratio;
+    private List<RangeRatio> range_ratio_list;
     private String bank_account_name;
     private String bank_account;
     private String bank_branch;
@@ -18,6 +23,14 @@ public class AreaContract {
     private Long update_time;
     private Integer status;
 
+    public List<RangeRatio> getRange_ratio_list() {
+        return range_ratio_list;
+    }
+
+    public AreaContract setRange_ratio_list(List<RangeRatio> range_ratio_list) {
+        this.range_ratio_list = range_ratio_list;
+        return this;
+    }
 
     public String getBank_account_name() {
         return bank_account_name;

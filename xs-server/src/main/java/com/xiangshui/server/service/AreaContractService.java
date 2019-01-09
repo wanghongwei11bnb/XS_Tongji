@@ -5,6 +5,7 @@ import com.xiangshui.server.constant.AreaContractStatusOption;
 import com.xiangshui.server.dao.AreaContractDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.AreaContract;
+import com.xiangshui.server.domain.fragment.RangeRatio;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AreaContractService {
@@ -37,8 +39,10 @@ public class AreaContractService {
         if (StringUtils.isBlank(criteria.getBank_account())) throw new XiangShuiException("客户银行付款帐号不能为空");
         if (StringUtils.isBlank(criteria.getBank_branch())) throw new XiangShuiException("客户银行支行信息不能为空");
         if (criteria.getAccount_ratio() == null) throw new XiangShuiException("分账比例不能为空");
-        if (!(0 <= criteria.getAccount_ratio() && criteria.getAccount_ratio() < 100))
+        if (!(0 <= criteria.getAccount_ratio() && criteria.getAccount_ratio() < 100)) {
             throw new XiangShuiException("分账比例必须在0～100之间");
+        }
+
     }
 
 
@@ -72,6 +76,7 @@ public class AreaContractService {
                 "customer_email",
                 "customer_contact",
                 "account_ratio",
+                "range_ratio_list",
                 "bank_account",
                 "bank_branch",
                 "remark",
@@ -79,5 +84,22 @@ public class AreaContractService {
         });
     }
 
+
+    public Integer checkAccountRatio(AreaContract areaContract, int count_price) {
+        Integer account_ratio = areaContract.getAccount_ratio();
+        List<RangeRatio> rangeRatioList = areaContract.getRange_ratio_list();
+        if (rangeRatioList != null && rangeRatioList.size() > 0) {
+            for (RangeRatio rangeRatio : rangeRatioList) {
+                if (rangeRatio != null && rangeRatio.getAccount_ratio() != null) {
+                    if ((rangeRatio.getLte() == null || rangeRatio.getLte() <= count_price)
+                            && (rangeRatio.getGte() == null || count_price <= rangeRatio.getGte())) {
+                        account_ratio = rangeRatio.getAccount_ratio();
+                        break;
+                    }
+                }
+            }
+        }
+        return account_ratio;
+    }
 
 }

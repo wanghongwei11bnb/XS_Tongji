@@ -22,6 +22,7 @@ class AreaContractModal extends Modal {
             customer_email: this.refs.customer_email.value,
             customer_contact: this.refs.customer_contact.value,
             account_ratio: this.refs.account_ratio.value,
+            range_ratio_list: this.refs.range_ratio_list.getData(),
             bank_account_name: this.refs.bank_account_name.value,
             bank_account: this.refs.bank_account.value,
             bank_branch: this.refs.bank_branch.value,
@@ -197,6 +198,39 @@ class AreaContractModal extends Modal {
             <tr>
                 <th>分账比例</th>
                 <td>
+                    分段比例：
+                    <div>
+                        <ListEditor ref="range_ratio_list" disabled={!(create || update || verify)} readOnly={!(create || update || verify)}
+                                    itemRender={(item, index, itemUpdate) => {
+                                        return <div>
+                                            <PriceInput type="text" initialValue={(item || {}).lte} className="form-control d-inline-block w-auto m-1" onChange={(value) => {
+                                                itemUpdate({
+                                                    lte: value,
+                                                    gte: (item || {}).gte,
+                                                    account_ratio: (item || {}).account_ratio
+                                                })
+                                            }}/>
+                                            ～
+                                            <PriceInput type="text" initialValue={(item || {}).gte} className="form-control d-inline-block w-auto m-1" onChange={(value) => {
+                                                itemUpdate({
+                                                    lte: (item || {}).lte,
+                                                    gte: value,
+                                                    account_ratio: (item || {}).account_ratio
+                                                })
+                                            }}/>
+                                            ：
+                                            <NumberInput type="text" initialValue={(item || {}).account_ratio} className="form-control d-inline-block w-auto m-1" onChange={(value) => {
+                                                itemUpdate({
+                                                    lte: (item || {}).lte,
+                                                    gte: (item || {}).gte,
+                                                    account_ratio: value,
+                                                })
+                                            }}/>
+                                            ％
+                                        </div>;
+                                    }}></ListEditor>
+                    </div>
+                    默认比例：
                     <div className="row">
                         <div className="col-sm-6">
                             <input ref="account_ratio" type="text" readOnly={!(create || update || verify)}
@@ -261,6 +295,9 @@ class AreaContractModal extends Modal {
             if (type(areaContract.bank_account_name) === 'String') this.refs.bank_account_name.value = areaContract.bank_account_name;
             if (type(areaContract.bank_account) === 'String') this.refs.bank_account.value = areaContract.bank_account;
             if (type(areaContract.bank_branch) === 'String') this.refs.bank_branch.value = areaContract.bank_branch;
+
+            this.refs.range_ratio_list.setData(areaContract.range_ratio_list);
+
             if (type(areaContract.account_ratio) === 'Number') this.refs.account_ratio.value = areaContract.account_ratio;
             if (type(areaContract.saler) === 'String') this.refs.saler.value = areaContract.saler;
             if (type(areaContract.saler_city) === 'String') this.refs.saler_city.value = areaContract.saler_city;

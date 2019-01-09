@@ -114,13 +114,17 @@ class NumberInput extends React.Component {
     }
 
 
+    onChange = () => {
+        if (this.props.onChange) this.props.onChange(this.getValue());
+    };
+
     render() {
         return <input ref="input"
                       type="number"
                       disabled={this.props.disabled}
                       readOnly={this.props.readOnly}
                       className={this.props.className}
-                      onChange={this.props.onChange}
+                      onChange={this.onChange}
         />
     }
 

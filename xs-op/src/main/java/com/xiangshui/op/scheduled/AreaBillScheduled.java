@@ -10,6 +10,7 @@ import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
+import com.xiangshui.server.domain.fragment.RangeRatio;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.AreaService;
@@ -105,12 +106,14 @@ public class AreaBillScheduled implements InitializingBean {
             if (!Integer.valueOf(AreaContractStatusOption.adopt.value).equals(areaContract.getStatus())) {
                 throw new XiangShuiException("审核未通过");
             }
-            if (areaContract.getAccount_ratio() == null) {
-                throw new XiangShuiException("该场地没有设置分账比例");
-            }
-            if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() <= 100)) {
-                throw new XiangShuiException("该场地分账比例设置有误");
-            }
+
+
+//            if (areaContract.getAccount_ratio() == null) {
+//                throw new XiangShuiException("该场地没有设置分账比例");
+//            }
+//            if (!(0 < areaContract.getAccount_ratio() && areaContract.getAccount_ratio() <= 100)) {
+//                throw new XiangShuiException("该场地分账比例设置有误");
+//            }
 
             areaBillResult.setAreaContract(areaContract);
         }
@@ -174,6 +177,16 @@ public class AreaBillScheduled implements InitializingBean {
                 }
             }
         }
+
+
+        int count_price = charge_price + pay_price + (new LocalDate(time_start * 1000).withDayOfMonth(1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0);
+        Integer account_ratio = areaContractService.checkAccountRatio(areaBillResult.getAreaContract(), count_price);
+        if (account_ratio == null) {
+            throw new XiangShuiException("该场地没有设置分账比例");
+        }
+        if (!(0 < account_ratio && account_ratio <= 100)) {
+            throw new XiangShuiException("该场地分账比例设置有误");
+        }
         areaBillResult
                 .setArea_id(area_id)
                 .setTime_start(time_start)
@@ -188,8 +201,8 @@ public class AreaBillScheduled implements InitializingBean {
                 .setMonth_card_price(month_card_price);
         if (!skipContract) {
             areaBillResult
-                    .setAccount_ratio(areaBillResult.getAreaContract().getAccount_ratio())
-                    .setRatio_price((charge_price + pay_price + (new LocalDate(time_start * 1000).withDayOfMonth(1).toDate().getTime() > new LocalDate(2018, 7, 1).toDate().getTime() ? month_card_price : 0)) * areaBillResult.getAreaContract().getAccount_ratio() / 100);
+                    .setAccount_ratio(account_ratio)
+                    .setRatio_price(count_price * account_ratio / 100);
         }
         return areaBillResult;
     }
