@@ -98,8 +98,10 @@ public class AreaBillScheduled implements InitializingBean {
     public AreaBillResult reckonAreaBill(int area_id, long time_start, long time_end, boolean skipContract) {
         Date now = new Date();
         AreaBillResult areaBillResult = new AreaBillResult();
+        AreaContract areaContract = areaContractService.getByAreaId(area_id);
+        areaBillResult.setAreaContract(areaContract);
         if (!skipContract) {
-            AreaContract areaContract = areaContractService.getByAreaId(area_id);
+
             if (areaContract == null) {
                 throw new XiangShuiException("没匹配到场地合同");
             }
@@ -115,7 +117,7 @@ public class AreaBillScheduled implements InitializingBean {
 //                throw new XiangShuiException("该场地分账比例设置有误");
 //            }
 
-            areaBillResult.setAreaContract(areaContract);
+
         }
 
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
