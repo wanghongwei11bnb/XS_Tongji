@@ -186,7 +186,7 @@ public class AreaBillScheduled implements InitializingBean {
         if (account_ratio == null) {
             throw new XiangShuiException("该场地没有设置分账比例");
         }
-        if (!(0 < account_ratio && account_ratio <= 100)) {
+        if (!(0 <= account_ratio && account_ratio <= 100)) {
             throw new XiangShuiException("该场地分账比例设置有误");
         }
         areaBillResult
