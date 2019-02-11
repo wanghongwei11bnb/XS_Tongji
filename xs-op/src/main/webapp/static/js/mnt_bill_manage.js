@@ -75,7 +75,7 @@ class Page extends React.Component {
                 <button className="btn btn-sm btn-success mx-1" onClick={this.download}>下载</button>
                 {authMapOptions.get(finalAuthMap.auth_minitou_op) ?
                     [
-                        <button className="btn btn-sm btn-danger mx-1" onClick={this.checkout}>生成账单(耗能／慎用)</button>,
+                        //<button className="btn btn-sm btn-danger mx-1" onClick={this.checkout}>生成账单(耗能／慎用)</button>,
                         <button className="btn btn-sm btn-warning mx-1" onClick={this.preview}>生成账单(预览)</button>,
                     ]
                     : null}
