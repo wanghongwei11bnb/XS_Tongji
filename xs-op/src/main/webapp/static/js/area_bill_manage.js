@@ -32,7 +32,7 @@ class Page extends React.Component {
                     <option value=""></option>
                     {(() => {
                         let os = [];
-                        for (let i = 2017; i <= 2018; i++) {
+                        for (let i = 2017; i <= 2019; i++) {
                             os.push(<option value={i}>{i}</option>);
                         }
                         return os;

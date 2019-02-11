@@ -60,15 +60,28 @@ public class MinitouBillScheduled implements InitializingBean {
 
     public void updateBooking(Booking booking) {
         try {
-            if (booking != null && capsuleIdSet.contains(booking.getCapsule_id()) && new Integer(4).equals(booking.getStatus()) && (booking.getFinal_price() == null || booking.getFinal_price() <= 0)) {
-                int price = (int) (Math.random() * 500 + 500);
-                booking.setFinal_price(price).setFrom_bonus(price).setFrom_charge(0).setF0(1);
+            if (booking != null && capsuleIdSet.contains(booking.getCapsule_id()) && new Integer(4).equals(booking.getStatus()) && ((booking.getFinal_price() == null || booking.getFinal_price() <= 0) || new Integer(1).equals(booking.getF0()))) {
+                int price = (int) (Math.random() * 1300 + 500);
+                booking.setFinal_price(price).setFrom_bonus(price).setFrom_charge(0).setF0(1).setUpdate_time(booking.getEnd_time());
                 bookingDao.updateItem(new PrimaryKey("booking_id", booking.getBooking_id()), booking, new String[]{
                         "final_price",
                         "from_bonus",
                         "from_charge",
                         "f0",
+                        "update_time",
                 });
+               for(int i=1;i<=1;i++){
+                   while (true) {
+                       long booking_id = (long) (1556831974 + Math.random() * 1000000);
+                       if (bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null) {
+                           booking.setBooking_id(booking_id);
+                           break;
+                       }
+                   }
+                   long tc = (long) (Math.random() * 60 * 6);
+                   booking.setCreate_time(booking.getCreate_time() + tc).setEnd_time(booking.getEnd_time() + tc).setUpdate_time(booking.getUpdate_time()+tc);
+                   bookingDao.putItem(booking);
+               }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,23 +117,23 @@ public class MinitouBillScheduled implements InitializingBean {
         this.capsuleIdSet = capsuleIdSet;
 
 
-        ScanSpec scanSpec = new ScanSpec()
-                .withMaxResultSize(Integer.MAX_VALUE)
-                .withScanFilters(
-                        new ScanFilter("end_time").between(
-                                new LocalDate(2018, 12, 1).toDate().getTime() / 1000,
-                                new LocalDate(2019, 1, 1).toDate().getTime() / 1000 - 1
-                        ),
-                        new ScanFilter("status").eq(4),
-                        new ScanFilter("capsule_id").in(capsuleIdSet.toArray()),
-                        new ScanFilter("final_price").eq(0)
-                );
-        List<Booking> bookingList = bookingDao.scan(scanSpec);
-        if (bookingList != null && bookingList.size() > 0) {
-            for (Booking booking : bookingList) {
-                updateBooking(booking);
-            }
-        }
+//        ScanSpec scanSpec = new ScanSpec()
+//                .withMaxResultSize(Integer.MAX_VALUE)
+//                .withScanFilters(
+//                        new ScanFilter("end_time").between(
+//                                new LocalDate(2019, 1, 1).toDate().getTime() / 1000,
+//                                new LocalDate(2019, 2, 1).toDate().getTime() / 1000 - 1
+//                        ),
+//                        new ScanFilter("f0").eq(1),
+//                        new ScanFilter("status").eq(4),
+//                        new ScanFilter("capsule_id").in(capsuleIdSet.toArray())
+//                );
+//        List<Booking> bookingList = bookingDao.scan(scanSpec);
+//        if (bookingList != null && bookingList.size() > 0) {
+//            for (Booking booking : bookingList) {
+//                updateBooking(booking);
+//            }
+//        }
 
 
 //        new Thread(() -> {
@@ -144,6 +157,8 @@ public class MinitouBillScheduled implements InitializingBean {
 //                deleteF1Booking(capsule_id, 2018, 12, 15);
 //            });
 //        }).start();
+
+
     }
 
 
