@@ -31,6 +31,23 @@ class Page extends React.Component {
         }}></YearMonthSelectModal>);
     };
 
+    preview = () => {
+        Modal.open(<YearMonthSelectModal onSuccess={(year, month) => {
+            request({
+                url: `/api/mnt/bill/checkout`, method: 'post', loading: true,
+                data: {year, month, preview: true},
+                success: resp => {
+                    Message.msg('操作成功');
+                    this.refs.grid.setState({
+                        data: resp.data.minitouBillList,
+                        cityMapOptions: new CityMapOptions(resp.data.cityList),
+                        areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                    });
+                }
+            });
+        }}></YearMonthSelectModal>);
+    };
+
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
@@ -57,7 +74,10 @@ class Page extends React.Component {
                 <button className="btn btn-sm btn-primary mx-1" onClick={this.search}>查看报表</button>
                 <button className="btn btn-sm btn-success mx-1" onClick={this.download}>下载</button>
                 {authMapOptions.get(finalAuthMap.auth_minitou_op) ?
-                    <button className="btn btn-sm btn-danger mx-1" onClick={this.checkout}>生成账单(耗能／慎用)</button>
+                    [
+                        <button className="btn btn-sm btn-danger mx-1" onClick={this.checkout}>生成账单(耗能／慎用)</button>,
+                        <button className="btn btn-sm btn-warning mx-1" onClick={this.preview}>生成账单(预览)</button>,
+                    ]
                     : null}
             </div>
             <MinitouBillGrid renderHeader={(headerHtml, data, columns) => {

@@ -57,7 +57,7 @@ public class MinitouBillScheduled implements InitializingBean {
 
     public List<AreaContract> areaContractList = new ArrayList<>();
 
-
+    //修改0元订单
     public void updateBooking(Booking booking) {
         try {
             if (booking != null && capsuleIdSet.contains(booking.getCapsule_id()) && new Integer(4).equals(booking.getStatus()) && ((booking.getFinal_price() == null || booking.getFinal_price() <= 0) || new Integer(1).equals(booking.getF0()))) {
@@ -70,26 +70,28 @@ public class MinitouBillScheduled implements InitializingBean {
                         "f0",
                         "update_time",
                 });
-               for(int i=1;i<=1;i++){
-                   while (true) {
-                       long booking_id = (long) (1556831974 + Math.random() * 1000000);
-                       if (bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null) {
-                           booking.setBooking_id(booking_id);
-                           break;
-                       }
-                   }
-                   long tc = (long) (Math.random() * 60 * 6);
-                   booking.setCreate_time(booking.getCreate_time() + tc).setEnd_time(booking.getEnd_time() + tc).setUpdate_time(booking.getUpdate_time()+tc);
-                   bookingDao.putItem(booking);
-               }
+                for (int i = 1; i <= 1; i++) {
+                    while (true) {
+                        long booking_id = (long) (1556831974 + Math.random() * 1000000);
+                        if (bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null) {
+                            booking.setBooking_id(booking_id);
+                            break;
+                        }
+                    }
+                    long tc = (long) (Math.random() * 60 * 6);
+                    booking.setCreate_time(booking.getCreate_time() + tc).setEnd_time(booking.getEnd_time() + tc).setUpdate_time(booking.getUpdate_time() + tc);
+                    bookingDao.putItem(booking);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    //初始化迷你投所有设备
     @Override
     public void afterPropertiesSet() throws Exception {
+        //初始化迷你投所有设备
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
         MapOptions<Long, Capsule> capsuleMapOptions = new MapOptions<Long, Capsule>(capsuleList) {
             @Override
@@ -116,7 +118,7 @@ public class MinitouBillScheduled implements InitializingBean {
         });
         this.capsuleIdSet = capsuleIdSet;
 
-
+        //2019.01.31 处理数据
 //        ScanSpec scanSpec = new ScanSpec()
 //                .withMaxResultSize(Integer.MAX_VALUE)
 //                .withScanFilters(
@@ -135,33 +137,9 @@ public class MinitouBillScheduled implements InitializingBean {
 //            }
 //        }
 
-
-//        new Thread(() -> {
-//            try {
-//                Thread.sleep(1000 * 30);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            capsuleIdSet.forEach(capsule_id -> {
-//                insertBooking(capsule_id, 2018, 12, 15, 1330);
-//            });
-//        }).start();
-
-//        new Thread(() -> {
-//            try {
-//                Thread.sleep(1000 * 30);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            capsuleIdSet.forEach(capsule_id -> {
-//                deleteF1Booking(capsule_id, 2018, 12, 15);
-//            });
-//        }).start();
-
-
     }
 
-
+    //每周三处理上周数据
     @Scheduled(cron = "0 0 3 ? * 2")
     public void updateBookingForWeek() {
         LocalDate localDateStart = new LocalDate().minusWeeks(1).withDayOfWeek(1);
@@ -187,7 +165,7 @@ public class MinitouBillScheduled implements InitializingBean {
 
     }
 
-
+    //每月一日处理上月数据
     @Scheduled(cron = "0 30 3 1 * ?")
     public void updateBookingForMonth() {
         ScanSpec scanSpec = new ScanSpec()
@@ -208,6 +186,7 @@ public class MinitouBillScheduled implements InitializingBean {
         }
     }
 
+    //每月一日生成上月报表
     @Scheduled(cron = "0 0 4 1 * ?")
     public void makeBill() {
         LocalDate localDate = new LocalDate().minusMonths(1);
@@ -215,6 +194,7 @@ public class MinitouBillScheduled implements InitializingBean {
         upsetMinitouBill(minitouBillList);
     }
 
+    //更新报表
     public void upsetMinitouBill(List<MinitouBill> minitouBillList) {
         if (minitouBillList != null) {
             for (MinitouBill minitouBill : minitouBillList) {
@@ -228,6 +208,7 @@ public class MinitouBillScheduled implements InitializingBean {
         }
     }
 
+    //更新报表
     public void upsetMinitouBill(MinitouBill minitouBill) throws Exception {
         if (minitouBill == null) {
             throw new XiangShuiException("minitouBill 不能为空");
@@ -239,6 +220,7 @@ public class MinitouBillScheduled implements InitializingBean {
     }
 
 
+    //生成报表
     public MinitouBill makeBill(long capsule_id, int year, int month) {
 
         Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
@@ -262,7 +244,7 @@ public class MinitouBillScheduled implements InitializingBean {
         return makeBill(capsule_id, year, month, bookingList);
     }
 
-
+    //生成报表
     public MinitouBill makeBill(long capsule_id, int year, int month, List<Booking> bookingList) {
         Capsule capsule = cacheScheduled.capsuleMapOptions.get(capsule_id);
         if (capsule == null) {
@@ -272,6 +254,7 @@ public class MinitouBillScheduled implements InitializingBean {
         if (area == null) {
             throw new XiangShuiException(CodeMsg.NO_FOUND);
         }
+        //查询场地合同
         AreaContract areaContract = cacheScheduled.areaContractMapOptions.get(capsule.getArea_id());
         MinitouBill minitouBill = new MinitouBill().setUpdate_time(System.currentTimeMillis() / 1000);
         minitouBill.setBill_id(capsule_id * 1000000 + year * 100 + month);
@@ -300,8 +283,9 @@ public class MinitouBillScheduled implements InitializingBean {
         return minitouBill;
     }
 
-
+    //生成报表
     public List<MinitouBill> makeBill(int year, int month) {
+        //查询当月所有迷你投设备已支付订单
         long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
         long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
         List<ScanFilter> scanFilterList = new ArrayList<>();
@@ -310,6 +294,7 @@ public class MinitouBillScheduled implements InitializingBean {
         scanFilterList.add(new ScanFilter("capsule_id").in(capsuleIdSet.toArray()));
         ScanSpec scanSpec = new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         List<Booking> bookingList = bookingDao.scan(scanSpec);
+        //对迷你投设备分别生成账单
         List<MinitouBill> minitouBillList = new ArrayList<>();
         capsuleIdSet.forEach(capsule_id -> {
             try {

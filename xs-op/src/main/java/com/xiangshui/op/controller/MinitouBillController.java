@@ -134,25 +134,6 @@ public class MinitouBillController extends BaseController {
     }
 
 
-    @PostMapping("/api/mnt/bill/checkout")
-    @AuthRequired(auth_minitou_op)
-    @ResponseBody
-    public Result bill_checkout(HttpServletRequest request, HttpServletResponse response, Long capsule_id, Integer year, Integer month) throws Exception {
-        if (year == null || month == null) {
-            return new Result(-1, "请选择月份");
-        }
-        if (capsule_id != null) {
-            MinitouBill minitouBill = minitouBillScheduled.makeBill(capsule_id, year, month);
-            minitouBillScheduled.upsetMinitouBill(minitouBill);
-            return new Result(CodeMsg.SUCCESS);
-        } else {
-            List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
-            minitouBillScheduled.upsetMinitouBill(minitouBillList);
-            return new Result(CodeMsg.SUCCESS);
-        }
-    }
-
-
     @GetMapping("/api/mnt/bill/search")
     @AuthRequired(auth_minitou_investor)
     @ResponseBody
@@ -214,5 +195,39 @@ public class MinitouBillController extends BaseController {
                 .putData("minitouBillList", minitouBillList)
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
                 .putData("areaList", cacheScheduled.areaMapOptions.values());
+    }
+
+
+    @PostMapping("/api/mnt/bill/checkout")
+    @AuthRequired(auth_minitou_op)
+    @ResponseBody
+    public Result bill_checkout(HttpServletRequest request, HttpServletResponse response, Long capsule_id, Integer year, Integer month, Boolean preview) throws Exception {
+        if (preview == null) preview = false;
+        if (year == null || month == null) {
+            return new Result(-1, "请选择月份");
+        }
+        if (capsule_id != null) {
+            MinitouBill minitouBill = minitouBillScheduled.makeBill(capsule_id, year, month);
+            if (preview) {
+                return new Result(CodeMsg.SUCCESS)
+                        .putData("minitouBillList", minitouBill != null ? new MinitouBill[]{minitouBill} : null)
+                        .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
+                        .putData("areaList", cacheScheduled.areaMapOptions.values());
+            } else {
+                minitouBillScheduled.upsetMinitouBill(minitouBill);
+                return new Result(CodeMsg.SUCCESS);
+            }
+        } else {
+            List<MinitouBill> minitouBillList = minitouBillScheduled.makeBill(year, month);
+            if (preview) {
+                return new Result(CodeMsg.SUCCESS)
+                        .putData("minitouBillList", minitouBillList)
+                        .putData("countGroupArea", countCapsuleScheduled.countGroupArea)
+                        .putData("areaList", cacheScheduled.areaMapOptions.values());
+            } else {
+                minitouBillScheduled.upsetMinitouBill(minitouBillList);
+                return new Result(CodeMsg.SUCCESS);
+            }
+        }
     }
 }
