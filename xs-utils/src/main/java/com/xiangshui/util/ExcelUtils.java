@@ -3,13 +3,16 @@ package com.xiangshui.util;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.elasticsearch.common.util.ByteArray;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +90,14 @@ public class ExcelUtils {
         outputStream.flush();
         outputStream.close();
         workbook.close();
+    }
+
+
+    public static byte[] toBytes(Workbook workbook) throws IOException {
+        if (workbook == null) return null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        workbook.write(os);
+        return os.toByteArray();
     }
 
     public static abstract class Column<T> {

@@ -9,9 +9,10 @@ public class Test {
 
     public static void main(String[] args) throws Exception {
 
+        log.info(new LocalDate(2020 + 20, 1, 1).toDate().getTime() / 1000 + "");
 
-
-
+        log.info(Integer.MAX_VALUE+"");
+        log.info(DateUtils.format(2147483647000l,"yyyy-MM-dd"));
 
     }
 }

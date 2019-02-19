@@ -238,11 +238,14 @@ public class Test {
     public static void main(String[] args) throws Exception {
 
 
-        SpringUtils.init();
-        SpringUtils.getBean(Test.class).test();
+//        SpringUtils.init();
+//        SpringUtils.getBean(Test.class).test();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
+
+        System.out.println(System.getProperties().getProperty("user.home"));
+        System.out.println(System.getProperties().getProperty("user.dir"));
 
     }
 }
