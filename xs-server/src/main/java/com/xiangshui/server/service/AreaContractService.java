@@ -87,7 +87,10 @@ public class AreaContractService {
 
     public Integer checkAccountRatio(AreaContract areaContract, int count_price) {
         if (areaContract == null) return 0;
-        Integer account_ratio = areaContract.getAccount_ratio();
+        Integer account_ratio = 0;
+        if (areaContract.getAccount_ratio() != null) {
+            account_ratio = areaContract.getAccount_ratio();
+        }
         List<RangeRatio> rangeRatioList = areaContract.getRange_ratio_list();
         if (rangeRatioList != null && rangeRatioList.size() > 0) {
             for (RangeRatio rangeRatio : rangeRatioList) {
