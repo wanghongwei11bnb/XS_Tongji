@@ -8,6 +8,7 @@ import com.xiangshui.util.CallBack;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class AreaRegionScheduled {
+public class AreaRegionScheduled implements InitializingBean {
 
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -55,8 +56,8 @@ public class AreaRegionScheduled {
 
     public Map<Integer, String> areaRegionMap = new HashMap<>();
 
-    @Scheduled(fixedDelay = 1000 * 60 * 60 * 1)
-    public void task() {
+    //    @Scheduled(fixedDelay = 1000 * 60 * 60 * 1)
+    public void update() {
         Map<Integer, String> areaRegionMap = new HashMap<>();
         List<City> cityList = cityService.getCityList();
         areaDao.scan(null, area -> {
@@ -72,5 +73,10 @@ public class AreaRegionScheduled {
             }
         });
         this.areaRegionMap = areaRegionMap;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        update();
     }
 }

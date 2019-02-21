@@ -94,8 +94,8 @@ public class FailureReportController extends BaseController {
                 }
             }
 
-            List<List<String>> data = new ArrayList<List<String>>(failureReportList.size() + 1);
-            List<String> headRow = new ArrayList<String>();
+            List<List<Object>> data = new ArrayList<List<Object>>(failureReportList.size() + 1);
+            List<Object> headRow = new ArrayList<Object>();
             headRow.add("头等舱编号");
             headRow.add("场地编号	");
             headRow.add("场地名称	");
@@ -117,7 +117,7 @@ public class FailureReportController extends BaseController {
             data.add(headRow);
             failureReportList.forEach(new Consumer<FailureReport>() {
                 public void accept(FailureReport failureReport) {
-                    List<String> row = new ArrayList<String>();
+                    List<Object> row = new ArrayList<Object>();
                     row.add(failureReport.getCapsule_id() + "");
                     row.add(failureReport.getArea_id() + "");
                     if (areaMap.containsKey(failureReport.getArea_id())) {

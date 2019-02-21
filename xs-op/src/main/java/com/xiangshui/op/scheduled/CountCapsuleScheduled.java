@@ -51,8 +51,11 @@ public class CountCapsuleScheduled {
     public volatile Map<Integer, Integer> countGroupArea = new HashMap<>();
     public volatile Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
 
-    @Scheduled(fixedDelay = 1000 * 60 * 10)
+    @Scheduled(cron = "0 */10 8-22 * * ?")
     public void task() {
+        new Thread(() -> update());
+    }
+    public void update() {
         Map<Integer, Integer> countGroupArea = new HashMap<>();
         Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
@@ -84,4 +87,8 @@ public class CountCapsuleScheduled {
         this.countGroupArea = countGroupArea;
         this.areaCreateTimeMap = areaCreateTimeMap;
     }
+
+
+
+
 }

@@ -59,8 +59,8 @@ public class MonthCardController extends BaseController {
         List<MonthCardRecode> monthCardRecodeList = monthCardService.search(criteria, create_date_start, create_date_end, end_time_start, end_time_end, null, download);
         if (download) {
             Date now = new Date();
-            List<List<String>> data = new ArrayList<>();
-            List<String> headRow = new ArrayList<>();
+            List<List<Object>> data = new ArrayList<>();
+            List<Object> headRow = new ArrayList<>();
             headRow.add("用户uin");
             headRow.add("卡号／手机号");
             headRow.add("城市");
@@ -75,7 +75,7 @@ public class MonthCardController extends BaseController {
                         if (monthCardRecode == null) {
                             return;
                         }
-                        List<String> row = new ArrayList<>();
+                        List<Object> row = new ArrayList<>();
                         row.add(String.valueOf(monthCardRecode.getUin()));
                         row.add(String.valueOf(monthCardRecode.getCard_no()));
                         row.add(monthCardRecode.getCity());

@@ -13,17 +13,17 @@ class MonthCardRecodeGrid extends React.Component {
                         }
                     }
                 },
-                {
-                    field: 'left_seconds', title: '当天剩余月卡时长', render: (value, row) => {
-                        if (row.end_time * 1000 - Date.now() <= 0) {
-                            return <span className="badge badge-danger m-1">已过期</span>;
-                        }
-                        if (!dateUtils.isSameDay(new Date(), new Date(row.update_time * 1000))) {
-                            value = 60 * 60;
-                        }
-                        return `${Math.ceil(value / 60)}分钟`;
-                    }
-                },
+                // {
+                //     field: 'left_seconds', title: '当天剩余月卡时长', render: (value, row) => {
+                //         if (row.end_time * 1000 - Date.now() <= 0) {
+                //             return <span className="badge badge-danger m-1">已过期</span>;
+                //         }
+                //         if (!dateUtils.isSameDay(new Date(), new Date(row.update_time * 1000))) {
+                //             value = 60 * 60;
+                //         }
+                //         return `${Math.ceil(value / 60)}分钟`;
+                //     }
+                // },
                 {
                     field: 'end_time', title: '月卡状态', render: value => {
                         return [

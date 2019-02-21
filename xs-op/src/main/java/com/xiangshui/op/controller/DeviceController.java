@@ -93,8 +93,8 @@ public class DeviceController extends BaseController {
                 }
             }
 
-            List<List<String>> data = new ArrayList<>();
-            List<String> headRow = new ArrayList<>();
+            List<List<Object>> data = new ArrayList<>();
+            List<Object> headRow = new ArrayList<>();
             headRow.add("场地编号");
             headRow.add("场地名称");
             headRow.add("区域");
@@ -114,7 +114,7 @@ public class DeviceController extends BaseController {
                     if (area == null) {
                         return;
                     }
-                    List<String> row = new ArrayList<>();
+                    List<Object> row = new ArrayList<>();
                     row.add(String.valueOf(deviceStatus.getArea_id()));
                     row.add(area.getTitle());
                     row.add(area.getCity());

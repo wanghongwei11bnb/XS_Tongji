@@ -177,8 +177,8 @@ public class BookingAppraiseController extends BaseController {
                 });
             }
 
-            List<List<String>> data = new ArrayList<>();
-            List<String> headRow = new ArrayList<>();
+            List<List<Object>> data = new ArrayList<>();
+            List<Object> headRow = new ArrayList<>();
             headRow.add("订单编号");
             headRow.add("场地编号");
             headRow.add("场地名称");
@@ -201,7 +201,7 @@ public class BookingAppraiseController extends BaseController {
                         if (bookingAppraise == null) {
                             return;
                         }
-                        List<String> row = new ArrayList<>();
+                        List<Object> row = new ArrayList<>();
 
                         row.add(String.valueOf(bookingAppraise.getBooking_id()));
                         row.add(String.valueOf(bookingAppraise.getArea_id()));

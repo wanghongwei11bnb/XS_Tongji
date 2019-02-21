@@ -164,13 +164,13 @@ public class ChargeRecordController extends BaseController {
                     new ExcelUtils.Column<ChargeRecord>("交易时间") {
                         @Override
                         public String render(ChargeRecord chargeRecord) {
-                            return chargeRecord.getCreate_time() != null ? DateUtils.format(chargeRecord.getCreate_time() * 1000, "yyyy-MM-dd") : null;
+                            return chargeRecord.getCreate_time() != null ? DateUtils.format(chargeRecord.getCreate_time() * 1000) : null;
                         }
                     },
                     new ExcelUtils.Column<ChargeRecord>("更新时间") {
                         @Override
                         public String render(ChargeRecord chargeRecord) {
-                            return chargeRecord.getUpdate_time() != null ? DateUtils.format(chargeRecord.getUpdate_time() * 1000, "yyyy-MM-dd") : null;
+                            return chargeRecord.getUpdate_time() != null ? DateUtils.format(chargeRecord.getUpdate_time() * 1000) : null;
                         }
                     }
             ), chargeRecordList, response, "用户充值记录.xlsx");

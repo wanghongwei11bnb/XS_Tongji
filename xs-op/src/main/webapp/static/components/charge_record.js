@@ -15,12 +15,12 @@ class ChargeRecordGrid extends React.Component {
                 {field: 'status', title: '状态'},
                 {
                     field: 'create_time', title: '交易时间', render: value => {
-                        if (type(value) === 'Number') return new Date(value * 1000).format('yyyy-MM-dd hh:mm');
+                        if (type(value) === 'Number') return new Date(value * 1000).format();
                     }
                 },
                 {
                     field: 'update_time', title: '更新时间', render: value => {
-                        if (type(value) === 'Number') return new Date(value * 1000).format('yyyy-MM-dd hh:mm');
+                        if (type(value) === 'Number') return new Date(value * 1000).format();
                     }
                 },
             ],

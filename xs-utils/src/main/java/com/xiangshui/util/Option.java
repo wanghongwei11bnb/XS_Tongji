@@ -8,12 +8,19 @@ import java.util.List;
 public class Option<T> {
     public final T value;
     public final String text;
-    public String color;
+    public final String color;
 
 
     public Option(T value, String text) {
         this.value = value;
         this.text = text;
+        this.color = null;
+    }
+
+    public Option(T value, String text, String color) {
+        this.value = value;
+        this.text = text;
+        this.color = color;
     }
 
 
@@ -25,6 +32,7 @@ public class Option<T> {
         }
         return null;
     }
+
 
     public static List<Option> getOptions(Class<? extends Option> optionClass) {
         List<Option> optionList = new ArrayList<Option>();
@@ -41,6 +49,15 @@ public class Option<T> {
             }
         }
         return optionList;
+    }
+
+    public static class Color {
+        public static final String color_primary = "primary";
+        public static final String color_secondary = "secondary";
+        public static final String color_success = "success";
+        public static final String color_info = "info";
+        public static final String color_warning = "warning";
+        public static final String color_danger = "danger";
     }
 
 }

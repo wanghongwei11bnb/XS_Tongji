@@ -62,7 +62,7 @@ public class SendEmailScheduled {
 
     @Scheduled(cron = "0 0 6 * * ?")
     public void make() throws IOException {
-        makeForSendEmail(new LocalDate().minusDays(2));
+        makeForSendEmail(new LocalDate().minusDays(1));
     }
 
     public void make(LocalDate localDate, CallBack2<List<AreaItem>, List<CapsuleItem>> callBack) throws IOException {
@@ -586,44 +586,44 @@ public class SendEmailScheduled {
                         },
                         new ExcelUtils.Column<AreaItem>("舱数") {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.capsule_count);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.capsule_count;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>("订单" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd")) {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.prev_day_booking_count);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.prev_day_booking_count;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd")) {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.prev_day_booking_price / 100f);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.prev_day_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>("订单" + DateUtils.format(localDate.toDate(), "MM-dd")) {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.main_day_booking_count);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.main_day_booking_count;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd")) {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.main_day_booking_price / 100f);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.main_day_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>(localDate.getMonthOfYear() + "月订单") {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.main_month_booking_count);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.main_month_booking_count;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>(localDate.getMonthOfYear() + "月收入") {
                             @Override
-                            public String render(AreaItem areaItem) {
-                                return String.valueOf(areaItem.main_month_booking_price / 100f);
+                            public Object render(AreaItem areaItem) {
+                                return areaItem.main_month_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<AreaItem>("BD人员") {
@@ -666,38 +666,38 @@ public class SendEmailScheduled {
                         },
                         new ExcelUtils.Column<CapsuleItem>("订单" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd")) {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.prev_day_booking_count);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.prev_day_booking_count;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd")) {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.prev_day_booking_price / 100f);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.prev_day_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>("订单" + DateUtils.format(localDate.toDate(), "MM-dd")) {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.main_day_booking_count);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.main_day_booking_count;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd")) {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.main_day_booking_price / 100f);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.main_day_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>(localDate.getMonthOfYear() + "月订单") {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.main_month_booking_count);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.main_month_booking_count;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>(localDate.getMonthOfYear() + "月收入") {
                             @Override
-                            public String render(CapsuleItem capsuleItem) {
-                                return String.valueOf(capsuleItem.main_month_booking_price / 100f);
+                            public Object render(CapsuleItem capsuleItem) {
+                                return capsuleItem.main_month_booking_price / 100f;
                             }
                         },
                         new ExcelUtils.Column<CapsuleItem>("BD人员") {
@@ -715,14 +715,14 @@ public class SendEmailScheduled {
                 ), capsuleItemList);
                 MailService.send(
                         new String[]{
-                                "richard@xiangshuispace.com",
-                                "xubo@xiangshuispace.com",
-                                "chenlei@xiangshuispace.com",
-                                "zhaoyuan@xiangshuispace.com",
-//                                "hongwei@xiangshuispace.com",
+//                                "richard@xiangshuispace.com",
+//                                "xubo@xiangshuispace.com",
+//                                "chenlei@xiangshuispace.com",
+//                                "zhaoyuan@xiangshuispace.com",
+                                "hongwei@xiangshuispace.com",
                         },
                         new String[]{
-                                "hongwei@xiangshuispace.com",
+//                                "hongwei@xiangshuispace.com",
                         },
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),

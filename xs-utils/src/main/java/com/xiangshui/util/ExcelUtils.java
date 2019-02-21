@@ -1,5 +1,6 @@
 package com.xiangshui.util;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,29 +18,50 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 public class ExcelUtils {
 
-    public static XSSFWorkbook export(List<List<String>> data) {
+    public static XSSFWorkbook export(List<List<Object>> data) {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet1");
         for (int i = 0; i < data.size(); i++) {
-            List<String> item = data.get(i);
+            List<Object> item = data.get(i);
             XSSFRow row = sheet.createRow(i);
             for (int j = 0; j < item.size(); j++) {
-                String value = item.get(j);
+                Object value = item.get(j);
                 XSSFCell cell = row.createCell(j);
-                cell.setCellValue(value == null || value.equals("null") ? "" : value);
+                if (value == null) continue;
+                Class<?> valueClass = value.getClass();
+                if (valueClass == String.class && "null".equals(value)) continue;
+                if (false
+                        || valueClass == byte.class || valueClass == Byte.class
+                        || valueClass == short.class || valueClass == Short.class
+                        || valueClass == int.class || valueClass == Integer.class
+                        || valueClass == long.class || valueClass == Long.class
+                        || valueClass == float.class || valueClass == Float.class
+                        || valueClass == double.class || valueClass == Double.class
+                        ) {
+                    cell.setCellValue(Double.valueOf(value.toString()));
+                } else if (valueClass == boolean.class || valueClass == Boolean.class) {
+                    cell.setCellValue((boolean) value);
+                } else if (valueClass == String.class || valueClass == char.class || valueClass == Character.class) {
+                    cell.setCellValue(String.valueOf(value));
+                } else if (valueClass == Date.class) {
+                    cell.setCellValue((Date) value);
+                } else {
+                    cell.setCellValue(JSON.toJSONString(value));
+                }
             }
         }
         return workbook;
     }
 
     public static <T> XSSFWorkbook export(List<Column<T>> columnList, List<T> data) {
-        List<List<String>> listDate = new ArrayList<List<String>>();
-        List<String> header = new ArrayList<String>();
+        List<List<Object>> listDate = new ArrayList<List<Object>>();
+        List<Object> header = new ArrayList<Object>();
         for (Column<T> column : columnList) {
             if (column != null) {
                 header.add(column.title);
@@ -47,7 +69,7 @@ public class ExcelUtils {
         }
         listDate.add(header);
         for (T t : data) {
-            List<String> row = new ArrayList<String>();
+            List<Object> row = new ArrayList<Object>();
             for (Column<T> column : columnList) {
                 if (column != null) {
                     row.add(column.render(t));
@@ -58,7 +80,7 @@ public class ExcelUtils {
             }
             listDate.add(row);
         }
-        List<String> totalRow = new ArrayList<String>();
+        List<Object> totalRow = new ArrayList<Object>();
         for (Column<T> column : columnList) {
             if (column != null) {
                 if (column.total != null) {
@@ -82,7 +104,7 @@ public class ExcelUtils {
         workbook.close();
     }
 
-    public static void export(List<List<String>> data, HttpServletResponse response, String fileName) throws IOException {
+    public static void export(List<List<Object>> data, HttpServletResponse response, String fileName) throws IOException {
         XSSFWorkbook workbook = export(data);
         response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
         ServletOutputStream outputStream = response.getOutputStream();
@@ -114,7 +136,7 @@ public class ExcelUtils {
             this.totalCallBack = totalCallBack;
         }
 
-        public abstract String render(T t);
+        public abstract Object render(T t);
 
     }
 
