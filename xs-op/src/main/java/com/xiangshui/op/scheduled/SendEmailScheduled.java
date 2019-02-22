@@ -60,7 +60,7 @@ public class SendEmailScheduled {
     CityDao cityDao;
 
 
-    @Scheduled(cron = "0 0 7 * * ?")
+    @Scheduled(cron = "0 0 8 * * ?")
     public void make() throws IOException {
         makeForSendEmail(new LocalDate().minusDays(1));
     }
@@ -69,7 +69,7 @@ public class SendEmailScheduled {
         //数据
         Map<Integer, String> operatorMap = new HashMap<>();
 
-        for (List<String> stringList : ExcelUtils.read(System.class.getResourceAsStream("/场地运营.xlsx"), "运营场地")) {
+        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), "运营场地")) {
             if (stringList == null || stringList.size() < 10
                     || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(9))
                     || !stringList.get(0).matches("^\\d+$")
