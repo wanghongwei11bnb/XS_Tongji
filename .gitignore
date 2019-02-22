@@ -25,3 +25,5 @@ buildNumber.properties
 **/node_modules
 
 xs-op/yarn.lock
+*.rdb
+dump.rdb

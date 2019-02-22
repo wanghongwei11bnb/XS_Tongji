@@ -53,7 +53,7 @@ public class CountCapsuleScheduled {
 
     @Scheduled(fixedDelay = 1000 * 60 * 60)
     public void task() {
-        new Thread(() -> update());
+        update();
     }
 
     public void update() {
