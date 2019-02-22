@@ -536,3 +536,65 @@ function loadOpInfo() {
         }
     })
 }
+
+
+class EnumMapOptions extends MapOptions {
+    constructor(options) {
+        super(options);
+    }
+
+    getIdByOption(option) {
+        return option ? option.value || null : null;
+    }
+}
+
+
+class OptionWrapper {
+    constructor(options) {
+        this.options = options || [];
+        this.initMapOptions();
+    }
+
+    initMapOptions() {
+        this.mapOptions = new EnumMapOptions(this.options);
+    }
+
+    getOptionByValue(value) {
+        return this.mapOptions.get(value);
+    }
+
+    getTextByValue(value) {
+        return this.mapOptions.getField(value, 'text');
+    }
+
+    getColorByValue(value) {
+        return this.mapOptions.getField(value, 'color');
+    }
+
+    getSpanTagByValue(value, opt = {}) {
+        let option = this.mapOptions.get(value);
+        if (option) {
+            return <span className={`${opt.className} ${option.color ? 'text-' + option.color : ''}`}>{option.text || option.value}</span>
+        } else {
+            return null;
+        }
+    }
+
+    getOptionTagByValue(value, opt = {}) {
+        let option = this.mapOptions.get(value);
+        if (option) {
+            return <option value={option.value} className={opt.className}>{option.text || option.value}</option>
+        } else {
+            return null;
+        }
+    }
+
+    getSelectTagByValue(value, opt = {}) {
+        return <select ref={opt.ref} className={opt.className}>
+            <option value={null}></option>
+            {this.options.map(option => this.getOptionTagByValue(option.value))}
+        </select>
+    }
+
+}
+

@@ -31,7 +31,7 @@ public class CacheScheduled {
     public MapOptions<Integer, AreaContract> areaContractMapOptions;
     public MapOptions<Long, Capsule> capsuleMapOptions;
 
-    @Scheduled(cron = "0 */10 8-22 * * ?")
+    @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void task() {
         new Thread(() -> updateCache()).run();
     }

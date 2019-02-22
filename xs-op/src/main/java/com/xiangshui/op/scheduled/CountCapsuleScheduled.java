@@ -51,10 +51,11 @@ public class CountCapsuleScheduled {
     public volatile Map<Integer, Integer> countGroupArea = new HashMap<>();
     public volatile Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
 
-    @Scheduled(cron = "0 */10 8-22 * * ?")
+    @Scheduled(fixedDelay = 1000 * 60 * 60)
     public void task() {
         new Thread(() -> update());
     }
+
     public void update() {
         Map<Integer, Integer> countGroupArea = new HashMap<>();
         Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
@@ -87,8 +88,6 @@ public class CountCapsuleScheduled {
         this.countGroupArea = countGroupArea;
         this.areaCreateTimeMap = areaCreateTimeMap;
     }
-
-
 
 
 }

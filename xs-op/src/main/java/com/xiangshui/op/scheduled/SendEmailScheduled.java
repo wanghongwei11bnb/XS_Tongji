@@ -60,7 +60,7 @@ public class SendEmailScheduled {
     CityDao cityDao;
 
 
-    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 0 7 * * ?")
     public void make() throws IOException {
         makeForSendEmail(new LocalDate().minusDays(1));
     }
@@ -715,14 +715,14 @@ public class SendEmailScheduled {
                 ), capsuleItemList);
                 MailService.send(
                         new String[]{
-//                                "richard@xiangshuispace.com",
-//                                "xubo@xiangshuispace.com",
-//                                "chenlei@xiangshuispace.com",
-//                                "zhaoyuan@xiangshuispace.com",
-                                "hongwei@xiangshuispace.com",
+                                "richard@xiangshuispace.com",
+                                "xubo@xiangshuispace.com",
+                                "chenlei@xiangshuispace.com",
+                                "zhaoyuan@xiangshuispace.com",
+//                                "hongwei@xiangshuispace.com",
                         },
                         new String[]{
-//                                "hongwei@xiangshuispace.com",
+                                "hongwei@xiangshuispace.com",
                         },
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),

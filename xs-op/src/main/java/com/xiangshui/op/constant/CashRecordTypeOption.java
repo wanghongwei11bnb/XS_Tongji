@@ -1,4 +1,4 @@
-package com.xiangshui.op.bean;
+package com.xiangshui.op.constant;
 
 import com.xiangshui.util.Option;
 
