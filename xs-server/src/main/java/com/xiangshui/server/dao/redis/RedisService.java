@@ -281,7 +281,11 @@ public class RedisService implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         try {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-            jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+            if (StringUtils.isNotBlank(password)) {
+                jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+            } else {
+                jedisPool = new JedisPool(config, host, port, 1000 * 30);
+            }
             this.del(CityKeyPrefix.list_active);
             this.del(CityKeyPrefix.list_all);
         } catch (Exception e) {
