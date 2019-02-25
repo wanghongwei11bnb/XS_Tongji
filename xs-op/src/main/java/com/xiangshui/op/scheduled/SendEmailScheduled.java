@@ -2,6 +2,8 @@ package com.xiangshui.op.scheduled;
 
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.bean.CashRecord;
+import com.xiangshui.op.constant.CashRecordTypeOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.service.*;
@@ -12,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,12 +24,15 @@ import java.io.IOException;
 import java.util.*;
 
 @Component
-public class SendEmailScheduled {
+public class SendEmailScheduled implements InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     AreaBillScheduled areaBillScheduled;
+
+    @Autowired
+    CacheScheduled cacheScheduled;
 
 
     @Autowired
@@ -57,43 +63,145 @@ public class SendEmailScheduled {
     @Autowired
     ChargeRecordDao chargeRecordDao;
     @Autowired
+    DepositRecordDao depositRecordDao;
+    @Autowired
     CityDao cityDao;
 
 
-    @Scheduled(cron = "0 0 8 * * ?")
+    Map<Integer, String> operatorMap = new HashMap<>();
+
+
+    @Scheduled(cron = "0 0 6 * * ?")
     public void make() throws IOException {
         makeForSendEmail(new LocalDate().minusDays(1));
     }
 
-    public void make(LocalDate localDate, CallBack2<List<AreaItem>, List<CapsuleItem>> callBack) throws IOException {
-        //数据
-        Map<Integer, String> operatorMap = new HashMap<>();
-
-        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), "运营场地")) {
-            if (stringList == null || stringList.size() < 10
-                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(9))
-                    || !stringList.get(0).matches("^\\d+$")
-                    ) continue;
-            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(9));
+    public List<CashRecord> makeCashRecordList(LocalDate localDate) {
+        List<CashRecord> cashRecordList = new ArrayList<>();
+        //订单支付
+        {
+            List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
+                    new ScanFilter("status").eq(4),
+                    new ScanFilter("update_time").between(
+                            localDate.toDate().getTime() / 1000,
+                            localDate.plusDays(1).toDate().getTime() / 1000
+                    ),
+                    new ScanFilter("use_pay").gt(0),
+                    new ScanFilter("f1").ne(1)
+            ));
+            for (Booking booking : bookingList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.dingdan_zhifu.value)
+                        .setCash_time(booking.getUpdate_time())
+                        .setCash_amount(booking.getUse_pay())
+                        .setUin(booking.getUin())
+                        .setArea_id(booking.getArea_id())
+                        .setArea_title(cacheScheduled.areaMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaMapOptions.get(booking.getArea_id()).getTitle() : null)
+                        .setArea_city(cacheScheduled.areaMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaMapOptions.get(booking.getArea_id()).getCity() : null)
+                        .setCapsule_id(booking.getCapsule_id())
+                        .setBooking_id(booking.getBooking_id())
+                        .setSaler(cacheScheduled.areaContractMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaContractMapOptions.get(booking.getArea_id()).getSaler() : null)
+                        .setOperator(operatorMap.containsKey(booking.getArea_id()) ? operatorMap.get(booking.getArea_id()) : null)
+                );
+            }
         }
 
-        List<AreaContract> areaContractList = areaContractDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
-        MapOptions<Integer, AreaContract> areaContractMapOptions = new MapOptions<Integer, AreaContract>(areaContractList) {
-            @Override
-            public Integer getPrimary(AreaContract areaContract) {
-                return areaContract.getArea_id();
+        //钱包充值
+        {
+            List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
+                    .withMaxResultSize(Integer.MAX_VALUE)
+                    .withScanFilters(
+                            new ScanFilter("subject").in(new String[]{"享+-钱包充值"}),
+                            new ScanFilter("status").eq(1),
+                            new ScanFilter("update_time").between(
+                                    localDate.toDate().getTime() / 1000,
+                                    localDate.plusDays(1).toDate().getTime() / 1000
+                            )
+                    )
+            );
+            for (ChargeRecord chargeRecord : chargeRecordList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.qianbao_chongzhi.value)
+                        .setCash_time(chargeRecord.getUpdate_time())
+                        .setCash_amount(chargeRecord.getPrice())
+                        .setUin(chargeRecord.getUin())
+                );
             }
-        };
+        }
 
-        List<City> cityList = cityDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
-        MapOptions<String, City> cityMapOptions = new MapOptions<String, City>(cityList) {
-            @Override
-            public String getPrimary(City city) {
-                return city.getCity();
+        //月卡充值
+        {
+            List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
+                    .withMaxResultSize(Integer.MAX_VALUE)
+                    .withScanFilters(
+                            new ScanFilter("subject").in(new String[]{"享+-月卡充值"}),
+                            new ScanFilter("status").eq(1),
+                            new ScanFilter("update_time").between(
+                                    localDate.toDate().getTime() / 1000,
+                                    localDate.plusDays(1).toDate().getTime() / 1000
+                            )
+                    )
+            );
+            for (ChargeRecord chargeRecord : chargeRecordList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.yueka_zhifu.value)
+                        .setCash_time(chargeRecord.getUpdate_time())
+                        .setCash_amount(chargeRecord.getPrice())
+                        .setUin(chargeRecord.getUin())
+                );
             }
-        };
+        }
+
+        //交纳押金
+        {
+            List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
+                    .withMaxResultSize(Integer.MAX_VALUE)
+                    .withScanFilters(
+                            new ScanFilter("subject").in(new String[]{"享+-交纳押金"}),
+                            new ScanFilter("status").eq(1),
+                            new ScanFilter("update_time").between(
+                                    localDate.toDate().getTime() / 1000,
+                                    localDate.plusDays(1).toDate().getTime() / 1000
+                            )
+                    )
+            );
+            for (ChargeRecord chargeRecord : chargeRecordList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.yajin_zhifu.value)
+                        .setCash_time(chargeRecord.getUpdate_time())
+                        .setCash_amount(chargeRecord.getPrice())
+                        .setUin(chargeRecord.getUin())
+                );
+            }
+        }
+
+        //押金退款
+        {
+            List<DepositRecord> depositRecordList = depositRecordDao.scan(new ScanSpec()
+                    .withMaxResultSize(Integer.MAX_VALUE)
+                    .withScanFilters(
+                            new ScanFilter("subject").in(new String[]{"微信押金退款"}),
+                            new ScanFilter("create_time").between(
+                                    localDate.toDate().getTime() / 1000,
+                                    localDate.plusDays(1).toDate().getTime() / 1000
+                            )
+                    )
+            );
+            for (DepositRecord depositRecord : depositRecordList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.yajin_tuikuan.value)
+                        .setCash_time(depositRecord.getCreate_time())
+                        .setCash_amount(-depositRecord.getPrice())
+                        .setUin(depositRecord.getUin())
+                );
+            }
+        }
+        return cashRecordList;
+    }
 
 
+    public void make(LocalDate localDate, CallBack2<List<AreaItem>, List<CapsuleItem>> callBack) throws IOException {
+        //数据
         List<Area> areaList = null;
         MapOptions<Integer, Area> areaMapOptions = null;
         List<Capsule> capsuleList = null;
@@ -145,8 +253,6 @@ public class SendEmailScheduled {
                 }
             }
         }
-
-
         {
             areaItemList = new ArrayList<>();
             for (Area area : areaList) {
@@ -154,9 +260,9 @@ public class SendEmailScheduled {
                         .setTitle(area.getTitle())
                         .setCity(area.getCity())
                         .setTime(area.getCreate_time())
-                        .setSaler(areaContractMapOptions.containsKey(area.getArea_id()) ? areaContractMapOptions.get(area.getArea_id()).getSaler() : null)
+                        .setSaler(cacheScheduled.areaContractMapOptions.containsKey(area.getArea_id()) ? cacheScheduled.areaContractMapOptions.get(area.getArea_id()).getSaler() : null)
                         .setOperator(operatorMap.get(area.getArea_id()))
-                        .setProvince(cityMapOptions.containsKey(area.getCity()) ? cityMapOptions.get(area.getCity()).getProvince() : null)
+                        .setProvince(cacheScheduled.cityMapOptions.containsKey(area.getCity()) ? cacheScheduled.cityMapOptions.get(area.getCity()).getProvince() : null)
                 );
             }
             areaItemMapOptions = new MapOptions<Integer, AreaItem>(areaItemList) {
@@ -173,9 +279,9 @@ public class SendEmailScheduled {
                         .setTitle(area.getTitle())
                         .setCity(area.getCity())
                         .setTime(area.getCreate_time())
-                        .setSaler(areaContractMapOptions.containsKey(area.getArea_id()) ? areaContractMapOptions.get(area.getArea_id()).getSaler() : null)
+                        .setSaler(cacheScheduled.areaContractMapOptions.containsKey(area.getArea_id()) ? cacheScheduled.areaContractMapOptions.get(area.getArea_id()).getSaler() : null)
                         .setOperator(operatorMap.get(area.getArea_id()))
-                        .setProvince(cityMapOptions.containsKey(area.getCity()) ? cityMapOptions.get(area.getCity()).getProvince() : null)
+                        .setProvince(cacheScheduled.cityMapOptions.containsKey(area.getCity()) ? cacheScheduled.cityMapOptions.get(area.getCity()).getProvince() : null)
                 );
                 areaItemMapOptions.get(capsule.getArea_id()).capsule_count++;
             }
@@ -228,7 +334,6 @@ public class SendEmailScheduled {
                     capsuleItem.main_day_booking_price += (booking.getUse_pay() != null ? booking.getUse_pay() : 0)
                             + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0)
                     ;
-
                 }
                 //前一天订单
                 if (prev_day_time_start <= booking.getCreate_time() && booking.getCreate_time() <= prev_day_time_end) {
@@ -258,6 +363,19 @@ public class SendEmailScheduled {
         if (callBack != null) {
             callBack.run(areaItemList, capsuleItemList);
         }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<Integer, String> operatorMap = new HashMap<>();
+        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), "运营场地")) {
+            if (stringList == null || stringList.size() < 10
+                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(9))
+                    || !stringList.get(0).matches("^\\d+$")
+                    ) continue;
+            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(9));
+        }
+        this.operatorMap = operatorMap;
     }
 
 
@@ -555,7 +673,6 @@ public class SendEmailScheduled {
         }
     }
 
-
     public void makeForSendEmail(LocalDate localDate) throws IOException {
         make(localDate, (areaItemList, capsuleItemList) -> {
             try {
@@ -640,6 +757,12 @@ public class SendEmailScheduled {
                         }
                 ), areaItemList);
                 XSSFWorkbook capsuleWorkbook = ExcelUtils.export(Arrays.asList(
+                        new ExcelUtils.Column<CapsuleItem>("头等舱编号") {
+                            @Override
+                            public String render(CapsuleItem capsuleItem) {
+                                return String.valueOf(capsuleItem.capsule_id);
+                            }
+                        },
                         new ExcelUtils.Column<CapsuleItem>("场地编号") {
                             @Override
                             public String render(CapsuleItem capsuleItem) {
@@ -713,6 +836,34 @@ public class SendEmailScheduled {
                             }
                         }
                 ), capsuleItemList);
+                List<CashRecord> cashRecordList = makeCashRecordList(localDate);
+                cashRecordList.sort(Comparator.comparing(CashRecord::getCash_time));
+                XSSFWorkbook cashWorkbook = ExcelUtils.export(Arrays.asList(
+                        new ExcelUtils.Column<CashRecord>("业务类型") {
+                            @Override
+                            public Object render(CashRecord cashRecord) {
+                                return CashRecordTypeOption.getActiveText(CashRecordTypeOption.optionList, cashRecord.getType());
+                            }
+                        },
+                        new ExcelUtils.Column<CashRecord>("交易时间") {
+                            @Override
+                            public Object render(CashRecord cashRecord) {
+                                return cashRecord.getCash_time() != null ? DateUtils.format(cashRecord.getCash_time()) : null;
+                            }
+                        },
+                        new ExcelUtils.Column<CashRecord>("交易金额") {
+                            @Override
+                            public Float render(CashRecord cashRecord) {
+                                return cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() / 100f : null;
+                            }
+                        },
+                        new ExcelUtils.Column<CashRecord>("用户编号") {
+                            @Override
+                            public Object render(CashRecord cashRecord) {
+                                return String.valueOf(cashRecord.getUin());
+                            }
+                        }
+                ), cashRecordList);
                 MailService.send(
                         new String[]{
                                 "richard@xiangshuispace.com",
@@ -727,7 +878,8 @@ public class SendEmailScheduled {
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),
                         "场地运营日报：" + DateUtils.format(localDate.toDate(), "yyyy-MM-dd"),
                         new MailService.Attachment("场地收入日报." + DateUtils.format(localDate.toDate(), "yyyy-MM-dd") + ".xlsx", ExcelUtils.toBytes(areaWorkbook), "data/xlsx"),
-                        new MailService.Attachment("单舱收入日报." + DateUtils.format(localDate.toDate(), "yyyy-MM-dd") + ".xlsx", ExcelUtils.toBytes(capsuleWorkbook), "data/xlsx")
+                        new MailService.Attachment("单舱收入日报." + DateUtils.format(localDate.toDate(), "yyyy-MM-dd") + ".xlsx", ExcelUtils.toBytes(capsuleWorkbook), "data/xlsx"),
+                        new MailService.Attachment("现金交易记录." + DateUtils.format(localDate.toDate(), "yyyy-MM-dd") + ".xlsx", ExcelUtils.toBytes(cashWorkbook), "data/xlsx")
                 );
             } catch (IOException e) {
                 e.printStackTrace();
@@ -735,6 +887,8 @@ public class SendEmailScheduled {
                 e.printStackTrace();
             }
         });
+
+
     }
 
     public static void main(String[] args) throws MessagingException, IOException {
