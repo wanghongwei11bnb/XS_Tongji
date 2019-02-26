@@ -89,6 +89,7 @@ public class SendEmailScheduled implements InitializingBean {
                     new ScanFilter("use_pay").gt(0),
                     new ScanFilter("f1").ne(1)
             ));
+            bookingList = ListUtils.filter(bookingList, booking -> !new Integer(1).equals(booking.getF1()) && !areaBillScheduled.testUinSet.contains(booking.getUin()) && cacheScheduled.capsuleMapOptions.containsKey(booking.getCapsule_id()));
             for (Booking booking : bookingList) {
                 cashRecordList.add(new CashRecord()
                         .setType(CashRecordTypeOption.dingdan_zhifu.value)
@@ -325,7 +326,7 @@ public class SendEmailScheduled implements InitializingBean {
                 AreaItem areaItem = areaItemMapOptions.get(booking.getArea_id());
                 CapsuleItem capsuleItem = capsuleItemMapOptions.get(booking.getCapsule_id());
                 //当天订单
-                if (main_day_time_start <= booking.getCreate_time() && booking.getCreate_time() <= main_day_time_end) {
+                if (main_day_time_start <= booking.getUpdate_time() && booking.getUpdate_time() <= main_day_time_end) {
                     areaItem.main_day_booking_count++;
                     areaItem.main_day_booking_price += (booking.getUse_pay() != null ? booking.getUse_pay() : 0)
                             + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0)
@@ -336,7 +337,7 @@ public class SendEmailScheduled implements InitializingBean {
                     ;
                 }
                 //前一天订单
-                if (prev_day_time_start <= booking.getCreate_time() && booking.getCreate_time() <= prev_day_time_end) {
+                if (prev_day_time_start <= booking.getUpdate_time() && booking.getUpdate_time() <= prev_day_time_end) {
                     areaItem.prev_day_booking_count++;
                     areaItem.prev_day_booking_price += (booking.getUse_pay() != null ? booking.getUse_pay() : 0)
                             + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0)
@@ -347,7 +348,7 @@ public class SendEmailScheduled implements InitializingBean {
                     ;
                 }
                 //当月订单
-                if (main_month_time_start <= booking.getCreate_time() && booking.getCreate_time() <= main_month_time_end) {
+                if (main_month_time_start <= booking.getUpdate_time() && booking.getUpdate_time() <= main_month_time_end) {
                     areaItem.main_month_booking_count++;
                     areaItem.main_month_booking_price += (booking.getUse_pay() != null ? booking.getUse_pay() : 0)
                             + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0)
@@ -848,7 +849,7 @@ public class SendEmailScheduled implements InitializingBean {
                         new ExcelUtils.Column<CashRecord>("交易时间") {
                             @Override
                             public Object render(CashRecord cashRecord) {
-                                return cashRecord.getCash_time() != null ? DateUtils.format(cashRecord.getCash_time()) : null;
+                                return cashRecord.getCash_time() != null ? DateUtils.format(cashRecord.getCash_time() * 1000) : null;
                             }
                         },
                         new ExcelUtils.Column<CashRecord>("交易金额") {
@@ -856,6 +857,7 @@ public class SendEmailScheduled implements InitializingBean {
                             public Float render(CashRecord cashRecord) {
                                 return cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() / 100f : null;
                             }
+
                         },
                         new ExcelUtils.Column<CashRecord>("用户编号") {
                             @Override
