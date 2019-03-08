@@ -1,3 +1,12 @@
+function disposeAreaTitle(areaList) {
+    (areaList || []).map(area => {
+        if (area && area.title) {
+            area.title = area.title.substring(0, 1) + area.title.substring(1).replace(/./g, '*');
+        }
+    });
+    return areaList;
+}
+
 class MinitouCapsuleGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -7,7 +16,7 @@ class MinitouCapsuleGrid extends React.Component {
                 // {field: 'area_id', title: '场地编号编号'},
                 {field: 'area_id', title: '场地名称', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null},
                 {field: 'area_id', title: '城市', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).city : null},
-                {field: 'area_id', title: '地址', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null},
+                // {field: 'area_id', title: '地址', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null},
                 {
                     field: 'capsule_id', title: '操作', render: value => [
                         <button className="btn btn-sm btn-primary m-1" onClick={this.showBookingFor30Days.bind(this, value)}>30日内订单</button>,
@@ -28,7 +37,7 @@ class MinitouCapsuleGrid extends React.Component {
             success: (resp) => {
                 this.setState({
                     data: resp.data.capsuleList,
-                    areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                    areaMapOptions: new AreaMapOptions(disposeAreaTitle(resp.data.areaList)),
                 });
             }
         });
@@ -112,11 +121,11 @@ class MinitouBookingGrid extends React.Component {
                     render: value => type(value) == 'Number' && this.state.payType[value] ? this.state.payType[value] : value
                 },
                 {field: 'capsule_id', title: '头等舱编号'},
-                {
-                    field: 'area_id', title: '场地名称', render: (value, row, index) => {
-                        return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null;
-                    }
-                },
+                // {
+                //     field: 'area_id', title: '场地名称', render: (value, row, index) => {
+                //         return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null;
+                //     }
+                // },
                 {field: 'uin', title: '用户编号'},
                 {field: 'req_from', title: '订单来源'},
             ],
@@ -132,7 +141,7 @@ class MinitouBookingGrid extends React.Component {
                 this.state.bookingList = resp.data.bookingList;
                 this.setState({
                     data: resp.data.bookingList,
-                    areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                    areaMapOptions: new AreaMapOptions(disposeAreaTitle(resp.data.areaList)),
                 });
             }
         });
@@ -168,7 +177,7 @@ class MinitouBillGrid extends React.Component {
         this.state = {
             columns: [
                 {field: 'capsule_id', title: '设备编号'},
-                {field: 'area_id', title: '场地名称', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null},
+                // {field: 'area_id', title: '场地名称', render: value => this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).title : null},
                 {field: 'account_ratio', title: '场地分成比例', render: value => type(value, 'Number') ? `${value}%` : null},
                 {
                     field: 'final_price', title: '经营收入', render: value => type(value, 'Number') ? value / 100 : null, totalHandle: (total, value) => {
@@ -205,7 +214,7 @@ class MinitouBillGrid extends React.Component {
                 this.setState({
                     data: resp.data.minitouBillList,
                     cityMapOptions: new CityMapOptions(resp.data.cityList),
-                    areaMapOptions: new AreaMapOptions(resp.data.areaList),
+                    areaMapOptions: new AreaMapOptions(disposeAreaTitle(resp.data.areaList)),
                 });
             }
         });

@@ -158,12 +158,12 @@ public class MinitouBillController extends BaseController {
                             return String.valueOf(minitouBill.getCapsule_id());
                         }
                     },
-                    new ExcelUtils.Column<MinitouBill>("场地名称") {
-                        @Override
-                        public String render(MinitouBill minitouBill) {
-                            return cacheScheduled.areaMapOptions.containsKey(minitouBill.getArea_id()) ? cacheScheduled.areaMapOptions.get(minitouBill.getArea_id()).getTitle() : null;
-                        }
-                    },
+//                    new ExcelUtils.Column<MinitouBill>("场地名称") {
+//                        @Override
+//                        public String render(MinitouBill minitouBill) {
+//                            return cacheScheduled.areaMapOptions.containsKey(minitouBill.getArea_id()) ? cacheScheduled.areaMapOptions.get(minitouBill.getArea_id()).getTitle() : null;
+//                        }
+//                    },
                     new ExcelUtils.Column<MinitouBill>("场地分成比例") {
                         @Override
                         public String render(MinitouBill minitouBill) {

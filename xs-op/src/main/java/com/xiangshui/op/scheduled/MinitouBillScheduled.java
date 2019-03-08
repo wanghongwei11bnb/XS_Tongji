@@ -79,7 +79,7 @@ public class MinitouBillScheduled implements InitializingBean {
                         }
                     }
                     long tc = (long) (Math.random() * 60 * 6);
-                    booking.setCreate_time(booking.getCreate_time() + tc).setEnd_time(booking.getEnd_time() + tc).setUpdate_time(booking.getUpdate_time() + tc);
+                    booking.setF0(null).setF1(1).setCreate_time(booking.getCreate_time() + tc).setEnd_time(booking.getEnd_time() + tc).setUpdate_time(booking.getUpdate_time() + tc);
                     bookingDao.putItem(booking);
                 }
             }
@@ -161,8 +161,6 @@ public class MinitouBillScheduled implements InitializingBean {
                 updateBooking(booking);
             }
         }
-
-
     }
 
     //每月一日处理上月数据
