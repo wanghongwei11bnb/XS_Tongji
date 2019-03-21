@@ -14,6 +14,7 @@ import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.op.tool.ExcelTools;
+import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,8 @@ public class MyAreaController extends BaseController {
     public Result search(HttpServletRequest request) {
         String op_username = UsernameLocal.get();
         Set<Integer> areaSet = opUserService.getAreaSet(op_username);
-        List<Area> areaList = areaService.getAreaListByIds(areaSet.toArray(new Integer[areaSet.size()]));
+        List<Area> areaList = ServiceUtils.division(areaSet.toArray(new Integer[areaSet.size()]), 100, integers -> areaService.getAreaListByIds(integers), new Integer[0]);
+//        List<Area> areaList = areaService.getAreaListByIds(areaSet.toArray(new Integer[areaSet.size()]));
         if (areaList != null && areaList.size() > 0) {
             areaList.sort(Comparator.comparing(Area::getCity));
         }
