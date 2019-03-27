@@ -370,12 +370,12 @@ public class SendEmailScheduled implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         Map<Integer, String> operatorMap = new HashMap<>();
-        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), "运营场地")) {
-            if (stringList == null || stringList.size() < 10
-                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(9))
+        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), 0)) {
+            if (stringList == null || stringList.size() < 2
+                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(1))
                     || !stringList.get(0).matches("^\\d+$")
                     ) continue;
-            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(9));
+            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(1));
         }
         this.operatorMap = operatorMap;
     }
