@@ -52,6 +52,7 @@ public class ExcelTools {
 
 
     public static final long EXPORT_PHONE = (long) Math.pow(2, 0);
+    public static final long EXPORT_COUPON = (long) Math.pow(2, 2);
     public static final long EXPORT_MONTH_CARD_BILL = (long) Math.pow(2, 1);
 
 
@@ -102,6 +103,12 @@ public class ExcelTools {
                         return Option.getActiveText(BookingStatusOption.options, booking.getStatus());
                     }
                 },
+                (exports & EXPORT_COUPON) == EXPORT_COUPON ? new ExcelUtils.Column<Booking>("优惠金额", (total, booking) -> booking != null && booking.getCoupon_cash() != null ? total + booking.getCoupon_cash() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getCoupon_cash() != null ? booking.getCoupon_cash() / 100f : null);
+                    }
+                } : null,
                 new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
                     @Override
                     public String render(Booking booking) {

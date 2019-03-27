@@ -102,6 +102,7 @@ public class BookingController extends BaseController implements InitializingBea
                          Integer payMonth, Boolean download) throws Exception {
         String op_username = UsernameLocal.get();
         boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
+        boolean auth_booking_show_coupon = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_coupon);
         boolean auth_booking_download = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_download);
         if (download == null) {
             download = false;
@@ -158,7 +159,7 @@ public class BookingController extends BaseController implements InitializingBea
                 activeBookingList = new ArrayList<>();
             }
             Collections.sort(activeBookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-            excelTools.exportBookingList(activeBookingList, auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0, null, response, "booking.xlsx");
+            excelTools.exportBookingList(activeBookingList,( auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0)|( auth_booking_show_coupon ? ExcelTools.EXPORT_COUPON : 0), null, response, "booking.xlsx");
             return null;
         }
 

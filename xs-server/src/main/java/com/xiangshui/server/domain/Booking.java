@@ -8,6 +8,7 @@ public class Booking {
     private Integer create_date;
     private Long create_time;
     private Long end_time;
+    private Integer coupon_cash;
     private Integer final_price;
 
     private Integer status;
@@ -39,6 +40,15 @@ public class Booking {
 
     private Integer f0;
     private Integer f1;
+
+    public Integer getCoupon_cash() {
+        return coupon_cash;
+    }
+
+    public Booking setCoupon_cash(Integer coupon_cash) {
+        this.coupon_cash = coupon_cash;
+        return this;
+    }
 
     public Long getBooking_id() {
         return booking_id;
