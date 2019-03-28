@@ -122,6 +122,7 @@ public class AreaBillScheduled implements InitializingBean {
 
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
                 new ScanFilter("create_time").between(time_start - (60 * 60 * 24 * 31), time_end + (60 * 60 * 24 * 31)),
+                new ScanFilter("subject").in(new String[]{"享+-月卡充值", "享+-季卡充值"}),
                 new ScanFilter("bill_area_id").eq(area_id),
                 new ScanFilter("bill_booking_id").exists()
         ));

@@ -81,7 +81,7 @@ public class MonthCardBillScheduled {
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
                 .withScanFilters(
                         new ScanFilter("create_time").between(create_time_start, create_time_end),
-                        new ScanFilter("subject").contains("月卡充值"),
+                        new ScanFilter("subject").in("享+-月卡充值", "享+-季卡充值"),
                         new ScanFilter("status").eq(1)
                 ));
         chargeRecordList.forEach(chargeRecord -> {

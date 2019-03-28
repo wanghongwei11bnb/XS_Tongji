@@ -136,7 +136,7 @@ public class SendEmailScheduled implements InitializingBean {
             List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
                     .withMaxResultSize(Integer.MAX_VALUE)
                     .withScanFilters(
-                            new ScanFilter("subject").in(new String[]{"享+-月卡充值"}),
+                            new ScanFilter("subject").in(new String[]{"享+-月卡充值", "享+-季卡充值"}),
                             new ScanFilter("status").eq(1),
                             new ScanFilter("update_time").between(
                                     localDate.toDate().getTime() / 1000,
