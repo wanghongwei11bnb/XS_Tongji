@@ -36,7 +36,12 @@ public class RedisService {
     public void init() {
         if (!inited) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-            jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+//            jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+            if (StringUtils.isNotBlank(password)) {
+                jedisPool = new JedisPool(config, host, port, 1000 * 30, password);
+            } else {
+                jedisPool = new JedisPool(config, host, port, 1000 * 30);
+            }
             inited = true;
         }
     }
