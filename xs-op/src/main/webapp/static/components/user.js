@@ -246,6 +246,7 @@ class UserGrid extends React.Component {
                         }
                     }
                 },
+                {field: 'invited_by', title: '是否被邀请', render: value => type(value, 'Number') && value > 0 ? '是：' + value : '否'},
                 {
                     field: 'block', title: '黑名单', render: value => {
                         return value === 1 ? <span className="text-danger">已拉黑</span> : '';

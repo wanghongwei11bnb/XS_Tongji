@@ -132,6 +132,18 @@ public class UserController extends BaseController {
                             return JSON.toJSONString(userInfo.getFail_data());
                         }
                     },
+                    new ExcelUtils.Column<UserInfo>("是否被邀请") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return userInfo.getInvited_by() != null && userInfo.getInvited_by() != 0 ? "是" : "否";
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("邀请人用户uin") {
+                        @Override
+                        public String render(UserInfo userInfo) {
+                            return String.valueOf(userInfo.getInvited_by());
+                        }
+                    },
                     new ExcelUtils.Column<UserInfo>("是否加入黑名单") {
                         @Override
                         public String render(UserInfo userInfo) {

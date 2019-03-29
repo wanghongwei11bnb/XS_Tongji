@@ -50,7 +50,6 @@ public class UserInfo {
      */
     private Integer is_first;
 
-
     private Integer block;
 
     public Integer getBlock() {
