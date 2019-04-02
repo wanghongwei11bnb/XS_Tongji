@@ -1,9 +1,13 @@
 package com.xiangshui.op.controller;
 
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.threadLocal.UsernameLocal;
+import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.domain.ChargeRecord;
 import com.xiangshui.server.domain.MonthCardRecode;
 import com.xiangshui.server.service.MonthCardService;
 import com.xiangshui.util.DateUtils;
@@ -23,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -137,6 +142,95 @@ public class MonthCardController extends BaseController {
             return new Result(CodeMsg.NO_FOUND);
         } else {
             return new Result(CodeMsg.SUCCESS).putData("monthCardRecode", monthCardRecode);
+        }
+    }
+
+
+    @Menu("月卡购买记录")
+    @AuthRequired("月卡管理")
+    @GetMapping("/month_card_charge_record_manage")
+    public String month_card_charge_record_manage(HttpServletRequest request) {
+        setClient(request);
+        return "month_card_charge_record_manage";
+    }
+
+
+    @AuthRequired("月卡管理")
+    @GetMapping("/api/month_card_charge_record/search")
+    @ResponseBody
+    public Result month_card_charge_record_search(HttpServletResponse response, ChargeRecord criteria, Date date_start, Date date_end, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
+        if (download == null) download = false;
+        List<ScanFilter> scanFilterList = chargeRecordDao.makeScanFilterList(criteria, new String[]{
+                "uin",
+                "bill_area_id",
+                "bill_booking_id",
+        });
+        scanFilterList.add(new ScanFilter("status").eq(1));
+        scanFilterList.add(new ScanFilter("subject").in(new String[]{"享+-月卡充值", "享+-季卡充值"}));
+        chargeRecordDao.appendDateRangeFilter(scanFilterList, "update_time", date_start, date_end);
+        ScanSpec scanSpec = new ScanSpec().withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        if (download) scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
+        List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(scanSpec);
+        if (download) {
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<ChargeRecord>("out_trade_no") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getOut_trade_no();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("交易时间") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getUpdate_time() != null ? DateUtils.format(chargeRecord.getUpdate_time() * 1000) : null;
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("业务类型") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getSubject();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("交易金额") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getPrice() != null ? chargeRecord.getPrice() / 100f : null;
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("定位城市") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getCity();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("用户编号") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getUin();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("用户手机号") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getPhone();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("场地编号") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getBill_area_id();
+                        }
+                    },
+                    new ExcelUtils.Column<ChargeRecord>("订单编号") {
+                        @Override
+                        public Object render(ChargeRecord chargeRecord) {
+                            return chargeRecord.getBill_booking_id();
+                        }
+                    }
+            ), chargeRecordList, response, "chargeRecordList.xlsx");
+            return null;
+        } else {
+            return new Result(CodeMsg.SUCCESS).putData("chargeRecordList", chargeRecordList);
         }
     }
 

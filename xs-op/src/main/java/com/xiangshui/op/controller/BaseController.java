@@ -7,6 +7,7 @@ import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.BaseDynamoDao;
+import com.xiangshui.server.dao.ChargeRecordDao;
 import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -31,6 +32,8 @@ public class BaseController {
 
     @Autowired
     OpUserService opUserService;
+    @Autowired
+    ChargeRecordDao chargeRecordDao;
 
     @Autowired
     AreaBillScheduled areaBillScheduled;
