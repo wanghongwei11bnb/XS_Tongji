@@ -8,6 +8,7 @@ class Page extends React.Component {
         let queryParams = {
             date_start: this.refs.date_start.value,
             date_end: this.refs.date_end.value,
+            uin: this.refs.uin.value,
             bill_area_id: this.refs.bill_area_id.value,
             bill_booking_id: this.refs.bill_booking_id.value,
         };
@@ -24,6 +25,9 @@ class Page extends React.Component {
                            className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <DateInput ref="date_end"
                            className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                uin：
+                <input ref="uin" type="text"
+                       className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 分账场地编号：
                 <input ref="bill_area_id" type="text"
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
