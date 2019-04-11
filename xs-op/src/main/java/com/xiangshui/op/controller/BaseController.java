@@ -6,9 +6,8 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.*;
-import com.xiangshui.server.dao.BaseDynamoDao;
-import com.xiangshui.server.dao.ChargeRecordDao;
-import com.xiangshui.server.service.OpUserService;
+import com.xiangshui.server.dao.*;
+import com.xiangshui.server.service.*;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -30,13 +29,43 @@ public class BaseController {
     @Value("${isdebug}")
     boolean debug;
 
+
+
+    @Autowired
+    CityService cityService;
+    @Autowired
+    AreaService areaService;
+    @Autowired
+    AreaDao areaDao;
+    @Autowired
+    S3Service s3Service;
+
+    @Autowired
+    AreaContractService areaContractService;
+
+    @Autowired
+    AreaContractDao areaContractDao;
+
+    @Autowired
+    CapsuleService capsuleService;
+
+    @Autowired
+    AreaBillScheduled areaBillScheduled;
+
+    @Autowired
+    AreaBillDao areaBillDao;
+
     @Autowired
     OpUserService opUserService;
     @Autowired
     ChargeRecordDao chargeRecordDao;
-
     @Autowired
-    AreaBillScheduled areaBillScheduled;
+    CashInfoDao cashInfoDao;
+    @Autowired
+    UserInfoDao userInfoDao;
+    @Autowired
+    UserService userService;
+
 
     private long ts = System.currentTimeMillis();
 
