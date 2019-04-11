@@ -67,6 +67,8 @@ public class SendEmailScheduled implements InitializingBean {
     DepositRecordDao depositRecordDao;
     @Autowired
     CityDao cityDao;
+    @Autowired
+    CashInfoDao cashInfoDao;
 
 
     Map<Integer, String> operatorMap = new HashMap<>();
@@ -195,6 +197,28 @@ public class SendEmailScheduled implements InitializingBean {
                         .setCash_time(depositRecord.getCreate_time())
                         .setCash_amount(-depositRecord.getPrice())
                         .setUin(depositRecord.getUin())
+                );
+            }
+        }
+
+        //奖金提现
+        {
+            List<CashInfo> cashInfoList = cashInfoDao.scan(new ScanSpec()
+                    .withMaxResultSize(Integer.MAX_VALUE)
+                    .withScanFilters(
+                            new ScanFilter("type").eq(2),
+                            new ScanFilter("create_time").between(
+                                    localDate.toDate().getTime() / 1000,
+                                    localDate.plusDays(1).toDate().getTime() / 1000
+                            )
+                    )
+            );
+            for (CashInfo cashInfo : cashInfoList) {
+                cashRecordList.add(new CashRecord()
+                        .setType(CashRecordTypeOption.jiangjin_tixian.value)
+                        .setCash_time(cashInfo.getCreate_time())
+                        .setCash_amount(-cashInfo.getCash_num())
+                        .setUin(cashInfo.getUin())
                 );
             }
         }

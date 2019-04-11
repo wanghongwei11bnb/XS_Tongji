@@ -16,5 +16,6 @@ public class CashRecordTypeOption extends Option<Integer> {
     public static final CashRecordTypeOption pintuan_zhifu = new CashRecordTypeOption(5, "拼团支付");
     public static final CashRecordTypeOption pintuan_tuikuan = new CashRecordTypeOption(6, "拼团退款");
     public static final CashRecordTypeOption yajin_tuikuan = new CashRecordTypeOption(7, "押金退款");
+    public static final CashRecordTypeOption jiangjin_tixian = new CashRecordTypeOption(7, "奖金提现");
     public static final List<Option> optionList = getOptions(CashRecordTypeOption.class);
 }
