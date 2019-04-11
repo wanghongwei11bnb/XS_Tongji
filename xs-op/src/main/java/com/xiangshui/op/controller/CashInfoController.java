@@ -71,9 +71,9 @@ public class CashInfoController extends BaseController {
         if (scanFilterList.size() > 0) {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }
-//        if (download) {
-//            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
-//        }
+        if (download) {
+            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
+        }
         List<CashInfo> cashInfoList = cashInfoDao.scan(scanSpec);
         if (cashInfoList != null && cashInfoList.size() > 0) {
             cashInfoList.sort((o1, o2) -> o2.getCreate_time().compareTo(o1.getCreate_time()));
@@ -82,6 +82,67 @@ public class CashInfoController extends BaseController {
         List<UserInfo> userInfoList = uinSet.size() > 0 ? userInfoDao.scan(new ScanSpec().withAttributesToGet(new String[]{"uin", "phone"}).withScanFilters(
                 new ScanFilter("uin").in(uinSet.toArray())
         )) : null;
+
+        if (download) {
+            MapOptions<Integer, UserInfo> userInfoMapOptions = new MapOptions<Integer, UserInfo>(userInfoList) {
+                @Override
+                public Integer getPrimary(UserInfo userInfo) {
+                    return userInfo.getUin();
+                }
+            };
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<CashInfo>("ID") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return cashInfo.getCash_id();
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("业务类型") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            switch (cashInfo.getType()) {
+                                case 1:
+                                    return "发放";
+                                case 2:
+                                    return "提现";
+                                default:
+                                    return null;
+                            }
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("时间") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return cashInfo.getCreate_time() != null ? DateUtils.format(cashInfo.getCreate_time() * 1000) : null;
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("金额") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return cashInfo.getCash_num() != null ? cashInfo.getCash_num() / 100f : null;
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("用户编号") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return cashInfo.getUin();
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("用户手机号") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return userInfoMapOptions.containsKey(cashInfo.getUin()) ? userInfoMapOptions.get(cashInfo.getUin()).getPhone() : null;
+                        }
+                    },
+                    new ExcelUtils.Column<CashInfo>("订单编号") {
+                        @Override
+                        public Object render(CashInfo cashInfo) {
+                            return cashInfo.getBooking_id();
+                        }
+                    }
+            ), cashInfoList, response, "cashInfoList.xlsx");
+            return null;
+        }
         return new Result(CodeMsg.SUCCESS)
                 .putData("cashInfoList", cashInfoList)
                 .putData("userInfoList", userInfoList);

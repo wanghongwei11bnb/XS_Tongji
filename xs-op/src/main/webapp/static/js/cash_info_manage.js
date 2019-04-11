@@ -22,6 +22,12 @@ class Page extends React.Component {
     };
 
 
+    download = () => {
+        let queryParams = this.getQueryParams();
+        queryParams.download = true;
+        window.open(`/api/cash_info/search?${queryString(queryParams)}`)
+    };
+
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
@@ -35,6 +41,7 @@ class Page extends React.Component {
                 手机号：
                 <input ref="phone" type="text" className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <CashInfoGrid ref="grid"></CashInfoGrid>
