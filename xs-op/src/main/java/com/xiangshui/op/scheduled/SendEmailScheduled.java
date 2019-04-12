@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,10 @@ import java.util.*;
 public class SendEmailScheduled implements InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+
+    @Value("${isdebug}")
+    boolean debug;
 
     @Autowired
     AreaBillScheduled areaBillScheduled;
@@ -76,7 +81,9 @@ public class SendEmailScheduled implements InitializingBean {
 
     @Scheduled(cron = "0 0 6 * * ?")
     public void make() throws IOException {
-        makeForSendEmail(new LocalDate().minusDays(1));
+        if (!debug) {
+            makeForSendEmail(new LocalDate().minusDays(1));
+        }
     }
 
     public List<CashRecord> makeCashRecordList(LocalDate localDate) {
