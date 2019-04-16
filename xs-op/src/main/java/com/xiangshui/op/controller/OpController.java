@@ -69,7 +69,7 @@ public class OpController extends BaseController {
             redisService.set(OpPrefix.session, op_session, session);
             Cookie cookie = new Cookie("op_session", op_session);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24);
+            cookie.setMaxAge(60 * 60 * 24 * 7);
             response.addCookie(cookie);
             return new Result(CodeMsg.SUCCESS).putData("op", op);
         } else {
