@@ -746,7 +746,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return areaItem.prev_day_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd"), (total, areaItem) -> total += (areaItem != null ? areaItem.getPrev_day_booking_price() : 0) / 100) {
+                        new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd"), (total, areaItem) -> total += (areaItem != null ? areaItem.getPrev_day_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(AreaItem areaItem) {
                                 return areaItem.prev_day_booking_price / 100f;
@@ -758,7 +758,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return areaItem.main_day_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd"), (total, areaItem) -> total += (areaItem != null ? areaItem.getMain_day_booking_price() : 0) / 100) {
+                        new ExcelUtils.Column<AreaItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd"), (total, areaItem) -> total += (areaItem != null ? areaItem.getMain_day_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(AreaItem areaItem) {
                                 return areaItem.main_day_booking_price / 100f;
@@ -770,7 +770,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return areaItem.main_month_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<AreaItem>(localDate.getMonthOfYear() + "月收入", (total, areaItem) -> total += (areaItem != null ? areaItem.getMain_month_booking_price() : 0) / 100) {
+                        new ExcelUtils.Column<AreaItem>(localDate.getMonthOfYear() + "月收入", (total, areaItem) -> total += (areaItem != null ? areaItem.getMain_month_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(AreaItem areaItem) {
                                 return areaItem.main_month_booking_price / 100f;
@@ -826,7 +826,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return capsuleItem.prev_day_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd"), (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getPrev_day_booking_price() : 0) / 100) {
+                        new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.minusDays(1).toDate(), "MM-dd"), (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getPrev_day_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(CapsuleItem capsuleItem) {
                                 return capsuleItem.prev_day_booking_price / 100f;
@@ -838,7 +838,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return capsuleItem.main_day_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd"), (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getMain_day_booking_price() : 0) / 100) {
+                        new ExcelUtils.Column<CapsuleItem>("收入" + DateUtils.format(localDate.toDate(), "MM-dd"), (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getMain_day_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(CapsuleItem capsuleItem) {
                                 return capsuleItem.main_day_booking_price / 100f;
@@ -850,7 +850,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return capsuleItem.main_month_booking_count;
                             }
                         },
-                        new ExcelUtils.Column<CapsuleItem>(localDate.getMonthOfYear() + "月收入", (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getMain_month_booking_price() : 0)) {
+                        new ExcelUtils.Column<CapsuleItem>(localDate.getMonthOfYear() + "月收入", (total, capsuleItem) -> total += (capsuleItem != null ? capsuleItem.getMain_month_booking_price() : 0) / 100f) {
                             @Override
                             public Object render(CapsuleItem capsuleItem) {
                                 return capsuleItem.main_month_booking_price / 100f;
@@ -884,7 +884,7 @@ public class SendEmailScheduled implements InitializingBean {
                                 return cashRecord.getCash_time() != null ? DateUtils.format(cashRecord.getCash_time() * 1000) : null;
                             }
                         },
-                        new ExcelUtils.Column<CashRecord>("交易金额", (total, cashRecord) -> total += (cashRecord != null && cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() : 0) / 100) {
+                        new ExcelUtils.Column<CashRecord>("交易金额", (total, cashRecord) -> total += (cashRecord != null && cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() : 0) / 100f) {
                             @Override
                             public Float render(CashRecord cashRecord) {
                                 return cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() / 100f : null;
