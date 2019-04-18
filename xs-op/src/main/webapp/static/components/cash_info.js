@@ -9,6 +9,8 @@ class CashInfoGrid extends React.Component {
                         switch (value) {
                             case 1:
                                 return '发放';
+                            case 3:
+                                return <span className="text-warning">充值</span>;
                             case 2:
                                 return <span className="text-danger">提现</span>;
                             default:
