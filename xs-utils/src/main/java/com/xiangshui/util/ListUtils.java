@@ -46,4 +46,15 @@ public class ListUtils {
         return set;
     }
 
+    public static <T> double fieldSum(List<T> list, CallBackForResult<T, Double> callBackForResult) {
+        double result = 0;
+        if (list != null && callBackForResult != null) {
+            for (int i = 0; i < list.size(); i++) {
+                result += callBackForResult.run(list.get(i));
+            }
+        }
+        return result;
+    }
+
+
 }

@@ -16,9 +16,7 @@ import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
-import com.xiangshui.util.DateUtils;
-import com.xiangshui.util.ExcelUtils;
-import com.xiangshui.util.Option;
+import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -258,10 +256,61 @@ public class AreaBillScheduled implements InitializingBean {
                         }
                     });
 
+//                    test(2018,1);
+//                    test(2018,2);
+//                    test(2018,3);
+//                    test(2018,4);
+//                    test(2018,5);
+//                    test(2018,6);
+//                    test(2018,7);
+
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
     }
+
+
+    public void test(int year, int month) {
+        long start = new LocalDate(year, month, 1).toDate().getTime() / 1000;
+        long end = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
+        ScanSpec scanSpec = new ScanSpec()
+                .withMaxResultSize(Integer.MAX_VALUE)
+                .withScanFilters(
+                        new ScanFilter("create_time").between(start, end),
+                        new ScanFilter("status").eq(4),
+                        new ScanFilter("final_price").gt(0),
+                        new ScanFilter("f1").notExist(),
+                        new ScanFilter("f0").notExist()
+                );
+
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        bookingList = ListUtils.filter(bookingList, new CallBackForResult<Booking, Boolean>() {
+            @Override
+            public Boolean run(Booking booking) {
+                return booking != null
+                        && booking.getFinal_price() != null
+                        && booking.getFinal_price() > 0
+                        && (booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) > 0
+                        && !testUinSet.contains(booking.getUin())
+                        ;
+            }
+        });
+
+        int count_capsule = ListUtils.fieldSet(bookingList, (CallBackForResult<Booking, Long>) booking -> booking.getCapsule_id()).size();
+        double sum_price = ListUtils.fieldSum(bookingList, new CallBackForResult<Booking, Double>() {
+            @Override
+            public Double run(Booking booking) {
+                return Double.valueOf((booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0));
+            }
+        });
+        log.info("月份={},舱数={},月收入={},月订单数={}", year + "/" + month, count_capsule, sum_price / 100, bookingList.size());
+    }
+
+    public static void main(String[] args)throws Exception {
+        SpringUtils.init();
+    }
+
 }

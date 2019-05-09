@@ -26,10 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Controller
@@ -171,6 +168,9 @@ public class MonthCardController extends BaseController {
         ScanSpec scanSpec = new ScanSpec().withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         if (download) scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(scanSpec);
+        if (chargeRecordList != null && chargeRecordList.size() > 0) {
+            chargeRecordList.sort((o1, o2) -> o2.getUpdate_time().compareTo(o1.getUpdate_time()));
+        }
         if (download) {
             ExcelUtils.export(Arrays.asList(
                     new ExcelUtils.Column<ChargeRecord>("out_trade_no") {
