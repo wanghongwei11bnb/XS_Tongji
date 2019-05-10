@@ -287,25 +287,14 @@ public class AreaBillScheduled implements InitializingBean {
                 );
 
         List<Booking> bookingList = bookingDao.scan(scanSpec);
-        bookingList = ListUtils.filter(bookingList, new CallBackForResult<Booking, Boolean>() {
-            @Override
-            public Boolean run(Booking booking) {
-                return booking != null
-                        && booking.getFinal_price() != null
-                        && booking.getFinal_price() > 0
-                        && (booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) > 0
-                        && !testUinSet.contains(booking.getUin())
-                        ;
-            }
-        });
+        bookingList = ListUtils.filter(bookingList, booking -> booking != null
+                && booking.getFinal_price() != null
+                && booking.getFinal_price() > 0
+                && (booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) > 0
+                && !testUinSet.contains(booking.getUin()));
 
-        int count_capsule = ListUtils.fieldSet(bookingList, (CallBackForResult<Booking, Long>) booking -> booking.getCapsule_id()).size();
-        double sum_price = ListUtils.fieldSum(bookingList, new CallBackForResult<Booking, Double>() {
-            @Override
-            public Double run(Booking booking) {
-                return Double.valueOf((booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0));
-            }
-        });
+        int count_capsule = ListUtils.fieldSet(bookingList, booking -> booking.getCapsule_id()).size();
+        double sum_price = ListUtils.fieldSum(bookingList, booking -> Double.valueOf((booking.getUse_pay() != null ? booking.getUse_pay() : 0) + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0)));
         log.info("月份={},舱数={},月收入={},月订单数={}", year + "/" + month, count_capsule, sum_price / 100, bookingList.size());
     }
 
