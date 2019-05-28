@@ -265,6 +265,12 @@ class UserGrid extends React.Component {
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.update_id_verified.bind(this, value)}>标记为认证成功</button>,
+                            <button className="btn btn-sm btn-warning m-1"
+                                    onClick={this.month_card_delete.bind(this, value)}>删除月卡</button>,
+                            <button className="btn btn-sm btn-warning m-1"
+                                    onClick={this.month_card_update.bind(this, value)}>修改月卡</button>,
+                            <button className="btn btn-sm btn-warning m-1"
+                                    onClick={this.wallet_clean.bind(this, value)}>清空钱包</button>,
                             <button className="btn btn-sm btn-danger m-1"
                                     onClick={this.updateBlock.bind(this, value, row.block === 1 ? 0 : 1)}>{row.block === 1 ? '移除黑名单' : '加入黑名单'}</button>,
                         ];
@@ -297,6 +303,45 @@ class UserGrid extends React.Component {
                 }
             });
         }}>将此用户标记为身份认证通过？</ConfirmModal>);
+    };
+
+    month_card_delete = (uin) => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: `/api/user/${uin}/monthCard/delete`, method: 'post', loading: true,
+                success: resp => {
+                    Message.msg('操作成功');
+                    this.load();
+                }
+            });
+        }}>将此用户的月卡删除？</ConfirmModal>);
+    };
+
+    wallet_clean = (uin) => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: `/api/user/${uin}/wallet/clean`, method: 'post', loading: true,
+                success: resp => {
+                    Message.msg('操作成功');
+                    this.load();
+                }
+            });
+        }}>将此用户的钱包清空？</ConfirmModal>);
+    };
+
+    month_card_update = (uin) => {
+        Modal.open(<CalendarModal onDateClick={(ymd) => {
+            Modal.open(<ConfirmModal ok={() => {
+                request({
+                    url: `/api/user/${uin}/monthCard/appendTo`, method: 'post', loading: true,
+                    data: {date: ymd.toDate().format('yyyy-MM-dd')},
+                    success: resp => {
+                        Message.msg('操作成功');
+                        this.load();
+                    }
+                });
+            }}>将此用户的月卡过期时间改为{ymd.toDate().format('yyyy-MM-dd')}？</ConfirmModal>);
+        }}></CalendarModal>);
     };
 
     showChargeRecordGridModal = (uin) => {

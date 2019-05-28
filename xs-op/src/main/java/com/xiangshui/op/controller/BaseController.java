@@ -65,6 +65,8 @@ public class BaseController {
     UserInfoDao userInfoDao;
     @Autowired
     UserService userService;
+    @Autowired
+    MonthCardService monthCardService;
 
 
     private long ts = System.currentTimeMillis();

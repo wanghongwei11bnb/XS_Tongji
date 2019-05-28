@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.sun.org.apache.xerces.internal.xs.XSException;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.server.bean.PaginationResult;
@@ -21,6 +22,7 @@ import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.annotation.Around;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -278,12 +280,7 @@ public class UserController extends BaseController {
         }
         List<WalletRecord> walletRecordList = walletRecordDao.scan(scanSpec);
         if (walletRecordList != null && walletRecordList.size() > 0) {
-            walletRecordList.sort(new Comparator<WalletRecord>() {
-                @Override
-                public int compare(WalletRecord o1, WalletRecord o2) {
-                    return (int) (o2.getCreate_time() - o1.getCreate_time());
-                }
-            });
+            walletRecordList.sort((o1, o2) -> (int) (o2.getCreate_time() - o1.getCreate_time()));
         }
         return new Result(CodeMsg.SUCCESS).putData("walletRecordList", walletRecordList);
     }
@@ -317,6 +314,47 @@ public class UserController extends BaseController {
         } else {
             return new Result(CodeMsg.SUCCESS).putData("phoneList", phoneList);
         }
+    }
+
+
+    @AuthRequired("修改月卡")
+    @ResponseBody
+    @PostMapping("/api/user/{uin:\\d+}/monthCard/delete")
+    public Result user_month_care_delete(@PathVariable("uin") int uin) throws Exception {
+        monthCardService.deleteMonthCard(uin);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+    @AuthRequired("修改月卡")
+    @ResponseBody
+    @PostMapping("/api/user/{uin:\\d+}/monthCard/appendTo")
+    public Result user_month_care_delete(@PathVariable("uin") int uin, Date date) throws Exception {
+        if (date == null) throw new XiangShuiException("日期不能为空");
+        LocalDate localDate = new LocalDate(date);
+        if (localDate.compareTo(new LocalDate()) < 0) throw new XiangShuiException("日期不能为过去");
+        if (localDate.compareTo(new LocalDate().plusDays(30 * 6)) > 0) throw new XiangShuiException("日期不能超出6个月");
+        monthCardService.appendMonthCardTo(uin, localDate);
+        return new Result(CodeMsg.SUCCESS);
+    }
+
+
+    @AuthRequired("清空钱包")
+    @ResponseBody
+    @PostMapping("/api/user/{uin:\\d+}/wallet/clean")
+    public Result user_wallet_clean(@PathVariable("uin") int uin) throws Exception {
+        UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
+        if (userInfo == null) throw new XiangShuiException("userInfo未找到");
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", userInfo.getUin()));
+        if (userWallet == null) throw new XiangShuiException("userWallet未找到");
+        userWallet.setBalance(0);
+        userWallet.setBonus(0);
+        userWallet.setCharge(0);
+        userWalletDao.updateItem(new PrimaryKey("uin", uin), userWallet, new String[]{
+                "balance",
+                "charge",
+                "bonus",
+        });
+        return new Result(CodeMsg.SUCCESS);
     }
 
 

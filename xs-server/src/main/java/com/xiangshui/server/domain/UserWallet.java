@@ -28,6 +28,16 @@ public class UserWallet {
 
     private Long update_time;
 
+    private Integer month_card_flag;
+
+    public Integer getMonth_card_flag() {
+        return month_card_flag;
+    }
+
+    public UserWallet setMonth_card_flag(Integer month_card_flag) {
+        this.month_card_flag = month_card_flag;
+        return this;
+    }
 
     public Integer getUin() {
         return uin;

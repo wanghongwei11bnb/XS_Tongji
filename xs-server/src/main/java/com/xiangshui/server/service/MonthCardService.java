@@ -6,9 +6,15 @@ import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.BaseDynamoDao;
 import com.xiangshui.server.dao.MonthCardRecodeDao;
+import com.xiangshui.server.dao.UserInfoDao;
+import com.xiangshui.server.dao.UserWalletDao;
 import com.xiangshui.server.domain.MonthCardRecode;
+import com.xiangshui.server.domain.UserInfo;
+import com.xiangshui.server.domain.UserWallet;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,6 +31,11 @@ public class MonthCardService {
 
     @Autowired
     MonthCardRecodeDao monthCardRecodeDao;
+
+    @Autowired
+    UserInfoDao userInfoDao;
+    @Autowired
+    UserWalletDao userWalletDao;
 
 
     public MonthCardRecode getMonthCardRecodeByUin(int uin, String[] fields) {
@@ -81,4 +92,80 @@ public class MonthCardService {
         return monthCardRecodeDao.scan(scanSpec);
     }
 
+    public void deleteMonthCard(int uin) throws Exception {
+        if (uin <= 0) throw new XiangShuiException("uin必须大于0");
+        UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
+        if (userInfo == null) throw new XiangShuiException("userInfo未找到");
+        MonthCardRecode monthCardRecode = monthCardRecodeDao.getItem(new PrimaryKey("card_no", Long.valueOf(userInfo.getPhone())));
+        if (monthCardRecode == null) throw new XiangShuiException("monthCardRecode未找到");
+        monthCardRecodeDao.deleteItem(new PrimaryKey("card_no", Long.valueOf(userInfo.getPhone())));
+
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", userInfo.getUin()));
+        if (userWallet != null) {
+            userWallet.setMonth_card_flag(0);
+            userWalletDao.updateItem(new PrimaryKey("uin", userInfo.getUin()), userWallet, new String[]{"month_card_flag"});
+        }
+    }
+
+    public void deleteMonthCard(String phone) throws Exception {
+        if (StringUtils.isBlank(phone)) throw new XiangShuiException("phone不能为空");
+        List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withScanFilters(
+                new ScanFilter("phone").eq(phone)
+        ));
+        if (userInfoList == null || userInfoList.size() == 0) throw new XiangShuiException("userInfo未找到");
+        UserInfo userInfo = userInfoList.get(0);
+        deleteMonthCard(userInfo.getUin());
+    }
+
+    public void appendMonthCardTo(UserInfo userInfo, LocalDate localDate) throws Exception {
+        if (localDate == null) throw new XiangShuiException("localDate不能为空");
+        if (userInfo == null) throw new XiangShuiException("userInfo未找到");
+        MonthCardRecode monthCardRecode = monthCardRecodeDao.getItem(new PrimaryKey("card_no", Long.valueOf(userInfo.getPhone())));
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", userInfo.getUin()));
+        if (userWallet == null) throw new XiangShuiException("userWallet未找到");
+        if (monthCardRecode != null) {
+            monthCardRecode.setEnd_time(localDate.plusDays(1).toDate().getTime() / 1000 - 1);
+            monthCardRecodeDao.updateItem(new PrimaryKey("card_no", Long.valueOf(userInfo.getPhone())), monthCardRecode, new String[]{"end_time"});
+        } else {
+            monthCardRecode = new MonthCardRecode()
+                    .setCard_no(Long.valueOf(userInfo.getPhone()))
+                    .setUin(userInfo.getUin())
+                    .setEnd_time(localDate.plusDays(1).toDate().getTime() / 1000 - 1)
+                    .setDate_time(new LocalDate().toDate().getTime() / 1000);
+            monthCardRecodeDao.putItem(monthCardRecode);
+        }
+        userWallet.setMonth_card_flag(1);
+        userWalletDao.updateItem(new PrimaryKey("uin", userInfo.getUin()), userWallet, new String[]{"month_card_flag"});
+    }
+
+
+    public void appendMonthCardTo(int uin, LocalDate localDate) throws Exception {
+        if (uin <= 0) throw new XiangShuiException("uin必须大于0");
+        if (localDate == null) throw new XiangShuiException("localDate不能为空");
+        UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
+        if (userInfo == null) throw new XiangShuiException("userInfo未找到");
+        appendMonthCardTo(userInfo, localDate);
+    }
+
+    public void appendMonthCardTo(String phone, LocalDate localDate) throws Exception {
+
+        if (StringUtils.isBlank(phone)) throw new XiangShuiException("phone不能为空");
+        if (localDate == null) throw new XiangShuiException("localDate不能为空");
+        List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withScanFilters(
+                new ScanFilter("phone").eq(phone)
+        ));
+        if (userInfoList == null || userInfoList.size() == 0) throw new XiangShuiException("userInfo未找到");
+        UserInfo userInfo = userInfoList.get(0);
+        appendMonthCardTo(userInfo, localDate);
+    }
+
+    public static void main(String[] args) throws Exception {
+        SpringUtils.init();
+        MonthCardService service = SpringUtils.getBean(MonthCardService.class);
+//        service.appendMonthCardTo("13911198403", new LocalDate(2019, 6, 24));
+
+
+        service.deleteMonthCard("13718275564");
+
+    }
 }
