@@ -927,7 +927,7 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws MessagingException, IOException {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).makeForSendEmail(new LocalDate().minusDays(1));
+        SpringUtils.getBean(SendEmailScheduled.class).makeForSendEmail(new LocalDate().minusDays(2));
     }
 
 

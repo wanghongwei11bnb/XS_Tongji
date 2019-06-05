@@ -68,6 +68,9 @@ public class BaseController {
     @Autowired
     MonthCardService monthCardService;
 
+    @Autowired
+    BookingDao bookingDao;
+
 
     private long ts = System.currentTimeMillis();
 

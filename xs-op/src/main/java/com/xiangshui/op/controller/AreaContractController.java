@@ -130,11 +130,7 @@ public class AreaContractController extends BaseController {
             Set<Integer> areaIdSet = new HashSet<>();
             areaContractList.forEach(areaContract -> areaIdSet.add(areaContract.getArea_id()));
             if (areaIdSet.size() > 0) {
-                areaList = ServiceUtils.division(areaIdSet.toArray(new Integer[0]), 100, new CallBackForResult<Integer[], List<Area>>() {
-                    public List<Area> run(Integer[] object) {
-                        return areaDao.batchGetItem("area_id", object, null);
-                    }
-                }, new Integer[0]);
+                areaList = ServiceUtils.division(areaIdSet.toArray(new Integer[0]), 100, object -> areaDao.batchGetItem("area_id", object, null), new Integer[0]);
             }
         }
 
