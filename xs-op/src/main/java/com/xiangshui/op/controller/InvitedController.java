@@ -9,6 +9,8 @@ import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.ServiceUtils;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -44,8 +47,10 @@ public class InvitedController extends BaseController {
             Date invited_date_start, Date invited_date_end,
             Integer booking_status,
             Date booking_date_start, Date booking_date_end,
+            Boolean download,
             HttpServletRequest request, HttpServletResponse response
-    ) {
+    ) throws IOException {
+        if (download == null) download = false;
         {
             if (invited_date_start == null || invited_date_end == null) throw new XiangShuiException("邀请日期不能为空");
             if (invited_date_start.compareTo(invited_date_end) > 0) throw new XiangShuiException("邀请日期输入有误");
@@ -111,10 +116,59 @@ public class InvitedController extends BaseController {
                 }, new Integer[0]);
             }
         }
-        return new Result(CodeMsg.SUCCESS)
-                .putData("userInfoList", userInfoList)
-                .putData("bookingList", bookingList)
-                ;
+        if (download) {
+            Map<Integer, Integer> countBookingMap = new HashMap<>();
+            if (bookingList != null) {
+                for (Booking booking : bookingList) {
+                    Integer uin = booking.getUin();
+                    if (countBookingMap.containsKey(uin)) {
+                        countBookingMap.put(uin, countBookingMap.get(uin) + 1);
+                    } else {
+                        countBookingMap.put(uin, 1);
+                    }
+                }
+            }
+
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<UserInfo>("被邀请人uin") {
+                        @Override
+                        public Object render(UserInfo userInfo) {
+                            return userInfo.getUin();
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("被邀请人手机号") {
+                        @Override
+                        public Object render(UserInfo userInfo) {
+                            return userInfo.getPhone();
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("被邀请时间") {
+                        @Override
+                        public Object render(UserInfo userInfo) {
+                            return DateUtils.format(userInfo.getCreate_time() * 1000);
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("邀请人uin") {
+                        @Override
+                        public Object render(UserInfo userInfo) {
+                            return userInfo.getInvited_by();
+                        }
+                    },
+                    new ExcelUtils.Column<UserInfo>("被邀请人订单数") {
+                        @Override
+                        public Object render(UserInfo userInfo) {
+                            return countBookingMap.get(userInfo.getUin());
+                        }
+                    }
+            ), userInfoList, response, "invited.xlsx");
+            return null;
+        } else {
+            return new Result(CodeMsg.SUCCESS)
+                    .putData("userInfoList", userInfoList)
+                    .putData("bookingList", bookingList)
+                    ;
+        }
+
     }
 
 

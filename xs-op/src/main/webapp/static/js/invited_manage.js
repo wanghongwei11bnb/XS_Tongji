@@ -8,7 +8,7 @@ class InvitedGrid extends React.Component {
                 {field: 'create_time', title: '被邀请时间', render: value => type(value, 'Number') ? new Date(value * 1000).format() : null},
                 {field: 'invited_by', title: '邀请人uin'},
                 {
-                    field: 'uin', title: '邀请人订单数', render: value => {
+                    field: 'uin', title: '被邀请人订单数', render: value => {
                         return this.state.countBookingMap[value] || 0;
                     }
                 },
