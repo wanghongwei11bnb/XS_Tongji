@@ -65,8 +65,7 @@ class Page extends React.Component {
     download = () => {
         let queryParams = this.getQueryParams();
         queryParams.download = true;
-        queryParams.payMonth = this.refs.payMonth.value;
-        window.open(`/api/booking/search?${queryString(queryParams)}`)
+        window.open(`/api/invited/search?${queryString(queryParams)}`)
     };
 
     render() {
@@ -94,6 +93,7 @@ class Page extends React.Component {
                 <DateInput ref="booking_date_end"
                            className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>
             <InvitedGrid ref="grid"></InvitedGrid>
