@@ -14,6 +14,7 @@ import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.apache.ibatis.annotations.Param;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -156,7 +157,7 @@ public class MonthCardController extends BaseController {
     @AuthRequired("月卡管理")
     @GetMapping("/api/month_card_charge_record/search")
     @ResponseBody
-    public Result month_card_charge_record_search(HttpServletResponse response, ChargeRecord criteria, Date date_start, Date date_end, Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
+    public Result month_card_charge_record_search(HttpServletResponse response, ChargeRecord criteria, Date date_start, Date date_end,Boolean download) throws NoSuchFieldException, IllegalAccessException, IOException {
         if (download == null) download = false;
         List<ScanFilter> scanFilterList = chargeRecordDao.makeScanFilterList(criteria, new String[]{
                 "uin",

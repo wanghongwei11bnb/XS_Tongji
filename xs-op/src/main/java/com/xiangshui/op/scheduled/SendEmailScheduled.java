@@ -86,6 +86,7 @@ public class SendEmailScheduled implements InitializingBean {
         }
     }
 
+    //现金交易
     public List<CashRecord> makeCashRecordList(LocalDate localDate) {
         List<CashRecord> cashRecordList = new ArrayList<>();
         //订单支付
@@ -233,6 +234,7 @@ public class SendEmailScheduled implements InitializingBean {
     }
 
 
+    //场地运营
     public void make(LocalDate localDate, CallBack2<List<AreaItem>, List<CapsuleItem>> callBack) throws IOException {
         //数据
         List<Area> areaList = null;
