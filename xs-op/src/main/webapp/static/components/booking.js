@@ -296,7 +296,7 @@ class BookingGrid extends React.Component {
 
             this.state.columns[0] = {
                 field: 'booking_id', title: '订单编号', width: '8em', render: (value, row) => {
-                    [
+                    return [
                         value,
                         row.f1 ? <span className="badge badge-danger">f1</span> : null,
                         row.f0 ? <span className="badge badge-danger">f0</span> : null,
