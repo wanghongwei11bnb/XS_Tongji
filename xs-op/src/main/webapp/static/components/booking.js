@@ -203,7 +203,7 @@ class BookingGrid extends React.Component {
                 },
                 {
                     field: 'area_id', title: '区域', render: (value) => {
-                        return this.state.cityMapOptions.getField(this.state.areaMapOptions.get(value).city,'region');
+                        return this.state.cityMapOptions.getField(this.state.areaMapOptions.get(value).city, 'region');
                     }
                 },
                 {
@@ -290,6 +290,19 @@ class BookingGrid extends React.Component {
                     break;
                 }
             }
+        }
+
+        if (authMapOptions.get(finalAuthMap.auth_booking_show_f)) {
+
+            this.state.columns[0] = {
+                field: 'booking_id', title: '订单编号', width: '8em', render: (value, row) => {
+                    [
+                        value,
+                        row.f1 ? <span className="badge badge-danger">f1</span> : null,
+                        row.f0 ? <span className="badge badge-danger">f0</span> : null,
+                    ]
+                }
+            };
         }
     }
 
