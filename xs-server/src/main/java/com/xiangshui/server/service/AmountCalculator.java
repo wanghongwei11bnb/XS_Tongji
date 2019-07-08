@@ -124,14 +124,19 @@ public class AmountCalculator {
 
     }
 
+
+//    public static DateTime getEndTimeForNight(DateTime start_time, DateTime end_time) {
+//
+//    }
+
     public static void main(String[] args) throws Exception {
 
 
         System.out.println(JSON.toJSONString(reckon(new AmountReckonParam()
                         .setStart_time(new DateTime(1561867003l * 1000)).setEnd_time(new DateTime(1561871776l * 1000).plusDays(2))
+                        .setUse_month_card(true)
                         .setUnit_price(20)
 //                .setWrap_day(true).setWrap_day_price(9900)
-                        .setUse_month_card(true)
                         .setWrap_night(true).setWrap_night_price(1500)
                         .setPeak_price(30).setPeak_hour_binary(PeakHourTools.appendHour(0, 11, 12, 17, 18, 19))
         )));
