@@ -12,10 +12,7 @@ import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.fragment.RangeRatio;
 import com.xiangshui.server.exception.XiangShuiException;
-import com.xiangshui.server.service.AreaContractService;
-import com.xiangshui.server.service.AreaService;
-import com.xiangshui.server.service.BookingService;
-import com.xiangshui.server.service.UserService;
+import com.xiangshui.server.service.*;
 import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.io.IOUtils;
@@ -63,6 +60,8 @@ public class AreaBillScheduled implements InitializingBean {
 
     @Autowired
     GroupInfoDao groupInfoDao;
+    @Autowired
+    UserInfoDao userInfoDao;
 
     @Autowired
     ChargeRecordDao chargeRecordDao;
@@ -248,13 +247,15 @@ public class AreaBillScheduled implements InitializingBean {
                             testPhoneSet.add(text.trim());
                         }
                     }
-                    testPhoneSet.forEach(s -> {
-                        log.debug("加载测试手机号：" + s);
-                        UserInfo userInfo = userService.getUserInfoByPhone(s);
-                        if (userInfo != null) {
-                            testUinSet.add(userInfo.getUin());
-                        }
-                    });
+
+                    List<UserInfo> userInfoList = ServiceUtils.division(testPhoneSet.toArray(new String[testPhoneSet.size()]), 100, phones -> userInfoDao.scan(new ScanSpec()
+                            .withScanFilters(
+                                    new ScanFilter("phone").in(phones)
+                            )), new String[0]);
+
+                    for (UserInfo userInfo : userInfoList) {
+                        testUinSet.add(userInfo.getUin());
+                    }
 
 //                    test(2018,1);
 //                    test(2018,2);
@@ -298,7 +299,7 @@ public class AreaBillScheduled implements InitializingBean {
         log.info("月份={},舱数={},月收入={},月订单数={}", year + "/" + month, count_capsule, sum_price / 100, bookingList.size());
     }
 
-    public static void main(String[] args)throws Exception {
+    public static void main(String[] args) throws Exception {
         SpringUtils.init();
     }
 
