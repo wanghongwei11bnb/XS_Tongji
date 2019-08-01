@@ -16,6 +16,9 @@ public @interface AuthRequired {
 
     String auth_article = "新闻帖子管理";
 
+    String auth_coupon = "优惠券管理";
+
+
     String auth_booking_show_coupon = "订单——查看优惠金额";
     String auth_booking_show_f = "订单——显示F标签";
     String auth_booking_show_phone = "订单——查看手机号";
@@ -34,5 +37,7 @@ public @interface AuthRequired {
 
     String auth_minitou_investor = "迷你投——投资人";
     String auth_minitou_op = "迷你投——OP";
+
+    String auth_my_area_summary = "我的场地——查看单日汇总";
 
 }

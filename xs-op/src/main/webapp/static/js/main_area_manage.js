@@ -22,13 +22,27 @@ class MainAreaModal extends AreaModal {
 
 }
 
+class SummaryGrid extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            columns: [
+                {field: '', title: ''},
+            ],
+        };
+    }
+}
+
+
 class MainAreaManageGrid extends AreaGrid {
     constructor(props) {
         super(props);
         this.state.columns.push({
             title: [
-                <button type="button" className="btn btn-sm btn-primary m-1"
-                        onClick={this.load}>刷新</button>,
+                <button type="button" className="btn btn-sm btn-success m-1" onClick={this.load}>刷新</button>,
+                authMapOptions.get(finalAuthMap.auth_my_area_summary) ?
+                    <button type="button" className="btn btn-sm btn-success m-1" onClick={this.summary}>单日汇总</button>
+                    : null,
             ],
             render: (value, row, index) => {
                 return [
@@ -42,6 +56,27 @@ class MainAreaManageGrid extends AreaGrid {
             }
         });
     }
+
+    summary = () => {
+        Modal.open(<CalendarModal onDateClick={(ymd) => {
+            request({
+                url: '/api/main_area/summary', method: 'post', loading: true,
+                data: {
+                    date: ymd.format('yyyy-MM-dd'),
+                },
+                success: resp => {
+                    let areaMapOptions = new AreaMapOptions(resp.data.areaList);
+                    Modal.open(<AlertModal>
+                        <Table columns={[
+                            {field: 'area_id', title: '场地', render: value => areaMapOptions.get(value) ? areaMapOptions.get(value).address : value},
+                            {field: 'booking_count', title: '订单数量'},
+                            {field: 'pay_price', title: '订单收入',render:value=>type(value,'Number')?value/100:null},
+                        ]} data={resp.data.areaBillResultList}></Table>
+                    </AlertModal>);
+                }
+            });
+        }}></CalendarModal>);
+    };
 
     downloadBill = (area_id) => {
         let date = new Date();

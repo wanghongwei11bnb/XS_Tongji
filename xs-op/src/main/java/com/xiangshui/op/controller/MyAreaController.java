@@ -17,6 +17,7 @@ import com.xiangshui.op.tool.ExcelTools;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -164,4 +165,23 @@ public class MyAreaController extends BaseController {
         excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_bill_show_month_card ? ExcelTools.EXPORT_MONTH_CARD_BILL : 0), areaBillResult.getChargeRecordMap(), response, "booking.xlsx");
         return null;
     }
+
+
+    @PostMapping("/api/main_area/summary")
+    @ResponseBody
+    @AuthRequired(AuthRequired.auth_my_area_summary)
+    public Result summary(HttpServletRequest request, HttpServletResponse response, Date date) throws Exception {
+        if (date == null) return new Result(-1, "请选择日期");
+        String op_username = UsernameLocal.get();
+        Set<Integer> areaSet = opUserService.getAreaSet(op_username);
+        if (areaSet == null || areaSet.size() == 0) return new Result(-1, "暂无数据");
+        List<AreaBillResult> areaBillResultList = areaBillScheduled.reckonAreaBillList(new ArrayList<>(areaSet), new LocalDate(date).toDate().getTime() / 1000, new LocalDate(date).plusDays(1).toDate().getTime() / 1000 - 1, true);
+
+        List<Area> areaList = areaService.getAreaListByIds(areaSet.toArray(new Integer[areaSet.size()]));
+
+
+        return new Result(CodeMsg.SUCCESS).putData("areaBillResultList", areaBillResultList).putData("areaList", areaList);
+    }
+
+
 }

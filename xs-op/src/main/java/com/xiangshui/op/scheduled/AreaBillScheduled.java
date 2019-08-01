@@ -208,6 +208,19 @@ public class AreaBillScheduled implements InitializingBean {
     }
 
 
+    public List<AreaBillResult> reckonAreaBillList(List<Integer> areaIdList, long time_start, long time_end, boolean skipContract) throws Exception {
+        if (areaIdList == null || areaIdList.size() == 0) throw new XiangShuiException("缺少场地编号");
+        List<AreaBillResult> resultList = new ArrayList<>();
+        for (int area_id : areaIdList) {
+            AreaBillResult result = reckonAreaBill(area_id, time_start, time_end, skipContract);
+            if (result != null) {
+                resultList.add(result);
+            }
+        }
+        return resultList;
+    }
+
+
     public void upsetAreaBill(AreaBillResult areaBillResult, int year, int month) {
         Date now = new Date();
         long bill_id = areaBillResult.getArea_id() * 1000000l + year * 100 + month;

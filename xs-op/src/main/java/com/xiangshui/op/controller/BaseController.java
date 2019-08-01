@@ -32,6 +32,9 @@ public class BaseController {
 
 
     @Autowired
+    DiscountCouponDao discountCouponDao;
+
+    @Autowired
     CityService cityService;
     @Autowired
     AreaService areaService;
