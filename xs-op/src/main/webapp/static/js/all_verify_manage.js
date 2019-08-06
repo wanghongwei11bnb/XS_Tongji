@@ -136,6 +136,7 @@ class AllVerifyModal extends Modal {
     };
 
     componentDidMount() {
+        super.componentDidMount();
         const {verify_code, create, update} = this.state;
         if (verify_code && update) {
             request({
