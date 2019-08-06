@@ -63,6 +63,15 @@ class AllVerifyModal extends Modal {
                     </div>
                 </td>
             </tr>
+            <tr>
+                <th>是否屏蔽老用户</th>
+                <td>
+                    <select ref="ban_old" className="form-control">
+                        <option value={0}>否</option>
+                        <option value={1}>是</option>
+                    </select>
+                </td>
+            </tr>
             </tbody>
         </table>
     };
@@ -77,6 +86,7 @@ class AllVerifyModal extends Modal {
             cash: this.refs.cash.getValue(),
             start_time_date: this.refs.start_time_date.getValue(),
             end_time_date: this.refs.end_time_date.getValue(),
+            ban_old: this.refs.ban_old.value || 0,
         };
 
         if (create) {
@@ -120,6 +130,7 @@ class AllVerifyModal extends Modal {
             this.refs.cash.setValue(allVerify.cash);
             this.refs.start_time_date.setValue(allVerify.start_time ? allVerify.start_time * 1000 : null);
             this.refs.end_time_date.setValue(allVerify.end_time ? allVerify.end_time * 1000 : null);
+            this.refs.ban_old.value = allVerify.ban_old || 0;
         }
 
     };
@@ -166,6 +177,7 @@ class AllVerifyGrid extends React.Component {
                             {!(type(row.end_time, 'Number') && row.end_time * 1000 >= Date.now()) ? <span className="text-danger">已过期</span> : null}
                         </div>
                 },
+                {field: 'ban_old', title: '是否屏蔽老用户', render: value => value === 1 ? <span className="text-danger">是</span> : <span>否</span>},
                 {
                     field: 'verify_code',
                     title: <button className="btn btn-sm btn-success" onClick={this.create}>创建</button>,

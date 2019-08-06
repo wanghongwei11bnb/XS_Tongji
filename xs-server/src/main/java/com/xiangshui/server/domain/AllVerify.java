@@ -8,6 +8,16 @@ public class AllVerify {
     private Integer min_price;
     private Long start_time;
     private Long end_time;
+    private Integer ban_old;
+
+    public Integer getBan_old() {
+        return ban_old;
+    }
+
+    public AllVerify setBan_old(Integer ban_old) {
+        this.ban_old = ban_old;
+        return this;
+    }
 
     public String getVerify_code() {
         return verify_code;
