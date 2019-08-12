@@ -92,9 +92,11 @@ public class SendFailureEmailScheduled implements InitializingBean {
         if ("华南".equals(city.getRegion())) {
             MailService.send(
                     new String[]{
-                            "hongwei@xiangshuispace.com"
+                            "xiangui@xiangshuispace.com",
                     },
-                    new String[]{},
+                    new String[]{
+                            "hongwei@xiangshuispace.com",
+                    },
                     "故障报修－" + city.getRegion() + "－" + city.getCity() + "－" + area.getTitle(),
                     "<style>" + IOUtils.toString(this.getClass().getResourceAsStream("/bootstrap.min.css"), "UTF-8") + "</style>" +
                             new StringBuilder()
