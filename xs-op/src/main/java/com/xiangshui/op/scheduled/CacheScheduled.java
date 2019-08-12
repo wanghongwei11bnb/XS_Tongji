@@ -7,6 +7,7 @@ import com.xiangshui.server.domain.AreaContract;
 import com.xiangshui.server.domain.Capsule;
 import com.xiangshui.server.domain.City;
 import com.xiangshui.util.MapOptions;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class CacheScheduled {
+public class CacheScheduled implements InitializingBean{
 
     @Autowired
     CityDao cityDao;
@@ -70,4 +71,8 @@ public class CacheScheduled {
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        updateCache();
+    }
 }
