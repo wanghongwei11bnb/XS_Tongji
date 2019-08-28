@@ -78,10 +78,10 @@ public class MonthCardBillScheduled {
         List<Booking> bookingList = bookingDao.scan(new ScanSpec().withScanFilters(
                 new ScanFilter("create_time").between(create_time_start, create_time_end)
         ));
-        List<Booking> bookingListForYongyou = bookingDao.scan(new ScanSpec().withScanFilters(
-                new ScanFilter("create_time").between(create_time_start, create_time_end),
-                new ScanFilter("area_id").eq(1100117)
-        ).withMaxResultSize(100000));
+//        List<Booking> bookingListForYongyou = bookingDao.scan(new ScanSpec().withScanFilters(
+//                new ScanFilter("create_time").between(create_time_start, create_time_end),
+//                new ScanFilter("area_id").eq(1100117)
+//        ).withMaxResultSize(100000));
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec().withScanFilters(
                 new ScanFilter("create_time").between(create_time_start, create_time_end),
                 new ScanFilter("subject").in("享+-月卡充值", "享+-季卡充值"),
@@ -90,7 +90,7 @@ public class MonthCardBillScheduled {
         chargeRecordList.forEach(chargeRecord -> {
             try {
                 if (!dealBillBookingId(chargeRecord, bookingList)) {
-                    dealBillBookingId(chargeRecord, bookingListForYongyou);
+//                    dealBillBookingId(chargeRecord, bookingListForYongyou);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
