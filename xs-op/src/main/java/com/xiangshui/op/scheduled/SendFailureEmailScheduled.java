@@ -47,6 +47,9 @@ public class SendFailureEmailScheduled implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
     }
 
+    /**
+     * 每分钟处理上一分钟的故障报修，发送给相关人员邮箱
+     */
     @Scheduled(cron = "0 * * * * ?")
     public void mark() {
         DateTime dateTime = new DateTime().withMillisOfSecond(0).withSecondOfMinute(0).minusMinutes(1);
