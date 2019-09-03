@@ -103,9 +103,9 @@ public class RedBagController extends BaseController {
                         @Override
                         public Object render(RedBag redBag) {
                             if ("现金红包".equals(redBag.getPrice_title())) {
-                                return redBag.getPrice() / 100 + "元现金红包";
+                                return redBag.getPrice() / 100f + "元现金红包";
                             } else if ("雨露均沾奖".equals(redBag.getPrice_title())) {
-                                return "满" + redBag.getMin_price() / 100 + "减" + redBag.getCash() / 100 + "优惠券";
+                                return "满" + redBag.getMin_price() / 100f + "减" + redBag.getCash() / 100f + "优惠券";
                             }
                             return null;
                         }
