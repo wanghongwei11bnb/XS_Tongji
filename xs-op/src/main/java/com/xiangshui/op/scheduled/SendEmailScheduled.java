@@ -1,5 +1,6 @@
 package com.xiangshui.op.scheduled;
 
+import com.alibaba.fastjson.JSON;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.bean.CashRecord;
@@ -9,6 +10,7 @@ import com.xiangshui.server.domain.*;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -403,14 +405,32 @@ public class SendEmailScheduled implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         Map<Integer, String> operatorMap = new HashMap<>();
-        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), 0)) {
-            if (stringList == null || stringList.size() < 2
-                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(1))
-                    || !stringList.get(0).matches("^\\d+$")
-                    ) continue;
-            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(1));
+
+
+        List<String> areaIdLines = IOUtils.readLines(this.getClass().getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
+        List<String> areaStaffLines = IOUtils.readLines(this.getClass().getResourceAsStream("/场地运营/area_staff.txt"), "UTF-8");
+
+        for (int i = 0; i < areaIdLines.size() && i < areaStaffLines.size(); i++) {
+            String areaIdLine = areaIdLines.get(i);
+            if (StringUtils.isBlank(areaIdLine)) {
+                continue;
+            }
+            String staff = areaStaffLines.get(i);
+            if(StringUtils.isBlank(staff)){
+                continue;
+            }
+            int area_id = Integer.valueOf(areaIdLine);
+            operatorMap.put(area_id,staff);
         }
+//        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), 0)) {
+//            if (stringList == null || stringList.size() < 2
+//                    || StringUtils.isBlank(stringList.get(0)) || StringUtils.isBlank(stringList.get(1))
+//                    || !stringList.get(0).matches("^\\d+$")
+//                    ) continue;
+//            operatorMap.put(Integer.valueOf(stringList.get(0)), stringList.get(1));
+//        }
         this.operatorMap = operatorMap;
+        log.info("初始化场地运营人员：{}", JSON.toJSONString(this.operatorMap));
     }
 
 
@@ -928,8 +948,12 @@ public class SendEmailScheduled implements InitializingBean {
     }
 
     public static void main(String[] args) throws MessagingException, IOException {
-        SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).makeForSendEmail(new LocalDate().minusDays(2));
+//        SpringUtils.init();
+//        SpringUtils.getBean(SendEmailScheduled.class).makeForSendEmail(new LocalDate().minusDays(2));
+
+
+        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
+
     }
 
 

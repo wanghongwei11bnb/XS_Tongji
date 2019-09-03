@@ -166,26 +166,26 @@ public class MinitouBillController extends BaseController {
 //                    },
                     new ExcelUtils.Column<MinitouBill>("场地分成比例") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
+                        public Object render(MinitouBill minitouBill) {
                             return minitouBill.getAccount_ratio() + "%";
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("经营收入") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getFinal_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getFinal_price() / 100f;
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("场地分成金额") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getRatio_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getRatio_price() / 100f;
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("利润收入（扣除租金）") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getRent_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getRent_price() / 100f;
                         }
                     }
             ), minitouBillList, response, "bill_" + year + month + ".xlsx");
