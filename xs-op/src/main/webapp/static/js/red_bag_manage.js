@@ -54,6 +54,33 @@ class RedBagModal extends Modal {
         </table>
     };
 
+    submit = () => {
+        const {red_bag_id, create, update} = this.state;
+        let data = {
+            status: this.refs.status.value || 0,
+        };
+
+        if (create) {
+            // request({
+            //     url: `/api/red_bag/create`, method: 'post', data,
+            //     success: resp => {
+            //
+            //     }
+            // });
+        } else if (update) {
+            request({
+                url: `/api/red_bag/${red_bag_id}/update`, method: 'post', data,
+                success: resp => {
+                    Message.msg('保存成功！');
+                    this.close();
+                    if (this.props.onSuccess) this.props.onSuccess();
+                }
+            });
+        }
+
+
+    };
+
 
     reView = (redBag) => {
         if (redBag) {
@@ -97,11 +124,12 @@ class RedBagGrid extends React.Component {
                     }
                 },
                 {field: 'uin', title: '用户编号'},
+                {field: 'uin', title: '用户手机号', render: value => this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null},
                 {field: 'price_title', title: '奖品'},
                 {
                     field: 'id', title: '奖品', render: (value, row, index) => {
                         if (row.price_title === '现金红包') return `${row.price / 100}元现金红包`;
-                        if (row.price_title === '雨露均沾奖') return `慢${row.min_price / 100}减${row.cash / 100}优惠券`;
+                        if (row.price_title === '雨露均沾奖') return `满${row.min_price / 100}减${row.cash / 100}优惠券`;
                         return value;
                     }
                 },
@@ -112,6 +140,7 @@ class RedBagGrid extends React.Component {
                     }
                 },
                 {field: 'receive_time', title: '领取时间', render: value => type(value, 'Number') ? new Date(value * 1000).format() : null},
+                {field: 'booking_id', title: '订单编号'},
                 {
                     field: 'id', title: <span className="btn btn-sm m-1 btn-success hide" onClick={this.create}>新建</span>, render: (value, row, index) => [
                         <span className="btn btn-sm m-1 btn-danger hide" onClick={this.delete.bind(this, value)}>删除</span>,
@@ -131,6 +160,7 @@ class RedBagGrid extends React.Component {
             success: (resp) => {
                 this.setState({
                     data: resp.data.redBagList,
+                    userInfoMapOptions: new UserInfoMapOptions(resp.data.userInfoList),
                 });
             }
         });
@@ -163,26 +193,43 @@ class RedBagGrid extends React.Component {
 class Page extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {};
     }
 
+    getQueryParams = () => {
+        return {
+            uin: this.refs.uin.value,
+            phone: this.refs.phone.value,
+            create_date_start: this.refs.create_date_start.value,
+            create_date_end: this.refs.create_date_end.value,
+        };
+    };
 
     search = () => {
-        let queryParams = {
-            uin: this.refs.uin.value,
-        };
-        this.refs.grid.load(queryParams);
+        this.refs.grid.load(this.getQueryParams());
     };
+    download = () => {
+        let queryParams = this.getQueryParams();
+        queryParams.download = true;
+        window.open(`/api/red_bag/search?${queryString(queryParams)}`)
+    };
+
 
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
+                创建日期：
+                <DateInput ref="create_date_start"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
+                <DateInput ref="create_date_end"
+                           className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
                 用户编号：
                 <input ref="uin" type="text" className="form-control d-inline-block mx-3 w-auto"/>
+                用户手机号：
+                <input ref="phone" type="text" className="form-control d-inline-block mx-3 w-auto"/>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
+                <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
-
             <div className="table-responsive">
                 <RedBagGrid ref="grid"></RedBagGrid>
             </div>
@@ -191,15 +238,9 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
+        this.refs.create_date_start.setValue(new Date().format('yyyy-MM-dd'));
+        this.refs.create_date_end.setValue(new Date().format('yyyy-MM-dd'));
         this.search();
-        request({
-            url: '/api/activeCityList', loading: true,
-            success: (resp) => {
-                if (resp.code == 0) {
-                    this.setState({cityList: resp.data.cityList});
-                }
-            }
-        });
     }
 }
 

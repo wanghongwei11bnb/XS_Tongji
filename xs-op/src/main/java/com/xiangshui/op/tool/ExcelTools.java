@@ -3,6 +3,7 @@ package com.xiangshui.op.tool;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.scheduled.AreaRegionScheduled;
+import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.AreaDao;
@@ -50,6 +51,9 @@ public class ExcelTools {
     @Autowired
     AreaRegionScheduled areaRegionScheduled;
 
+    @Autowired
+    CacheScheduled cacheScheduled;
+
 
     public static final long EXPORT_PHONE = (long) Math.pow(2, 0);
     public static final long EXPORT_COUPON = (long) Math.pow(2, 2);
@@ -62,15 +66,15 @@ public class ExcelTools {
         }
 
         Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
-        Map<Integer, Area> areaMap = new HashMap<>();
-        List<Area> areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
-        if (areaList != null) {
-            areaList.forEach(area -> {
-                if (area != null) {
-                    areaMap.put(area.getArea_id(), area);
-                }
-            });
-        }
+//        Map<Integer, Area> areaMap = new HashMap<>();
+//        List<Area> areaList = areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"});
+//        if (areaList != null) {
+//            areaList.forEach(area -> {
+//                if (area != null) {
+//                    areaMap.put(area.getArea_id(), area);
+//                }
+//            });
+//        }
         Map<Integer, UserInfo> userInfoMap = new HashMap<>();
         if ((exports & EXPORT_PHONE) == EXPORT_PHONE) {
             List<UserInfo> userInfoList = userService.getUserInfoList(bookingList, new String[]{"uin", "phone"});
@@ -166,7 +170,7 @@ public class ExcelTools {
                 new ExcelUtils.Column<Booking>("场地名称") {
                     @Override
                     public String render(Booking booking) {
-                        return booking.getArea_id() != null && areaMap.containsKey(booking.getArea_id()) ? areaMap.get(booking.getArea_id()).getTitle() : null;
+                        return booking.getArea_id() != null && cacheScheduled.areaMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaMapOptions.get(booking.getArea_id()).getTitle() : null;
                     }
                 },
                 new ExcelUtils.Column<Booking>("区域") {
@@ -178,13 +182,13 @@ public class ExcelTools {
                 new ExcelUtils.Column<Booking>("城市") {
                     @Override
                     public String render(Booking booking) {
-                        return booking.getArea_id() != null && areaMap.containsKey(booking.getArea_id()) ? areaMap.get(booking.getArea_id()).getCity() : null;
+                        return booking.getArea_id() != null && cacheScheduled.areaMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaMapOptions.get(booking.getArea_id()).getCity() : null;
                     }
                 },
                 new ExcelUtils.Column<Booking>("地址") {
                     @Override
                     public String render(Booking booking) {
-                        return booking.getArea_id() != null && areaMap.containsKey(booking.getArea_id()) ? areaMap.get(booking.getArea_id()).getAddress() : null;
+                        return booking.getArea_id() != null && cacheScheduled.areaMapOptions.containsKey(booking.getArea_id()) ? cacheScheduled.areaMapOptions.get(booking.getArea_id()).getAddress() : null;
                     }
                 },
                 new ExcelUtils.Column<Booking>("用户编号") {

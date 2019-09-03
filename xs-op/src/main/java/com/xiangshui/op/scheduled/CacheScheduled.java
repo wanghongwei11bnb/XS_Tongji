@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CacheScheduled implements InitializingBean {
@@ -25,6 +27,8 @@ public class CacheScheduled implements InitializingBean {
     BookingDao bookingDao;
     @Autowired
     AreaContractDao areaContractDao;
+    @Autowired
+    UserInfoDao userInfoDao;
 
     public List<City> cityList;
     public List<Area> areaList;
@@ -36,6 +40,8 @@ public class CacheScheduled implements InitializingBean {
     public MapOptions<Integer, Area> areaMapOptions;
     public MapOptions<Integer, AreaContract> areaContractMapOptions;
     public MapOptions<Long, Capsule> capsuleMapOptions;
+    public MapOptions<Integer, UserInfo> userInfoMapOptions;
+    public Map<String, Integer> phoneUinMap;
 
     @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void task() {
@@ -48,6 +54,10 @@ public class CacheScheduled implements InitializingBean {
         areaList = areaDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
         capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
         areaContractList = areaContractDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
+        userInfoList = userInfoDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withAttributesToGet(new String[]{
+                "uin",
+                "phone",
+        }));
 
         cityMapOptions = new MapOptions<String, City>(cityList) {
             @Override
@@ -75,6 +85,16 @@ public class CacheScheduled implements InitializingBean {
                 return capsule.getCapsule_id();
             }
         };
+        userInfoMapOptions = new MapOptions<Integer, UserInfo>(userInfoList) {
+            @Override
+            public Integer getPrimary(UserInfo userInfo) {
+                return userInfo.getUin();
+            }
+        };
+        phoneUinMap=new HashMap<>();
+        for (UserInfo userInfo : userInfoList) {
+            phoneUinMap.put(userInfo.getPhone(),userInfo.getUin());
+        }
     }
 
 
