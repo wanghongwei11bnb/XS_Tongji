@@ -113,9 +113,9 @@ class RedBagGrid extends React.Component {
                 },
                 {field: 'receive_time', title: '领取时间', render: value => type(value, 'Number') ? new Date(value * 1000).format() : null},
                 {
-                    field: 'id', title: <span className="btn btn-sm m-1 btn-success" onClick={this.create}>新建</span>, render: (value, row, index) => [
-                        <span className="btn btn-sm m-1 btn-danger" onClick={this.delete.bind(this, value)}>删除</span>,
-                        <span className="btn btn-sm m-1 btn-primary" onClick={this.update.bind(this, value)}>编辑</span>,
+                    field: 'id', title: <span className="btn btn-sm m-1 btn-success hide" onClick={this.create}>新建</span>, render: (value, row, index) => [
+                        <span className="btn btn-sm m-1 btn-danger hide" onClick={this.delete.bind(this, value)}>删除</span>,
+                        <span className="btn btn-sm m-1 btn-primary hide" onClick={this.update.bind(this, value)}>编辑</span>,
                     ]
                 },
             ],
