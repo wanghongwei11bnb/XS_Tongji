@@ -37,6 +37,8 @@ public class BaseController {
     @Autowired
     CityService cityService;
     @Autowired
+    RedBagDao redBagDao;
+    @Autowired
     AreaService areaService;
     @Autowired
     AreaDao areaDao;

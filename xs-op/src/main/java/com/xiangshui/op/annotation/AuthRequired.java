@@ -40,4 +40,7 @@ public @interface AuthRequired {
 
     String auth_my_area_summary = "我的场地——查看单日汇总";
 
+
+    String auth_red_bag = "周年活动";
+
 }

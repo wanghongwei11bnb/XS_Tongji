@@ -1,7 +1,9 @@
 package com.xiangshui.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public abstract class MapOptions<P, T> extends HashMap<P, T> {
     public MapOptions(List<T> data) {
@@ -18,4 +20,19 @@ public abstract class MapOptions<P, T> extends HashMap<P, T> {
     }
 
     public abstract P getPrimary(T t);
+
+    public List<T> selectByPrimarys(Set<P> primarySet) {
+        List<T> list = new ArrayList<>();
+        if (primarySet != null && primarySet.size() > 0) {
+            for (P p : primarySet) {
+                T t = this.get(p);
+                if (t != null) {
+                    list.add(t);
+                }
+            }
+        }
+        return list;
+    }
+
+
 }

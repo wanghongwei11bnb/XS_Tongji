@@ -28,15 +28,20 @@ public class Coupon {
 
         List<RedVerifyRecord> recordList = redVerifyRecordDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
                 new ScanFilter("verify_code").in(new String[]{
-                        "享+头等舱",
-                        "太库头等舱",
-                        "无界头额舱",
-                        "启迪头等舱",
-                        "58头等舱",
-                        "零秒头等舱",
-                        "共享头等舱",
                         "头等舱体验金",
+                        "共享头等舱",
+                        "零秒头等舱",
+                        "58头等舱",
+                        "启迪头等舱",
+                        "无界头等舱",
+                        "太库头等舱",
+                        "享+头等舱",
+                        "厚德头等舱",
+                        "午休神器",
+                        "腾讯头等舱",
                         "岛里头等舱",
+                        "享睡头等舱",
+                        "办公加油站",
                 })
         ));
 
