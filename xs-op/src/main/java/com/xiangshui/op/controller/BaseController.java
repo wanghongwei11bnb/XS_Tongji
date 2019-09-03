@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.op.annotation.AnnotationUtils;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
+import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.*;
@@ -75,6 +76,8 @@ public class BaseController {
 
     @Autowired
     BookingDao bookingDao;
+    @Autowired
+    CacheScheduled cacheScheduled;
 
 
     private long ts = System.currentTimeMillis();

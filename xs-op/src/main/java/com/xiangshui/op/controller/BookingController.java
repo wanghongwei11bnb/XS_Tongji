@@ -22,10 +22,7 @@ import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
 import com.xiangshui.op.tool.ExcelTools;
-import com.xiangshui.util.CallBack;
-import com.xiangshui.util.DateUtils;
-import com.xiangshui.util.ExcelUtils;
-import com.xiangshui.util.Option;
+import com.xiangshui.util.*;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.io.IOUtils;
@@ -201,9 +198,9 @@ public class BookingController extends BaseController implements InitializingBea
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)
-                    .putData("bookingList", bookingList).putData("cityList", cityService.getCityList())
-                    .putData("areaList", areaService.getAreaListByBooking(bookingList, new String[]{"area_id", "title", "city", "address", "status"}))
-                    .putData("userInfoList", auth_booking_show_phone ? userService.getUserInfoList(bookingList, new String[]{"uin", "phone"}) : null)
+                    .putData("bookingList", bookingList).putData("cityList", cacheScheduled.cityList)
+                    .putData("areaList", cacheScheduled.areaMapOptions.selectByPrimarys(ListUtils.fieldSet(bookingList, Booking::getArea_id)))
+                    .putData("userInfoList", auth_booking_show_phone ? cacheScheduled.userInfoMapOptions.selectByPrimarys(ListUtils.fieldSet(bookingList, Booking::getUin)) : null)
                     ;
         }
     }
