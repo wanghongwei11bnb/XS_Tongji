@@ -90,7 +90,7 @@ public class RedBagController extends BaseController {
                     new ExcelUtils.Column<RedBag>("用户手机号") {
                         @Override
                         public Object render(RedBag redBag) {
-                            return cacheScheduled.phoneUinMap.containsKey(redBag.getUin()) ? cacheScheduled.phoneUinMap.get(redBag.getUin()) : null;
+                            return cacheScheduled.userInfoMapOptions.containsKey(redBag.getUin()) ? cacheScheduled.userInfoMapOptions.get(redBag.getUin()).getPhone() : null;
                         }
                     },
                     new ExcelUtils.Column<RedBag>("奖品") {
