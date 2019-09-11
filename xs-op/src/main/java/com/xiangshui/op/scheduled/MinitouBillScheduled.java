@@ -214,9 +214,9 @@ public class MinitouBillScheduled implements InitializingBean {
         if (minitouBill == null) {
             throw new XiangShuiException("minitouBill 不能为空");
         }
-        if (minitouBillDao.getItem(new PrimaryKey("bill_id", minitouBill.getBill_id())) != null) {
-            minitouBillDao.deleteItem(new PrimaryKey("bill_id", minitouBill.getBill_id()));
-        }
+//        if (minitouBillDao.getItem(new PrimaryKey("bill_id", minitouBill.getBill_id())) != null) {
+//            minitouBillDao.deleteItem(new PrimaryKey("bill_id", minitouBill.getBill_id()));
+//        }
         minitouBillDao.putItem(minitouBill);
     }
 

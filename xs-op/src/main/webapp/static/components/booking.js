@@ -113,6 +113,10 @@ class BookingUpdateModal extends Modal {
 }
 
 
+function uinFieldRender(uin) {
+    return op_username === 'zhaifang@xiangshuispace.com' || op_username === 'wanghongwei@xiangshuispace.com' ? <A onClick={showUser.bind(null, uin)}>{uin}</A> : uin;
+}
+
 class BookingGrid extends React.Component {
     constructor(props) {
         super(props);
@@ -216,7 +220,7 @@ class BookingGrid extends React.Component {
                 //         return value && this.state.areaMapOptions.get(value) ? this.state.areaMapOptions.get(value).address : null;
                 //     }
                 // },
-                {field: 'uin', title: '用户编号'},
+                {field: 'uin', title: '用户编号', render: value => uinFieldRender(value)},
                 {
                     field: 'uin', title: '用户手机号', render: (value, row, index) => {
                         return value && this.state.userInfoMapOptions.get(value) ? this.state.userInfoMapOptions.get(value).phone : null;
@@ -274,9 +278,9 @@ class BookingGrid extends React.Component {
                     this.state.columns[i].totalName = '测试';
                     this.state.columns[i].render = (value) => {
                         if (testUinMapOptions.get(value)) {
-                            return [value, <br/>, <span className="text-danger">(测试)</span>];
+                            return [uinFieldRender(value), <br/>, <span className="text-danger">(测试)</span>];
                         } else {
-                            return value;
+                            return uinFieldRender(value);
                         }
                     };
                     break;
