@@ -401,5 +401,8 @@ class UserGridModal extends Modal {
         super.componentDidMount();
         this.refs.grid.load(this.state.queryParams);
     }
+}
 
+function showUser(uin) {
+    Modal.open(<UserGridModal queryParams={{uin}}></UserGridModal>)
 }

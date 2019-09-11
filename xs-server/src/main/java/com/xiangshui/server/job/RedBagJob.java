@@ -1,6 +1,11 @@
 package com.xiangshui.server.job;
 
 import com.alibaba.fastjson.JSON;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.RedBag;
 import com.xiangshui.server.domain.UserInfo;
@@ -10,9 +15,10 @@ import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
+
 @Component
 public class RedBagJob {
-
 
 
     @Autowired
@@ -59,19 +65,18 @@ public class RedBagJob {
     BookingDao bookingDao;
 
 
+    public void test(String phone) throws Exception {
 
-    public void test(String phone)throws Exception {
-
-        if(StringUtil.isBlank(phone))return;
+        if (StringUtil.isBlank(phone)) return;
 
         UserInfo userInfo = userService.getUserInfoByPhone(phone);
 
-        if(userInfo==null){
+        if (userInfo == null) {
             throw new Exception("userInfo is null");
         }
-        RedBag redBag=new RedBag()
-                .setId(System.currentTimeMillis()/1000)
-                .setCreate_time(System.currentTimeMillis()/1000)
+        RedBag redBag = new RedBag()
+                .setId(System.currentTimeMillis() / 1000)
+                .setCreate_time(System.currentTimeMillis() / 1000)
                 .setUin(userInfo.getUin())
                 .setType(2)
                 .setPrice_title("雨露均沾奖")
@@ -89,13 +94,15 @@ public class RedBagJob {
     }
 
 
-    public static void main(String[] args)throws Exception {
+    public static void main(String[] args) throws Exception {
 
         SpringUtils.init();
         RedBagJob redBagJob = SpringUtils.getBean(RedBagJob.class);
-        redBagJob.test("15524986545");
-        redBagJob.test("13686003589");
-        redBagJob.test("13501231224");
+//        redBagJob.test("15524986545");
+//        redBagJob.test("13686003589");
+//        redBagJob.test("13501231224");
+//        redBagJob.test("13141329896");
+
 
     }
 }
