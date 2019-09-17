@@ -1,6 +1,8 @@
 package com.xiangshui.op.controller;
 
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AreaRequired;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
@@ -15,6 +17,7 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.*;
 import com.xiangshui.op.tool.ExcelTools;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.joda.time.LocalDate;
@@ -126,9 +129,17 @@ public class MyAreaController extends BaseController {
     @GetMapping("/api/main_area/{area_id:\\d+}/booking/search")
     @ResponseBody
     public Result booking_search(HttpServletRequest request, HttpServletResponse response, @PathVariable("area_id") Integer area_id, Date create_date_start, Date create_date_end) throws Exception {
-        Booking criteria = new Booking();
-        criteria.setArea_id(area_id);
-        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
+        Area area = areaService.getAreaById(area_id);
+        if (area == null) return new Result(CodeMsg.NO_FOUND);
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        scanFilterList.add(new ScanFilter("area_id").eq(area_id));
+        areaDao.appendDateRangeFilter(scanFilterList, "create_time", create_date_start, create_date_end);
+        List<Booking> bookingList = bookingDao.scan(new ScanSpec().withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()])));
+        bookingList = areaBillScheduled.filterBookingList(bookingList);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("bookingList", bookingList)
+                .putData("areaList", cacheScheduled.areaMapOptions.selectByPrimarys(ListUtils.fieldSet(bookingList, Booking::getArea_id)))
+                ;
     }
 
 
@@ -177,8 +188,7 @@ public class MyAreaController extends BaseController {
         if (areaSet == null || areaSet.size() == 0) return new Result(-1, "暂无数据");
         List<AreaBillResult> areaBillResultList = areaBillScheduled.reckonAreaBillList(new ArrayList<>(areaSet), new LocalDate(date).toDate().getTime() / 1000, new LocalDate(date).plusDays(1).toDate().getTime() / 1000 - 1, true);
 
-        List<Area> areaList = areaService.getAreaListByIds(areaSet.toArray(new Integer[areaSet.size()]));
-
+        List<Area> areaList = cacheScheduled.areaMapOptions.selectByPrimarys(areaSet);
 
         return new Result(CodeMsg.SUCCESS).putData("areaBillResultList", areaBillResultList).putData("areaList", areaList);
     }
