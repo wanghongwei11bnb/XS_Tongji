@@ -9,6 +9,8 @@ import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.*;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
+import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +114,9 @@ abstract public class BaseDynamoDao<T> {
         return null;
     }
 
+    public List<T> filterList(List<T> data) {
+        return data;
+    }
 
     public List<T> scan(ScanSpec scanSpec) {
         if (scanSpec == null) {
@@ -131,6 +136,7 @@ abstract public class BaseDynamoDao<T> {
             Item item = iter.next();
             list.add(JSON.parseObject(item.toJSON(), tClass));
         }
+        list = filterList(list);
         return list;
     }
 

@@ -59,19 +59,37 @@ class MainAreaManageGrid extends AreaGrid {
 
     summary = () => {
         Modal.open(<CalendarModal onDateClick={(ymd) => {
+            // request({
+            //     url: '/api/main_area/summary', method: 'post', loading: true,
+            //     data: {
+            //         date: ymd.format('yyyy-MM-dd'),
+            //     },
+            //     success: resp => {
+            //         let areaMapOptions = new AreaMapOptions(resp.data.areaList);
+            //         Modal.open(<AlertModal>
+            //             <Table columns={[
+            //                 {field: 'area_id', title: '场地', render: value => areaMapOptions.get(value) ? areaMapOptions.get(value).address : value},
+            //                 {field: 'booking_count', title: '订单数量'},
+            //                 {field: 'pay_price', title: '订单收入',render:value=>type(value,'Number')?value/100:null},
+            //             ]} data={resp.data.areaBillResultList}></Table>
+            //         </AlertModal>);
+            //     }
+            // });
             request({
-                url: '/api/main_area/summary', method: 'post', loading: true,
+                url: '/api/main_area/report', method: 'post', loading: true,
                 data: {
                     date: ymd.format('yyyy-MM-dd'),
                 },
                 success: resp => {
-                    let areaMapOptions = new AreaMapOptions(resp.data.areaList);
+                    let reportResult = resp.data.reportResult;
+                    let areaMapOptions = new AreaMapOptions(reportResult.areaList);
                     Modal.open(<AlertModal>
                         <Table columns={[
-                            {field: 'area_id', title: '场地', render: value => areaMapOptions.get(value) ? areaMapOptions.get(value).address : value},
-                            {field: 'booking_count', title: '订单数量'},
-                            {field: 'pay_price', title: '订单收入',render:value=>type(value,'Number')?value/100:null},
-                        ]} data={resp.data.areaBillResultList}></Table>
+                            {field: 'address', title: '场地'},
+                            {field: 'area_id', title: `订单数量total(${reportResult.countBooking})`, render: value => reportResult.reportResultMapGroupForArea[value] && reportResult.reportResultMapGroupForArea[value].countBooking},
+                            {field: 'area_id', title: `订单收入total(${reportResult.totalAmount / 100})`, render: value => reportResult.reportResultMapGroupForArea[value] && reportResult.reportResultMapGroupForArea[value].totalAmount / 100},
+                            {field: 'area_id', title: `绿动社区下单数量total(${reportResult.countBookingMapForReqFrom['ldwork'] || 0})`, render: value => reportResult.reportResultMapGroupForArea[value] && reportResult.reportResultMapGroupForArea[value].countBookingMapForReqFrom['ldwork'] || 0},
+                        ]} data={reportResult.areaList}></Table>
                     </AlertModal>);
                 }
             });

@@ -6,6 +6,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
+import com.xiangshui.op.tool.BookingReportTools;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.service.*;
@@ -78,6 +79,9 @@ public class BaseController {
     BookingDao bookingDao;
     @Autowired
     CacheScheduled cacheScheduled;
+
+    @Autowired
+    BookingReportTools bookingReportTools;
 
 
     private long ts = System.currentTimeMillis();
