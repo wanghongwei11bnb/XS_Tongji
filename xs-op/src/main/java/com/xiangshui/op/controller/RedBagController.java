@@ -56,6 +56,7 @@ public class RedBagController extends BaseController {
             scanFilterList.add(new ScanFilter("uin").eq(cacheScheduled.phoneUinMap.get(phone)));
         }
         ScanSpec scanSpec = new ScanSpec();
+        if (download) scanSpec.withMaxResultSize(Integer.MAX_VALUE);
         scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         List<RedBag> redBagList = redBagDao.scan(scanSpec);
         redBagList.sort((o1, o2) -> o2.getCreate_time().compareTo(o1.getCreate_time()));
