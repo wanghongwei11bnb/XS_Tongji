@@ -63,6 +63,9 @@ public class MonthCardBillScheduled {
     GroupInfoDao groupInfoDao;
 
 
+    /**
+     * 每月1日凌晨1点匹配上月月卡与订单
+     */
     @Scheduled(cron = "0 0 1 1 * ?")
     public void makeMonthCardBillTask() {
         LocalDate localDate = new LocalDate().plusMonths(-1);
@@ -76,7 +79,8 @@ public class MonthCardBillScheduled {
         long create_time_start = startDate.toDate().getTime() / 1000;
         long create_time_end = endDate.plusDays(1).toDate().getTime() / 1000;
         List<Booking> bookingList = bookingDao.scan(new ScanSpec().withScanFilters(
-                new ScanFilter("create_time").between(create_time_start, create_time_end)
+                new ScanFilter("create_time").between(create_time_start, create_time_end),
+                new ScanFilter("f1").notExist()
         ));
 //        List<Booking> bookingListForYongyou = bookingDao.scan(new ScanSpec().withScanFilters(
 //                new ScanFilter("create_time").between(create_time_start, create_time_end),
