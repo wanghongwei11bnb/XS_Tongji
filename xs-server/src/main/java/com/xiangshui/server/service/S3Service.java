@@ -62,10 +62,12 @@ public class S3Service implements InitializingBean {
             s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key + "_" + size, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
         }
 
-        EasyImage easyImage = new EasyImage(bytes);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
-        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
+//        EasyImage easyImage = new EasyImage(bytes);
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        ImageIO.write(easyImage.getAsBufferedImage(), formatName, out);
+//        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(out.toByteArray()), metadata).withAccessControlList(accessControlList));
+
+        s3.putObject(new PutObjectRequest(BUCKET_NAME_AREAIMGS, key, new ByteArrayInputStream(bytes), metadata).withAccessControlList(accessControlList));
 
         return "https://s3.cn-north-1.amazonaws.com.cn/" + BUCKET_NAME_AREAIMGS + "/" + key;
     }
