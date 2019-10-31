@@ -25,6 +25,34 @@
     </bean>
 
 
+
+
+    <!--拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/*"/>
+            <mvc:mapping path="/**/*"/>
+            <mvc:exclude-mapping path="/vendor/**/*"/>
+            <mvc:exclude-mapping path="/static/**/*"/>
+            <mvc:exclude-mapping path="/build/**/*"/>
+            <mvc:exclude-mapping path="/error/**/*"/>
+            <mvc:exclude-mapping path="/favicon.ico"/>
+            <bean class="com.xiangshui.web.interceptor.SetSessionInterceptor"></bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/*"/>
+            <mvc:mapping path="/**/*"/>
+            <mvc:exclude-mapping path="/vendor/**/*"/>
+            <mvc:exclude-mapping path="/static/**/*"/>
+            <mvc:exclude-mapping path="/build/**/*"/>
+            <mvc:exclude-mapping path="/error/**/*"/>
+            <mvc:exclude-mapping path="/favicon.ico"/>
+            <bean class="com.xiangshui.web.interceptor.LoginRequiredInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+
     <!-- 配置MultipartResolver -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <!-- 上传文件大小限制，单位为字节-10Mb -->
