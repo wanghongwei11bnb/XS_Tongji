@@ -24,5 +24,4 @@ public class ActivityController extends BaseController {
         List<SwiperItem> swiperItemList = swiperItemDao.selectByExample(example);
         return new Result(CodeMsg.SUCCESS).putData("swiperItemList", swiperItemList);
     }
-
 }
