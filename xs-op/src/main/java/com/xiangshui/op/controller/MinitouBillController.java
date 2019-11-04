@@ -89,7 +89,7 @@ public class MinitouBillController extends BaseController {
     public Result capsule_search() {
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray())));
         if (capsuleList != null && capsuleList.size() > 0) {
-            capsuleList.sort((o1, o2) -> (int) (o2.getCapsule_id() - o1.getCapsule_id()));
+            capsuleList.sort((o1, o2) -> o2.getCapsule_id().compareTo(o1.getCapsule_id()));
         }
         List<Area> areaList = areaService.getAreaListByCapsule(capsuleList, null);
         return new Result(CodeMsg.SUCCESS)
