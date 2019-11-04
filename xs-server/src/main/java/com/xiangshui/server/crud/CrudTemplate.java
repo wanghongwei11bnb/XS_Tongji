@@ -255,7 +255,7 @@ public abstract class CrudTemplate<T> {
             Field field = getFieldByFieldName(fieldName);
             String columnName = getColumnNameByFieldName(fieldName);
             Object columnValue = field.get(record);
-            if (columnValue == null && selective) {
+            if (selective && (columnValue == null || (columnValue instanceof String && StringUtils.isBlank((CharSequence) columnValue)))) {
                 continue;
             }
             callback.run(fieldName, field, columnName, columnValue);
