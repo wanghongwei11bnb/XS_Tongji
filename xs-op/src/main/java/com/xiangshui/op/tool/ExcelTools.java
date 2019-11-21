@@ -19,7 +19,9 @@ import com.xiangshui.server.service.BookingService;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.Option;
+import com.xiangshui.util.spring.SpringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,5 +222,26 @@ public class ExcelTools {
         outputStream.flush();
         outputStream.close();
         workbook.close();
+    }
+
+
+    public void test() throws Exception {
+
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        SpringUtils.init();
+        ExcelTools excelTools = SpringUtils.getBean(ExcelTools.class);
+        AreaDao areaDao = SpringUtils.getBean(AreaDao.class);
+        List<Area> areaList = ListUtils.filter(areaDao.scan(), area -> {
+            if (area == null) return false;
+            if (!(area.getStatus() == null || new Integer(0).equals(area.getStatus()))) return false;
+            return true;
+        });
+
+
+
+
     }
 }
