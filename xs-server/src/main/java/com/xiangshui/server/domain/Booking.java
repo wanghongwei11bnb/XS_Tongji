@@ -28,6 +28,12 @@ public class Booking {
 
     private Integer from_charge;
 
+    private Integer from_guohang;
+
+    private String guohang_confirm_id;
+
+    private String guohang_order_sn;
+
     private Integer test_flag;
 
     private Integer month_card_flag;
@@ -40,6 +46,34 @@ public class Booking {
 
     private Integer f0;
     private Integer f1;
+
+
+    public Integer getFrom_guohang() {
+        return from_guohang;
+    }
+
+    public Booking setFrom_guohang(Integer from_guohang) {
+        this.from_guohang = from_guohang;
+        return this;
+    }
+
+    public String getGuohang_confirm_id() {
+        return guohang_confirm_id;
+    }
+
+    public Booking setGuohang_confirm_id(String guohang_confirm_id) {
+        this.guohang_confirm_id = guohang_confirm_id;
+        return this;
+    }
+
+    public String getGuohang_order_sn() {
+        return guohang_order_sn;
+    }
+
+    public Booking setGuohang_order_sn(String guohang_order_sn) {
+        this.guohang_order_sn = guohang_order_sn;
+        return this;
+    }
 
     public Integer getCoupon_cash() {
         return coupon_cash;
