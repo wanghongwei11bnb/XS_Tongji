@@ -85,18 +85,19 @@ public class GuoHangController extends BaseController {
             String sign = MD5.getMD5(kvStr).toUpperCase();
             log.info(sign);
             if (sign.endsWith(bodyJson.getString("sign"))) {
-                //验证签名成功之后的逻辑
+                log.info("验证签名成功");
                 String confirm_id = treeMap.get("confirm_id");
                 String money = treeMap.get("money");
                 String order_sn = treeMap.get("order_sn");
                 String order_time = treeMap.get("order_time");
                 String store_code = treeMap.get("store_code");
                 if (confirm_id.startsWith("b_")) {
-                    Integer price = (int) (Float.valueOf(money) * 100);
-                    if (price <= 0) return;
                     Long booking_id = Long.valueOf(confirm_id.split("_")[1]);
+                    Integer price = (int) (Float.valueOf(money) * 100);
+                    log.info("booking_id={}&price={}", booking_id, price);
+                    if (price <= 0) return;
                     Booking booking = bookingDao.getItem(new PrimaryKey("booking_id", booking_id));
-                    if (booking == null || new Integer(1).equals(booking.getStatus()) || new Integer(4).equals(booking.getStatus()))
+                    if (booking == null || new Integer(1).equals(booking.getStatus()))
                         return;
                     booking.setGuohang_order_sn(order_sn);
                     booking.setGuohang_confirm_id(confirm_id);
