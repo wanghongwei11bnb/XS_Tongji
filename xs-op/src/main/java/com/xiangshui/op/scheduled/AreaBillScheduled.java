@@ -70,6 +70,9 @@ public class AreaBillScheduled implements InitializingBean {
     public Set<String> testPhoneSet = new HashSet<>();
 
 
+    /**
+     * 每月1,5,10,15日的凌晨2点系统自动出上月账单
+     */
     @Scheduled(cron = "0 0 2 1,5,10,15 * ?")
     public void makeBill() {
         LocalDate localDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
@@ -91,7 +94,15 @@ public class AreaBillScheduled implements InitializingBean {
         });
     }
 
-
+    /**
+     * 指定场地，起止日期，生成账单
+     *
+     * @param area_id
+     * @param time_start
+     * @param time_end
+     * @param skipContract
+     * @return
+     */
     public AreaBillResult reckonAreaBill(int area_id, long time_start, long time_end, boolean skipContract) {
         Date now = new Date();
         AreaBillResult areaBillResult = new AreaBillResult();
@@ -138,6 +149,7 @@ public class AreaBillScheduled implements InitializingBean {
         ).withMaxResultSize(Integer.MAX_VALUE));
 
 
+
         List<Booking> activeBookingList = new ArrayList<>();
 
         if (bookingList != null && bookingList.size() > 0) {
@@ -156,6 +168,9 @@ public class AreaBillScheduled implements InitializingBean {
                 activeBookingList.add(booking);
             }
         }
+
+        activeBookingList = filterBookingList(activeBookingList);
+
         int booking_count = 0;
         int final_price = 0;
         int charge_price = 0;
@@ -207,7 +222,35 @@ public class AreaBillScheduled implements InitializingBean {
         return areaBillResult;
     }
 
+    /**
+     * 指定 多个 场地，起止日期，生成账单
+     *
+     * @param areaIdList
+     * @param time_start
+     * @param time_end
+     * @param skipContract
+     * @return
+     * @throws Exception
+     */
+    public List<AreaBillResult> reckonAreaBillList(List<Integer> areaIdList, long time_start, long time_end, boolean skipContract) throws Exception {
+        if (areaIdList == null || areaIdList.size() == 0) throw new XiangShuiException("缺少场地编号");
+        List<AreaBillResult> resultList = new ArrayList<>();
+        for (int area_id : areaIdList) {
+            AreaBillResult result = reckonAreaBill(area_id, time_start, time_end, skipContract);
+            if (result != null) {
+                resultList.add(result);
+            }
+        }
+        return resultList;
+    }
 
+    /**
+     * 更新账单数据
+     *
+     * @param areaBillResult
+     * @param year
+     * @param month
+     */
     public void upsetAreaBill(AreaBillResult areaBillResult, int year, int month) {
         Date now = new Date();
         long bill_id = areaBillResult.getArea_id() * 1000000l + year * 100 + month;
@@ -235,6 +278,41 @@ public class AreaBillScheduled implements InitializingBean {
         areaBill.setUpdate_time(now.getTime() / 1000);
         areaBillDao.putItem(areaBill);
     }
+
+
+    /**
+     * 过滤掉两种订单
+     * 1.次月10日之后支付的订单
+     * 2.次月10日之后未支付的订单
+     *
+     * @param bookingList
+     * @return
+     */
+    public List<Booking> filterBookingList(List<Booking> bookingList) {
+        List<Booking> newBookingList = new ArrayList<>();
+        if (bookingList != null && bookingList.size() > 0) {
+            for (Booking booking : bookingList) {
+                if (booking == null)
+                    continue;
+                if (new Integer(4).equals(booking.getStatus())) {
+                    if (booking.getCreate_time() != null && booking.getUpdate_time() != null) {
+                        LocalDate createDate = new LocalDate(booking.getCreate_time() * 1000);
+                        LocalDate updateDate = new LocalDate(booking.getUpdate_time() * 1000);
+                        if (createDate.getMonthOfYear() != updateDate.getMonthOfYear() && updateDate.getDayOfMonth() > 10)
+                            continue;
+                    }
+                } else {
+                    LocalDate createDate = new LocalDate(booking.getCreate_time() * 1000);
+                    LocalDate updateDate = LocalDate.now();
+                    if (createDate.getMonthOfYear() != updateDate.getMonthOfYear() && updateDate.getDayOfMonth() > 10)
+                        continue;
+                }
+                newBookingList.add(booking);
+            }
+        }
+        return newBookingList;
+    }
+
 
     @Override
     public void afterPropertiesSet() {

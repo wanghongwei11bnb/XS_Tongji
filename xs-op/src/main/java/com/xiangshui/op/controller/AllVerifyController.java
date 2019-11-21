@@ -131,6 +131,7 @@ public class AllVerifyController extends BaseController {
                 "min_price",
                 "start_time",
                 "end_time",
+                "ban_old",
         });
         return new Result(CodeMsg.SUCCESS);
     }

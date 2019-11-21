@@ -247,36 +247,20 @@ public class UserController extends BaseController {
     @GetMapping("/api/user_wallet/search")
     @ResponseBody
     public Result user_wallet_search(WalletRecord criteria, Date create_date_start, Date create_date_end) throws Exception {
-
         if (criteria == null) {
             criteria = new WalletRecord();
         }
-
-        List<ScanFilter> filterList = walletRecordDao.makeScanFilterList(criteria, new String[]{
+        List<ScanFilter> scanFilterList = walletRecordDao.makeScanFilterList(criteria, new String[]{
                 "uin",
                 "phone",
                 "type",
                 "subject",
 
         });
-
-        if (filterList == null) {
-            filterList = new ArrayList<>();
-        }
-
-
-        if (create_date_start != null && create_date_end != null) {
-            filterList.add(new ScanFilter("create_time").between(
-                    create_date_start.getTime() / 1000, (create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000
-            ));
-        } else if (create_date_start != null && create_date_end == null) {
-            filterList.add(new ScanFilter("create_time").gt(create_date_start.getTime() / 1000 - 1));
-        } else if (create_date_start == null && create_date_end != null) {
-            filterList.add(new ScanFilter("create_time").lt((create_date_end.getTime() + 1000 * 60 * 60 * 24) / 1000 + 1));
-        }
+        walletRecordDao.appendDateRangeFilter(scanFilterList,"create_time",create_date_start,create_date_end);
         ScanSpec scanSpec = new ScanSpec();
-        if (filterList != null && filterList.size() > 0) {
-            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[filterList.size()]));
+        if (scanFilterList != null && scanFilterList.size() > 0) {
+            scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }
         List<WalletRecord> walletRecordList = walletRecordDao.scan(scanSpec);
         if (walletRecordList != null && walletRecordList.size() > 0) {

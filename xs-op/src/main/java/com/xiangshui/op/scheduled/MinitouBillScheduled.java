@@ -3,14 +3,17 @@ package com.xiangshui.op.scheduled;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.tool.ExcelTools;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.AreaContractService;
 import com.xiangshui.server.service.UserService;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.MapOptions;
+import com.xiangshui.util.spring.SpringUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDate;
@@ -185,7 +188,7 @@ public class MinitouBillScheduled implements InitializingBean {
     }
 
     //每月一日生成上月报表
-    @Scheduled(cron = "0 0 4 1 * ?")
+//    @Scheduled(cron = "0 0 4 1 * ?")
     public void makeBill() {
         LocalDate localDate = new LocalDate().minusMonths(1);
         List<MinitouBill> minitouBillList = makeBill(localDate.getYear(), localDate.getMonthOfYear());
@@ -211,9 +214,9 @@ public class MinitouBillScheduled implements InitializingBean {
         if (minitouBill == null) {
             throw new XiangShuiException("minitouBill 不能为空");
         }
-        if (minitouBillDao.getItem(new PrimaryKey("bill_id", minitouBill.getBill_id())) != null) {
-            minitouBillDao.deleteItem(new PrimaryKey("bill_id", minitouBill.getBill_id()));
-        }
+//        if (minitouBillDao.getItem(new PrimaryKey("bill_id", minitouBill.getBill_id())) != null) {
+//            minitouBillDao.deleteItem(new PrimaryKey("bill_id", minitouBill.getBill_id()));
+//        }
         minitouBillDao.putItem(minitouBill);
     }
 
@@ -417,6 +420,49 @@ public class MinitouBillScheduled implements InitializingBean {
         }
 
 
+    }
+
+    public void test(int year, int month) throws Exception {
+
+        //查询当月所有迷你投设备已支付订单
+        long dateTimeStart = new LocalDate(year, month, 1).toDate().getTime() / 1000;
+        long dateTimeEnd = new LocalDate(year, month, 1).plusMonths(1).toDate().getTime() / 1000 - 1;
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        scanFilterList.add(new ScanFilter("status").eq(4));
+        scanFilterList.add(new ScanFilter("update_time").between(dateTimeStart, dateTimeEnd));
+        scanFilterList.add(new ScanFilter("capsule_id").in(capsuleIdSet.toArray()));
+        ScanSpec scanSpec = new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
+        List<Booking> bookingList = bookingDao.scan(scanSpec);
+        int price = 0;
+        int total_price = 0;
+        int f0 = 0;
+        int f1 = 0;
+        System.out.println(bookingList.size());
+        for (Booking booking : bookingList) {
+            if(booking.getFinal_price()!=null){
+                total_price+=booking.getFinal_price();
+            }
+            if (new Integer(1).equals(booking.getF0())) {
+                f0++;
+            }
+            if (new Integer(1).equals(booking.getF1())) {
+                f1++;
+            }
+            if (booking == null || new Integer(1).equals(booking.getF1()) || new Integer(1).equals(booking.getF0()) || booking.getFrom_charge() == null || booking.getFrom_charge() <= 0) {
+                continue;
+            }
+            price += booking.getFrom_charge();
+        }
+        System.out.println(price / 100);
+        System.out.println(total_price / 100);
+        System.out.println(f0);
+        System.out.println(f1);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        SpringUtils.init();
+        SpringUtils.getBean(MinitouBillScheduled.class).test(2019, 7);
     }
 
 

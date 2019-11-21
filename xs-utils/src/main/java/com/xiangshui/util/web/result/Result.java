@@ -40,7 +40,7 @@ public class Result {
     public Result putData(String key, Object value) {
 
         if (data == null) {
-            data = new HashMap<String, Object>();
+            data = new HashMap<>();
         }
         data.put(key, value);
         return this;

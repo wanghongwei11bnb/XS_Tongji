@@ -89,7 +89,7 @@ public class MinitouBillController extends BaseController {
     public Result capsule_search() {
         List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("capsule_id").in(minitouBillScheduled.capsuleIdSet.toArray())));
         if (capsuleList != null && capsuleList.size() > 0) {
-            capsuleList.sort((o1, o2) -> (int) (o2.getCapsule_id() - o1.getCapsule_id()));
+            capsuleList.sort((o1, o2) -> o2.getCapsule_id().compareTo(o1.getCapsule_id()));
         }
         List<Area> areaList = areaService.getAreaListByCapsule(capsuleList, null);
         return new Result(CodeMsg.SUCCESS)
@@ -166,26 +166,26 @@ public class MinitouBillController extends BaseController {
 //                    },
                     new ExcelUtils.Column<MinitouBill>("场地分成比例") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
+                        public Object render(MinitouBill minitouBill) {
                             return minitouBill.getAccount_ratio() + "%";
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("经营收入") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getFinal_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getFinal_price() / 100f;
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("场地分成金额") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getRatio_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getRatio_price() / 100f;
                         }
                     },
                     new ExcelUtils.Column<MinitouBill>("利润收入（扣除租金）") {
                         @Override
-                        public String render(MinitouBill minitouBill) {
-                            return String.valueOf(minitouBill.getRent_price() / 100f);
+                        public Object render(MinitouBill minitouBill) {
+                            return minitouBill.getRent_price() / 100f;
                         }
                     }
             ), minitouBillList, response, "bill_" + year + month + ".xlsx");

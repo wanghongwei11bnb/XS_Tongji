@@ -133,6 +133,10 @@ class YearMonthDate {
     toDate() {
         return new Date(this.year, this.month - 1, this.date);
     }
+
+    format(fmt) {
+        return this.toDate().format(fmt || 'yyyy-MM-dd');
+    }
 }
 
 YearMonthDate.createByDate = function (date) {

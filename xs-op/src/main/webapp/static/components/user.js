@@ -48,6 +48,24 @@ class WalletRecordGrid extends React.Component {
     };
 }
 
+class WalletRecordGridModal extends Modal{
+    constructor(props) {
+        super(props);
+        this.state = {
+            queryParams: props.queryParams,
+        };
+    }
+
+    renderBody=()=>{
+        return <WalletRecordGrid ref="grid"></WalletRecordGrid>
+    };
+
+    componentDidMount(){
+        super.componentDidMount();
+        this.refs.grid.load(this.state.queryParams);
+    }
+}
+
 class UserWalletUpdateModal extends Modal {
     constructor(props) {
         super(props);
@@ -262,6 +280,8 @@ class UserGrid extends React.Component {
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showChargeRecordGridModal.bind(this, value)}>查看充值记录</button>,
                             <button className="btn btn-sm btn-primary m-1"
+                                    onClick={this.showWalletRecordGridModal.bind(this, value)}>查看钱包记录</button>,
+                            <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.showMonthCardModal.bind(this, value)}>查看月卡纪录</button>,
                             <button className="btn btn-sm btn-primary m-1"
                                     onClick={this.update_id_verified.bind(this, value)}>标记为认证成功</button>,
@@ -348,6 +368,10 @@ class UserGrid extends React.Component {
         Modal.open(<ChargeRecordGridModal queryParams={{uin}}></ChargeRecordGridModal>);
     };
 
+    showWalletRecordGridModal = (uin) => {
+        Modal.open(<WalletRecordGridModal queryParams={{uin}}></WalletRecordGridModal>);
+    };
+
     showMonthCardModal = (uin) => {
         Modal.open(<MonthCardRecodeGridModal queryParams={{uin}}></MonthCardRecodeGridModal>);
     };
@@ -401,5 +425,8 @@ class UserGridModal extends Modal {
         super.componentDidMount();
         this.refs.grid.load(this.state.queryParams);
     }
+}
 
+function showUser(uin) {
+    Modal.open(<UserGridModal queryParams={{uin}}></UserGridModal>)
 }

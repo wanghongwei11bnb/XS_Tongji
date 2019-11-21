@@ -1,6 +1,8 @@
 package com.xiangshui.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.mysql.SwiperItemDao;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -25,6 +27,29 @@ public class BaseController {
 
     @Autowired
     ArticleScheduled articleScheduled;
+
+    @Autowired
+    UserInfoDao userInfoDao;
+
+    @Autowired
+    UserRegisterDao userRegisterDao;
+
+    @Autowired
+    UserWalletDao userWalletDao;
+
+    @Autowired
+    AreaDao areaDao;
+
+    @Autowired
+    CapsuleDao capsuleDao;
+
+    @Autowired
+    CityDao cityDao;
+    @Autowired
+    SwiperItemDao swiperItemDao;
+
+    @Autowired
+    BookingDao bookingDao;
 
 
     @Value("${isdebug}")
