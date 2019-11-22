@@ -24,7 +24,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 @Component
@@ -90,14 +93,21 @@ public class SendEmailScheduled implements InitializingBean {
 
     //现金交易
     public List<CashRecord> makeCashRecordList(LocalDate localDate) {
+        return makeCashRecordList(
+                localDate.toDate().getTime() / 1000,
+                localDate.plusDays(1).toDate().getTime() / 1000
+        );
+    }
+
+    public List<CashRecord> makeCashRecordList(long start_time, long end_time) {
         List<CashRecord> cashRecordList = new ArrayList<>();
         //订单支付
         {
             List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
                     new ScanFilter("status").eq(4),
                     new ScanFilter("update_time").between(
-                            localDate.toDate().getTime() / 1000,
-                            localDate.plusDays(1).toDate().getTime() / 1000
+                            start_time,
+                            end_time
                     ),
                     new ScanFilter("use_pay").gt(0),
                     new ScanFilter("f1").ne(1)
@@ -128,8 +138,8 @@ public class SendEmailScheduled implements InitializingBean {
                             new ScanFilter("subject").in(new String[]{"享+-钱包充值"}),
                             new ScanFilter("status").eq(1),
                             new ScanFilter("update_time").between(
-                                    localDate.toDate().getTime() / 1000,
-                                    localDate.plusDays(1).toDate().getTime() / 1000
+                                    start_time,
+                                    end_time
                             )
                     )
             );
@@ -151,8 +161,8 @@ public class SendEmailScheduled implements InitializingBean {
                             new ScanFilter("subject").in(new String[]{"享+-月卡充值", "享+-季卡充值"}),
                             new ScanFilter("status").eq(1),
                             new ScanFilter("update_time").between(
-                                    localDate.toDate().getTime() / 1000,
-                                    localDate.plusDays(1).toDate().getTime() / 1000
+                                    start_time,
+                                    end_time
                             )
                     )
             );
@@ -174,8 +184,8 @@ public class SendEmailScheduled implements InitializingBean {
                             new ScanFilter("subject").in(new String[]{"享+-交纳押金"}),
                             new ScanFilter("status").eq(1),
                             new ScanFilter("update_time").between(
-                                    localDate.toDate().getTime() / 1000,
-                                    localDate.plusDays(1).toDate().getTime() / 1000
+                                    start_time,
+                                    end_time
                             )
                     )
             );
@@ -196,8 +206,8 @@ public class SendEmailScheduled implements InitializingBean {
                     .withScanFilters(
                             new ScanFilter("subject").in(new String[]{"微信押金退款"}),
                             new ScanFilter("create_time").between(
-                                    localDate.toDate().getTime() / 1000,
-                                    localDate.plusDays(1).toDate().getTime() / 1000
+                                    start_time,
+                                    end_time
                             )
                     )
             );
@@ -218,8 +228,8 @@ public class SendEmailScheduled implements InitializingBean {
                     .withScanFilters(
                             new ScanFilter("type").eq(2),
                             new ScanFilter("create_time").between(
-                                    localDate.toDate().getTime() / 1000,
-                                    localDate.plusDays(1).toDate().getTime() / 1000
+                                    start_time,
+                                    end_time
                             )
                     )
             );
@@ -416,11 +426,11 @@ public class SendEmailScheduled implements InitializingBean {
                 continue;
             }
             String staff = areaStaffLines.get(i);
-            if(StringUtils.isBlank(staff)){
+            if (StringUtils.isBlank(staff)) {
                 continue;
             }
             int area_id = Integer.valueOf(areaIdLine);
-            operatorMap.put(area_id,staff);
+            operatorMap.put(area_id, staff);
         }
 //        for (List<String> stringList : ExcelUtils.read(this.getClass().getResourceAsStream("/场地运营.xlsx"), 0)) {
 //            if (stringList == null || stringList.size() < 2
@@ -947,12 +957,49 @@ public class SendEmailScheduled implements InitializingBean {
 
     }
 
-    public static void main(String[] args) throws MessagingException, IOException {
-//        SpringUtils.init();
-//        SpringUtils.getBean(SendEmailScheduled.class).makeForSendEmail(new LocalDate().minusDays(2));
+    public void test() throws Exception {
+        List<CashRecord> cashRecordList = makeCashRecordList(new LocalDate(2019, 11, 8).toDate().getTime() / 1000, new LocalDate(2019, 11, 15).toDate().getTime() / 1000);
+        cashRecordList.sort(Comparator.comparing(CashRecord::getCash_time));
+        XSSFWorkbook workbook = ExcelUtils.export(Arrays.asList(
+                new ExcelUtils.Column<CashRecord>("业务类型") {
+                    @Override
+                    public Object render(CashRecord cashRecord) {
+                        return CashRecordTypeOption.getActiveText(CashRecordTypeOption.optionList, cashRecord.getType());
+                    }
+                },
+                new ExcelUtils.Column<CashRecord>("交易时间") {
+                    @Override
+                    public Object render(CashRecord cashRecord) {
+                        return cashRecord.getCash_time() != null ? DateUtils.format(cashRecord.getCash_time() * 1000) : null;
+                    }
+                },
+                new ExcelUtils.Column<CashRecord>("交易金额", (total, cashRecord) -> total += (cashRecord != null && cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() : 0) / 100f) {
+                    @Override
+                    public Float render(CashRecord cashRecord) {
+                        return cashRecord.getCash_amount() != null ? cashRecord.getCash_amount() / 100f : null;
+                    }
+
+                },
+                new ExcelUtils.Column<CashRecord>("用户编号") {
+                    @Override
+                    public Object render(CashRecord cashRecord) {
+                        return String.valueOf(cashRecord.getUin());
+                    }
+                }
+        ), cashRecordList);
+        OutputStream outputStream = new FileOutputStream(new File("/Users/whw/Downloads/现金交易记录.xlsx"));
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
+    }
+
+    public static void main(String[] args) throws Exception {
+        SpringUtils.init();
+        SpringUtils.getBean(SendEmailScheduled.class).test();
 
 
-        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
+//        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
 
     }
 

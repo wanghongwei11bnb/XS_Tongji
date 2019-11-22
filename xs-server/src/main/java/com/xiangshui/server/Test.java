@@ -235,17 +235,79 @@ public class Test {
         workbook.close();
     }
 
+    /**
+     *
+     * @throws Exception
+     */
+    public void areaList() throws Exception {
+
+        List<Area> areaList = areaDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE));
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(new ScanFilter("is_downline").ne(1)));
+        Map<Integer, Area> areaMap = new HashMap<>();
+        areaList.forEach(area -> {
+            areaMap.put(area.getArea_id(), area);
+        });
+
+        List<Capsule> activeCapsuleList = new ArrayList<>();
+        capsuleList.forEach(capsule -> {
+            if (new Integer(1).equals(capsule.getIs_downline())) {
+                return;
+            }
+            Area area = areaMap.get(capsule.getArea_id());
+            if (area == null || !(area.getStatus() == null || area.getStatus() == 0)) {
+                return;
+            }
+            activeCapsuleList.add(capsule);
+        });
+
+
+        activeCapsuleList.sort((o1, o2) -> (int) ((o2.getCreate_time() != null ? o2.getCreate_time() : 0)
+                - (o1.getCreate_time() != null ? o1.getCreate_time() : 0)));
+        XSSFWorkbook workbook = ExcelUtils.export(Arrays.asList(
+                new ExcelUtils.Column<Capsule>("头等舱编号") {
+                    @Override
+                    public String render(Capsule capsule) {
+                        return String.valueOf(capsule.getCapsule_id());
+                    }
+                },
+                new ExcelUtils.Column<Capsule>("城市") {
+                    @Override
+                    public String render(Capsule capsule) {
+                        return areaMap.containsKey(capsule.getArea_id()) ? areaMap.get(capsule.getArea_id()).getCity() : null;
+                    }
+                },
+                new ExcelUtils.Column<Capsule>("场地") {
+                    @Override
+                    public String render(Capsule capsule) {
+                        return areaMap.containsKey(capsule.getArea_id()) ? areaMap.get(capsule.getArea_id()).getTitle() : null;
+                    }
+                },
+                new ExcelUtils.Column<Capsule>("创建时间") {
+                    @Override
+                    public String render(Capsule capsule) {
+                        return capsule.getCreate_time() != null ? DateUtils.format(capsule.getCreate_time() * 1000, "yyyy-MM-dd") : null;
+                    }
+                }
+        ), activeCapsuleList);
+
+        OutputStream outputStream = new FileOutputStream(new File("/Users/whw/Downloads/capsule_create_time.xlsx"));
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
+    }
+
     public static void main(String[] args) throws Exception {
 
 
-//        SpringUtils.init();
-//        SpringUtils.getBean(Test.class).test();
+        SpringUtils.init();
+        SpringUtils.getBean(Test.class).test();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
 
-        System.out.println(System.getProperties().getProperty("user.home"));
-        System.out.println(System.getProperties().getProperty("user.dir"));
+//        System.out.println(System.getProperties().getProperty("user.home"));
+//        System.out.println(System.getProperties().getProperty("user.dir"));
 
     }
 }

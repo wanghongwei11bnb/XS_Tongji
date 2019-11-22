@@ -122,6 +122,7 @@ function request(opt) {
     reqwest({
         url: opt.url,
         method: opt.method || 'get',
+        headers: opt.headers,
         data: opt.data,
         contentType: opt.contentType,
         dataType: opt.dataType || "json",
