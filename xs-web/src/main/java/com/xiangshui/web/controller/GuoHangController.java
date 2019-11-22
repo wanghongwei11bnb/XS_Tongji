@@ -29,6 +29,10 @@ public class GuoHangController extends BaseController {
     String appid;
     @Value("${guohang.aeskey}")
     String aeskey;
+    @Value("${guohang.xcx.appid}")
+    String xcx_appid;
+    @Value("${guohang.xcx.path}")
+    String xcx_path;
 
     @GetMapping("/jpi/booking/{booking_id:\\d+}/create_guohang_link")
     @ResponseBody
@@ -52,7 +56,12 @@ public class GuoHangController extends BaseController {
         String jsonString = json.toJSONString();
         String base64 = Base64.getEncoder().encodeToString(jsonString.getBytes());
         String encryptStr = AESUtils.encrypt(base64, key);
-        return new Result(CodeMsg.SUCCESS).putData("link", "https://pays.jifen360.com/china_air/third_index.html?param=" + encryptStr);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("xcx_appid", xcx_appid)
+                .putData("xcx_path", xcx_path)
+                .putData("param", encryptStr)
+                .putData("link", "https://pays.jifen360.com/china_air/third_index.html?param=" + encryptStr)
+                ;
     }
 
 
@@ -102,12 +111,14 @@ public class GuoHangController extends BaseController {
                     booking.setGuohang_order_sn(order_sn);
                     booking.setGuohang_confirm_id(confirm_id);
                     booking.setFrom_guohang(price);
+                    booking.setPay_type(50);
                     if (booking.getFinal_price() == null || price >= booking.getFinal_price()) {
                         booking.setStatus(4);
                         bookingDao.updateItem(new PrimaryKey("booking_id", booking_id), booking, new String[]{
                                 "from_guohang",
                                 "guohang_confirm_id",
                                 "guohang_order_sn",
+                                "pay_type",
                                 "status",
                         });
                     }
