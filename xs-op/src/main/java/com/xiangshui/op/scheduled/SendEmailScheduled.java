@@ -934,7 +934,8 @@ public class SendEmailScheduled implements InitializingBean {
                         new String[]{
                                 "richard@xiangshuispace.com",
                                 "xubo@xiangshuispace.com",
-                                "chenlei@xiangshuispace.com",
+//                                "chenlei@xiangshuispace.com",
+                                "xiumei@xiangshuispace.com",
                                 "zhaoyuan@xiangshuispace.com",
 //                                "hongwei@xiangshuispace.com",
                         },
