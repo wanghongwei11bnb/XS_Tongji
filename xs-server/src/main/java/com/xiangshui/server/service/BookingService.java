@@ -1,22 +1,22 @@
 package com.xiangshui.server.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
-import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
-import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.xiangshui.server.dao.AreaDao;
-import com.xiangshui.server.dao.BookingDao;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.UserInfo;
-import com.xiangshui.server.domain.UserRegister;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.xiangshui.server.Test;
+import com.xiangshui.server.dao.*;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
+import com.xiangshui.util.spring.SpringUtils;
 import com.xiangshui.util.web.result.CodeMsg;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -28,8 +28,10 @@ import org.springframework.stereotype.Component;
 import java.awt.print.Book;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+@Slf4j
 @Component
 public class BookingService {
 
@@ -38,6 +40,17 @@ public class BookingService {
 
     @Autowired
     BookingDao bookingDao;
+
+    @Autowired
+    UserInfoDao userInfoDao;
+    @Autowired
+    UserRegisterDao userRegisterDao;
+    @Autowired
+    UserWalletDao userWalletDao;
+    @Autowired
+    CapsuleDao capsuleDao;
+    @Autowired
+    AreaDao areaDao;
 
     @Autowired
     AreaService areaService;
@@ -164,6 +177,31 @@ public class BookingService {
 //
 //    }
 
+
+    public void createBooking(Integer uin, Long capsule_id) {
+
+        UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", uin));
+        UserRegister userRegister = userRegisterDao.getItem(new PrimaryKey("uin", uin));
+        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+        Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
+
+
+        List<Booking> bookingList = bookingDao.indexQuery("uin-index", new QuerySpec()
+                .withKeyConditionExpression("uin = :v_uin")
+                .withValueMap(new ValueMap()
+                        .withInt(":v_uin", uin)
+                )
+                .withMaxResultSize(1)
+        );
+        log.info(JSON.toJSONString(bookingList));
+    }
+
+
+    public static void main(String[] args) {
+        SpringUtils.init();
+        SpringUtils.getBean(BookingService.class).createBooking(1339281935, 1100017002l);
+    }
 
 
 }

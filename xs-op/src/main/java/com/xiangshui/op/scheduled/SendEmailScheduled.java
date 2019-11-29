@@ -959,7 +959,7 @@ public class SendEmailScheduled implements InitializingBean {
     }
 
     public void test() throws Exception {
-        List<CashRecord> cashRecordList = makeCashRecordList(new LocalDate(2019, 11, 8).toDate().getTime() / 1000, new LocalDate(2019, 11, 15).toDate().getTime() / 1000);
+        List<CashRecord> cashRecordList = makeCashRecordList(new LocalDate(2019, 11, 22).toDate().getTime() / 1000, new LocalDate(2019, 11, 28).plusDays(1).toDate().getTime() / 1000);
         cashRecordList.sort(Comparator.comparing(CashRecord::getCash_time));
         XSSFWorkbook workbook = ExcelUtils.export(Arrays.asList(
                 new ExcelUtils.Column<CashRecord>("业务类型") {

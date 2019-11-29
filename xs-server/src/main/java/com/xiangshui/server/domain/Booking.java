@@ -48,6 +48,11 @@ public class Booking {
     private Integer f1;
 
 
+
+
+
+
+
     public Integer getFrom_guohang() {
         return from_guohang;
     }
