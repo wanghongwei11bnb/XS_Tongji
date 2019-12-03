@@ -14,6 +14,9 @@ public class AmountCalculator {
     public static final Logger log = LoggerFactory.getLogger(AmountCalculator.class);
 
 
+    /**
+     * 计算价格
+     */
     public static AmountReckonResult reckon(AmountReckonParam param) {
         if (param == null) throw new XiangShuiException("参数不能为空!");
         if (param.getStart_time() == null) throw new XiangShuiException("开始时间不能为空!");
@@ -66,6 +69,9 @@ public class AmountCalculator {
         return result;
     }
 
+    /**
+     * 全天
+     */
     public static void reckonForWrapDay(AmountReckonParam param, AmountReckonResult result) {
         if (!param.getWrap_day()) return;
         while (param.getStart_time().plusDays(1).compareTo(param.getEnd_time()) < 0) {
@@ -76,6 +82,9 @@ public class AmountCalculator {
         }
     }
 
+    /**
+     * 包夜
+     */
     public static void reckonForWrapNight(AmountReckonParam param, AmountReckonResult result) {
         log.debug("夜晚计费");
         DateTime start_time = param.getStart_time();
@@ -102,6 +111,9 @@ public class AmountCalculator {
         }
     }
 
+    /**
+     * 高峰时段
+     */
     public static void reckonForHour(AmountReckonParam param, AmountReckonResult result) {
         int hour = param.getStart_time().getHourOfDay();
         log.debug("时段{}点", hour);

@@ -958,8 +958,8 @@ public class SendEmailScheduled implements InitializingBean {
 
     }
 
-    public void test() throws Exception {
-        List<CashRecord> cashRecordList = makeCashRecordList(new LocalDate(2019, 11, 22).toDate().getTime() / 1000, new LocalDate(2019, 11, 28).plusDays(1).toDate().getTime() / 1000);
+    public void export(LocalDate start, LocalDate end) throws Exception {
+        List<CashRecord> cashRecordList = makeCashRecordList(start.toDate().getTime() / 1000, end.plusDays(1).toDate().getTime() / 1000);
         cashRecordList.sort(Comparator.comparing(CashRecord::getCash_time));
         XSSFWorkbook workbook = ExcelUtils.export(Arrays.asList(
                 new ExcelUtils.Column<CashRecord>("业务类型") {
@@ -988,7 +988,7 @@ public class SendEmailScheduled implements InitializingBean {
                     }
                 }
         ), cashRecordList);
-        OutputStream outputStream = new FileOutputStream(new File("/Users/whw/Downloads/现金交易记录.xlsx"));
+        OutputStream outputStream = new FileOutputStream(new File(String.format("/Users/whw/Downloads/现金交易记录-%s-%s.xlsx", DateUtils.format(start.toDate(), "yyyyMMdd"), DateUtils.format(end.toDate(), "yyyyMMdd"))));
         workbook.write(outputStream);
         outputStream.flush();
         outputStream.close();
@@ -997,7 +997,7 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).test();
+        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2019, 11, 1), new LocalDate(2019, 11, 30));
 
 
 //        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
