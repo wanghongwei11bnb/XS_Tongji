@@ -69,8 +69,8 @@ public class MonthCardBill {
 
 //        10.26~11.25
 
-        long start_time = new LocalDate(2019, 10, 26).toDate().getTime() / 1000;
-        long end_time = new LocalDate(2019, 11, 25).plusDays(1).toDate().getTime() / 1000;
+        long start_time = new LocalDate(2019, 11, 22).toDate().getTime() / 1000;
+        long end_time = new LocalDate(2019, 11, 28).plusDays(1).toDate().getTime() / 1000;
 
         List<ChargeRecord> chargeRecordList = chargeRecordDao.scan(new ScanSpec()
                 .withMaxResultSize(Integer.MAX_VALUE)

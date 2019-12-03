@@ -5,6 +5,8 @@ import com.xiangshui.op.annotation.AnnotationUtils;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.LoginRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.bean.Session;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.redis.OpPrefix;
 import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.Area;
@@ -15,6 +17,7 @@ import com.xiangshui.server.service.AreaService;
 import com.xiangshui.server.service.OpUserService;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.*;
 
+@Slf4j
 @Controller
 public class AuthController extends BaseController {
 
@@ -120,6 +124,8 @@ public class AuthController extends BaseController {
     @PostMapping("/api/op/update/auths")
     @ResponseBody
     public Result update_auths(String username, String auths) {
+        Session session = SessionLocal.get();
+        log.info("[{} 更改权限]username={},auths={}", session.getUsername(), username, auths);
         Op op = opMapper.selectByPrimaryKey(username, "username");
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);
@@ -149,6 +155,8 @@ public class AuthController extends BaseController {
     @PostMapping("/api/op/update/citys")
     @ResponseBody
     public Result update_citys(String username, String citys) {
+        Session session = SessionLocal.get();
+        log.info("[{} 更改城市权限]username={},citys={}", session.getUsername(), username, citys);
         Op op = opMapper.selectByPrimaryKey(username, "username");
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);
@@ -189,6 +197,8 @@ public class AuthController extends BaseController {
     @PostMapping("/api/op/update/areas")
     @ResponseBody
     public Result update_areas(String username, String areas) {
+        Session session = SessionLocal.get();
+        log.info("[{} 更改场地权限]username={},areas={}", session.getUsername(), username, areas);
         Op op = opMapper.selectByPrimaryKey(username, "username");
         if (op == null) {
             return new Result(CodeMsg.NO_FOUND);

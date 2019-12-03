@@ -151,6 +151,20 @@ abstract public class BaseDynamoDao<T> {
     }
 
 
+    public List<T> indexQuery(String indexName, QuerySpec querySpec) {
+        Table table = getTable();
+        Index index = table.getIndex(indexName);
+        ItemCollection<QueryOutcome> items = index.query(querySpec);
+        List<T> list = new ArrayList();
+        Iterator<Item> iter = items.iterator();
+        while (iter.hasNext()) {
+            Item item = iter.next();
+            list.add(JSON.parseObject(item.toJSON(), tClass));
+        }
+        return list;
+    }
+
+
     public List<T> query(QuerySpec querySpec) {
         Table table = getTable();
         ItemCollection<QueryOutcome> items = table.query(querySpec);
