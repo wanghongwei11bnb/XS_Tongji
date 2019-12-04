@@ -151,7 +151,7 @@ abstract public class BaseDynamoDao<T> {
     }
 
 
-    public List<T> indexQuery(String indexName, QuerySpec querySpec) {
+    public List<T> indexQuery(String indexName, QuerySpec querySpec, CallBackForResult<T, Boolean> filter, Comparator<T> sort) {
         Table table = getTable();
         Index index = table.getIndex(indexName);
         ItemCollection<QueryOutcome> items = index.query(querySpec);
@@ -161,9 +161,21 @@ abstract public class BaseDynamoDao<T> {
             Item item = iter.next();
             list.add(JSON.parseObject(item.toJSON(), tClass));
         }
+
+        if (list.size() > 0) {
+            if (filter != null) {
+                list = ListUtils.filter(list, filter);
+            }
+            if (sort != null) {
+                list.sort(sort);
+            }
+        }
         return list;
     }
 
+    public List<T> indexQuery(String indexName, QuerySpec querySpec) {
+        return indexQuery(indexName, querySpec, null, null);
+    }
 
     public List<T> query(QuerySpec querySpec) {
         Table table = getTable();
