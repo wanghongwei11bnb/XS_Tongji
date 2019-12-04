@@ -14,6 +14,8 @@ import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
+import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.spring.SpringUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.print.Book;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -172,35 +172,88 @@ public class BookingService {
 
     }
 
+    public synchronized long createBookingId() {
+        for (; ; ) {
+            long booking_id = System.currentTimeMillis();
+            if (bookingDao.getItem(new PrimaryKey("booking_id", booking_id)) == null) {
+                return booking_id;
+            }
+        }
+    }
 
-//    public List<UserInfo> getUserInfoListByBookingList(List<Booking> bookingList){
-//
-//    }
 
-
-    public void createBooking(Integer uin, Long capsule_id) {
-
+    public void submitBooking(long capsule_id, int uin, String app) {
         UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
+        if (userInfo == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
         UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", uin));
+        if (userWallet == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
         UserRegister userRegister = userRegisterDao.getItem(new PrimaryKey("uin", uin));
+        if (userRegister == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+        //黑名单
+        if (new Integer(1).equals(userInfo.getBlock())) throw new XiangShuiException("黑名单用户");
         Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+        if (capsule == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
         Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
+        if (area == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+        //实名认证
+        if (new Integer(1).equals(area.getIs_external())
+                && !"wx-wx".equals(userRegister.getRegister_from())
+                && !new Integer(1).equals(userInfo.getId_verified())) {
+            throw new XiangShuiException("未实名认证");
+        }
+        //押金
+        if ("wx-wx".equals(userRegister.getRegister_from()) || (
+                new Integer(1).equals(area.getNeed_deposit())
+                        && (userWallet.getDeposit() == null || userWallet.getDeposit() < 9900)
+        )) {
+            throw new XiangShuiException("押金不足");
+        }
+
+        //未完成的订单
 
 
-        List<Booking> bookingList = bookingDao.indexQuery("uin-index", new QuerySpec()
-                .withKeyConditionExpression("uin = :v_uin")
-                .withValueMap(new ValueMap()
-                        .withInt(":v_uin", uin)
-                )
-                .withMaxResultSize(1)
+        List<Booking> bookingList = bookingDao.indexQuery(
+                "uin-index",
+                new QuerySpec()
+                        .withHashKey("uin", uin)
+                        .withQueryFilters(new QueryFilter("status").ne(4))
+                        .withMaxResultSize(1),
+                null,
+                (o1, o2) -> o2.getCreate_time().compareTo(o1.getCreate_time())
         );
-        log.info(JSON.toJSONString(bookingList));
+
+        log.info(bookingList.size() + "");
+
+        if (bookingList.size() > 0) throw new XiangShuiException("有未完成的订单");
+        //太空舱被占用
+        if (new Integer(2).equals(capsule.getStatus())) throw new XiangShuiException("太空舱被占用");
+
+
+        //上海：快牛金科：场地编号：3100063  后台修改成上午11：45之后才可以扫码开舱
+        if (area.getArea_id().equals(3100063) && Integer.valueOf(DateUtils.format("hhmm")) < 1245) {
+            throw new XiangShuiException("非营业时间");
+        }
+        if (new Integer(1).equals(area.getIs_time_limit()) && Integer.valueOf(DateUtils.format("hh")) < 6) {
+            throw new XiangShuiException("非营业时间");
+        }
+
+        //todo:判断设备的wifi是否连接
+
+
+        Date now = new Date();
+        Booking booking = new Booking()
+                .setBooking_id(createBookingId()).setStatus(1)
+                .setUin(uin).setArea_id(area.getArea_id()).setCapsule_id(capsule_id)
+                .setCreate_time(now.getTime() / 1000).setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd"))).setUpdate_time(now.getTime() / 1000)
+                .setReq_from(app)
+                .setFinal_price(0);
+
     }
 
 
     public static void main(String[] args) {
         SpringUtils.init();
-        SpringUtils.getBean(BookingService.class).createBooking(1339281935, 1100017002l);
+        SpringUtils.getBean(BookingService.class).submitBooking(1100017002, 1339281935, "");
     }
 
 
