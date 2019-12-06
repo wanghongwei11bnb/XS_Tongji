@@ -127,7 +127,7 @@ public class AreaContractController extends BaseController {
                     return 1;
                 }
                 if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o2.getArea_id()).getStatus())) {
-                    return 1;
+                    return -1;
                 }
                 int result = (o2.getStatus() == 1 ? o2.getStatus() * (-100) - 1 : o2.getStatus() * 100) - (o1.getStatus() == 1 ? o1.getStatus() * (-100) - 1 : o1.getStatus() * 100);
                 if (result != 0) {
