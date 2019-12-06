@@ -8,15 +8,17 @@ public class DeviceRelation {
         return device_id;
     }
 
-    public void setDevice_id(String device_id) {
+    public DeviceRelation setDevice_id(String device_id) {
         this.device_id = device_id;
+        return this;
     }
 
     public Long getBooking_id() {
         return booking_id;
     }
 
-    public void setBooking_id(Long booking_id) {
+    public DeviceRelation setBooking_id(Long booking_id) {
         this.booking_id = booking_id;
+        return this;
     }
 }

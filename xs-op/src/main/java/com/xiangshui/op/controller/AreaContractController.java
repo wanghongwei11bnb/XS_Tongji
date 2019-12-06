@@ -7,6 +7,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.AreaBillResult;
 import com.xiangshui.op.scheduled.AreaBillScheduled;
+import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaContractStatusOption;
@@ -64,6 +65,9 @@ public class AreaContractController extends BaseController {
     @Autowired
     CountCapsuleScheduled countCapsuleScheduled;
 
+    @Autowired
+    CacheScheduled cacheScheduled;
+
     @Menu("客户分成管理")
     @AuthRequired(AuthRequired.area_contract)
     @GetMapping("/area_contract_manage")
@@ -119,6 +123,12 @@ public class AreaContractController extends BaseController {
         List<Area> areaList = null;
         if (areaContractList != null && areaContractList.size() > 0) {
             areaContractList.sort((o1, o2) -> {
+                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o1.getArea_id()).getStatus())) {
+                    return 1;
+                }
+                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o2.getArea_id()).getStatus())) {
+                    return 1;
+                }
                 int result = (o2.getStatus() == 1 ? o2.getStatus() * (-100) - 1 : o2.getStatus() * 100) - (o1.getStatus() == 1 ? o1.getStatus() * (-100) - 1 : o1.getStatus() * 100);
                 if (result != 0) {
                     return result;
@@ -138,12 +148,7 @@ public class AreaContractController extends BaseController {
         if (download) {
             Map<Integer, Area> areaMap = new HashMap<>();
             if (areaList != null && areaList.size() > 0) {
-                areaList.forEach(new Consumer<Area>() {
-                    @Override
-                    public void accept(Area area) {
-                        areaMap.put(area.getArea_id(), area);
-                    }
-                });
+                areaList.forEach(area -> areaMap.put(area.getArea_id(), area));
             }
 
             List<ExcelUtils.Column<AreaContract>> columnList = new ArrayList<>();
