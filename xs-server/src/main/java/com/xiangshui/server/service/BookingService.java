@@ -9,16 +9,19 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.Test;
 import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.redis.RedisService;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.domain.fragment.RushHour;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
+import com.xiangshui.util.CallBack;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.spring.SpringUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -26,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
 
 import java.awt.print.Book;
 import java.io.IOException;
@@ -42,6 +46,9 @@ public class BookingService {
     BookingDao bookingDao;
 
     @Autowired
+    DeviceRelationDao deviceRelationDao;
+
+    @Autowired
     UserInfoDao userInfoDao;
     @Autowired
     UserRegisterDao userRegisterDao;
@@ -53,10 +60,15 @@ public class BookingService {
     AreaDao areaDao;
 
     @Autowired
+    RedisService redisService;
+
+    @Autowired
     AreaService areaService;
 
     @Autowired
     UserService userService;
+    @Autowired
+    DeviceService deviceService;
 
     @Autowired
     CapsuleService capsuleService;
@@ -182,7 +194,7 @@ public class BookingService {
     }
 
 
-    public void submitBooking(long capsule_id, int uin, String app) {
+    public void submitBooking(long capsule_id, int uin, String app) throws IOException {
         UserInfo userInfo = userInfoDao.getItem(new PrimaryKey("uin", uin));
         if (userInfo == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
         UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", uin));
@@ -239,19 +251,81 @@ public class BookingService {
 
         //todo:判断设备的wifi是否连接
 
+        //这个capsule_id是大门
+        if (capsule.getType() >= 99) {
+            throw new XiangShuiException("这个capsule_id是大门");
+        }
+
+        //获取type
+        CapsuleType capsuleType = null;
+        if (area.getTypes() != null && area.getTypes().size() > 0) {
+            for (int i = 0; i < area.getTypes().size(); i++) {
+                if (area.getTypes().get(i).getType_id().equals(capsule.getType())) {
+                    capsuleType = area.getTypes().get(i);
+                    break;
+                }
+            }
+        }
+
+        if (capsuleType == null) {
+            log.error("找不到 CapsuleType");
+            throw new XiangShuiException("下单失败");
+        }
+
 
         Date now = new Date();
         Booking booking = new Booking()
                 .setBooking_id(createBookingId()).setStatus(1)
                 .setUin(uin).setArea_id(area.getArea_id()).setCapsule_id(capsule_id)
+                .setCalculate_rule(capsuleType.getPrice_rule_text())
+                .setMonth_card_flag(userWallet.getMonth_card_flag())
                 .setCreate_time(now.getTime() / 1000).setCreate_date(Integer.valueOf(DateUtils.format(now, "yyyyMMdd"))).setUpdate_time(now.getTime() / 1000)
                 .setReq_from(app)
                 .setFinal_price(0);
 
+        Set<Long> capsuleIdSetOfV1 = new HashSet<>();
+        for (String s : IOUtils.readLines(System.class.getResourceAsStream("/capsule_id_v1.txt"), "UTF-8")) {
+            if (StringUtils.isNotBlank(s) && s.matches("^\\d+$")) {
+                capsuleIdSetOfV1.add(Long.valueOf(s));
+            }
+        }
+        //二代舱
+        if (!capsuleIdSetOfV1.contains(capsule_id)) {
+            //开灯
+            deviceService.openLamp(capsule.getDevice_id());
+        }
+
+        //开舱
+
+
+        log.info(JSON.toJSONString(booking));
+
+        //写入booking
+//        bookingDao.putItem(booking);
+        //绑定device_id与booking_id, 方便后面根据device_id直接找到订单号
+        DeviceRelation deviceRelation = new DeviceRelation().setDevice_id(capsule.getDevice_id()).setBooking_id(booking.getBooking_id());
+        deviceRelationDao.putItem(deviceRelation);
+
+        redisService.run(jedis -> {
+            /*
+             con.zadd('time_out',  time.time(),uin)
+             con.zadd('time_out_new', time.time(),str(uin)+"&"+str(cap_id))
+             con.zadd('pay_time', time.time(), uin)
+             con.sadd('capsule_time',cap_id)
+             */
+            jedis.zadd("time_out", System.currentTimeMillis() / 1000, uin + "");
+            jedis.zadd("time_out_new", System.currentTimeMillis() / 1000, uin + "&" + capsule_id);
+            jedis.zadd("pay_time", System.currentTimeMillis() / 1000, uin + "");
+            jedis.sadd("capsule_time", capsule_id + "");
+        });
+
+        //检查店铺限时
+
+
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SpringUtils.init();
         SpringUtils.getBean(BookingService.class).submitBooking(1100017002, 1339281935, "");
     }

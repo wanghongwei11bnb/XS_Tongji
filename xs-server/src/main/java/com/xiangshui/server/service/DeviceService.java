@@ -85,6 +85,14 @@ public class DeviceService {
         open_lock(device_id, "2");
     }
 
+    public static void openCapsule(String device_id) throws IOException {
+        open_lock(device_id, "65");
+    }
+
+    public static void closeCapsule(String device_id) throws IOException {
+        open_lock(device_id, "32");
+    }
+
 
     /**
      * 判断锁是否关闭
