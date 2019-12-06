@@ -123,12 +123,12 @@ public class AreaContractController extends BaseController {
         List<Area> areaList = null;
         if (areaContractList != null && areaContractList.size() > 0) {
             areaContractList.sort((o1, o2) -> {
-                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o1.getArea_id()).getStatus())) {
-                    return 1;
-                }
-                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o2.getArea_id()).getStatus())) {
-                    return -1;
-                }
+//                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o1.getArea_id()).getStatus())) {
+//                    return 1;
+//                }
+//                if (new Integer(-1).equals(cacheScheduled.areaMapOptions.get(o2.getArea_id()).getStatus())) {
+//                    return -1;
+//                }
                 int result = (o2.getStatus() == 1 ? o2.getStatus() * (-100) - 1 : o2.getStatus() * 100) - (o1.getStatus() == 1 ? o1.getStatus() * (-100) - 1 : o1.getStatus() * 100);
                 if (result != 0) {
                     return result;
