@@ -1,6 +1,6 @@
 package com.xiangshui.web.controller;
 
-import com.xiangshui.server.crud.assist.Example;
+import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.mysql.ArticleDao;
 import com.xiangshui.server.dao.mysql.HomeMediaDao;
 import com.xiangshui.server.domain.mysql.Article;
@@ -61,7 +61,7 @@ public class IndexController extends BaseController {
         }
         int skip = pageSize * (pageNum - 1);
         Example example = new Example();
-        int total = articleDao.countByExample(example);
+        int total = articleDao.countByConditions(null);
         example.setOrderByClause("release_time desc , id desc").setSkip(skip).setLimit(pageSize);
         List<Article> articleList = articleDao.selectByExample(example);
         request.setAttribute("pageSize", pageSize);

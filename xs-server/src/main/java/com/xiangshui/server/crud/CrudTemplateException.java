@@ -1,4 +1,4 @@
-package com.xiangshui.server.crud.assist;
+package com.xiangshui.server.crud;
 
 public class CrudTemplateException extends RuntimeException {
     public CrudTemplateException(String message) {

@@ -1,11 +1,11 @@
-package com.xiangshui.server.crud.assist;
+package com.xiangshui.server.crud;
 
 import org.apache.commons.lang3.StringUtils;
 
 public class Sql {
     private StringBuilder stringBuilder = new StringBuilder();
     public static final String INSERT_INTO = "insert into";
-    public static final String DELETE = " delete ";
+    public static final String DELETE = "delete";
     public static final String DELETE_FROM = "delete from";
     public static final String UPDATE = "update";
     public static final String SELECT = "select";
@@ -13,9 +13,9 @@ public class Sql {
     public static final String WHERE = "where";
     public static final String SET = "set";
     public static final String EQ = "=";
-    public static final String NE = "<>";
+    public static final String NOT_EQ = "<>";
     public static final String IN = "in";
-    public static final String NIN = "not in";
+    public static final String NOT_IN = "not in";
     public static final String GT = ">";
     public static final String GTE = ">=";
     public static final String LT = "<";
@@ -35,7 +35,10 @@ public class Sql {
     public static final String OR = "or";
     public static final String AND = "and";
     public static final String COUNT_STAR = "count(*)";
+    public static final String COUNT_1 = "count(1)";
     public static final String STAR = "*";
+    public static final String IS_NULL = "is null";
+    public static final String IS_NOT_NULL = "is not null";
 
     public Sql append(String fragment) {
         if (StringUtils.isNotBlank(fragment)) {

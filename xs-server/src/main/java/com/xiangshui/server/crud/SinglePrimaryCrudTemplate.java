@@ -1,15 +1,15 @@
 package com.xiangshui.server.crud;
 
-import com.xiangshui.server.crud.assist.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public abstract class SinglePrimaryCrudTemplate<T, P> extends CrudTemplate<T> {
 
-    @Override
     protected void initPrimary() throws NoSuchFieldException {
         primaryFieldName = getPrimaryFieldName();
         if (StringUtils.isBlank(primaryFieldName)) {
@@ -97,7 +97,7 @@ public abstract class SinglePrimaryCrudTemplate<T, P> extends CrudTemplate<T> {
         }
         Example example = new Example();
         example.setColumns(columns);
-        example.getCriteria().addCriterion(Criterion.in(primaryColumnName, primaryKeyList));
+        example.getConditions().in(primaryColumnName, primaryKeyList);
         example.setLimit(primaryKeyList.size());
         return selectByExample(example);
     }

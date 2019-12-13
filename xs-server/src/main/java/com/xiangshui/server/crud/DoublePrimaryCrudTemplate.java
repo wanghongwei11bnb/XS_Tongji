@@ -1,15 +1,15 @@
 package com.xiangshui.server.crud;
 
-import com.xiangshui.server.crud.assist.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public abstract class DoublePrimaryCrudTemplate<T, P1, P2> extends CrudTemplate<T> {
 
-    @Override
     public void initPrimary() throws NoSuchFieldException {
         primaryFieldName = getPrimaryFieldName();
         if (StringUtils.isBlank(primaryFieldName)) {
@@ -27,7 +27,6 @@ public abstract class DoublePrimaryCrudTemplate<T, P1, P2> extends CrudTemplate<
         primary = true;
     }
 
-    @Override
     protected void initSecondPrimary() throws NoSuchFieldException {
         if (!primary) {
             throw new CrudTemplateException("primary 不能为空");
@@ -152,5 +151,14 @@ public abstract class DoublePrimaryCrudTemplate<T, P1, P2> extends CrudTemplate<
         Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK).append(Sql.AND).append(secondPrimaryColumnName).append(Sql.EQ).append(Sql.MARK);
         log.debug(sql.toString());
         return getJdbcTemplate().update(sql.toString(), new Object[]{primaryKey, secondPrimaryKey});
+    }
+
+    public int deleteByPrimaryKey(P1 primaryKey) {
+        if (primaryKey == null) {
+            throw new CrudTemplateException("primaryFieldValue 不能为空");
+        }
+        Sql sql = new Sql().deleteFrom(getFullTableName()).where(primaryColumnName).append(Sql.EQ).append(Sql.MARK);
+        log.debug(sql.toString());
+        return getJdbcTemplate().update(sql.toString(), new Object[]{primaryKey});
     }
 }

@@ -2,6 +2,7 @@ package com.xiangshui.web.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.mysql.PrizeQuotaDao;
 import com.xiangshui.server.dao.mysql.SwiperItemDao;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -36,6 +37,8 @@ public class BaseController {
 
     @Autowired
     UserWalletDao userWalletDao;
+    @Autowired
+    WalletRecordDao walletRecordDao;
 
     @Autowired
     AreaDao areaDao;
@@ -50,6 +53,11 @@ public class BaseController {
 
     @Autowired
     BookingDao bookingDao;
+
+
+    @Autowired
+    PrizeQuotaDao prizeQuotaDao;
+
 
 
     @Value("${isdebug}")
