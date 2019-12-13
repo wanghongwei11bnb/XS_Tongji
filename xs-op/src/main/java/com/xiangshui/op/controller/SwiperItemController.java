@@ -2,8 +2,8 @@ package com.xiangshui.op.controller;
 
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
-import com.xiangshui.server.crud.assist.Criterion;
-import com.xiangshui.server.crud.assist.Example;
+import com.xiangshui.server.crud.Condition;
+import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.domain.SwiperItem;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -35,20 +35,22 @@ public class SwiperItemController extends BaseController {
     public Result search(SwiperItem query) throws IllegalAccessException {
         if (query == null) query = new SwiperItem();
         Example example = new Example().setOrderByClause("sort_num desc,create_time desc,id desc");
-        List<Criterion> criterionList = swiperItemDao.makeCriterionList(query, new String[]{
+        List<Condition> conditionList = swiperItemDao.makeConditionList(query, new String[]{
                 "id",
                 "status",
                 "app",
         }, true);
+        if (conditionList != null && conditionList.size() > 0) {
+            example.getConditions().conditionList.addAll(conditionList);
+        }
+
         if (StringUtils.isNotBlank(query.getTitle())) {
-            criterionList.add(Criterion.like("title", "%" + query.getTitle() + "%"));
+            example.getConditions().like("title", "%" + query.getTitle() + "%");
         }
         if (StringUtils.isNotBlank(query.getSub_title())) {
-            criterionList.add(Criterion.like("sub_title", "%" + query.getSub_title() + "%"));
+            example.getConditions().like("sub_title", "%" + query.getSub_title() + "%");
         }
-        if (criterionList != null && criterionList.size() > 0) {
-            example.getCriteria().addCriterion(Criterion.and(criterionList));
-        }
+
         List<SwiperItem> swiperItemList = swiperItemDao.selectByExample(example);
         return new Result(CodeMsg.SUCCESS).putData("swiperItemList", swiperItemList);
     }

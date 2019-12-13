@@ -2,8 +2,8 @@ package com.xiangshui.op.controller;
 
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
-import com.xiangshui.server.crud.assist.Criterion;
-import com.xiangshui.server.crud.assist.Example;
+import com.xiangshui.server.crud.Condition;
+import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.mysql.ArticleDao;
 import com.xiangshui.server.domain.mysql.Article;
 import com.xiangshui.server.exception.XiangShuiException;
@@ -54,12 +54,14 @@ public class ArticleController extends BaseController {
         }
         int skip = (pageNum - 1) * pageSize;
         int limit = pageSize;
-        List<Criterion> criterionList = articleDao.makeCriterionList(criteria, new String[]{}, true);
-        if (StringUtils.isNotBlank(criteria.getTitle())) {
-            criterionList.add(Criterion.like("title", "%" + criteria.getTitle() + "%"));
-        }
         Example example = new Example();
-        int total = articleDao.countByExample(example);
+        List<Condition> criterionList = articleDao.makeConditionList(criteria, new String[]{}, true);
+        example.getConditions().conditionList.addAll(criterionList);
+        if (StringUtils.isNotBlank(criteria.getTitle())) {
+            example.getConditions().like("title", "%" + criteria.getTitle() + "%");
+        }
+
+        int total = articleDao.countByConditions(example.getConditions());
         example.setOrderByClause("release_time desc , id desc").setSkip(skip).setLimit(limit);
         List<Article> articleList = articleDao.selectByExample(example);
         return new Result(CodeMsg.SUCCESS)

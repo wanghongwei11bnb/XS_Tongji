@@ -17,9 +17,9 @@ public class ArticleScheduled {
 
     public volatile int countArticle = 0;
 
-    @Scheduled(fixedDelay = 1000 * 60)
+    @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void updateCountArticle() {
-        countArticle = articleDao.countByExample(null);
+        countArticle = articleDao.countByConditions(null);
     }
 
 }
