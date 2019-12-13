@@ -114,14 +114,14 @@ public abstract class CrudTemplate<T> {
     T mapperResultSet(ResultSet resultSet) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
         T t = tableClass.getConstructor().newInstance();
         if (primary && isExistColumn(resultSet, primaryColumnName)) {
-            BeanUtils.copyProperty(t, primaryFieldName, resultSet.getObject(primaryColumnName));
+            BeanUtils.setProperty(t, primaryFieldName, resultSet.getObject(primaryColumnName));
         }
         if (secondPrimary && isExistColumn(resultSet, secondPrimaryColumnName)) {
-            BeanUtils.copyProperty(t, secondPrimaryFieldName, resultSet.getObject(secondPrimaryColumnName));
+            BeanUtils.setProperty(t, secondPrimaryFieldName, resultSet.getObject(secondPrimaryColumnName));
         }
         for (String fieldName : fieldMap.keySet()) {
             if (isExistColumn(resultSet, fieldName)) {
-                BeanUtils.copyProperty(t, fieldName, resultSet.getObject(columnNameMap.get(fieldName)));
+                BeanUtils.setProperty(t, fieldName, resultSet.getObject(columnNameMap.get(fieldName)));
             }
         }
         return t;
