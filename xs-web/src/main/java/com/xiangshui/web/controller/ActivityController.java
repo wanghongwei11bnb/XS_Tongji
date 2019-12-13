@@ -47,7 +47,49 @@ public class ActivityController extends BaseController {
         Integer area_id = booking.getArea_id();
 
         //指定场地才可参加活动
-        if (!new HashSet<>(Arrays.asList(1100017)).contains(area_id)) {
+        if (!new HashSet<>(Arrays.asList(new Integer[]{
+                2601018,
+                2601023,
+                2601002,
+                2601012,
+                2601004,
+                2601016,
+                2601022,
+                2601006,
+                2601003,
+                2601005,
+                2601019,
+                2601014,
+                2601008,
+                2601013,
+                2601020,
+                2601021,
+                3403020,
+                3403026,
+                3403027,
+                3403005,
+                2501039,
+                2501001,
+                2501016,
+                2501018,
+                1100010,
+                1200003,
+                1100004,
+                1401001,
+                1100108,
+                1100127,
+                1100045,
+                1200005,
+                1200004,
+                1100103,
+                3001001,
+                2201007,
+                3100004,
+                3100006,
+                3100018,
+                3100029,
+                3100052,
+        })).contains(area_id)) {
             log.info("该场地不参与活动 {}", area_id);
             return new Result(CodeMsg.SUCCESS);
         }
