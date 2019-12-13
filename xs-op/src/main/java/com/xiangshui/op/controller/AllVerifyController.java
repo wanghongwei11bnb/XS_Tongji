@@ -5,7 +5,6 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
-import com.xiangshui.server.crud.assist.Example;
 import com.xiangshui.server.dao.AllVerifyDao;
 import com.xiangshui.server.domain.AllVerify;
 import com.xiangshui.server.exception.XiangShuiException;
