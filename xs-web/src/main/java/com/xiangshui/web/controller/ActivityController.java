@@ -151,10 +151,8 @@ public class ActivityController extends BaseController {
 
 
     public static void main(String[] args) throws Exception {
-
         SpringUtils.init();
         SpringUtils.getBean(ActivityController.class).checkPrizeQuota(2003313121l);
-
     }
 
 
