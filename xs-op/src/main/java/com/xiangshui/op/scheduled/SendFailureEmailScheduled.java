@@ -124,18 +124,15 @@ public class SendFailureEmailScheduled implements InitializingBean {
             };
         } else if ("成都市".equals(area.getCity())) {
             toAccounts = new String[]{
-                    "jinying@xiangshuispace.com",
                     "mengfan@xiangshuispace.com",
                     "guangrui@xiangshuispace.com",
             };
         } else if ("重庆市".equals(area.getCity())) {
             toAccounts = new String[]{
-                    "jinying@xiangshuispace.com",
                     "Shukang@xiangshuispace.com",
             };
         } else if ("西安市".equals(area.getCity())) {
             toAccounts = new String[]{
-                    "jinying@xiangshuispace.com",
                     "fengfeng@xiangshuispace.com",
             };
         } else if ("深圳市".equals(area.getCity())
