@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -77,14 +78,9 @@ public abstract class CrudTemplate<T> {
                 fieldMap.put(fieldName, field);
                 columnNameMap.put(fieldName, columnName);
             }
-            rowMapper = (resultSet, i) -> {
-                try {
-                    return mapperResultSet(resultSet);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            };
+
+            rowMapper = BeanPropertyRowMapper.newInstance(tableClass);
+
             resultSetExtractor = resultSet -> {
                 if (resultSet.next()) {
                     return rowMapper.mapRow(resultSet, 1);
@@ -92,6 +88,8 @@ public abstract class CrudTemplate<T> {
                     return null;
                 }
             };
+
+
         } catch (Exception e) {
             log.error("", e);
             throw new CrudTemplateException(e.getMessage());
@@ -110,23 +108,6 @@ public abstract class CrudTemplate<T> {
         }
         return false;
     }
-
-    T mapperResultSet(ResultSet resultSet) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, SQLException {
-        T t = tableClass.getConstructor().newInstance();
-        if (primary && isExistColumn(resultSet, primaryColumnName)) {
-            BeanUtils.setProperty(t, primaryFieldName, resultSet.getObject(primaryColumnName));
-        }
-        if (secondPrimary && isExistColumn(resultSet, secondPrimaryColumnName)) {
-            BeanUtils.setProperty(t, secondPrimaryFieldName, resultSet.getObject(secondPrimaryColumnName));
-        }
-        for (String fieldName : fieldMap.keySet()) {
-            if (isExistColumn(resultSet, fieldName)) {
-                BeanUtils.setProperty(t, fieldName, resultSet.getObject(columnNameMap.get(fieldName)));
-            }
-        }
-        return t;
-    }
-
 
     abstract protected String getTableName();
 
