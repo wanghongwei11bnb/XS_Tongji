@@ -7,21 +7,22 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.constant.AreaStatusOption;
+import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.*;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.AreaContract;
-import com.xiangshui.server.domain.Capsule;
-import com.xiangshui.server.domain.UserInfo;
+import com.xiangshui.server.dao.mysql.PrizeQuotaDao;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.mysql.Op;
+import com.xiangshui.server.domain.mysql.PrizeQuota;
 import com.xiangshui.server.example.OpExample;
 import com.xiangshui.server.mapper.OpMapper;
 import com.xiangshui.server.service.MailService;
 import com.xiangshui.server.service.PartnerService;
-import com.xiangshui.util.DateUtils;
-import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.server.service.ServiceUtils;
+import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,10 @@ public class Test {
     @Autowired
     AreaContractDao areaContractDao;
 
+    @Autowired
+    BookingDao bookingDao;
+    @Autowired
+    PrizeQuotaDao prizeQuotaDao;
 
     public void testSelect() throws Exception {
         List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withFilterExpression("phone = :phone").withValueMap(new ValueMap().withString(":phone", "11000000014")));
@@ -236,7 +241,6 @@ public class Test {
     }
 
     /**
-     *
      * @throws Exception
      */
     public void areaList() throws Exception {
@@ -297,11 +301,78 @@ public class Test {
         workbook.close();
     }
 
+
+    /**
+     * 部分场地扫码送10元红包活动，数据导出
+     */
+    public void t() throws Exception {
+
+        Example example = new Example().setLimit(Integer.MAX_VALUE);
+        example.getConditions()
+                .eq("receive_status", 1)
+                .between("create_time",
+                        new LocalDate(2019, 12, 20).toDate().getTime() / 1000,
+                        new LocalDate(2019, 12, 31).toDate().getTime() / 1000
+                )
+        ;
+        List<PrizeQuota> quotaList = prizeQuotaDao.selectByExample(example);
+
+        List<Area> areaList = areaDao.scan();
+
+        MapOptions<Integer, Area> areaMapOptions = new MapOptions<Integer, Area>(areaList) {
+            @Override
+            public Integer getPrimary(Area area) {
+                return area.getArea_id();
+            }
+        };
+
+
+
+        List<Booking> bookingList = ServiceUtils.division(ListUtils.fieldSet(quotaList, prizeQuota -> prizeQuota.getBooking_id()).toArray(new Long[quotaList.size()]), 100, new CallBackForResult<Long[], List<Booking>>() {
+
+            @Override
+            public List<Booking> run(Long[] longs) {
+                return bookingDao.batchGetItem("booking_id", longs);
+            }
+        },new Long[0]);
+
+//        List<Booking> bookingList = bookingDao.batchGetItem("booking_id", ListUtils.fieldSet(quotaList, prizeQuota -> prizeQuota.getBooking_id()).toArray());
+
+        MapOptions<Long, Booking> bookingMapOptions = new MapOptions<Long, Booking>(bookingList) {
+            @Override
+            public Long getPrimary(Booking booking) {
+                return booking.getBooking_id();
+            }
+        };
+        ExcelUtils.export(Arrays.asList(
+                new ExcelUtils.Column<PrizeQuota>("uin") {
+                    @Override
+                    public Object render(PrizeQuota prizeQuota) {
+                        return prizeQuota.getUin();
+                    }
+                },
+                new ExcelUtils.Column<PrizeQuota>("booking_id") {
+                    @Override
+                    public Object render(PrizeQuota prizeQuota) {
+                        return prizeQuota.getBooking_id();
+                    }
+                },
+                new ExcelUtils.Column<PrizeQuota>("area") {
+                    @Override
+                    public Object render(PrizeQuota prizeQuota) {
+                        return areaMapOptions.get(bookingMapOptions.get(prizeQuota.getBooking_id()).getArea_id()).getTitle();
+                    }
+                }
+        ), quotaList, new File("/Users/whw/Downloads/10元红包.xlsx"));
+
+
+    }
+
     public static void main(String[] args) throws Exception {
 
 
         SpringUtils.init();
-        SpringUtils.getBean(Test.class).test();
+        SpringUtils.getBean(Test.class).t();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
