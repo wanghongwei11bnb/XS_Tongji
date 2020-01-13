@@ -232,50 +232,7 @@ public class ExcelTools {
 
 
         List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
-                new ScanFilter("area_id").in(new Integer[]{
-                        2601018,
-                        2601023,
-                        2601002,
-                        2601012,
-                        2601004,
-                        2601016,
-                        2601022,
-                        2601006,
-                        2601003,
-                        2601005,
-                        2601019,
-                        2601014,
-                        2601008,
-                        2601013,
-                        2601020,
-                        2601021,
-                        3403020,
-                        3403026,
-                        3403027,
-                        3403005,
-                        2501039,
-                        2501001,
-                        2501016,
-                        2501018,
-                        1100010,
-                        1200003,
-                        1100004,
-                        1401001,
-                        1100108,
-                        1100127,
-                        1100045,
-                        1200005,
-                        1200004,
-                        1100103,
-                        3001001,
-                        2201007,
-                        3100004,
-                        3100006,
-                        3100018,
-                        3100029,
-                        3100052,
-                }),
-                new ScanFilter("create_time").gt(new LocalDate(2019, 9, 17).toDate().getTime() / 1000)
+                new ScanFilter("pay_type").eq(50)
         ));
 
 

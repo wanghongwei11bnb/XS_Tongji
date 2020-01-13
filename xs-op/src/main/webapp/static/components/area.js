@@ -423,6 +423,7 @@ class AreaGrid extends React.Component {
                 },
                 {field: 'city', title: '城市'},
                 {field: 'address', title: '地址'},
+                {field: 'create_time', title: '创建时间', render: value => type(value, 'Number') ? new Date(value * 1000).format('yyyy-MM-dd') : null},
                 {
                     field: 'area_id', title: '投放数量（台）', render: value => {
                         const countGroupArea = this.state.countGroupArea;

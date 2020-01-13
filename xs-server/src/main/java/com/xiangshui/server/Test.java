@@ -368,11 +368,19 @@ public class Test {
 
     }
 
+    public void bookingList(){
+
+
+
+
+
+    }
+
     public static void main(String[] args) throws Exception {
 
 
         SpringUtils.init();
-        SpringUtils.getBean(Test.class).t();
+        SpringUtils.getBean(Test.class).bookingList();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
