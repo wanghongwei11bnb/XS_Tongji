@@ -62,7 +62,7 @@ class Page extends React.Component {
                         if (this.refs && this.refs.year && this.refs.year.value) {
                             if (this.refs.year.value == 2018) {
                                 return <option value={12}>12</option>;
-                            } else if (this.refs.year.value == 2019) {
+                            } else {
                                 let options = [];
                                 for (let i = 1; i <= 12; i++) {
                                     options.push(<option value={i}>{i}</option>);
