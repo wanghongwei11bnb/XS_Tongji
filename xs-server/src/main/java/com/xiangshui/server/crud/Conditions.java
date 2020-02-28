@@ -58,7 +58,7 @@ public class Conditions {
 
 
     public Conditions between(String column, Object value, Object secondValue) {
-        conditionList.add(new Condition(Condition.Type.not_like, column, value, secondValue, null, null));
+        conditionList.add(new Condition(Condition.Type.between, column, value, secondValue, null, null));
         return this;
     }
 

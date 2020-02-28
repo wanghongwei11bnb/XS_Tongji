@@ -171,3 +171,4 @@ class PriceInput extends NumberInput {
         }
     };
 }
+
