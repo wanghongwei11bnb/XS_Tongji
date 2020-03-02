@@ -173,7 +173,7 @@ public class PourController extends BaseController {
                 .in("status", Arrays.asList(1, 2, 3));
         PourBooking booking = pourBookingDao.selectOne(conditions, null, columns);
         if (booking != null) {
-            return new Result(-3001, "您有文支付订单！").putData("booking", booking);
+            return new Result(-3001, "您有未支付的订单！").putData("booking", booking);
         }
         return new Result(CodeMsg.SUCCESS).putData("phone", "400-688-9960");
     }
