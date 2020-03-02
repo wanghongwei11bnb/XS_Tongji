@@ -3,9 +3,9 @@ class CalendarModal extends Modal {
         super(props);
     }
 
-    onDateClick = (ymd) => {
+    onDateClick = (ymd, hms) => {
         this.close();
-        if (this.props.onDateClick) this.props.onDateClick(ymd);
+        if (this.props.onDateClick) this.props.onDateClick(ymd, hms);
     };
 
     onClean = () => {
@@ -15,7 +15,7 @@ class CalendarModal extends Modal {
 
     renderBody = () => {
         return <div className="position-relative text-center">
-            <Calendar ref="calendar" onDateClick={this.onDateClick} onDateDisabled={this.props.onDateDisabled}></Calendar>
+            <Calendar ref="calendar" withTime={this.props.withTime} onDateClick={this.onDateClick} onDateDisabled={this.props.onDateDisabled}></Calendar>
         </div>
     };
 
@@ -38,89 +38,6 @@ class CalendarModal extends Modal {
     }
 }
 
-
-class DateInput extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    onClick = () => {
-        Modal.open(<CalendarModal
-            onDateClick={(ymd) => {
-                this.setValue(ymd.toDate().format('yyyy-MM-dd'));
-            }}
-            onClean={() => {
-                this.setValue(null);
-            }}
-            onDateDisabled={this.props.onDateDisabled}></CalendarModal>);
-    };
-
-    setValue = (value) => {
-        if (type(value, 'Number')) {
-            value = new Date(value).format('yyyy-MM-dd');
-        }
-        this.refs.input.value = value;
-        this.value = value;
-    };
-
-    getValue = () => {
-        return this.refs.input.value;
-    };
-
-
-    onFocus = () => {
-        this.refs.input.blur();
-    };
-
-    render() {
-        return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
-                      onFocus={this.onFocus}/>
-    }
-}
-
-class DateTimeModal extends Modal {
-    constructor(props) {
-        super(props);
-    }
-
-    renderBody = () => {
-        return [
-            <DateInput ref="date" className="form-control w-auto m-1 d-inline-block"></DateInput>,
-            <select ref="hh" className="form-control w-auto m-1 d-inline-block">
-                {(() => {
-                    const os = [];
-                    for (let i = 0; i <= 23; i++) {
-                        os.push(<option value={i}>{i}</option>);
-                    }
-                    return os;
-                })()}
-            </select>,
-            <select ref="mm" className="form-control w-auto m-1 d-inline-block">
-                {(() => {
-                    const os = [];
-                    for (let i = 0; i <= 59; i++) {
-                        os.push(<option value={i}>{i}</option>);
-                    }
-                    return os;
-                })()}
-            </select>,
-        ]
-    };
-
-    ok = () => {
-        if (!this.refs.date.value) return Message.msg('请选择日期');
-        if (!this.refs.hh.value && this.refs.hh.value != 0) return Message.msg('请选择时间');
-        if (!this.refs.mm.value && this.refs.mm.value != 0) return Message.msg('请选择时间');
-        this.close();
-        if (this.props.ok) this.props.ok(`${this.refs.date.value} ${this.refs.hh.value}:${this.refs.mm.value}`);
-    };
-    renderFooter = () => {
-        return [
-            <A className="btn btn-link text-primary float-right" onClick={this.ok}>确定</A>,
-            <A className="btn btn-link text-secondary float-right" onClick={this.close}>取消</A>,
-        ];
-    };
-}
 
 class DateRangeModal extends Modal {
     constructor(props) {
@@ -153,8 +70,6 @@ class DateRangeModal extends Modal {
         ];
     };
 }
-
-
 
 class YearMonthSelectModal extends Modal {
     constructor(props) {
@@ -200,3 +115,112 @@ class YearMonthSelectModal extends Modal {
         ];
     };
 }
+
+
+class DateInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            ymd: this.props.initialValue || null,
+        };
+    }
+
+    onClick = () => {
+        Modal.open(<CalendarModal
+            onDateClick={(ymd) => {
+                this.setValue(ymd.toDate().format('yyyy-MM-dd'));
+            }}
+            onClean={() => {
+                this.setValue(null);
+            }}
+            onDateDisabled={this.props.onDateDisabled}></CalendarModal>);
+    };
+
+    setValue = (value) => {
+        if (type(value, 'Number')) {
+            value = new Date(value).format('yyyy-MM-dd');
+        } else if (type(value, 'Date')) {
+            value = value.format('yyyy-MM-dd');
+        }
+        this.refs.input.value = value;
+        this.value = value;
+    };
+
+    getValue = () => {
+        if (this.props.getValue) return this.props.getValue(this.state.value);
+        return this.state.value.format();
+    };
+
+
+    onFocus = () => {
+        this.refs.input.blur();
+    };
+
+    render() {
+        return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
+                      onFocus={this.onFocus} value={this.state.value ? this.state.value.format() : null}/>
+    }
+}
+
+
+class DateTimeInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            ymd: this.props.ymd || null,
+            hms: this.props.hms || null,
+        };
+    }
+
+    onClick = () => {
+        Modal.open(<CalendarModal
+            withTime={true}
+            onDateClick={(ymd, hms) => {
+                this.setValue(ymd, hms);
+            }}
+            onClean={() => {
+                this.setValue(null, null);
+            }}
+            onDateDisabled={this.props.onDateDisabled}></CalendarModal>);
+    };
+
+    setValue = (ymd, hms) => {
+        if (type(ymd, YearMonthDate)) {
+            if (type(hms, HourMinuteSecond)) {
+                this.setState({ymd, hms});
+            } else {
+                this.setState({ymd, hms: new HourMinuteSecond()});
+            }
+        } else if (type(ymd, 'Date')) {
+            this.setState({ymd: YearMonthDate.createByDate(ymd), hms: HourMinuteSecond.createByDate(ymd)});
+        } else if (type(ymd, 'Number')) {
+            const date = new Date(ymd);
+            this.setState({ymd: YearMonthDate.createByDate(date), hms: HourMinuteSecond.createByDate(date)});
+        }
+    };
+
+    getValue = () => {
+        if (this.props.getValue) return this.props.getValue(this.state.ymd, this.state.hms);
+        return this.textValue();
+    };
+
+    textValue = () => {
+        if (this.state.ymd == null) return null;
+        if (this.state.hms != null) {
+            return `${this.state.ymd.format()} ${this.state.hms.format()}`;
+        } else {
+            return this.state.ymd.format();
+        }
+    };
+
+
+    onFocus = () => {
+        this.refs.input.blur();
+    };
+
+    render() {
+        return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
+                      onFocus={this.onFocus} value={this.textValue()}/>
+    }
+}
+

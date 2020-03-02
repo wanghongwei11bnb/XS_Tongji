@@ -48,8 +48,14 @@ public class SetSessionInterceptor implements HandlerInterceptor {
             Integer uin = Integer.valueOf(user_uin);
             UserRegister userRegister = userRegisterDao.getItem(new PrimaryKey("uin", uin));
             if (userRegister != null && client_token.equals(userRegister.getLast_access_token())) {
-                Session session = new Session().setUin(uin).setToken(client_token);
+                Session session = new Session();
+                session.setUin(uin);
+                session.setToken(client_token);
+                session.setUserRegister(userRegister);
+                session.setPhone(userRegister.getPhone());
                 SessionLocal.set(session);
+                session.setUserInfo(userInfoDao.getItem(new PrimaryKey("uin", uin)));
+                session.setUserWallet(userWalletDao.getItem(new PrimaryKey("uin", uin)));
             }
         }
         return true;

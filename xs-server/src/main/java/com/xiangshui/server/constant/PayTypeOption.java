@@ -17,6 +17,7 @@ public class PayTypeOption extends Option<Integer> {
     public static final PayTypeOption wechat = new PayTypeOption(1, "微信支付");
     public static final PayTypeOption alipay = new PayTypeOption(2, "支付宝支付");
     public static final PayTypeOption wallet = new PayTypeOption(20, "钱包余额支付");
+    public static final PayTypeOption guohang = new PayTypeOption(50, "国航里程支付");
 
     public static final List<Option> options = getOptions(PayTypeOption.class);
 }

@@ -18,9 +18,10 @@
 
     <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
         <property name="converters">
-            <set>
+            <list>
+                <bean class="com.xiangshui.util.web.converter.LocalDateConverter"/>
                 <bean class="com.xiangshui.util.web.converter.DateConverter"/>
-            </set>
+            </list>
         </property>
     </bean>
 

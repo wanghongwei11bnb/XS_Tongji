@@ -20,8 +20,10 @@ import com.xiangshui.server.service.PartnerService;
 import com.xiangshui.server.service.ServiceUtils;
 import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +37,9 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Consumer;
 
+@Slf4j
 @Component
 public class Test {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     UserInfoDao userInfoDao;
@@ -327,14 +329,13 @@ public class Test {
         };
 
 
-
         List<Booking> bookingList = ServiceUtils.division(ListUtils.fieldSet(quotaList, prizeQuota -> prizeQuota.getBooking_id()).toArray(new Long[quotaList.size()]), 100, new CallBackForResult<Long[], List<Booking>>() {
 
             @Override
             public List<Booking> run(Long[] longs) {
                 return bookingDao.batchGetItem("booking_id", longs);
             }
-        },new Long[0]);
+        }, new Long[0]);
 
 //        List<Booking> bookingList = bookingDao.batchGetItem("booking_id", ListUtils.fieldSet(quotaList, prizeQuota -> prizeQuota.getBooking_id()).toArray());
 
@@ -368,17 +369,26 @@ public class Test {
 
     }
 
+    public void bookingList() {
+
+
+    }
+
     public static void main(String[] args) throws Exception {
 
 
-        SpringUtils.init();
-        SpringUtils.getBean(Test.class).t();
+//        SpringUtils.init();
+//        SpringUtils.getBean(Test.class).bookingList();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
 
 
 //        System.out.println(System.getProperties().getProperty("user.home"));
 //        System.out.println(System.getProperties().getProperty("user.dir"));
+
+
+        log.info(System.currentTimeMillis() + "");
+        log.info(new DateTime(2120, 1, 1,9,9,9,9).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime() + "");
 
     }
 }

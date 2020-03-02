@@ -21,6 +21,8 @@ function type(o, t) {
         if (o !== o) return 'NaN';
         let typeStr = Object.prototype.toString.call(o);
         return typeStr.substring(8, typeStr.length - 1);
+    } else if (type(t) === 'Function') {
+        return o.__proto__ === t.prototype;
     } else {
         return type(o) === t;
     }
@@ -68,6 +70,371 @@ Date.prototype.format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt))
             fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
+};
+
+
+class LocalDate {
+    constructor(year, month, day) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.check();
+    }
+
+    check() {
+        let now = new Date();
+        this.year = this.year || now.getFullYear();
+        this.month = this.month || now.getMonth() + 1;
+        this.day = this.day || now.getDate();
+        if (this.month < 1) {
+            this.month = 1;
+        } else if (this.month > 12) {
+            this.month = 12;
+        }
+        if (this.day < 1) {
+            this.day = 1;
+        } else if (this.day > this.getMaxDay(this.year, this.month)) {
+            this.day = this.getMaxDay(this.year, this.month);
+        }
+        return this;
+    }
+
+    getMaxDay(year, month) {
+        switch (month) {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                return 31;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                return 30;
+            case 2:
+                if (this.year % 4 === 0) {
+                    return 29;
+                } else {
+                    return 28;
+                }
+            default:
+                return;
+        }
+    }
+
+    getYear() {
+        return this.year;
+    }
+
+    getMonth() {
+        return this.month;
+    }
+
+    getDay() {
+        return this.day;
+    }
+
+    withDay(day) {
+        this.day = day;
+        this.check();
+        return this;
+    }
+
+    withMonth(month) {
+        this.month = month;
+        this.check();
+        return this;
+    }
+
+    withYear(year) {
+        this.year = year;
+        this.check();
+        return this;
+    }
+
+
+    plusYears(n, uncheck) {
+        cursor(n, () => {
+            this.year++;
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    minusYears(n, uncheck) {
+        cursor(n, () => {
+            this.year--;
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    plusMonths(n, uncheck) {
+        cursor(n, () => {
+            if (this.month === 12) {
+                this.plusYears(1, true);
+                this.month = 1;
+            } else {
+                this.month++;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    minusMonths(n, uncheck) {
+        cursor(n, () => {
+            if (this.month === 1) {
+                this.minusYears(1, true);
+                this.month = 12;
+            } else {
+                this.month--;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    plusDays(n) {
+        cursor(n, () => {
+            if (this.day >= this.getMaxDay(this.year, this.month)) {
+                this.plusMonths(1, true);
+                this.day = 1;
+            } else {
+                this.day++;
+            }
+        });
+        this.check();
+        return this;
+    }
+
+    minusDays(n) {
+        cursor(n, () => {
+            if (this.day === 1) {
+                this.minusMonths(1, true);
+                this.day = this.getMaxDay(this.year, this.month);
+            } else {
+                this.day--;
+            }
+        });
+        this.check();
+        return this;
+    }
+
+    toDate() {
+        return new Date(this.year, this.month - 1, this.day);
+    }
+
+    format(fmt) {
+        return this.toDate().format(fmt || 'yyyy-MM-dd');
+    }
+
+    getTime() {
+        return this.toDate().getTime();
+    }
+
+    toString() {
+        return this.format('yyyy-MM-dd');
+    }
+
+    clone() {
+        return new LocalDate(this.year, this.month, this.day);
+    }
+}
+
+LocalDate.parseDate = function (date) {
+    return type(date, 'Date') ? new LocalDate(date.getFullYear(), date.getMonth() + 1, date.getDate()) : null;
+};
+
+class LocalTime {
+    constructor(hour, minute, second) {
+        this.hour = hour;
+        this.minute = minute;
+        this.second = minute;
+        this.check();
+    }
+
+    check() {
+        let now = new Date();
+        this.hour = typeValue(this.hour, 'Number', now.getHours());
+        this.minute = typeValue(this.minute, 'Number', now.getMinutes());
+        this.second = typeValue(this.second, 'Number', now.getSeconds());
+        if (this.hour < 0) {
+            this.hour = 0;
+        } else if (this.hour > 23) {
+            this.hour = 23;
+        }
+        if (this.minute < 0) {
+            this.minute = 0;
+        } else if (this.minute > 59) {
+            this.minute = 59;
+        }
+        if (this.second < 0) {
+            this.second = 0
+        } else if (this.second > 59) {
+            this.second = 59;
+        }
+        return this;
+    }
+
+    getHour() {
+        return this.hour;
+    }
+
+    getMinute() {
+        return this.minute;
+    }
+
+    getSecond() {
+        return this.second;
+    }
+
+    withHour(hour) {
+        this.hour = hour;
+        this.check();
+        return this;
+    }
+
+    withMinute(minute) {
+        this.minute = minute;
+        this.check();
+        return this;
+    }
+
+    withSecond(second) {
+        this.second = second;
+        this.check();
+        return this;
+    }
+
+    plusHours(n, uncheck) {
+        cursor(n, () => {
+            if (this.hour === 23) {
+                this.hour = 0;
+            } else {
+                this.hour++;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    minusHours(n, uncheck) {
+        cursor(n, () => {
+            if (this.hour === 0) {
+                this.hour = 23;
+            } else {
+                this.hour--;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    plusMinutes(n, uncheck) {
+        cursor(n, () => {
+            if (this.minute === 59) {
+                this.plusHours(1, true);
+                this.minute = 0;
+            } else {
+                this.minute++;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    minusMinutes(n, uncheck) {
+        cursor(n, () => {
+            if (this.minute === 0) {
+                this.minusHours(1, true);
+                this.minute = 59;
+            } else {
+                this.minute--;
+            }
+        });
+        if (!uncheck) this.check();
+        return this;
+    }
+
+    plusSeconds(n) {
+        cursor(n, () => {
+            if (this.second === 59) {
+                this.plusMinutes(1, true);
+                this.second = 0;
+            } else {
+                this.second++;
+            }
+        });
+        this.check();
+        return this;
+    }
+
+    minusSeconds(n) {
+        cursor(n, () => {
+            if (this.second === 0) {
+                this.minusMinutes(1, true);
+                this.second = 59;
+            } else {
+                this.second--;
+            }
+        });
+        this.check();
+        return this;
+    }
+
+    toDate() {
+        let now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), this.hour, this.minute, this.second);
+    }
+
+    format(fmt) {
+        return this.toDate().format(fmt || 'hh:mm:ss');
+    }
+
+    toString() {
+        return this.format('hh:mm:ss');
+    }
+
+    clone() {
+        return new LocalTime(this.hour, this.minute, this.second);
+    }
+}
+
+LocalTime.parseDate = function (date) {
+    return type(date, 'Date') ? new LocalTime(date.getHours(), date.getMinutes(), date.getSeconds()) : null;
+};
+
+class DateTime {
+    constructor(year, month, day, hour, minute, second) {
+        this.localDate = new LocalDate(year, month, day);
+        this.localTime = new LocalTime(hour, minute, second);
+    }
+
+    toDate() {
+        return new Date(this.localDate.year, this.localDate.month - 1, this.localDate.day, this.localTime.hour, this.localTime.minute, this.localTime.second);
+    }
+
+
+    format(fmt) {
+        return this.toDate().format(fmt);
+    }
+
+    getTime() {
+        return this.toDate().getTime();
+    }
+
+    toString() {
+        return this.format();
+    }
+
+}
+
+DateTime.parseDate = function (date) {
+    return type(date, 'Date') ? new DateTime(date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()) : null;
 };
 
 

@@ -153,6 +153,7 @@ class Calendar extends React.Component {
         this.state = {
             nowYmd: YearMonthDate.createByDate(new Date()),
             ymd: props.ymd || YearMonthDate.createByDate(new Date()),
+            hms: props.hms || HourMinuteSecond.createByDate(new Date()),
         };
     }
 
@@ -163,7 +164,7 @@ class Calendar extends React.Component {
 
     onDateClick = (year, month, date) => {
         const ymd = YearMonthDate.create(year, month, date);
-        if (this.props.onDateClick) this.props.onDateClick(ymd);
+        if (this.props.onDateClick) this.props.onDateClick(ymd, this.props.withTime ? this.refs.timeSelector.getValue() : undefined);
     };
 
     prevMonth = () => {
@@ -180,6 +181,7 @@ class Calendar extends React.Component {
     };
 
     render() {
+
         const ymd = this.state.ymd.clone().setDate(1);
         ymd.addDate(-ymd.getDay());
         const trs = [];
@@ -215,8 +217,202 @@ class Calendar extends React.Component {
             </thead>
             <tbody>
             {trs}
+            {this.props.withTime ? <tr className="text-center">
+                <td colSpan={7}>
+                    <TimeSelector ref="timeSelector" hms={this.props.hms}></TimeSelector>
+                </td>
+            </tr> : null}
             </tbody>
         </table>
     }
 
+
+    makeOptions = (from, to) => {
+        const options = [];
+        while ((from++) <= to) {
+            options.push(<option value={from}>{from}</option>);
+        }
+        return options;
+    };
+
 }
+
+
+class TimeSelector extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            hms: props.hms || HourMinuteSecond.createByDate(new Date()),
+        };
+    }
+
+    getValue = () => {
+        if (this.props.getValue) return this.props.getValue(this.state.hms);
+        return this.state.hms;
+    };
+
+    setValue = (value) => {
+        if (type(value, HourMinuteSecond)) {
+            this.setState({hms: value});
+        } else if (type(value, 'Date')) {
+            this.setState({hms: HourMinuteSecond.createByDate(value)});
+        } else if (type(value, 'Number')) {
+            this.setState({hms: HourMinuteSecond.createByDate(new Date(value))});
+        }
+    };
+
+    render() {
+        return <div className={this.props.className || 'inline-block'}>
+            <input type="number" value={this.state.hms.hour} min={0} max={23} onChange={(e) => {
+                this.setState({hms: this.state.hms.setHour(e.target.value - 0)});
+            }}/>
+            时
+            <input type="number" value={this.state.hms.minute} min={0} max={59} onChange={(e) => {
+                this.setState({hms: this.state.hms.setMinute(e.target.value - 0)});
+            }}/>
+            分
+            <input type="number" value={this.state.hms.second} min={0} max={59} onChange={(e) => {
+                this.setState({hms: this.state.hms.setSecond(e.target.value - 0)});
+            }}/>
+            秒
+        </div>
+    }
+}
+
+
+class HourMinuteSecond {
+    constructor(hour, minute, second) {
+        this.hour = hour || 0;
+        this.minute = minute || 0;
+        this.second = second || 0;
+        this.correct();
+    }
+
+    correct() {
+        if (!type(this.hour, 'Number') || this.hour < 0 || this.hour > 23) {
+            this.hour = 0;
+        }
+        if (!type(this.minute, 'Number') || this.minute < 0 || this.minute > 59) {
+            this.minute = 0;
+        }
+        if (!type(this.second, 'Number') || this.second < 0 || this.second > 59) {
+            this.second = 0;
+        }
+    }
+
+
+    setHour(hour) {
+        this.hour = hour;
+        this.correct();
+        return this;
+    }
+
+    setMinute(minute) {
+        this.minute = minute;
+        this.correct();
+        return this;
+    }
+
+    setSecond(second) {
+        this.second = second;
+        this.correct();
+        return this;
+    }
+
+
+    plusHour(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.hour++;
+        }
+        return this;
+    }
+
+    plusMinute(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.minute++;
+            if (this.minute >= 60) {
+                this.plusHour(1);
+                this.minute = 0;
+            }
+        }
+        return this;
+    }
+
+
+    plusSecond(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.second++;
+            if (this.second >= 60) {
+                this.plusMinute(1);
+                this.second = 0;
+            }
+        }
+        return this;
+    }
+
+    minusHour(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.hour--;
+            if (this.hour < 0) {
+                this.hour = 0;
+            }
+        }
+        return this;
+    }
+
+
+    minusMinute(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.minute--;
+            if (this.minute < 0) {
+                this.minusHour(1);
+                this.minute = 59;
+            }
+        }
+        return this;
+    }
+
+
+    minusSecond(n) {
+        if (!type(n, 'Number') || n <= 0) return;
+        while ((n--) > 0) {
+            this.second--;
+            if (this.second < 0) {
+                this.minusMinute(1);
+                this.second = 59;
+            }
+        }
+        return this;
+    }
+
+
+    getTime() {
+        return this.second + this.minute * 60 + this.hour * 60 * 60;
+    }
+
+    toString() {
+        return `${this.hour}:${this.minute}:${this.second}`;
+    }
+
+    format() {
+        return this.toString();
+    }
+
+
+}
+
+HourMinuteSecond.createByDate = function (date = new Date()) {
+    return new HourMinuteSecond(date.getHours(), date.getMinutes(), date.getSeconds());
+};
+
+
+HourMinuteSecond.createBySecond = function (second = 0) {
+    if (second == 0) return new HourMinuteSecond(0, 0, 0);
+    return new HourMinuteSecond(Math.floor(second / (60 * 60)), Math.floor(second % (60 * 60) / 60), second % 60);
+};
+

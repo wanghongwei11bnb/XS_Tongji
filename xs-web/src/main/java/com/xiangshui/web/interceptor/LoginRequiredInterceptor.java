@@ -32,7 +32,7 @@ public class LoginRequiredInterceptor implements HandlerInterceptor {
         if (loginRequired != null) {
             Session session = SessionLocal.get();
             if (session == null) {
-                if (httpServletRequest.getRequestURI().startsWith("/api/")) {
+                if (httpServletRequest.getRequestURI().startsWith("/api/")||httpServletRequest.getRequestURI().startsWith("/jpi/")) {
                     httpServletResponse.setHeader("Content-Type", "application/json;charset=UTF-8");
                     httpServletResponse.getWriter().write(JSON.toJSONString(new Result(CodeMsg.NO_LOGIN)));
                     httpServletResponse.getWriter().flush();

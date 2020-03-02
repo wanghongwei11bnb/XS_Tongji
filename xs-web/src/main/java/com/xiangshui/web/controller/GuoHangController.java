@@ -37,6 +37,11 @@ public class GuoHangController extends BaseController {
     @GetMapping("/jpi/booking/{booking_id:\\d+}/create_guohang_link")
     @ResponseBody
     public Result create_guohang_link(@PathVariable("booking_id") Long booking_id) throws Exception {
+
+        if(true){
+            return new Result(-1,"国航里程支付已下线！");
+        }
+
         Booking booking = bookingDao.getItem(new PrimaryKey("booking_id", booking_id));
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
         Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", booking.getCapsule_id()));

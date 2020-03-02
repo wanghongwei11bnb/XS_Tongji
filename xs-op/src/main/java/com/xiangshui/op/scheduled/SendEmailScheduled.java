@@ -934,9 +934,9 @@ public class SendEmailScheduled implements InitializingBean {
                         new String[]{
                                 "richard@xiangshuispace.com",
                                 "xubo@xiangshuispace.com",
-//                                "chenlei@xiangshuispace.com",
                                 "xiumei@xiangshuispace.com",
                                 "zhaoyuan@xiangshuispace.com",
+                                "guobin@xiangshuispace.com",
 //                                "hongwei@xiangshuispace.com",
                         },
                         new String[]{
@@ -997,7 +997,7 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2019, 12, 20), new LocalDate(2019, 12, 26));
+        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2020,1,10), new LocalDate(2020,1,16));
 
 
 //        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
