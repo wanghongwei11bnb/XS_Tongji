@@ -106,7 +106,7 @@ public class PourController extends BaseController {
         Date now = new Date();
         log.info("［支付结果通知］{}", body);
         TreeMap<String, String> treeMap = PayUtils.parseXml(body);
-        if (PayUtils.makeSign(treeMap, "MB9pL3BqYeJ5rzkI1RufmNCHd7KJGUfF").equals(treeMap.get("sign"))) {
+        if (!PayUtils.makeSign(treeMap, "MB9pL3BqYeJ5rzkI1RufmNCHd7KJGUfF").equals(treeMap.get("sign"))) {
             log.info("［支付结果通知——签名错误］");
             return new StringBuilder()
                     .append("<xml>")
