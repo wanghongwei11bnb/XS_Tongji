@@ -55,13 +55,14 @@ class Page extends React.Component {
                     <option></option>
                     <option value={2018}>2018</option>
                     <option value={2019}>2019</option>
+                    <option value={2020}>2020</option>
                 </select>
                 <select ref="month" className="form-control d-inline-block w-auto mx-1">
                     {(() => {
                         if (this.refs && this.refs.year && this.refs.year.value) {
                             if (this.refs.year.value == 2018) {
                                 return <option value={12}>12</option>;
-                            } else if (this.refs.year.value == 2019) {
+                            } else {
                                 let options = [];
                                 for (let i = 1; i <= 12; i++) {
                                     options.push(<option value={i}>{i}</option>);

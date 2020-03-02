@@ -84,7 +84,7 @@ class YearMonthSelectModal extends Modal {
                 <option value=""></option>
                 {(() => {
                     let os = [];
-                    for (let i = 2017; i <= 2019; i++) {
+                    for (let i = 2017; i <= 2020; i++) {
                         os.push(<option value={i}>{i}</option>);
                     }
                     return os;
