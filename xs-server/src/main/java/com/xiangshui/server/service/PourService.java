@@ -5,7 +5,9 @@ import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.mysql.PourBookingDao;
 import com.xiangshui.server.domain.mysql.qingsu.PourBooking;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.yunpian.YunpianUtils;
 import com.xiangshui.util.UUID;
+import com.xiangshui.util.spring.SpringUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import com.xiangshui.util.weixin.FluentMap;
@@ -16,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 @Component
 public class PourService {
@@ -66,8 +66,33 @@ public class PourService {
         booking.setDiscount_price(0);
         booking.setStatus(booking.getFinal_price() > 0 ? 3 : 4);
         booking.setCreate_time(System.currentTimeMillis() / 1000);
-        if (pourBookingDao.insertSelective(booking, null) == 0) throw new XiangShuiException("操作失败");
+        if (pourBookingDao.insertSelective(booking, null) == 0) {
+            throw new XiangShuiException("操作失败");
+        } else {
+            sendMsgTask(booking);
+        }
     }
+
+
+    public void sendMsgTask(final PourBooking booking) {
+        if (booking == null || !new Integer(3).equals(booking.getStatus())) {
+            return;
+        }
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    YunpianUtils.single_send(
+                            "5572ac618e9981b633416e39c35902ee",
+                            booking.getPhone(),
+                            String.format("【共享头等舱】您有一个享+倾诉的实时订单，订单计时%s分，尚未支付费用%s元。请登录“共享头等舱”小程序，订单历史中完成支付。", (int) Math.ceil(booking.getTalk_time() / 60d), booking.getFinal_price() / 100f));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 1000 * 30);
+    }
+
 
     public void updateBookingForOp(long id, long start_time, long talk_time, int final_price) throws NoSuchFieldException, IllegalAccessException {
         PourBooking booking = pourBookingDao.selectByPrimaryKey(id, null);
@@ -114,5 +139,17 @@ public class PourService {
         paramMap.fluentPut("paySign", paySign);
         return paramMap;
     }
+
+
+    public void test() {
+        sendMsgTask(pourBookingDao.selectByPrimaryKey(5408998620l, null));
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        SpringUtils.init();
+        SpringUtils.getBean(PourService.class).test();
+    }
+
 
 }
