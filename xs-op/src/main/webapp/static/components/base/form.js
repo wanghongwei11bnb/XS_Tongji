@@ -165,7 +165,7 @@ class PriceInput extends NumberInput {
             value = new Number(value);
         }
         if (type(value, 'Number')) {
-            return value * 100;
+            return Math.floor(value * 100);
         } else {
             return null;
         }
