@@ -126,20 +126,20 @@
 
   //背景图
   height: 500px;
-  background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/2B8EA5967A5DE2130E4648C81E7628FD") no-repeat center;
+  background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F31AD53185458809716485F189B248B8") no-repeat center;
   background-size: cover;
   @include md {
     height: 828px;
-    background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/13EA158BF0137FFB65A79226CEBAC9A9") no-repeat center;
+    background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/ADE3D228ADBBAC39B46764B92730968E") no-repeat center;
     background-size: cover;
   }
   &.section-nav-sub {
     height: 192px;
-    background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/34D1EBDA0070DC32EEDC11A111E0794F") no-repeat center;
+    background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/9CA9299A652947CABB1380F70420C91A") no-repeat center;
     background-size: cover;
     @include md {
       height: 360px;
-      background: url("//s3.cn-north-1.amazonaws.com.cn/areaimgs/5463FADCBFA338704D7FE3240D9B85BD") no-repeat center;
+      background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/56A1A22125308CC4D49996ACF3DD6F78") no-repeat center;
       background-size: cover;
     }
   }
@@ -167,10 +167,10 @@
       width: 147px;
       height: 50px;
     }
-    background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/2307C007E0405C36F5B528DCF77E5AD3") no-repeat center;
+    background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/F453000C6DF83D311360C993FF6EAC19") no-repeat center;
     background-size: 100%;
     @at-root .black#{&} {
-      background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/2202FACA80CF6F6121D3B3AE7F31D216") no-repeat center;
+      background: url("https://s3.cn-north-1.amazonaws.com.cn/areaimgs/140F4F161AD01FC9F4076CB92FDF4F5F") no-repeat center;
       background-size: 100%;
     }
   }
