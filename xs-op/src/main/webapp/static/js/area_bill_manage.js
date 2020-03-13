@@ -30,24 +30,12 @@ class Page extends React.Component {
                 年份：
                 <select ref="year" className="form-control d-inline-block w-auto m-1">
                     <option value=""></option>
-                    {(() => {
-                        let os = [];
-                        for (let i = 2017; i <= 2019; i++) {
-                            os.push(<option value={i}>{i}</option>);
-                        }
-                        return os;
-                    })()}
+                    {[2019, 2020].map(year => <option value={year}>{year}</option>)}
                 </select>
                 月份：
                 <select ref="month" className="form-control d-inline-block w-auto m-1">
                     <option value=""></option>
-                    {(() => {
-                        let os = [];
-                        for (let i = 1; i <= 12; i++) {
-                            os.push(<option value={i}>{i}</option>);
-                        }
-                        return os;
-                    })()}
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(month => <option value={month}>{month}</option>)}
                 </select>
                 场地编号：
                 <input ref="area_id" type="text" className="form-control d-inline-block w-auto m-1"/>

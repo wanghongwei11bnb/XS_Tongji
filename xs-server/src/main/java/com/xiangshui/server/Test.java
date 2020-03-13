@@ -387,8 +387,9 @@ public class Test {
 //        System.out.println(System.getProperties().getProperty("user.dir"));
 
 
-        log.info(new LocalDate(2120, 1, 1).toDate().getTime() / 1000 + "");
-        log.info((new LocalDate(2030, 1, 1).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
+        log.info(System.currentTimeMillis() + "");
+        log.info((System.currentTimeMillis() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
+        log.info((new LocalDate(2120, 1, 1).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
 
     }
 }
