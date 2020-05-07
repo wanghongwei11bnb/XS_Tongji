@@ -144,11 +144,12 @@ class DateInput extends React.Component {
         }
         this.refs.input.value = value;
         this.value = value;
+        this.state.value = value;
     };
 
     getValue = () => {
         if (this.props.getValue) return this.props.getValue(this.state.value);
-        return this.state.value.format();
+        return this.state.value;
     };
 
 

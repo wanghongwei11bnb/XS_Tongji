@@ -10,6 +10,7 @@ import com.xiangshui.server.domain.*;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,10 +31,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
+@Slf4j
 @Component
 public class SendEmailScheduled implements InitializingBean {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     @Value("${isdebug}")
@@ -997,10 +997,29 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2020,1,10), new LocalDate(2020,1,16));
+        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2020,4,1), new LocalDate(2020,4,30));
 
 
 //        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");
+
+
+//        for (String s : IOUtils.readLines(SendEmailScheduled.class.getResourceAsStream("/emails_20200401.txt"), "UTF-8")) {
+//            if (StringUtils.isNotBlank(s)) {
+//                try {
+//                    MailService.send("smtp.mxhichina.com",
+//                            "hz@xiangshuispace.com", "Xb20192021",
+////                            "technology@xiangshuispace.com", "Xiangshui2017",
+//                            new String[]{s,}, null,
+//                            "【抓住楼市新机遇！0成本月入数万，招募城市楼盘代理】",
+//                            IOUtils.toString(SendEmailScheduled.class.getResourceAsStream("/send_email_content_20200401.html"), "UTF-8"),
+//                            null);
+//                    log.debug(s);
+//                } catch (Exception e) {
+//                    log.debug("发送失败：{}", s);
+//                }
+//            }
+//        }
+
 
     }
 
