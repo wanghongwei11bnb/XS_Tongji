@@ -24,6 +24,7 @@ public class MailService {
         properties.setProperty("mail.transport.protocol", "smtp");
         properties.setProperty("mail.smtp.host", host);
         properties.put("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.timeout","25000");
         Session session = Session.getDefaultInstance(properties, new Authenticator() {
             @Override
             public PasswordAuthentication getPasswordAuthentication() {
@@ -113,6 +114,14 @@ public class MailService {
     public static void main(String[] args) throws MessagingException, IOException {
 //        SpringUtils.init();
 //        SpringUtils.getBean(MailService.class).test();
-        send(new String[]{"hongwei@xiangshuispace.com"}, null, "sdfse登录福建省", "slfjejgslef");
+//        send(new String[]{"hongwei@xiangshuispace.com"}, null, "sdfse登录福建省", "slfjejgslef");
+
+        send("smtp.mxhichina.com", "hz@xiangshuispace.com", "Xb20192021", new String[]{
+                "973119204@qq.com",
+                "hongwei@xiangshuispace.com",
+//                "none@xiangshuispace.com",
+        }, null, "test", "test", null);
+
+
     }
 }
