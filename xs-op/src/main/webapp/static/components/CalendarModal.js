@@ -159,7 +159,7 @@ class DateInput extends React.Component {
 
     render() {
         return <input ref="input" type="text" className={this.props.className} onClick={this.onClick}
-                      onFocus={this.onFocus} value={this.state.value ? this.state.value.format() : null}/>
+                      onFocus={this.onFocus} value={this.state.value || null}/>
     }
 }
 
