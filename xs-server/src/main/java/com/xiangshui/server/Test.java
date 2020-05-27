@@ -7,6 +7,8 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.xiangshui.server.constant.AreaStatusOption;
+import com.xiangshui.server.constant.BookingStatusOption;
+import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.dao.mysql.PrizeQuotaDao;
@@ -30,10 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -374,10 +373,114 @@ public class Test {
 
     }
 
+
+    public void exportBookingList(ScanSpec scanSpec, String outputFilePath) throws IOException {
+
+        XSSFWorkbook workbook = ExcelUtils.export(Arrays.asList(
+                new ExcelUtils.Column<Booking>("订单编号") {
+                    @Override
+                    public Object render(Booking booking) {
+                        return booking.getBooking_id();
+                    }
+                },
+
+                new ExcelUtils.Column<Booking>("创建时间") {
+                    @Override
+                    public String render(Booking booking) {
+                        return booking.getCreate_time() != null ? DateUtils.format(booking.getCreate_time() * 1000, "yyyy-MM-dd HH:mm") : null;
+                    }
+                },
+                new ExcelUtils.Column<Booking>("结束时间") {
+                    @Override
+                    public String render(Booking booking) {
+                        return booking.getEnd_time() != null ? DateUtils.format(booking.getEnd_time() * 1000, "yyyy-MM-dd HH:mm") : null;
+                    }
+                },
+                new ExcelUtils.Column<Booking>("订单状态", (total, booking) -> total + 1) {
+                    @Override
+                    public String render(Booking booking) {
+                        return Option.getActiveText(BookingStatusOption.options, booking.getStatus());
+                    }
+                },
+                new ExcelUtils.Column<Booking>("订单总金额", (total, booking) -> booking != null && booking.getFinal_price() != null ? total + booking.getFinal_price() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getFinal_price() != null ? booking.getFinal_price() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("非会员付费金额", (total, booking) -> booking != null && booking.getUse_pay() != null ? total + booking.getUse_pay() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getUse_pay() != null ? booking.getUse_pay() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("充值部分", (total, booking) -> booking != null && booking.getFrom_charge() != null ? total + booking.getFrom_charge() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getFrom_charge() != null ? booking.getFrom_charge() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("赠送部分", (total, booking) -> booking != null && booking.getFrom_bonus() != null ? total + booking.getFrom_bonus() * 1f / 100 : total) {
+                    @Override
+                    public String render(Booking booking) {
+                        return String.valueOf(booking.getFrom_bonus() != null ? booking.getFrom_bonus() / 100f : null);
+                    }
+                },
+                new ExcelUtils.Column<Booking>("支付方式") {
+                    @Override
+                    public String render(Booking booking) {
+                        return Option.getActiveText(PayTypeOption.options, booking.getPay_type());
+                    }
+                },
+                new ExcelUtils.Column<Booking>("是否使用月卡") {
+                    @Override
+                    public String render(Booking booking) {
+                        return new Integer(1).equals(booking.getMonth_card_flag()) ? "是" : "否";
+                    }
+                },
+                new ExcelUtils.Column<Booking>("场地编号") {
+                    @Override
+                    public Object render(Booking booking) {
+                        return booking.getArea_id();
+                    }
+                },
+                new ExcelUtils.Column<Booking>("用户编号") {
+                    @Override
+                    public Object render(Booking booking) {
+                        return booking.getUin();
+                    }
+                },
+                new ExcelUtils.Column<Booking>("guohang_confirm_id") {
+                    @Override
+                    public Object render(Booking booking) {
+                        return booking.getGuohang_confirm_id();
+                    }
+                },
+                new ExcelUtils.Column<Booking>("guohang_order_sn") {
+                    @Override
+                    public Object render(Booking booking) {
+                        return booking.getGuohang_order_sn();
+                    }
+                }
+        ), bookingDao.scan(scanSpec));
+        OutputStream outputStream = new FileOutputStream(new File(outputFilePath));
+        workbook.write(outputStream);
+        outputStream.flush();
+        outputStream.close();
+        workbook.close();
+    }
+
     public static void main(String[] args) throws Exception {
 
 
-//        SpringUtils.init();
+        SpringUtils.init();
+        SpringUtils.getBean(Test.class).exportBookingList(
+                new ScanSpec().withMaxResultSize(Integer.MAX_VALUE)
+                        .withScanFilters(
+                                new ScanFilter("guohang_confirm_id").exists()
+                        )
+                , "/Users/whw/Downloads/国航订单.xlsx"
+        );
 //        SpringUtils.getBean(Test.class).bookingList();
 //        SpringUtils.getBean(Test.class).importAreaContract();
 //        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
@@ -387,9 +490,9 @@ public class Test {
 //        System.out.println(System.getProperties().getProperty("user.dir"));
 
 
-        log.info(System.currentTimeMillis() + "");
-        log.info((System.currentTimeMillis() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
-        log.info((new LocalDate(2120, 1, 1).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
+//        log.info(System.currentTimeMillis() + "");
+//        log.info((System.currentTimeMillis() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
+//        log.info((new LocalDate(2120, 1, 1).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
 
     }
 }
