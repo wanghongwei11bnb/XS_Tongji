@@ -997,7 +997,7 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2020, 5, 15), new LocalDate(2020, 5, 21));
+        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2020, 7, 3), new LocalDate(2020, 7, 9));
 
 
 //        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");

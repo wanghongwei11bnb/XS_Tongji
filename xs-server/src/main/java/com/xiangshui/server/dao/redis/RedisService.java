@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPubSub;
 
 import java.util.Date;
 
@@ -292,6 +293,16 @@ public class RedisService implements InitializingBean {
             e.printStackTrace();
         }
 
+    }
+
+    public void test(){
+        this.run(new CallBack<Jedis>() {
+            @Override
+            public void run(Jedis jedis) {
+                jedis.subscribe(new JedisPubSub() {
+                },"sfd");
+            }
+        });
     }
 
 }

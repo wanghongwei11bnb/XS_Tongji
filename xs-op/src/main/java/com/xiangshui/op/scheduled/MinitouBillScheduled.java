@@ -266,8 +266,8 @@ public class MinitouBillScheduled implements InitializingBean {
         int other_price = 0;
         int net_price = 0;
         for (Booking booking : bookingList) {
-//            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
-            final_price += booking.getFinal_price() != null ? booking.getFinal_price() : 0;
+            final_price += (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0) + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
+//            final_price += booking.getFinal_price() != null ? booking.getFinal_price() : 0;
         }
         Integer account_ratio = areaContractService.checkAccountRatio(areaContract, final_price);
         if (account_ratio == null) account_ratio = 0;

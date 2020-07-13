@@ -51,7 +51,7 @@ public class CountCapsuleScheduled {
     public volatile Map<Integer, Integer> countGroupArea = new HashMap<>();
     public volatile Map<Integer, Long> areaCreateTimeMap = new HashMap<>();
 
-    @Scheduled(fixedDelay = 1000 * 60 * 60)
+    @Scheduled(fixedDelay = 1000 * 60 * 60 * 24)
     public void task() {
         update();
     }
