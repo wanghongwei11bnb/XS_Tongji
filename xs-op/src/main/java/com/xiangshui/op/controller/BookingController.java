@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
@@ -84,8 +85,11 @@ public class BookingController extends BaseController implements InitializingBea
     @Autowired
     OpUserService opUserService;
 
+    @Autowired
+    CacheScheduled cacheScheduled;
+
     @Menu(value = "订单管理")
-    @AuthRequired("订单管理（全国）")
+    @AuthRequired({AuthRequired.auth_booking, AuthRequired.auth_booking_all})
     @GetMapping("/booking_manage")
     public String index(HttpServletRequest request) {
         setClient(request);
@@ -98,12 +102,25 @@ public class BookingController extends BaseController implements InitializingBea
                          Long booking_id, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end,
                          Integer payMonth, Boolean download) throws Exception {
         String op_username = UsernameLocal.get();
+        Set<Integer> areaSet = opUserService.getAreaSet(op_username);
         boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
         boolean auth_booking_show_coupon = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_coupon);
         boolean auth_booking_download = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_download);
+        boolean auth_booking_all = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_all);
         if (download == null) {
             download = false;
         }
+//        if (!auth_booking_all) {
+//            if (criteria.getArea_id() != null && !areaSet.contains(criteria.getArea_id())) {
+//                return new Result(CodeMsg.OPAUTH_FAIL);
+//            }
+//            if (criteria.getCapsule_id() != null) {
+//                Capsule capsule = cacheScheduled.capsuleMapOptions.get(criteria.getCapsule_id());
+//                if (capsule != null && !areaSet.contains(capsule.getArea_id())) {
+//                    return new Result(CodeMsg.OPAUTH_FAIL);
+//                }
+//            }
+//        }
         if (download && !auth_booking_download) {
             return new Result(CodeMsg.OPAUTH_FAIL);
         }

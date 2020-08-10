@@ -21,7 +21,7 @@ import java.util.List;
 public class SwiperItemController extends BaseController {
 
 
-    @Menu(value = "首页Banner管理")
+//    @Menu(value = "首页Banner管理")
 //    @AuthRequired("首页Banner管理")
     @GetMapping("/banner_manage")
     public String index(HttpServletRequest request) {

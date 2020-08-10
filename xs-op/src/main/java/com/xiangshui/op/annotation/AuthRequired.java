@@ -19,6 +19,8 @@ public @interface AuthRequired {
     String auth_coupon = "优惠券管理";
 
 
+    String auth_booking = "订单管理";
+    String auth_booking_all = "订单管理（全国）";
     String auth_booking_show_coupon = "订单——查看优惠金额";
     String auth_booking_show_f = "订单——显示F标签";
     String auth_booking_show_phone = "订单——查看手机号";
