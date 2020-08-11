@@ -110,19 +110,19 @@ public class BookingController extends BaseController implements InitializingBea
         if (download == null) {
             download = false;
         }
-//        if (!auth_booking_all) {
-//            if (criteria.getArea_id() != null && !areaSet.contains(criteria.getArea_id())) {
-//                return new Result(CodeMsg.OPAUTH_FAIL);
-//            }
-//            if (criteria.getCapsule_id() != null) {
-//                Capsule capsule = cacheScheduled.capsuleMapOptions.get(criteria.getCapsule_id());
-//                if (capsule != null && !areaSet.contains(capsule.getArea_id())) {
-//                    return new Result(CodeMsg.OPAUTH_FAIL);
-//                }
-//            }
-//        }
+        if (!auth_booking_all) {
+            if (criteria.getArea_id() != null && !areaSet.contains(criteria.getArea_id())) {
+                return new Result(CodeMsg.OPAUTH_FAIL).setMsg("您没有该场地的权限：" + criteria.getArea_id());
+            }
+            if (criteria.getCapsule_id() != null) {
+                Capsule capsule = cacheScheduled.capsuleMapOptions.get(criteria.getCapsule_id());
+                if (capsule != null && !areaSet.contains(capsule.getArea_id())) {
+                    return new Result(CodeMsg.OPAUTH_FAIL).setMsg("您没有该设备的权限：" + criteria.getCapsule_id());
+                }
+            }
+        }
         if (download && !auth_booking_download) {
-            return new Result(CodeMsg.OPAUTH_FAIL);
+            return new Result(CodeMsg.OPAUTH_FAIL).setMsg("您没有下载权限");
         }
         if (download && payMonth != null) {
             int year = payMonth / 100;
@@ -178,30 +178,46 @@ public class BookingController extends BaseController implements InitializingBea
         }
 
         List<Booking> bookingList = null;
-        if (booking_id != null) {
-            Booking booking = bookingService.getBookingById(booking_id);
-            if (booking != null) {
-                bookingList = new ArrayList<>();
-                bookingList.add(booking);
-            }
-        } else if (StringUtils.isNotBlank(city)) {
-            bookingList = bookingService.getBookingListByCity(city);
+
+        List<ScanFilter> filterList = new ArrayList<>();
+
+
+        if (StringUtils.isNotBlank(city)) {
+            filterList.add(new ScanFilter("area_id").in(ListUtils.fieldSet(ListUtils.filter(cacheScheduled.areaList, area ->
+                    city.equals(area.getCity()) && (auth_booking_all || areaSet.contains(area.getArea_id()))
+            ), Area::getArea_id).toArray()));
         } else {
-            List<ScanFilter> filterList = bookingDao.makeScanFilterList(criteria, "area_id", "capsule_id", "uin", "status", "by_op");
-            bookingDao.appendDateRangeFilter(filterList, "create_time", create_date_start, create_date_end);
-            if (StringUtils.isNotBlank(phone)) {
-                UserInfo userInfo = userService.getUserInfoByPhone(phone);
-                if (userInfo != null) {
-                    filterList.add(new ScanFilter("uin").eq(userInfo.getUin()));
-                }
+            if (criteria.getArea_id() != null) {
+                filterList.add(new ScanFilter("area_id").eq(criteria.getArea_id()));
             }
-            ScanSpec scanSpec = new ScanSpec();
-            scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
-            if (download) {
-                scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
+            if (criteria.getCapsule_id() != null) {
+                filterList.add(new ScanFilter("capsule_id").eq(criteria.getCapsule_id()));
             }
-            bookingList = bookingDao.scan(scanSpec);
         }
+
+        if (filterList.size() == 0) {
+            filterList.add(new ScanFilter("area_id").in(ListUtils.fieldSet(ListUtils.filter(cacheScheduled.areaList, area ->
+                    auth_booking_all || areaSet.contains(area.getArea_id())
+            ), Area::getArea_id).toArray()));
+        }
+
+
+        filterList.addAll(bookingDao.makeScanFilterList(criteria, "booking_id", "uin", "status", "by_op"));
+        bookingDao.appendDateRangeFilter(filterList, "create_time", create_date_start, create_date_end);
+        if (StringUtils.isNotBlank(phone)) {
+            UserInfo userInfo = userService.getUserInfoByPhone(phone);
+            if (userInfo != null) {
+                filterList.add(new ScanFilter("uin").eq(userInfo.getUin()));
+            }
+        }
+        ScanSpec scanSpec = new ScanSpec();
+        scanSpec.withScanFilters(filterList.toArray(new ScanFilter[0]));
+        if (download) {
+            scanSpec.withMaxResultSize(BaseDynamoDao.maxDownloadSize);
+        }
+        bookingList = bookingDao.scan(scanSpec);
+
+
         if (bookingList == null) {
             bookingList = new ArrayList<>();
         }
