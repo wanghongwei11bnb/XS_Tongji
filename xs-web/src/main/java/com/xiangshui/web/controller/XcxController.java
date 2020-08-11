@@ -20,8 +20,7 @@ public class XcxController extends BaseController {
     @ResponseBody
     public Result xcx_config() {
 
-        Set<Integer> workAreaIds = new HashSet<>();
-        workAreaIds.addAll(Arrays.asList(
+        Set<Integer> workAreaIds = new HashSet<>(Arrays.asList(
                 1100059,
                 1100111,
                 1100110,
@@ -239,7 +238,8 @@ public class XcxController extends BaseController {
                 1100140,
                 1100144,
                 1100098,
-                1100021
+                1100021,
+                3100071
 
 
         ));
