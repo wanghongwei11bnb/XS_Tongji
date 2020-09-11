@@ -23,6 +23,7 @@ import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
 import com.xiangshui.op.tool.ExcelTools;
+import com.xiangshui.server.tool.BookingGroupTool;
 import com.xiangshui.util.*;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -100,7 +101,7 @@ public class BookingController extends BaseController implements InitializingBea
     @ResponseBody
     public Result search(HttpServletRequest request, HttpServletResponse response,
                          Long booking_id, String city, String phone, Booking criteria, Date create_date_start, Date create_date_end,
-                         Integer payMonth, Boolean download) throws Exception {
+                         Integer payMonth, Boolean download, String group, String groupSelects) throws Exception {
         String op_username = UsernameLocal.get();
         Set<Integer> areaSet = opUserService.getAreaSet(op_username);
         boolean auth_booking_show_phone = opUserService.getAuthSet(op_username).contains(AuthRequired.auth_booking_show_phone);
@@ -227,7 +228,18 @@ public class BookingController extends BaseController implements InitializingBea
             Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
         }
         if (download) {
-            excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_show_coupon ? ExcelTools.EXPORT_COUPON : 0), null, response, "booking.xlsx");
+            if (StringUtils.isNotBlank(group)) {
+                BookingGroupTool.GroupItem groupItem = BookingGroupTool.mkGroupItem(group);
+                List<BookingGroupTool.SelectItem> selectItemList = ListUtils.map(Arrays.asList(groupSelects.split(",")), new CallBackForResult<String, BookingGroupTool.SelectItem>() {
+                    @Override
+                    public BookingGroupTool.SelectItem run(String s) {
+                        return BookingGroupTool.mkSelectItem(s);
+                    }
+                });
+                BookingGroupTool.group(bookingList, groupItem, selectItemList, response, "booking.xlsx");
+            } else {
+                excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_show_coupon ? ExcelTools.EXPORT_COUPON : 0), null, response, "booking.xlsx");
+            }
             return null;
         } else {
             return new Result(CodeMsg.SUCCESS)
@@ -250,7 +262,7 @@ public class BookingController extends BaseController implements InitializingBea
         booking = new Booking();
         booking.setUin(uin);
         booking.setBy_op(1);
-        return search(request, response, null, null, null, booking, create_date_start, create_date_end, null, false);
+        return search(request, response, null, null, null, booking, create_date_start, create_date_end, null, false, null, null);
     }
 
 

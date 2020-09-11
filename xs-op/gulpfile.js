@@ -1,4 +1,4 @@
-var gulp = require('gulp');
+const {series, parallel, src, dest, watch, task} = require('gulp');
 
 var options = require('minimist')(process.argv.slice(2));
 console.log(options);
@@ -18,20 +18,20 @@ var autoprefixer = require('gulp-autoprefixer');
 var minifyCss = require('gulp-minify-css');
 
 
-gulp.task('vendor', function () {
-    gulp.src([
+function vendor(cb) {
+    src([
         './src/main/webapp/vendor/reqwest.min.js',
         './src/main/webapp/vendor/react/react.min.js',
         './src/main/webapp/vendor/react/react-dom.min.js',
     ])
         .pipe(plumber())
         .pipe(concat('vendor.js'))
-        .pipe(gulp.dest('./src/main/webapp/build/js/'));
+        .pipe(dest('./src/main/webapp/build/js/'));
+    cb();
+}
 
-});
-
-gulp.task('js', function () {
-    gulp.src([
+function js(cb) {
+    src([
         './src/main/webapp/static/js/base/*.js',
     ])
         .pipe(plumber())
@@ -41,9 +41,9 @@ gulp.task('js', function () {
             plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/js/'));
+        .pipe(dest('./src/main/webapp/build/js/'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/js/*.js',
     ])
         .pipe(plumber())
@@ -52,9 +52,9 @@ gulp.task('js', function () {
             plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/js/'));
+        .pipe(dest('./src/main/webapp/build/js/'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/components/base/*.js',
     ])
         .pipe(plumber())
@@ -64,9 +64,9 @@ gulp.task('js', function () {
             plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/components/'));
+        .pipe(dest('./src/main/webapp/build/components/'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/components/*.js',
     ])
         .pipe(plumber())
@@ -76,11 +76,12 @@ gulp.task('js', function () {
             plugins: ["transform-class-properties"],
         }))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/components/'));
+        .pipe(dest('./src/main/webapp/build/components/'));
+    cb();
+}
 
-});
-gulp.task('css', function () {
-    gulp.src([
+function css(cb) {
+    src([
         './src/main/webapp/static/**/*.css',
     ])
         .pipe(plumber())
@@ -89,9 +90,9 @@ gulp.task('css', function () {
             cascade: false
         }))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
+        .pipe(dest('./src/main/webapp/build'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/**/*.less',
     ])
         .pipe(plumber())
@@ -101,9 +102,9 @@ gulp.task('css', function () {
             cascade: false
         }))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
+        .pipe(dest('./src/main/webapp/build'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/**/*.scss',
     ])
         .pipe(plumber())
@@ -113,14 +114,20 @@ gulp.task('css', function () {
             cascade: false
         }))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
+        .pipe(dest('./src/main/webapp/build'));
+    cb();
+}
+
+
+exports.vendor = vendor;
+exports.css = css;
+exports.js = js;
+
+exports.default = series(vendor, css, js, function (cb) {
+    watch('./src/main/webapp/static/**/*.js', js);
+    watch('./src/main/webapp/static/**/*.css', css);
+    watch('./src/main/webapp/static/**/*.less', css);
+    watch('./src/main/webapp/static/**/*.scss', css);
+    cb();
 });
 
-gulp.task('default', ['vendor', 'css', 'js'], function () {
-    if (!options.build) {
-        gulp.watch('./src/main/webapp/static/**/*.js', ['js']);
-        gulp.watch('./src/main/webapp/static/**/*.css', ['css']);
-        gulp.watch('./src/main/webapp/static/**/*.less', ['css']);
-        gulp.watch('./src/main/webapp/static/**/*.scss', ['css']);
-    }
-});

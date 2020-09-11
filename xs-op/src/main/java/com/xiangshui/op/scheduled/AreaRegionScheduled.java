@@ -56,7 +56,7 @@ public class AreaRegionScheduled implements InitializingBean {
 
     public Map<Integer, String> areaRegionMap = new HashMap<>();
 
-    //    @Scheduled(fixedDelay = 1000 * 60 * 60 * 1)
+    @Scheduled(fixedDelay = 1000 * 60 * 60 * 1)
     public void update() {
         Map<Integer, String> areaRegionMap = new HashMap<>();
         List<City> cityList = cityService.getCityList();

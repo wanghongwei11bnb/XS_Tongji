@@ -181,6 +181,6 @@ public class AreaController extends BaseController {
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
         criteria.setCapsule_id(capsule_id);
-        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false);
+        return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false, null, null);
     }
 }

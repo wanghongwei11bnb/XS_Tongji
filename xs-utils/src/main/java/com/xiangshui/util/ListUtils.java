@@ -56,5 +56,15 @@ public class ListUtils {
         return result;
     }
 
+    public static <T, R> List<R> map(List<T> list, CallBackForResult<T, R> callBack) {
+        List<R> result = new ArrayList();
+        if (list != null) {
+            for (T t : list) {
+                result.add(callBack.run(t));
+            }
+        }
+        return result;
+    }
+
 
 }

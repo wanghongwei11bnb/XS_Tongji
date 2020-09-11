@@ -31,6 +31,15 @@ class Page extends React.Component {
         window.open(`/api/booking/search?${queryString(queryParams)}`)
     };
 
+    group = () => {
+        let queryParams = this.getQueryParams();
+        queryParams.download = true;
+        queryParams.payMonth = this.refs.payMonth.value;
+        queryParams.group = this.refs.group.value;
+        queryParams.groupSelects = "count,count_user,sum_use_pay,sum_from_charge,count_month_card_flag";
+        window.open(`/api/booking/search?${queryString(queryParams)}`)
+    };
+
 
     render() {
         return <div className="container-fluid my-3">
@@ -80,6 +89,17 @@ class Page extends React.Component {
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 {authMapOptions.get(finalAuthMap.auth_booking_download) ?
                     <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
+                    : null}
+                {authMapOptions.get(finalAuthMap.auth_booking_download) ?
+                    [
+                        <select ref="group" className="form-control form-control-sm d-inline-block mx-3 w-auto">
+                            <option value="date">日期</option>
+                            <option value="month">月份</option>
+                            <option value="area">场地</option>
+                            <option value="capsule">设备</option>
+                        </select>,
+                        <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.group}>聚合统计</button>
+                    ]
                     : null}
             </div>
             <div className="text-danger">最多返回{maxResultSize}条数据</div>

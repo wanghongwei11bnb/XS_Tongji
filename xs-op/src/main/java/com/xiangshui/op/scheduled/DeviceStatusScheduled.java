@@ -55,7 +55,7 @@ public class DeviceStatusScheduled {
     private BlockingQueue<Capsule> blockingQueue = new LinkedBlockingQueue<Capsule>(100000);
 
 
-    @Scheduled(fixedDelay = 1000 * 60 * 60)
+    @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void put() {
         if (debug) return;
         log.debug("［定时任务——获取硬件设备状态——入队］");

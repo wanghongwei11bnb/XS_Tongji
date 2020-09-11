@@ -13,10 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class ExcelUtils {
 
@@ -55,7 +52,7 @@ public class ExcelUtils {
         return workbook;
     }
 
-    public static <T> XSSFWorkbook export(List<Column<T>> columnList, List<T> data) {
+    public static <T> XSSFWorkbook export(Collection<Column<T>> columnList, Collection<T> data) {
         List<List<Object>> listDate = new ArrayList<List<Object>>();
         List<Object> header = new ArrayList<Object>();
         for (Column<T> column : columnList) {
@@ -90,7 +87,7 @@ public class ExcelUtils {
         return export(listDate);
     }
 
-    public static <T> void export(List<Column<T>> columnList, List<T> data, File file) throws IOException {
+    public static <T> void export(Collection<Column<T>> columnList, Collection<T> data, File file) throws IOException {
         XSSFWorkbook workbook = export(columnList, data);
         OutputStream outputStream = new FileOutputStream(file);
         workbook.write(outputStream);
@@ -99,7 +96,7 @@ public class ExcelUtils {
         workbook.close();
     }
 
-    public static <T> void export(List<Column<T>> columnList, List<T> data, HttpServletResponse response, String fileName) throws IOException {
+    public static <T> void export(Collection<Column<T>> columnList, Collection<T> data, HttpServletResponse response, String fileName) throws IOException {
         XSSFWorkbook workbook = export(columnList, data);
         response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("utf-8"), "ISO8859-1"));
         ServletOutputStream outputStream = response.getOutputStream();
