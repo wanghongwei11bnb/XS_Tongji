@@ -5,6 +5,7 @@ import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.bean.DeviceStatus;
 import com.xiangshui.op.scheduled.AreaRegionScheduled;
+import com.xiangshui.op.scheduled.CheckCapsuleStatusScheduled;
 import com.xiangshui.op.scheduled.DeviceStatusScheduled;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
@@ -30,6 +31,8 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.xiangshui.op.annotation.AuthRequired.*;
+
 @Controller
 public class DeviceController extends BaseController {
 
@@ -50,6 +53,9 @@ public class DeviceController extends BaseController {
 
     @Autowired
     AreaRegionScheduled areaRegionScheduled;
+
+    @Autowired
+    CheckCapsuleStatusScheduled checkCapsuleStatusScheduled;
 
     @Menu(value = "实时设备状态")
     @AuthRequired("实时设备状态")
@@ -148,7 +154,7 @@ public class DeviceController extends BaseController {
         }
     }
 
-    @Menu("实时设备状态——更新")
+    //    @Menu("实时设备状态——更新")
     @AuthRequired("实时设备状态——更新")
     @PostMapping("/api/device_status/refresh")
     @ResponseBody
@@ -176,6 +182,21 @@ public class DeviceController extends BaseController {
             return new Result(-1, "头等舱没有配置设备编号");
         }
         return device_status(capsule.getDevice_id());
+    }
+
+
+    @PostMapping("/api/capsule/check/status")
+    @AuthRequired(auth_check_capsule_status)
+    @ResponseBody
+    public Result check(Boolean update) {
+        if (update == null) update = false;
+        if (update) {
+            Set<Capsule> capsuleSet = checkCapsuleStatusScheduled.checkAndUpdate();
+            return new Result(0, null).putData("capsuleList", capsuleSet);
+        } else {
+            Set<Capsule> capsuleSet = checkCapsuleStatusScheduled.check();
+            return new Result(0, null).putData("capsuleList", capsuleSet);
+        }
     }
 
 

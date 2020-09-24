@@ -45,4 +45,6 @@ public @interface AuthRequired {
 
     String auth_red_bag = "周年活动";
 
+    String auth_check_capsule_status="检查设备状态";
+
 }

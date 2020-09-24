@@ -1,15 +1,22 @@
 package com.xiangshui.server.tool;
 
+import com.xiangshui.server.cache.BaseCache;
 import com.xiangshui.server.domain.Booking;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+@Component
 public class BookingGroupTool {
+
+    @Autowired
+    public BaseCache cache;
 
     @Data
     public static abstract class GroupItem {
@@ -17,12 +24,43 @@ public class BookingGroupTool {
 
         private Map<Object, List<Booking>> keyMap = new TreeMap();
 
+        protected List<DeriveItem> deriveItemList = this.deriveItemList();
+
+        protected List<DeriveItem> deriveItemList() {
+            return null;
+        }
+
         public GroupItem(String title) {
             this.title = title;
         }
 
         public abstract Object groupKey(Booking booking);
 
+
+        public void mapDeriveItemList() {
+            if (this.deriveItemList != null) {
+                this.deriveItemList.forEach(deriveItem -> this.keyMap.forEach((key, bookingList) -> {
+                    deriveItem.keyMap.put(key, deriveItem.map(key, bookingList));
+                }));
+            }
+        }
+    }
+
+    @Data
+    public static abstract class DeriveItem<T> {
+        private String title;
+        private Map<Object, T> keyMap = new HashMap<>();
+
+        public DeriveItem(String title) {
+            this.title = title;
+        }
+
+        public T render(Object key) {
+            return keyMap.get(key);
+        }
+
+
+        public abstract T map(Object key, List<Booking> bookingList);
     }
 
     @Data
@@ -40,13 +78,13 @@ public class BookingGroupTool {
             T value = this.initialValue();
             if (bookingList != null) {
                 for (Booking booking : bookingList) {
-                    value = this.reduce(value, booking);
+                    value = this.map(value, booking);
                 }
             }
             return value;
         }
 
-        protected abstract T reduce(T value, Booking booking);
+        protected abstract T map(T value, Booking booking);
 
         public Object render(Object key) {
             return this.keyMap.get(key);
@@ -54,7 +92,7 @@ public class BookingGroupTool {
     }
 
 
-    public static GroupItem mkGroupItem(String type) {
+    public GroupItem mkGroupItem(String type) {
         switch (type) {
             case "month":
                 return new GroupItem("月份") {
@@ -73,12 +111,26 @@ public class BookingGroupTool {
             case "area":
                 return new GroupItem("场地") {
                     @Override
+                    protected List<DeriveItem> deriveItemList() {
+                        return Arrays.asList(
+                                new DeriveItem<String>("场地名称") {
+                                    @Override
+                                    public String map(Object key, List<Booking> bookingList) {
+                                        return cache.areaMapOptions.containsKey(key) ? cache.areaMapOptions.get(key).getTitle() : null;
+                                    }
+                                }
+                        );
+                    }
+
+                    @Override
                     public Object groupKey(Booking booking) {
                         return booking.getArea_id();
+
                     }
                 };
             case "capsule":
                 return new GroupItem("设备") {
+
                     @Override
                     public Object groupKey(Booking booking) {
                         return booking.getCapsule_id();
@@ -89,7 +141,7 @@ public class BookingGroupTool {
         }
     }
 
-    public static SelectItem mkSelectItem(String type) {
+    public SelectItem mkSelectItem(String type) {
         switch (type) {
             case "count":
                 return new SelectItem<Integer>("订单数") {
@@ -100,7 +152,7 @@ public class BookingGroupTool {
                     }
 
                     @Override
-                    protected Integer reduce(Integer value, Booking booking) {
+                    protected Integer map(Integer value, Booking booking) {
                         return value + 1;
                     }
                 };
@@ -116,7 +168,7 @@ public class BookingGroupTool {
 
 
                     @Override
-                    protected Integer reduce(Integer value, Booking booking) {
+                    protected Integer map(Integer value, Booking booking) {
                         uinSet.add(booking.getUin());
                         return uinSet.size();
                     }
@@ -129,7 +181,7 @@ public class BookingGroupTool {
                     }
 
                     @Override
-                    protected Integer reduce(Integer value, Booking booking) {
+                    protected Integer map(Integer value, Booking booking) {
                         return value + (booking.getUse_pay() != null ? booking.getUse_pay() : 0);
                     }
 
@@ -146,7 +198,7 @@ public class BookingGroupTool {
                     }
 
                     @Override
-                    protected Integer reduce(Integer value, Booking booking) {
+                    protected Integer map(Integer value, Booking booking) {
                         return value + (booking.getFrom_charge() != null ? booking.getFrom_charge() : 0);
                     }
 
@@ -163,7 +215,7 @@ public class BookingGroupTool {
                     }
 
                     @Override
-                    protected Integer reduce(Integer value, Booking booking) {
+                    protected Integer map(Integer value, Booking booking) {
                         return value + (new Integer(1).equals(booking.getMonth_card_flag()) ? 1 : 0);
                     }
                 };
@@ -173,7 +225,7 @@ public class BookingGroupTool {
     }
 
 
-    public static void group(List<Booking> bookingList, GroupItem groupItem, List<SelectItem> selectItemList) {
+    public void group(List<Booking> bookingList, GroupItem groupItem, List<SelectItem> selectItemList) {
         if (bookingList != null) {
             for (Booking booking : bookingList) {
                 Object key = groupItem.groupKey(booking);
@@ -184,6 +236,7 @@ public class BookingGroupTool {
                 groupItem.keyMap.get(key).add(booking);
             }
         }
+        groupItem.mapDeriveItemList();
         for (Object key : groupItem.keyMap.keySet()) {
             for (SelectItem selectItem : selectItemList) {
                 selectItem.keyMap.put(key, selectItem.count(groupItem.keyMap.get(key)));
@@ -191,7 +244,7 @@ public class BookingGroupTool {
         }
     }
 
-    public static void group(List<Booking> bookingList, GroupItem groupItem, List<SelectItem> selectItemList, HttpServletResponse response, String fileName) throws IOException {
+    public void group(List<Booking> bookingList, GroupItem groupItem, List<SelectItem> selectItemList, HttpServletResponse response, String fileName) throws IOException {
         group(bookingList, groupItem, selectItemList);
         List<ExcelUtils.Column<Object>> columnList = new ArrayList<>();
         columnList.add(new ExcelUtils.Column(groupItem.getTitle()) {
@@ -200,6 +253,14 @@ public class BookingGroupTool {
                 return o;
             }
         });
+        if (groupItem.deriveItemList != null) {
+            groupItem.deriveItemList.forEach(deriveItem -> columnList.add(new ExcelUtils.Column(deriveItem.getTitle()) {
+                @Override
+                public Object render(Object o) {
+                    return deriveItem.render(o);
+                }
+            }));
+        }
         for (SelectItem selectItem : selectItemList) {
             columnList.add(new ExcelUtils.Column(selectItem.getTitle()) {
                 @Override

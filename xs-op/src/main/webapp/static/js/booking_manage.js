@@ -75,17 +75,17 @@ class Page extends React.Component {
                 <input ref="phone" type="text"
                        className="form-control form-control-sm d-inline-block mx-3 w-auto"/>
 
-                订单支付月份<span className="text-danger">（下载有效）</span>：
-                <select ref="payMonth" className="form-control form-control-sm d-inline-block mx-3 w-auto">
-                    <option value=""></option>
-                    {(() => {
-                        let os = [];
-                        for (let i = new Date().getMonth() + 1; i >= 1; i--) {
-                            os.push(<option value={201800 + i}>2018年{i}月</option>);
-                        }
-                        return os;
-                    })()}
-                </select>
+                {/*订单支付月份<span className="text-danger">（下载有效）</span>：*/}
+                {/*<select ref="payMonth" className="form-control form-control-sm d-inline-block mx-3 w-auto">*/}
+                    {/*<option value=""></option>*/}
+                    {/*{(() => {*/}
+                        {/*let os = [];*/}
+                        {/*for (let i = new Date().getMonth() + 1; i >= 1; i--) {*/}
+                            {/*os.push(<option value={201800 + i}>2018年{i}月</option>);*/}
+                        {/*}*/}
+                        {/*return os;*/}
+                    {/*})()}*/}
+                {/*</select>*/}
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 {authMapOptions.get(finalAuthMap.auth_booking_download) ?
                     <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>

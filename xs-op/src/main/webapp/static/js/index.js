@@ -139,6 +139,11 @@ class Page extends React.Component {
                                onClick={this.checkTab.bind(this, menu.title, menu.path)}>{menu.title}</A>
                         </li>
                     })}
+                    {authMapOptions.get(finalAuthMap.auth_check_capsule_status) ?
+                        <li className="nav-item float-right">
+                            <A className="nav-link" onClick={this.check}>检查设备状态</A>
+                        </li>
+                        : null}
                     <li className="nav-item float-right">
                         <A className="nav-link" onClick={this.logout}>退出</A>
                     </li>
@@ -164,9 +169,24 @@ class Page extends React.Component {
         }}>是否退出？</ConfirmModal>);
     };
 
+    check = () => {
+        Modal.open(<ConfirmModal ok={() => {
+            request({
+                url: `/api/capsule/check/status`, method: 'post', loading: true, data: {
+                    update: true
+                }, success: resp => {
+                    Modal.open(<AlertModal>
+                        <pre><code>{JSON.stringify(resp.data, null, 2)}</code></pre>
+                    </AlertModal>);
+                }
+            });
+        }}>请尽量避免在高峰期频繁使用此功能！！！</ConfirmModal>);
+    };
+
     componentDidMount() {
     }
 }
+
 loadOpInfo();
 
 ReactDOM.render(<Page/>, document.getElementById('root'));

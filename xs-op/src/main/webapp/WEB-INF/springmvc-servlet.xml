@@ -20,6 +20,7 @@
         <property name="converters">
             <list>
                 <bean class="com.xiangshui.util.web.converter.StringConverter"/>
+                <bean class="com.xiangshui.util.web.converter.BooleanConverter"/>
                 <bean class="com.xiangshui.util.web.converter.LocalDateConverter"/>
                 <bean class="com.xiangshui.util.web.converter.DateConverter"/>
             </list>

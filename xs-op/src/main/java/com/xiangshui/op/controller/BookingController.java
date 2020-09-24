@@ -89,6 +89,11 @@ public class BookingController extends BaseController implements InitializingBea
     @Autowired
     CacheScheduled cacheScheduled;
 
+
+
+    @Autowired
+    BookingGroupTool bookingGroupTool;
+
     @Menu(value = "订单管理")
     @AuthRequired({AuthRequired.auth_booking, AuthRequired.auth_booking_all})
     @GetMapping("/booking_manage")
@@ -229,14 +234,9 @@ public class BookingController extends BaseController implements InitializingBea
         }
         if (download) {
             if (StringUtils.isNotBlank(group)) {
-                BookingGroupTool.GroupItem groupItem = BookingGroupTool.mkGroupItem(group);
-                List<BookingGroupTool.SelectItem> selectItemList = ListUtils.map(Arrays.asList(groupSelects.split(",")), new CallBackForResult<String, BookingGroupTool.SelectItem>() {
-                    @Override
-                    public BookingGroupTool.SelectItem run(String s) {
-                        return BookingGroupTool.mkSelectItem(s);
-                    }
-                });
-                BookingGroupTool.group(bookingList, groupItem, selectItemList, response, "booking.xlsx");
+                BookingGroupTool.GroupItem groupItem = bookingGroupTool.mkGroupItem(group);
+                List<BookingGroupTool.SelectItem> selectItemList = ListUtils.map(Arrays.asList(groupSelects.split(",")), s -> bookingGroupTool.mkSelectItem(s));
+                bookingGroupTool.group(bookingList, groupItem, selectItemList, response, "booking.xlsx");
             } else {
                 excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_show_coupon ? ExcelTools.EXPORT_COUPON : 0), null, response, "booking.xlsx");
             }
