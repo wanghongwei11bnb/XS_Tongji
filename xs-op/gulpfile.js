@@ -124,10 +124,12 @@ exports.css = css;
 exports.js = js;
 
 exports.default = series(vendor, css, js, function (cb) {
-    watch('./src/main/webapp/static/**/*.js', js);
-    watch('./src/main/webapp/static/**/*.css', css);
-    watch('./src/main/webapp/static/**/*.less', css);
-    watch('./src/main/webapp/static/**/*.scss', css);
+    if (!options.build) {
+        watch('./src/main/webapp/static/**/*.js', js);
+        watch('./src/main/webapp/static/**/*.css', css);
+        watch('./src/main/webapp/static/**/*.less', css);
+        watch('./src/main/webapp/static/**/*.scss', css);
+    }
     cb();
 });
 
