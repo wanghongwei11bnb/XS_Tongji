@@ -27,14 +27,14 @@ class Page extends React.Component {
     download = () => {
         let queryParams = this.getQueryParams();
         queryParams.download = true;
-        queryParams.payMonth = this.refs.payMonth.value;
+        // queryParams.payMonth = this.refs.payMonth.value;
         window.open(`/api/booking/search?${queryString(queryParams)}`)
     };
 
     group = () => {
         let queryParams = this.getQueryParams();
         queryParams.download = true;
-        queryParams.payMonth = this.refs.payMonth.value;
+        // queryParams.payMonth = this.refs.payMonth.value;
         queryParams.group = this.refs.group.value;
         queryParams.groupSelects = "count,count_user,sum_use_pay,sum_from_charge,count_month_card_flag";
         window.open(`/api/booking/search?${queryString(queryParams)}`)
