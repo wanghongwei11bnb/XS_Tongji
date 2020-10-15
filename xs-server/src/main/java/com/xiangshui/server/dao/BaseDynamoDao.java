@@ -11,6 +11,7 @@ import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.xiangshui.util.CallBack;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.ListUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,10 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.Consumer;
 
+@Slf4j
 abstract public class BaseDynamoDao<T> {
 
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
     protected static AmazonDynamoDB client;
     protected static DynamoDB dynamoDB;
     protected static boolean inited;

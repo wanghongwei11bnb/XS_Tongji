@@ -146,7 +146,7 @@ public class AmountCalculator {
 
         System.out.println(JSON.toJSONString(reckon(new AmountReckonParam()
                         .setStart_time(new DateTime(1567262839l * 1000)).setEnd_time(new DateTime(1567293775l * 1000))
-//                        .setUse_month_card(true)
+                        .setUse_month_card(true)
                         .setUnit_price(20)
                         .setWrap_day(true).setWrap_day_price(9900)
                         .setWrap_night(true).setWrap_night_price(1500)

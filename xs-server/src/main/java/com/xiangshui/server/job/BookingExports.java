@@ -154,6 +154,24 @@ public class BookingExports {
     }
 
 
+    public void df() {
+        List<Booking> bookingList = bookingDao.scan(new ScanSpec().withMaxResultSize(Integer.MAX_VALUE).withScanFilters(
+                new ScanFilter("area_id").in(2501003, 2501039, 2501002, 2501001, 2501005, 2501004)
+        ));
+
+
+
+
+    }
+
+
+    public void ex(List<Booking> bookingList){
+
+
+
+    }
+
+
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
         SpringUtils.getBean(BookingExports.class).test123();

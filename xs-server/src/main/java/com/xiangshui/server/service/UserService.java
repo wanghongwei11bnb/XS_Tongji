@@ -12,6 +12,7 @@ import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.UserInfoRelation;
 import com.xiangshui.util.CallBackForResult;
+import com.xiangshui.util.Option;
 import com.xiangshui.util.web.result.CodeMsg;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -145,6 +146,57 @@ public class UserService {
         walletRecord.setOperator(op_username);
         walletRecord.setSubject(subject);
         walletRecord.setCreate_time(System.currentTimeMillis() / 1000);
+        walletRecordDao.putItem(walletRecord);
+    }
+
+    /**
+     * 修改用户钱包余额
+     *
+     * @param uin
+     * @param amount
+     */
+    public void updateBalance(int uin, int type, int amount, String op_username) throws Exception {
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", uin));
+        if (userWallet == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+        if (userWallet.getBalance() == null) userWallet.setBalance(0);
+        if (userWallet.getBonus() == null) userWallet.setBonus(0);
+        if (userWallet.getCharge() == null) userWallet.setCharge(0);
+
+        WalletRecord walletRecord = new WalletRecord();
+        walletRecord.setOut_trade_no(UUID.randomUUID().toString().replaceAll("-", ""));
+        walletRecord.setUin(uin);
+        walletRecord.setPrice(amount);
+        walletRecord.setType(4);
+        walletRecord.setOperator(op_username);
+        walletRecord.setCreate_time(System.currentTimeMillis() / 1000);
+
+        // 1：活动赠送，2：系统补偿，3：系统扣除
+        switch (type) {
+            case 1:
+                walletRecord.setSubject("活动赠送");
+                userWallet.setBonus(userWallet.getBonus() + amount);
+                break;
+            case 2:
+                walletRecord.setSubject("系统补偿");
+                userWallet.setBonus(userWallet.getBonus() + amount);
+                break;
+            case 3:
+                walletRecord.setSubject("系统扣除");
+                if (userWallet.getCharge() >= amount) {
+                    userWallet.setCharge(userWallet.getCharge() - amount);
+                } else if (userWallet.getCharge() + userWallet.getBonus() >= amount) {
+                    int temp = amount - userWallet.getCharge();
+                    userWallet.setCharge(0);
+                    userWallet.setBonus(userWallet.getBonus() - temp);
+                } else {
+                    throw new XiangShuiException("账户余额不够扣除！");
+                }
+                break;
+            default:
+                break;
+        }
+        userWallet.setBalance(userWallet.getCharge() + userWallet.getBonus());
+        userWalletDao.updateItem(new PrimaryKey("uin", uin), userWallet, new String[]{"balance", "bonus", "charge"});
         walletRecordDao.putItem(walletRecord);
     }
 

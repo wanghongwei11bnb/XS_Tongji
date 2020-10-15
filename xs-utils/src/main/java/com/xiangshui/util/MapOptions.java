@@ -34,5 +34,19 @@ public abstract class MapOptions<P, T> extends HashMap<P, T> {
         return list;
     }
 
+    public <R> R tryValueForResult(P key, CallBackForResult<T, R> callBackForResult, R defaultValue) {
+        if (!this.containsKey(key)) {
+            return defaultValue;
+        }
+        T value = this.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (callBackForResult == null) {
+            return defaultValue;
+        }
+        return callBackForResult.run(value);
+    }
+
 
 }

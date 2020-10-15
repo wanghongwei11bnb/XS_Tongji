@@ -87,6 +87,7 @@ class Page extends React.Component {
                 状态：
                 <select ref="status" className="form-control form-control-sm d-inline-block mx-3 w-auto">
                     <option value=""></option>
+                    <option value="0">正常</option>
                     <option value="-1">已下线</option>
                     <option value="-2">待运营</option>
                 </select>

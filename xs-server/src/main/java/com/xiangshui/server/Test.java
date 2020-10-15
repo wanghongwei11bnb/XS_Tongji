@@ -474,25 +474,27 @@ public class Test {
 
 
         SpringUtils.init();
-        SpringUtils.getBean(Test.class).exportBookingList(
-                new ScanSpec().withMaxResultSize(Integer.MAX_VALUE)
-                        .withScanFilters(
-                                new ScanFilter("guohang_confirm_id").exists()
-                        )
-                , "/Users/whw/Downloads/国航订单.xlsx"
-        );
-//        SpringUtils.getBean(Test.class).bookingList();
-//        SpringUtils.getBean(Test.class).importAreaContract();
-//        SpringUtils.getBean(MailService.class).sendHtml("973119204@qq.com", "test", "<html><head></head><body><h1>hello!!spring html Mail</h1></body></html>");
+//        SpringUtils.getBean(Test.class).exportBookingList(
+//                new ScanSpec().withMaxResultSize(Integer.MAX_VALUE)
+//                        .withScanFilters(
+//                                new ScanFilter("guohang_confirm_id").exists()
+//                        )
+//                , "/Users/whw/Downloads/国航订单.xlsx"
+//        );
 
 
-//        System.out.println(System.getProperties().getProperty("user.home"));
-//        System.out.println(System.getProperties().getProperty("user.dir"));
+        AreaDao areaDao = SpringUtils.getBean(AreaDao.class);
 
-
-//        log.info(System.currentTimeMillis() + "");
-//        log.info((System.currentTimeMillis() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
-//        log.info((new LocalDate(2120, 1, 1).toDate().getTime() - new LocalDate(2020, 1, 1).toDate().getTime()) + "");
+        for (Area area : areaDao.scan()) {
+            if (area.getStatus() == null) {
+                area.setStatus(0);
+                areaDao.updateItem(new PrimaryKey("area_id", area.getArea_id()), area, new String[]{
+                        "status"
+                });
+                log.info(JSON.toJSONString(area));
+            }
+        }
+        log.info("finish");
 
     }
 }
