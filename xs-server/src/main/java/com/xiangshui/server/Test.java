@@ -483,17 +483,29 @@ public class Test {
 //        );
 
 
-        AreaDao areaDao = SpringUtils.getBean(AreaDao.class);
+//        AreaDao areaDao = SpringUtils.getBean(AreaDao.class);
+//        for (Area area : areaDao.scan()) {
+//            if (area.getStatus() == null) {
+//                area.setStatus(0);
+//                areaDao.updateItem(new PrimaryKey("area_id", area.getArea_id()), area, new String[]{
+//                        "status"
+//                });
+//                log.info(JSON.toJSONString(area));
+//            }
+//        }
 
-        for (Area area : areaDao.scan()) {
-            if (area.getStatus() == null) {
-                area.setStatus(0);
-                areaDao.updateItem(new PrimaryKey("area_id", area.getArea_id()), area, new String[]{
-                        "status"
-                });
-                log.info(JSON.toJSONString(area));
-            }
+
+        CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
+        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)));
+
+
+        for (Capsule capsule : capsuleList) {
+
+
+
         }
+
+
         log.info("finish");
 
     }
