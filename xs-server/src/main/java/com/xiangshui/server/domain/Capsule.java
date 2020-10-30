@@ -17,6 +17,11 @@ public class Capsule {
     //301第三代人体感应，311第三代人体感应，按摩沙发
     private Integer device_version;
 
+    /**
+     * 归属状态：0 正常运营，1 赠予场地，2 已销毁
+     */
+    private Integer belong_status;
+
 
     private String remark;
 

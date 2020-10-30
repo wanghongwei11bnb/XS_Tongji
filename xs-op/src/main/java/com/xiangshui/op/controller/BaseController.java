@@ -33,7 +33,6 @@ public class BaseController {
     boolean debug;
 
 
-
     @Autowired
     DiscountCouponDao discountCouponDao;
 
@@ -104,6 +103,8 @@ public class BaseController {
         request.setAttribute("maxResultSize", BaseDynamoDao.maxResultSize);
         request.setAttribute("testUinSet", JSON.toJSONString(areaBillScheduled.testUinSet));
         request.setAttribute("testPhoneSet", JSON.toJSONString(areaBillScheduled.testPhoneSet));
+        request.setAttribute("badCapsuleIdSet", JSON.toJSONString(cacheScheduled.badCapsuleIdSet));
+        request.setAttribute("giveCapsuleIdSet", JSON.toJSONString(cacheScheduled.giveCapsuleIdSet));
         setOptions(request);
     }
 
@@ -119,6 +120,7 @@ public class BaseController {
     }
 
     public void setOptions(HttpServletRequest request) {
+        request.setAttribute("CapsuleBelongStatusOption", JSON.toJSONString(CapsuleBelongStatusOption.options));
         request.setAttribute("AreaStatusOption", JSON.toJSONString(AreaStatusOption.options));
         request.setAttribute("CapsuleStatusOption", JSON.toJSONString(CapsuleStatusOption.options));
         request.setAttribute("DeviceVersionOption", JSON.toJSONString(DeviceVersionOption.options));

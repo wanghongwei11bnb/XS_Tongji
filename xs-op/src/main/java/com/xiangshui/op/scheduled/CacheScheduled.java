@@ -4,14 +4,14 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.domain.*;
 import com.xiangshui.util.MapOptions;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class CacheScheduled implements InitializingBean {
@@ -42,6 +42,10 @@ public class CacheScheduled implements InitializingBean {
     public MapOptions<Long, Capsule> capsuleMapOptions;
     public MapOptions<Integer, UserInfo> userInfoMapOptions;
     public Map<String, Integer> phoneUinMap;
+
+    public Set<Long> badCapsuleIdSet = new HashSet<>();
+    public Set<Long> giveCapsuleIdSet = new HashSet<>();
+
 
     @Scheduled(fixedDelay = 1000 * 60 * 10)
     public void task() {
@@ -91,9 +95,9 @@ public class CacheScheduled implements InitializingBean {
                 return userInfo.getUin();
             }
         };
-        phoneUinMap=new HashMap<>();
+        phoneUinMap = new HashMap<>();
         for (UserInfo userInfo : userInfoList) {
-            phoneUinMap.put(userInfo.getPhone(),userInfo.getUin());
+            phoneUinMap.put(userInfo.getPhone(), userInfo.getUin());
         }
     }
 
@@ -101,5 +105,19 @@ public class CacheScheduled implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         updateCache();
+        Set<Long> badCapsuleIdSet = new HashSet<>();
+        Set<Long> giveCapsuleIdSet = new HashSet<>();
+        for (String s : IOUtils.readLines(this.getClass().getResourceAsStream("/场地运营/bad_capsule_ids.txt"))) {
+            if (StringUtils.isNotBlank(s) && s.matches("^\\d+$")) {
+                badCapsuleIdSet.add(Long.valueOf(s));
+            }
+        }
+        for (String s : IOUtils.readLines(this.getClass().getResourceAsStream("/场地运营/give_capsule_ids.txt"))) {
+            if (StringUtils.isNotBlank(s) && s.matches("^\\d+$")) {
+                giveCapsuleIdSet.add(Long.valueOf(s));
+            }
+        }
+        this.badCapsuleIdSet = badCapsuleIdSet;
+        this.giveCapsuleIdSet = giveCapsuleIdSet;
     }
 }

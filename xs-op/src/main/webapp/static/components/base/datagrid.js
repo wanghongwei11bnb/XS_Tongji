@@ -1,3 +1,35 @@
+const GridUtils = {
+    mkBaseColumn: function (field, title, render) {
+        return {field: field, title: title || field, render};
+    },
+    mkDateColumn: function (field, title, format) {
+        return this.mkBaseColumn(field, title, value => {
+            return value ? new Date(value * 1000).format(format || 'yyyy-MM-dd hh:mm') : value;
+        });
+    },
+    mkOptionColumn: function (field, title, options) {
+        return this.mkBaseColumn(field, title, value => {
+            if (options == null || options.length === 0) return value || null;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value == value) {
+                    switch (options[i].color) {
+                        case "success":
+                            return <span className="text-success">{options[i].text}</span>;
+                        case "primary":
+                            return <span className="text-primary">{options[i].text}</span>;
+                        case "danger":
+                            return <span className="text-danger">{options[i].text}</span>;
+                        default:
+                            return options[i].text;
+                    }
+                }
+            }
+            return value || null;
+        });
+    },
+};
+
+
 class Table extends React.Component {
     constructor(props) {
         super(props);
