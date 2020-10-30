@@ -54,7 +54,7 @@ public class CapsuleController extends BaseController {
 
         List<Capsule> capsuleList = capsuleDao.scan(scanSpec);
 
-        capsuleList = ListUtils.filter(capsuleList, capsule -> !ListUtils.fieldSet(ListUtils.filter(cacheScheduled.areaList, area -> new Integer(-1).equals(area.getStatus())), Area::getArea_id).contains(capsule.getArea_id()));
+//        capsuleList = ListUtils.filter(capsuleList, capsule -> !ListUtils.fieldSet(ListUtils.filter(cacheScheduled.areaList, area -> new Integer(-1).equals(area.getStatus())), Area::getArea_id).contains(capsule.getArea_id()));
 
         capsuleList.sort(Comparator.comparing(Capsule::getCapsule_id));
 
