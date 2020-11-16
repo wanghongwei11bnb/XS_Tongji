@@ -7,18 +7,22 @@ import com.xiangshui.op.bean.DeviceStatus;
 import com.xiangshui.op.scheduled.AreaRegionScheduled;
 import com.xiangshui.op.scheduled.CheckCapsuleStatusScheduled;
 import com.xiangshui.op.scheduled.DeviceStatusScheduled;
+import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.mysql.Device;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.CallBackForResult;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
+import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.helper.StringUtil;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -197,6 +201,44 @@ public class DeviceController extends BaseController {
             Set<Capsule> capsuleSet = checkCapsuleStatusScheduled.check();
             return new Result(0, null).putData("capsuleList", capsuleSet);
         }
+    }
+
+    @Menu(value = "所有设备")
+    @AuthRequired("场地管理（全国）")
+    @GetMapping("/capsule_manage")
+    public String capsule_manage(HttpServletRequest request) {
+        setClient(request);
+        return "capsule_manage";
+    }
+
+
+    @GetMapping("/api/device/belong/set")
+    @ResponseBody
+    public Result device_belong_set() {
+        List<String> belongs = deviceDao.group("belong", null, String.class);
+        return new Result(CodeMsg.SUCCESS).putData("belongs", belongs);
+    }
+
+
+    @GetMapping("/api/device/search")
+    @ResponseBody
+    public Result device_search(Device query) throws IllegalAccessException {
+
+        Example example = new Example();
+        example.getConditions().conditionList.addAll(
+                deviceDao.makeConditionList(query, new String[]{
+                        "id",
+                        "belong",
+                }, true)
+        );
+
+        List<Device> deviceList = deviceDao.selectByExample(example);
+
+        return new Result(CodeMsg.SUCCESS)
+                .putData("deviceList", deviceList)
+                .putData("areaList", cacheScheduled.areaList)
+                .putData("capsuleList", cacheScheduled.capsuleList)
+                ;
     }
 
 

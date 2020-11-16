@@ -9,6 +9,7 @@ import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.op.tool.BookingReportTools;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.mysql.DeviceDao;
 import com.xiangshui.server.dao.mysql.SwiperItemDao;
 import com.xiangshui.server.service.*;
 import com.xiangshui.util.DateUtils;
@@ -85,6 +86,9 @@ public class BaseController {
 
     @Autowired
     BookingReportTools bookingReportTools;
+
+    @Autowired
+    DeviceDao deviceDao;
 
 
     private long ts = System.currentTimeMillis();

@@ -3,22 +3,19 @@ class CapsuleGrid extends React.Component {
         super(props);
         this.state = {
             columns: [
-                GridUtils.mkBaseColumn('capsule_id', '设备编号'),
-                GridUtils.mkBaseColumn('device_id', '硬件设备ID'),
+
+
+                GridUtils.mkBaseColumn('id', '硬件设备ID'),
+                GridUtils.mkBaseColumn('city', '城市'),
+                GridUtils.mkBaseColumn('area_id', '场地编号'),
+                GridUtils.mkBaseColumn('area_title', '场地名称'),
+                GridUtils.mkBaseColumn('capsule_id', '头等舱编号'),
                 GridUtils.mkOptionColumn('device_version', '硬件设备版本', DeviceVersionOption),
                 GridUtils.mkBaseColumn('area_id', '场地编号'),
                 GridUtils.mkBaseColumn('area_id', '城市', value => this.state.areaMapOptions.getField(value, 'city')),
                 GridUtils.mkBaseColumn('area_id', '场地名称', value => this.state.areaMapOptions.getField(value, 'title')),
-                GridUtils.mkOptionColumn('status', '设备状态', [{value: 1, text: '空闲', color: 'success'}, {value: 2, text: '占用', color: 'danger'}]),
                 GridUtils.mkDateColumn('create_time', '创建时间'),
-                GridUtils.mkBaseColumn('capsule_id', '归属状态', value => {
-                    if (badCapsuleIdSet.indexOf(value) > -1) {
-                        return <span className="text-danger">已销毁</span>;
-                    } else if (giveCapsuleIdSet.indexOf(value) > -1) {
-                        return <span className="text-warning">赠予场地</span>;
-                    }
-                }),
-
+                GridUtils.mkBaseColumn('belong', '归属状态'),
                 GridUtils.mkBaseColumn('remark', '备注'),
             ],
             areaMapOptions: new AreaMapOptions(),
@@ -33,10 +30,33 @@ class CapsuleGrid extends React.Component {
     load = (queryParams) => {
         if (queryParams) this.state.queryParams = queryParams;
         request({
-            url: `/api/capsule/search`, loading: true,
+            url: `/api/device/search`, loading: true,
             data: this.state.queryParams,
             success: resp => {
-                this.state.data = resp.data.capsuleList || [];
+                this.state.data = resp.data.deviceList || [];
+                const capsuleList = resp.data.capsuleList || [];
+                const areaList = resp.data.areaList || [];
+                const areaMapOptions = new AreaMapOptions(areaList);
+                this.state.data.forEach(item => {
+
+                    capsuleList.forEach(capsule => {
+                        if (capsule.device_id === item.id) {
+                            item.capsule = capsule;
+                            item.device_version = capsule.device_version;
+                            item.capsule_id = capsule.capsule_id;
+                            item.create_time = capsule.create_time;
+                            const area = areaMapOptions.get(capsule.area_id);
+                            if (area) {
+                                item.area = area;
+                                item.area_id = area.area_id;
+                                item.area_title = area.title;
+                                item.city = area.city;
+                            }
+                        }
+                    });
+
+                });
+                console.log(this.state.data);
                 this.setState({});
             }
         });
@@ -89,14 +109,7 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
-        request({
-            url: '/api/activeCityList',
-            success: (resp) => {
-                if (resp.code == 0) {
-                    this.setState({cityList: resp.data.cityList});
-                }
-            }
-        });
+        this.search();
     }
 }
 

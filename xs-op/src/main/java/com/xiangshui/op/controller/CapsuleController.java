@@ -199,13 +199,4 @@ public class CapsuleController extends BaseController {
     }
 
 
-    @Menu(value = "所有设备")
-    @AuthRequired("场地管理（全国）")
-    @GetMapping("/capsule_manage")
-    public String capsule_manage(HttpServletRequest request) {
-        setClient(request);
-        return "capsule_manage";
-    }
-
-
 }

@@ -11,8 +11,10 @@ import com.xiangshui.server.constant.BookingStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.*;
+import com.xiangshui.server.dao.mysql.DeviceDao;
 import com.xiangshui.server.dao.mysql.PrizeQuotaDao;
 import com.xiangshui.server.domain.*;
+import com.xiangshui.server.domain.mysql.Device;
 import com.xiangshui.server.domain.mysql.Op;
 import com.xiangshui.server.domain.mysql.PrizeQuota;
 import com.xiangshui.server.example.OpExample;
@@ -65,6 +67,9 @@ public class Test {
     BookingDao bookingDao;
     @Autowired
     PrizeQuotaDao prizeQuotaDao;
+
+    @Autowired
+    DeviceDao deviceDao;
 
     public void testSelect() throws Exception {
         List<UserInfo> userInfoList = userInfoDao.scan(new ScanSpec().withFilterExpression("phone = :phone").withValueMap(new ValueMap().withString(":phone", "11000000014")));
@@ -495,14 +500,32 @@ public class Test {
 //        }
 
 
+//        CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
+//        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)));
+
+
+        DeviceDao deviceDao = SpringUtils.getBean(DeviceDao.class);
         CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
-        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)));
+
+//        for (List<String> row : ExcelUtils.read(System.class.getResourceAsStream("/所有设备.xlsx"), 0)) {
+//            try {
+//                log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
+//                Device device = new Device();
+//                device.setId(row.get(2));
+//                device.setBelong(row.get(6));
+//                device.setRemark(row.get(7));
+//                device.setBelong(new String(device.getBelong().getBytes(), "utf-8"));
+//                deviceDao.insertSelective(device, null);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 
 
-        for (Capsule capsule : capsuleList) {
-
-
-
+        for (Capsule capsule : capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)))) {
+            log.info(capsule.getCapsule_id()+"");
+            capsuleDao.deleteItem(new PrimaryKey("capsule_id",capsule.getCapsule_id()));
         }
 
 
