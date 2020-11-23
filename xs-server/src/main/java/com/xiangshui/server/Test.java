@@ -25,6 +25,8 @@ import com.xiangshui.server.service.ServiceUtils;
 import com.xiangshui.util.*;
 import com.xiangshui.util.spring.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
@@ -507,25 +509,25 @@ public class Test {
         DeviceDao deviceDao = SpringUtils.getBean(DeviceDao.class);
         CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
 
-//        for (List<String> row : ExcelUtils.read(System.class.getResourceAsStream("/所有设备.xlsx"), 0)) {
-//            try {
-//                log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
-//                Device device = new Device();
-//                device.setId(row.get(2));
-//                device.setBelong(row.get(6));
-//                device.setRemark(row.get(7));
-//                device.setBelong(new String(device.getBelong().getBytes(), "utf-8"));
-//                deviceDao.insertSelective(device, null);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
 
+        for (Device device : deviceDao.selectByExample(null)) {
+            deviceDao.deleteByPrimaryKey(device.getId());
+        }
 
-        for (Capsule capsule : capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)))) {
-            log.info(capsule.getCapsule_id()+"");
-            capsuleDao.deleteItem(new PrimaryKey("capsule_id",capsule.getCapsule_id()));
+        for (List<String> row : ExcelUtils.read(FileUtils.openInputStream(new File("/Users/whw/Downloads/所有设备 2.xlsx")), 0)) {
+            try {
+                log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
+                if (row.get(2).indexOf("硬件设备") > -1) continue;
+                Device device = new Device();
+                device.setId(row.get(2));
+                device.setBelong(row.get(6));
+                device.setRemark(row.get(7));
+                device.setBelong(new String(device.getBelong().getBytes(), "utf-8"));
+                deviceDao.insertSelective(device, null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
 

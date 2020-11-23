@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component()
-public class DeviceDao extends SinglePrimaryCrudTemplate<Device, Integer> {
+public class DeviceDao extends SinglePrimaryCrudTemplate<Device, String> {
 
     @Autowired
     JdbcTemplate jdbcTemplate;

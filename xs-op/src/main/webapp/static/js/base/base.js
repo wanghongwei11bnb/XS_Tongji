@@ -966,3 +966,12 @@ class OptionWrapper {
 
 }
 
+
+
+function makeMd5Color(content) {
+
+    let md5String = md5(content);
+
+    return `#${md5String.substring(0, 6)}`;
+
+}

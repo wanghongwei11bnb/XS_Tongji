@@ -222,7 +222,7 @@ public class DeviceController extends BaseController {
 
     @GetMapping("/api/device/search")
     @ResponseBody
-    public Result device_search(Device query) throws IllegalAccessException {
+    public Result device_search(Device query, Boolean download, HttpServletResponse response) throws IllegalAccessException, IOException {
 
         Example example = new Example();
         example.getConditions().conditionList.addAll(
@@ -233,6 +233,22 @@ public class DeviceController extends BaseController {
         );
 
         List<Device> deviceList = deviceDao.selectByExample(example);
+
+        if (Boolean.TRUE.equals(download)) {
+
+            Map<String,String> cityMap=new HashMap<>();
+
+            ExcelUtils.export(Arrays.asList(
+                    new ExcelUtils.Column<Device>("硬件设备ID") {
+                        @Override
+                        public Object render(Device device) {
+                            return device.getId();
+                        }
+                    }
+            ), deviceList, response, "所有设备.xlsx");
+
+            return null;
+        }
 
         return new Result(CodeMsg.SUCCESS)
                 .putData("deviceList", deviceList)

@@ -15,7 +15,7 @@ class CapsuleGrid extends React.Component {
                 GridUtils.mkBaseColumn('area_id', '城市', value => this.state.areaMapOptions.getField(value, 'city')),
                 GridUtils.mkBaseColumn('area_id', '场地名称', value => this.state.areaMapOptions.getField(value, 'title')),
                 GridUtils.mkDateColumn('create_time', '创建时间'),
-                GridUtils.mkBaseColumn('belong', '归属状态'),
+                GridUtils.mkBaseColumn('belong', '归属状态', value => value ? <span className="px-1 text-white d-inline-block " style={{backgroundColor: makeMd5Color(value)}}>{value}</span> : null),
                 GridUtils.mkBaseColumn('remark', '备注'),
             ],
             areaMapOptions: new AreaMapOptions(),
@@ -85,20 +85,37 @@ class Page extends React.Component {
 
 
     search = () => {
-        this.refs.grid.load({});
+        this.refs.grid.load({
+            belong: this.refs.belong.value,
+        });
     };
 
 
     download = () => {
         window.open(`/api/capsule/search?${queryString({
+            belong: this.refs.belong.value,
             download: true,
         })}`)
+    };
+
+    loadBelongs = () => {
+        request({
+            url: `/api/device/belong/set`,
+            success: resp => {
+                this.setState({belongs: resp.data.belongs});
+            }
+        });
     };
 
 
     render() {
         return <div className="container-fluid my-3">
             <div className="m-1">
+                归属状态：
+                <select ref="belong">
+                    <option value={null}></option>
+                    {(this.state.belongs || []).map(belong => <option value={belong}>{belong}</option>)}
+                </select>
                 <button type="button" className="btn btn-sm btn-primary ml-1" onClick={this.search}>搜索</button>
                 <button type="button" className="btn btn-sm btn-success ml-1" onClick={this.download}>下载</button>
             </div>
@@ -109,6 +126,7 @@ class Page extends React.Component {
     }
 
     componentDidMount() {
+        this.loadBelongs();
         this.search();
     }
 }
