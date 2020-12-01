@@ -49,7 +49,7 @@ public class CapsuleController extends BaseController {
     @ResponseBody
     public Result search(Capsule criteria, Boolean download, HttpServletResponse response) throws NoSuchFieldException, IllegalAccessException, IOException {
 
-        return new Result(CodeMsg.SUCCESS).putData("capsuleList", capsuleService.search(criteria, null));
+        return new Result(CodeMsg.SUCCESS).putData("capsuleList", capsuleAuthorityTools.filterCapsule(capsuleService.search(criteria, null)));
 
     }
 
@@ -145,6 +145,7 @@ public class CapsuleController extends BaseController {
         if (capsule == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
+        capsuleAuthorityTools.authForException(capsule);
         Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
         if (area != null) {
             CapsuleRelation capsuleRelation = new CapsuleRelation();
@@ -161,6 +162,7 @@ public class CapsuleController extends BaseController {
     public Result validateForCreate(@PathVariable("capsule_id") Long capsule_id) {
         Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
         if (capsule == null) {
+            capsuleAuthorityTools.authForException(capsule);
             return new Result(CodeMsg.SUCCESS);
         } else {
             return new Result(-1, "头等舱编号已存在");
@@ -186,6 +188,8 @@ public class CapsuleController extends BaseController {
     @PostMapping("/api/capsule/{capsule_id:\\d+}/update")
     @ResponseBody
     public Result update(@PathVariable("capsule_id") Long capsule_id, @RequestBody Capsule criteria) throws Exception {
+        Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
+        capsuleAuthorityTools.authForException(capsule);
         criteria.setCapsule_id(capsule_id);
         capsuleService.updateCapsule(criteria);
         return new Result(CodeMsg.SUCCESS);
@@ -194,6 +198,7 @@ public class CapsuleController extends BaseController {
     @PostMapping("/api/capsule/create")
     @ResponseBody
     public Result create(@RequestBody Capsule criteria) throws Exception {
+        capsuleAuthorityTools.authForException(criteria);
         capsuleService.createCapsule(criteria);
         return new Result(CodeMsg.SUCCESS);
     }

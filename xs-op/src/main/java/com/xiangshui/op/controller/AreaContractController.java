@@ -120,6 +120,7 @@ public class AreaContractController extends BaseController {
             scanSpec.withScanFilters(scanFilterList.toArray(new ScanFilter[scanFilterList.size()]));
         }
         List<AreaContract> areaContractList = areaContractDao.scan(scanSpec);
+        areaContractList = capsuleAuthorityTools.filterAreaContract(areaContractList);
         List<Area> areaList = null;
         if (areaContractList != null && areaContractList.size() > 0) {
             areaContractList.sort((o1, o2) -> {

@@ -514,7 +514,7 @@ public class Test {
             deviceDao.deleteByPrimaryKey(device.getId());
         }
 
-        for (List<String> row : ExcelUtils.read(FileUtils.openInputStream(new File("/Users/whw/Downloads/所有设备 2.xlsx")), 0)) {
+        for (List<String> row : ExcelUtils.read(FileUtils.openInputStream(new File("/Users/whw/Downloads/所有设备 4.xlsx")), 0)) {
             try {
                 log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
                 if (row.get(2).indexOf("硬件设备") > -1) continue;

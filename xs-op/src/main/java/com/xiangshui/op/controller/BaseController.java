@@ -7,6 +7,7 @@ import com.xiangshui.op.scheduled.AreaBillScheduled;
 import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.op.tool.BookingReportTools;
+import com.xiangshui.op.tool.CapsuleAuthorityTools;
 import com.xiangshui.server.constant.*;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.dao.mysql.DeviceDao;
@@ -62,6 +63,9 @@ public class BaseController {
 
     @Autowired
     AreaBillScheduled areaBillScheduled;
+
+    @Autowired
+    CapsuleAuthorityTools capsuleAuthorityTools;
 
     @Autowired
     AreaBillDao areaBillDao;

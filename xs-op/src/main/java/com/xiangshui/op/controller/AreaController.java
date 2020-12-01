@@ -69,10 +69,6 @@ public class AreaController extends BaseController {
             }
         }
 
-        if (StringUtils.isNotBlank(device_id)) {
-
-
-        }
 
         List<Area> areaList = areaService.search(criteria, null);
         if (areaList != null && areaList.size() > 0) {
@@ -84,7 +80,7 @@ public class AreaController extends BaseController {
             });
         }
         return new Result(CodeMsg.SUCCESS)
-                .putData("areaList", areaList)
+                .putData("areaList", capsuleAuthorityTools.filterArea(areaList))
                 .putData("countGroupArea", countCapsuleScheduled.countGroupArea).putData("cityList", cityService.getCityList());
     }
 
@@ -106,6 +102,7 @@ public class AreaController extends BaseController {
     public Result get(@PathVariable("area_id") Integer area_id) {
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
         if (area != null) {
+            capsuleAuthorityTools.authForException(area);
             return new Result(CodeMsg.SUCCESS).putData("area", area);
         } else {
             return new Result(CodeMsg.NO_FOUND);
@@ -119,6 +116,7 @@ public class AreaController extends BaseController {
         if (area == null) {
             return new Result(CodeMsg.NO_FOUND);
         } else {
+            capsuleAuthorityTools.authForException(area);
             return new Result(CodeMsg.SUCCESS).putData("types", area.getTypes());
         }
     }
@@ -130,6 +128,8 @@ public class AreaController extends BaseController {
         if (area_id == null || area_id < 1) {
             return new Result(-1, "场地编号不能小于1");
         }
+        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+        capsuleAuthorityTools.authForException(area);
         criteria.setArea_id(area_id);
         areaService.updateArea(criteria);
         return new Result(CodeMsg.SUCCESS);
@@ -141,6 +141,7 @@ public class AreaController extends BaseController {
         if (StringUtils.isBlank(saler) || StringUtils.isBlank(saler_city)) {
             return new Result(-1, "请选择销售");
         }
+        capsuleAuthorityTools.authForException(criteria);
         areaService.createArea(criteria);
         AreaContract areaContract = new AreaContract();
         areaContract.setArea_id(criteria.getArea_id());
@@ -160,6 +161,8 @@ public class AreaController extends BaseController {
             return new Result(-1, "参数不能为空");
         }
         criteria.setArea_id(area_id);
+        Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
+        capsuleAuthorityTools.authForException(area);
         areaService.updateTypes(criteria);
         return new Result(CodeMsg.SUCCESS);
     }
@@ -181,6 +184,7 @@ public class AreaController extends BaseController {
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
         criteria.setCapsule_id(capsule_id);
+        capsuleAuthorityTools.authForException(criteria);
         return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false, null, null);
     }
 }

@@ -42,6 +42,7 @@ public class UserJobs {
 
     /**
      * 清除用户钱包余额
+     *
      * @param phone
      * @throws Exception
      */
@@ -56,6 +57,7 @@ public class UserJobs {
 
     /**
      * 清除用户钱包余额
+     *
      * @param uin
      * @throws Exception
      */
@@ -76,10 +78,43 @@ public class UserJobs {
         });
     }
 
+    /**
+     * 清除用户押金
+     *
+     * @throws Exception
+     */
+    public void cleanDeposit(int uin) throws Exception {
+        UserWallet userWallet = userWalletDao.getItem(new PrimaryKey("uin", uin));
+        if (userWallet == null) {
+            log.error("userWallet is null " + uin);
+            return;
+        }
+        userWallet.setDeposit(0);
+        log.info("清除用户押金 " + JSON.toJSONString(userWallet));
+        userWalletDao.updateItem(new PrimaryKey("uin", uin), userWallet, new String[]{
+                "deposit",
+        });
+    }
+
+
+    /**
+     * 清除用户押金
+     *
+     * @param phone
+     * @throws Exception
+     */
+    public void cleanDeposit(String phone) throws Exception {
+        UserInfo userInfo = getUserInfo(phone);
+        if (userInfo == null) {
+            log.error("userInfo is null " + phone);
+            return;
+        }
+        cleanDeposit(userInfo.getUin());
+    }
+
 
     public void test() throws Exception {
-        cleanWallet("13480943735");
-        cleanWallet("18551509366");
+        cleanDeposit("91563241580");
     }
 
     public static void main(String[] args) throws Exception {

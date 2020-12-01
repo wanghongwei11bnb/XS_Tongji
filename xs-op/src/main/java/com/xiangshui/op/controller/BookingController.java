@@ -90,7 +90,6 @@ public class BookingController extends BaseController implements InitializingBea
     CacheScheduled cacheScheduled;
 
 
-
     @Autowired
     BookingGroupTool bookingGroupTool;
 
@@ -223,6 +222,7 @@ public class BookingController extends BaseController implements InitializingBea
         }
         bookingList = bookingDao.scan(scanSpec);
 
+        bookingList = capsuleAuthorityTools.filterBooking(bookingList);
 
         if (bookingList == null) {
             bookingList = new ArrayList<>();
@@ -232,6 +232,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (bookingList != null && bookingList.size() > 0) {
             Collections.sort(bookingList, (o1, o2) -> -(int) (o1.getCreate_time() - o2.getCreate_time()));
         }
+
         if (download) {
             if (StringUtils.isNotBlank(group)) {
                 BookingGroupTool.GroupItem groupItem = bookingGroupTool.mkGroupItem(group);
@@ -258,6 +259,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
+        capsuleAuthorityTools.authForException(booking);
         Integer uin = booking.getUin();
         booking = new Booking();
         booking.setUin(uin);
@@ -273,6 +275,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
+        capsuleAuthorityTools.authForException(booking);
         BookingRelation bookingRelation = bookingService.toRelation(booking);
         areaService.matchAreaForBooking(bookingRelation);
         userService.matchUserInfoForBooking(bookingRelation);
@@ -286,6 +289,7 @@ public class BookingController extends BaseController implements InitializingBea
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
+        capsuleAuthorityTools.authForException(booking);
         booking.setBy_op(1);
         if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
 

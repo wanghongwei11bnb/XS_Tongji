@@ -45,6 +45,7 @@ public class AreaService {
     @Autowired
     RedisService redisService;
 
+
     public Area getAreaById(int area_id) {
         Area area = redisService.get(AreaKeyPrefix.cache, String.valueOf(area_id), Area.class);
         if (area == null) {

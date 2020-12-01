@@ -75,9 +75,10 @@ public class DeviceController extends BaseController {
     public Result search(HttpServletRequest request, HttpServletResponse response, Boolean download) throws IOException {
         if (download == null) download = false;
         List<DeviceStatus> deviceStatusList = new ArrayList<>();
-        deviceStatusScheduled.statusMap.forEach((aLong, deviceStatus) -> {
-            deviceStatusList.add(deviceStatus);
-        });
+        for (Long capsule_id : deviceStatusScheduled.statusMap.keySet()) {
+            deviceStatusList.add(deviceStatusScheduled.statusMap.get(capsule_id));
+        }
+        deviceStatusList = capsuleAuthorityTools.filterDeviceStatus(deviceStatusList);
         deviceStatusList.sort(Comparator.comparingInt(DeviceStatus::getArea_id));
         Set<Integer> areaIdSet = new HashSet<>();
         for (DeviceStatus deviceStatus : deviceStatusList) {
@@ -236,7 +237,7 @@ public class DeviceController extends BaseController {
 
         if (Boolean.TRUE.equals(download)) {
 
-            Map<String,String> cityMap=new HashMap<>();
+            Map<String, String> cityMap = new HashMap<>();
 
             ExcelUtils.export(Arrays.asList(
                     new ExcelUtils.Column<Device>("硬件设备ID") {
