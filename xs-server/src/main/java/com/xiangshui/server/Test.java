@@ -536,7 +536,7 @@ public class Test {
         log.info(Jsoup.connect("https://www.xiangshuispace.com/api/capsule/opr_chair").method(Connection.Method.POST)
                 .ignoreContentType(true).ignoreHttpErrors(true)
                 .requestBody(new JSONObject()
-                        .fluentPut("capsule_id",2)
+                        .fluentPut("capsule_id",1100017002)
                         .fluentPut("opr_flag",2)
                         .toJSONString()).execute().body());
 
