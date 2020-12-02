@@ -3,10 +3,7 @@ package com.xiangshui.op.tool;
 import com.xiangshui.op.bean.DeviceStatus;
 import com.xiangshui.op.scheduled.CacheScheduled;
 import com.xiangshui.op.threadLocal.SessionLocal;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.AreaContract;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.Capsule;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.web.result.CodeMsg;
@@ -119,6 +116,14 @@ public class CapsuleAuthorityTools {
     public List<AreaContract> filterAreaContract(List<AreaContract> areaContractList) {
         return ListUtils.filter(areaContractList, areaContract -> {
             Area area = cacheScheduled.areaMapOptions.get(areaContract.getArea_id());
+            return this.auth(area);
+        });
+    }
+
+
+    public List<AreaBill> filterAreaBill(List<AreaBill> areaBillList) {
+        return ListUtils.filter(areaBillList, areaBill -> {
+            Area area = cacheScheduled.areaMapOptions.get(areaBill.getArea_id());
             return this.auth(area);
         });
     }
