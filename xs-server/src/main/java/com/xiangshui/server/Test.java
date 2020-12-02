@@ -1,6 +1,7 @@
 package com.xiangshui.server;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
@@ -31,6 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -480,7 +483,7 @@ public class Test {
     public static void main(String[] args) throws Exception {
 
 
-        SpringUtils.init();
+//        SpringUtils.init();
 //        SpringUtils.getBean(Test.class).exportBookingList(
 //                new ScanSpec().withMaxResultSize(Integer.MAX_VALUE)
 //                        .withScanFilters(
@@ -506,29 +509,36 @@ public class Test {
 //        List<Capsule> capsuleList = capsuleDao.scan(new ScanSpec().withScanFilters(new ScanFilter("area_id").eq(1100001)));
 
 
-        DeviceDao deviceDao = SpringUtils.getBean(DeviceDao.class);
-        CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
+//        DeviceDao deviceDao = SpringUtils.getBean(DeviceDao.class);
+//        CapsuleDao capsuleDao = SpringUtils.getBean(CapsuleDao.class);
+//
+//
+//        for (Device device : deviceDao.selectByExample(null)) {
+//            deviceDao.deleteByPrimaryKey(device.getId());
+//        }
+//
+//        for (List<String> row : ExcelUtils.read(FileUtils.openInputStream(new File("/Users/whw/Downloads/所有设备 4.xlsx")), 0)) {
+//            try {
+//                log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
+//                if (row.get(2).indexOf("硬件设备") > -1) continue;
+//                Device device = new Device();
+//                device.setId(row.get(2));
+//                device.setBelong(row.get(6));
+//                device.setRemark(row.get(7));
+//                device.setBelong(new String(device.getBelong().getBytes(), "utf-8"));
+//                deviceDao.insertSelective(device, null);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 
-
-        for (Device device : deviceDao.selectByExample(null)) {
-            deviceDao.deleteByPrimaryKey(device.getId());
-        }
-
-        for (List<String> row : ExcelUtils.read(FileUtils.openInputStream(new File("/Users/whw/Downloads/所有设备 4.xlsx")), 0)) {
-            try {
-                log.info(row.get(2) + ":" + row.get(6) + ":" + row.get(7));
-                if (row.get(2).indexOf("硬件设备") > -1) continue;
-                Device device = new Device();
-                device.setId(row.get(2));
-                device.setBelong(row.get(6));
-                device.setRemark(row.get(7));
-                device.setBelong(new String(device.getBelong().getBytes(), "utf-8"));
-                deviceDao.insertSelective(device, null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
+        log.info(Jsoup.connect("https://www.xiangshuispace.com/api/capsule/opr_chair").method(Connection.Method.POST)
+                .ignoreContentType(true).ignoreHttpErrors(true)
+                .requestBody(new JSONObject()
+                        .fluentPut("capsule_id",2)
+                        .fluentPut("opr_flag",2)
+                        .toJSONString()).execute().body());
 
 
         log.info("finish");

@@ -35,10 +35,10 @@ public class CapsuleAuthorityTools {
                 new String[]{"成都市"},
                 null
         ));
-        authorityMap.put("wanghongwei@xiangshuispace.com", new CapsuleAuthority(
-                new String[]{"成都市"},
-                null
-        ));
+//        authorityMap.put("wanghongwei@xiangshuispace.com", new CapsuleAuthority(
+//                new String[]{"成都市"},
+//                null
+//        ));
     }
 
     public String getOp() {

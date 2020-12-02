@@ -2,9 +2,7 @@
 xs
 
 
-cd ~/XS_Tongji/
-
-git pull
+cd ~/XS_Tongji/ && git pull
 
 cd ~/XS_Tongji/xs-utils/ && mvn install
 
