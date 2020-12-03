@@ -32,10 +32,10 @@ public class CapsuleAuthorityTools {
                 new String[]{"成都市"},
                 null
         ));
-        authorityMap.put("xubo@xiangshuispace.com", new CapsuleAuthority(
-                new String[]{"成都市"},
-                null
-        ));
+//        authorityMap.put("xubo@xiangshuispace.com", new CapsuleAuthority(
+//                new String[]{"成都市"},
+//                null
+//        ));
 //        authorityMap.put("wanghongwei@xiangshuispace.com", new CapsuleAuthority(
 //                new String[]{"成都市"},
 //                null
