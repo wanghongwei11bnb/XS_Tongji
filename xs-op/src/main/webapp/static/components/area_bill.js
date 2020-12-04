@@ -253,14 +253,15 @@ class AreaBillGrid extends Grid {
                     field: 'bill_id', title: '操作', render: (value, row) => {
                         if (value == 1) {
                         } else {
-                            return [
+
+                            return authMapOptions.get(finalAuthMap.area_bill_operate) ? [
                                 <button className="btn btn-sm btn-primary m-1"
                                         onClick={this.updateStatus.bind(this, value)}>修改状态</button>,
                                 <button className="btn btn-sm btn-success m-1"
                                         onClick={this.openLetter.bind(this, value)}>制作对账函</button>,
                                 <button className="btn btn-sm btn-success m-1"
                                         onClick={this.download.bind(this, row.area_id, row.year, row.month)}>下载订单</button>,
-                            ];
+                            ] : null;
                         }
                     }
                 },

@@ -34,6 +34,7 @@ public @interface AuthRequired {
     String area_contract_operate = "客户分成管理——运营";
 
     String area_bill = "分成对账单管理";
+    String area_bill_operate = "分成对账单管理——操作权限";
     String group = "拼团管理";
     String auth_f1 = "F1";
 

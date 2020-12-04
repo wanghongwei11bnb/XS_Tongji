@@ -324,7 +324,7 @@ public class AreaBillController extends BaseController {
     }
 
     @PostMapping("/api/area_bill/{bill_id:\\d+}/update/status")
-    @AuthRequired(AuthRequired.area_bill)
+    @AuthRequired(AuthRequired.area_bill_operate)
     @ResponseBody
     public Result update_status(@PathVariable("bill_id") long bill_id, AreaBill criteria) throws Exception {
         AreaBill areaBill = areaBillDao.getItem(new PrimaryKey("bill_id", bill_id));
