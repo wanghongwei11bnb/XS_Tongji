@@ -1,5 +1,6 @@
 package com.xiangshui.op.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
@@ -21,6 +22,8 @@ import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -256,6 +259,31 @@ public class DeviceController extends BaseController {
                 .putData("areaList", cacheScheduled.areaList)
                 .putData("capsuleList", cacheScheduled.capsuleList)
                 ;
+    }
+
+
+    @AuthRequired(auth_device_operate)
+    @PostMapping("/capsule/{capsule_id:\\d+}/sofa/operate")
+    public Result capsule_sofa_operate(@PathVariable("capsule_id") Long capsule_id, Integer value) throws IOException {
+
+        String body = Jsoup.connect("https://www.xiangshuispace.com/api/capsule/opr_chair").method(Connection.Method.POST)
+                .ignoreContentType(true).ignoreHttpErrors(true)
+                .header("User-Uin", "100000")
+                .requestBody(new JSONObject()
+                        .fluentPut("capsule_id", capsule_id)
+                        .fluentPut("opr_flag", value)// 1 躺，2 坐
+                        .toJSONString()).execute().body();
+        log.info("调整沙发座椅：capsule_id=" + capsule_id + ",value=" + value, body);
+
+        JSONObject json = JSONObject.parseObject(body);
+        if (json.getIntValue("ret") == 0) {
+            return new Result(CodeMsg.SUCCESS);
+        } else if (StringUtils.isNotBlank(json.getString("err"))) {
+            return new Result(-1, json.getString("err"));
+        } else {
+            return new Result(-1, "位置错误，操作失败");
+        }
+
     }
 
 

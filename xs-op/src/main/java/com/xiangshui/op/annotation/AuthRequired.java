@@ -48,4 +48,9 @@ public @interface AuthRequired {
 
     String auth_check_capsule_status="检查设备状态";
 
+
+    String auth_device_operate="硬件设备远程操控";
+
+
+
 }
