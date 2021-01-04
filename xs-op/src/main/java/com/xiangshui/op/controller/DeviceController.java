@@ -20,6 +20,7 @@ import com.xiangshui.util.ExcelUtils;
 import com.xiangshui.util.ListUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Connection;
@@ -40,6 +41,7 @@ import java.util.function.Consumer;
 
 import static com.xiangshui.op.annotation.AuthRequired.*;
 
+@Slf4j
 @Controller
 public class DeviceController extends BaseController {
 
@@ -284,6 +286,16 @@ public class DeviceController extends BaseController {
             return new Result(-1, "位置错误，操作失败");
         }
 
+    }
+
+    public static void main(String[] args) throws IOException {
+      log.info( Jsoup.connect("https://www.xiangshuispace.com/api/capsule/opr_chair").method(Connection.Method.POST)
+              .ignoreContentType(true).ignoreHttpErrors(true)
+              .header("User-Uin", "100000")
+              .requestBody(new JSONObject()
+                      .fluentPut("capsule_id", 1200006004)
+                      .fluentPut("opr_flag", 2)// 1 躺，2 坐
+                      .toJSONString()).execute().body());
     }
 
 

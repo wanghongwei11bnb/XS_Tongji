@@ -56,24 +56,24 @@ public class DiscountCouponService {
      * @param uin
      * @param charge_id
      */
-    private void giveFullDiscountCoupon(int uin, int charge_id) {
+    public void giveFullDiscountCoupon(int uin, int charge_id) {
         switch (charge_id) {
-            case 1:
+            case 1://20
                 giveFullDiscountCoupon(uin, 1000, 200, null, 4);
                 giveFullDiscountCoupon(uin, 2000, 500, null, 2);
                 return;
-            case 2:
+            case 2://50
                 giveFullDiscountCoupon(uin, 1000, 200, null, 5);
                 giveFullDiscountCoupon(uin, 2000, 500, null, 3);
                 giveFullDiscountCoupon(uin, 5000, 1500, null, 1);
                 return;
-            case 3:
+            case 3://100
                 giveFullDiscountCoupon(uin, 1000, 200, null, 5);
                 giveFullDiscountCoupon(uin, 2000, 500, null, 3);
                 giveFullDiscountCoupon(uin, 5000, 1500, null, 1);
                 giveFullDiscountCoupon(uin, 9900, 3000, null, 1);
                 return;
-            case 4:
+            case 4://200
                 giveFullDiscountCoupon(uin, 1000, 200, null, 5);
                 giveFullDiscountCoupon(uin, 2000, 500, null, 3);
                 giveFullDiscountCoupon(uin, 5000, 1500, null, 1);

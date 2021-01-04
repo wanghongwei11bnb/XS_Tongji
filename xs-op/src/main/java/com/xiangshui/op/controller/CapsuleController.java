@@ -162,7 +162,7 @@ public class CapsuleController extends BaseController {
     public Result validateForCreate(@PathVariable("capsule_id") Long capsule_id) {
         Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
         if (capsule == null) {
-            capsuleAuthorityTools.authForException(capsule);
+//            capsuleAuthorityTools.authForException(capsule);
             return new Result(CodeMsg.SUCCESS);
         } else {
             return new Result(-1, "头等舱编号已存在");

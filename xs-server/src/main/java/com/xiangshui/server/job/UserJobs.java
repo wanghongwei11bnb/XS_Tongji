@@ -9,6 +9,7 @@ import com.xiangshui.server.dao.UserRegisterDao;
 import com.xiangshui.server.dao.UserWalletDao;
 import com.xiangshui.server.domain.UserInfo;
 import com.xiangshui.server.domain.UserWallet;
+import com.xiangshui.server.service.DiscountCouponService;
 import com.xiangshui.util.spring.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class UserJobs {
     UserInfoDao userInfoDao;
     @Autowired
     UserRegisterDao userRegisterDao;
+
+    @Autowired
+    DiscountCouponService discountCouponService;
 
 
     public UserInfo getUserInfo(int uin) {
@@ -170,8 +174,12 @@ public class UserJobs {
     public void test() throws Exception {
 //        cleanDeposit("91563241580");
 
-//        changeWallet(getUserWallet("13552416407"), -2520, "账户扣除");
+//        changeWallet(getUserWallet("17327873623"), -810, "账户扣除");
 
+        UserInfo userInfo = getUserInfo("13552395202");
+        log.info(JSON.toJSONString(userInfo));
+        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 1);
+        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 4);
 
     }
 
