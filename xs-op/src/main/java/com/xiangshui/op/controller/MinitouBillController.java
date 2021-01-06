@@ -79,7 +79,7 @@ public class MinitouBillController extends BaseController {
     @AuthRequired(auth_minitou_investor)
     public String mnt_bill_manage(HttpServletRequest request) {
         setClient(request);
-        return "mnt_bill_manage";
+        return "mnt_bill_manage1";
     }
 
 
