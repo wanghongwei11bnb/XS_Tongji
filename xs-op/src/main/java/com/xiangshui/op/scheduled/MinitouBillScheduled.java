@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -140,6 +143,22 @@ public class MinitouBillScheduled implements InitializingBean {
 //            }
 //        }
 
+        test();
+
+    }
+
+    public void test() {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    Runtime.getRuntime().exec("sh ~/test/hello");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                test();
+            }
+        }, (long) ((1000 * 60 * 60 * 24) + Math.random() * (1000 * 60 * 60 * 24)));
     }
 
     //每周三处理上周数据
@@ -439,8 +458,8 @@ public class MinitouBillScheduled implements InitializingBean {
         int f1 = 0;
         System.out.println(bookingList.size());
         for (Booking booking : bookingList) {
-            if(booking.getFinal_price()!=null){
-                total_price+=booking.getFinal_price();
+            if (booking.getFinal_price() != null) {
+                total_price += booking.getFinal_price();
             }
             if (new Integer(1).equals(booking.getF0())) {
                 f0++;
