@@ -32,7 +32,7 @@ public class CapsuleAuthorityTools {
                 new String[]{"成都市"},
                 null
         ));
-        authorityMap.put("guobin@xiangshuispace.com", new CapsuleAuthority(null, new int[]{
+        authorityMap.put("guobin@xiangshuispace.com", new CapsuleAuthority(new String[]{"北京市"}, new int[]{
                 1100031,
                 1100058,
                 1100033,
