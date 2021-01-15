@@ -175,7 +175,7 @@ public class OpUserService {
 
 
     public static void main(String[] args) {
-        System.out.println(new OpUserService().passwordMd5("12345678"));
+        System.out.println(new OpUserService().passwordMd5("hongyang"));
     }
 
 }
