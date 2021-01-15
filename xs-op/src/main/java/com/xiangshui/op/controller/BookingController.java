@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.CacheScheduled;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.op.threadLocal.UsernameLocal;
 import com.xiangshui.server.constant.AreaStatusOption;
 import com.xiangshui.server.constant.BookingStatusOption;
@@ -259,7 +260,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
-        capsuleAuthorityTools.authForException(booking);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
         Integer uin = booking.getUin();
         booking = new Booking();
         booking.setUin(uin);
@@ -275,7 +276,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
-        capsuleAuthorityTools.authForException(booking);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
         BookingRelation bookingRelation = bookingService.toRelation(booking);
         areaService.matchAreaForBooking(bookingRelation);
         userService.matchUserInfoForBooking(bookingRelation);
@@ -289,7 +290,7 @@ public class BookingController extends BaseController implements InitializingBea
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
-        capsuleAuthorityTools.authForException(booking);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
         booking.setBy_op(1);
         if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
 

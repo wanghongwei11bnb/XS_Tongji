@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
 import com.xiangshui.op.scheduled.CountCapsuleScheduled;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.AreaContract;
@@ -102,7 +103,7 @@ public class AreaController extends BaseController {
     public Result get(@PathVariable("area_id") Integer area_id) {
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
         if (area != null) {
-            capsuleAuthorityTools.authForException(area);
+            capsuleAuthorityTools.auth(area, SessionLocal.getUsername(),true);
             return new Result(CodeMsg.SUCCESS).putData("area", area);
         } else {
             return new Result(CodeMsg.NO_FOUND);
@@ -116,7 +117,7 @@ public class AreaController extends BaseController {
         if (area == null) {
             return new Result(CodeMsg.NO_FOUND);
         } else {
-            capsuleAuthorityTools.authForException(area);
+            capsuleAuthorityTools.auth(area, SessionLocal.getUsername(),true);
             return new Result(CodeMsg.SUCCESS).putData("types", area.getTypes());
         }
     }
@@ -129,7 +130,7 @@ public class AreaController extends BaseController {
             return new Result(-1, "场地编号不能小于1");
         }
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
-        capsuleAuthorityTools.authForException(area);
+        capsuleAuthorityTools.auth(area, SessionLocal.getUsername(),true);
         criteria.setArea_id(area_id);
         areaService.updateArea(criteria);
         return new Result(CodeMsg.SUCCESS);
@@ -141,7 +142,7 @@ public class AreaController extends BaseController {
         if (StringUtils.isBlank(saler) || StringUtils.isBlank(saler_city)) {
             return new Result(-1, "请选择销售");
         }
-        capsuleAuthorityTools.authForException(criteria);
+        capsuleAuthorityTools.auth(criteria, SessionLocal.getUsername(),true);
         areaService.createArea(criteria);
         AreaContract areaContract = new AreaContract();
         areaContract.setArea_id(criteria.getArea_id());
@@ -162,7 +163,7 @@ public class AreaController extends BaseController {
         }
         criteria.setArea_id(area_id);
         Area area = areaDao.getItem(new PrimaryKey("area_id", area_id));
-        capsuleAuthorityTools.authForException(area);
+        capsuleAuthorityTools.auth(area, SessionLocal.getUsername(),true);
         areaService.updateTypes(criteria);
         return new Result(CodeMsg.SUCCESS);
     }
@@ -184,7 +185,7 @@ public class AreaController extends BaseController {
         Booking criteria = new Booking();
         criteria.setArea_id(area_id);
         criteria.setCapsule_id(capsule_id);
-        capsuleAuthorityTools.authForException(criteria);
+        capsuleAuthorityTools.auth(criteria, SessionLocal.getUsername(),true);
         return bookingController.search(request, response, null, null, null, criteria, create_date_start, create_date_end, null, false, null, null);
     }
 }

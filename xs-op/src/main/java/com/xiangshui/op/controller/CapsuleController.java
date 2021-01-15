@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.xiangshui.op.annotation.AuthRequired;
 import com.xiangshui.op.annotation.Menu;
+import com.xiangshui.op.threadLocal.SessionLocal;
 import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.constant.DeviceVersionOption;
 import com.xiangshui.server.dao.AreaDao;
@@ -145,7 +146,7 @@ public class CapsuleController extends BaseController {
         if (capsule == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
-        capsuleAuthorityTools.authForException(capsule);
+        capsuleAuthorityTools.auth(capsule, SessionLocal.getUsername(),true);
         Area area = areaDao.getItem(new PrimaryKey("area_id", capsule.getArea_id()));
         if (area != null) {
             CapsuleRelation capsuleRelation = new CapsuleRelation();
@@ -189,7 +190,7 @@ public class CapsuleController extends BaseController {
     @ResponseBody
     public Result update(@PathVariable("capsule_id") Long capsule_id, @RequestBody Capsule criteria) throws Exception {
         Capsule capsule = capsuleDao.getItem(new PrimaryKey("capsule_id", capsule_id));
-        capsuleAuthorityTools.authForException(capsule);
+        capsuleAuthorityTools.auth(capsule, SessionLocal.getUsername(),true);
         criteria.setCapsule_id(capsule_id);
         capsuleService.updateCapsule(criteria);
         return new Result(CodeMsg.SUCCESS);
@@ -198,7 +199,7 @@ public class CapsuleController extends BaseController {
     @PostMapping("/api/capsule/create")
     @ResponseBody
     public Result create(@RequestBody Capsule criteria) throws Exception {
-        capsuleAuthorityTools.authForException(criteria);
+        capsuleAuthorityTools.auth(criteria, SessionLocal.getUsername(),true);
         capsuleService.createCapsule(criteria);
         return new Result(CodeMsg.SUCCESS);
     }

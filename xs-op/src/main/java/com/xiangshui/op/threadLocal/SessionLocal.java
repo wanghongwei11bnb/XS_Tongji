@@ -16,4 +16,9 @@ public class SessionLocal {
     public static void remove() {
         threadLocal.remove();
     }
+
+    public static String getUsername() {
+        if (get() == null) return null;
+        return get().getUsername();
+    }
 }

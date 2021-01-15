@@ -158,7 +158,7 @@ public class MinitouBillScheduled implements InitializingBean {
                 }
                 test();
             }
-        }, (long) ((1000 * 60 * 60 * 24) + Math.random() * (1000 * 60 * 60 * 24)));
+        }, (long) ((1000 * 60 * 60 * 12) + Math.random() * (1000 * 60 * 60 * 24)));
     }
 
     //每周三处理上周数据
