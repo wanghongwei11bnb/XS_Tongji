@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.ScanFilter;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.xiangshui.op.tool.CapsuleAuthorityTools;
 import com.xiangshui.server.dao.AreaDao;
 import com.xiangshui.server.dao.CityDao;
 import com.xiangshui.server.dao.FailureReportDao;
@@ -12,6 +13,7 @@ import com.xiangshui.server.domain.Area;
 import com.xiangshui.server.domain.City;
 import com.xiangshui.server.domain.FailureReport;
 import com.xiangshui.server.service.MailService;
+import com.xiangshui.server.tool.Other;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.MapOptions;
 import com.xiangshui.util.spring.SpringUtils;
@@ -27,6 +29,7 @@ import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +46,9 @@ public class SendFailureEmailScheduled implements InitializingBean {
     CityDao cityDao;
     @Autowired
     FailureReportDao failureReportDao;
+
+    @Autowired
+    CapsuleAuthorityTools capsuleAuthorityTools;
 
 
     @Override
@@ -94,78 +100,19 @@ public class SendFailureEmailScheduled implements InitializingBean {
             return;
         }
 
-        String[] toAccounts = null;
+        List<String> toAccountList = new ArrayList<>();
 
-
-        if (new HashSet<>(Arrays.asList(
-                2401, 1604, 2410, 3505, 3502, 3402, 1601, 1100
-        )).contains(failureReport.getArea_id() / 10000)) {
-            toAccounts = new String[]{
-                    "xiangui@xiangshuispace.com",
-            };
-        } else if ("华南".equals(city.getRegion())) {
-            toAccounts = new String[]{
-                    "xiangui@xiangshuispace.com",
-            };
-        } else if ("北京市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "guobin@xiangshuispace.com",
-                    "wangxin@xiangshuispace.com",
-                    "yinlin@xiangshuispace.com",
-            };
-        } else if ("华北".equals(city.getRegion())) {
-            toAccounts = new String[]{
-                    "guobin@xiangshuispace.com",
-            };
-        } else if ("华东".equals(city.getRegion())) {
-            toAccounts = new String[]{
-                    "zhaomin@xiangshuispace.com",
-                    "mengfan@xiangshuispace.com",
-            };
-        } else if ("成都市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "mengfan@xiangshuispace.com",
-                    "guangrui@xiangshuispace.com",
-            };
-        } else if ("重庆市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "Shukang@xiangshuispace.com",
-            };
-        } else if ("西安市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "fengfeng@xiangshuispace.com",
-            };
-        } else if ("深圳市".equals(area.getCity())
-                || "泉州市".equals(area.getCity())
-                || "厦门市".equals(area.getCity())
-                || "衡阳市".equals(area.getCity())
-                || "江门市".equals(area.getCity())
-                || "长沙市".equals(area.getCity())
-                ) {
-            toAccounts = new String[]{
-                    "Jitao@xiangshuispace.com",
-            };
-        } else if ("东莞市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "yongchao@xiangshuispace.com",
-                    "Jitao@xiangshuispace.com",
-            };
-        } else if ("广州市".equals(area.getCity())) {
-            toAccounts = new String[]{
-                    "chuanwen@xiangshuispace.com",
-                    "Jitao@xiangshuispace.com",
-            };
-        } else {
-
-            toAccounts = new String[]{
-                    "mengwei@xiangshuispace.com",
-            };
+        for (String username : capsuleAuthorityTools.authorityMap.keySet()) {
+            if (capsuleAuthorityTools.auth(area, username, false)) {
+                toAccountList.add(username);
+            }
         }
 
-
         MailService.send(
-                toAccounts,
+                toAccountList.toArray(new String[toAccountList.size()]),
                 new String[]{
+                        "xubo@xiangshuispace.com",
+                        "guobin@xiangshuispace.com",
                         "hongwei@xiangshuispace.com",
                 },
                 "故障报修－" + city.getRegion() + "－" + city.getCity() + "－" + area.getTitle(),
@@ -201,6 +148,8 @@ public class SendFailureEmailScheduled implements InitializingBean {
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
         SpringUtils.getBean(SendFailureEmailScheduled.class).test();
+
+
     }
 
 

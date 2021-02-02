@@ -176,16 +176,26 @@ public class UserJobs {
 
 //        changeWallet(getUserWallet("17327873623"), -810, "账户扣除");
 
-        UserInfo userInfo = getUserInfo("13552395202");
-        log.info(JSON.toJSONString(userInfo));
-        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 1);
-        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 4);
+//        UserInfo userInfo = getUserInfo("13552395202");
+//        log.info(JSON.toJSONString(userInfo));
+//        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 1);
+//        discountCouponService.giveFullDiscountCoupon(userInfo.getUin(), 4);
+
+
+
+
+        cleanDeposit("18522268105");
+        cleanDeposit("13702022496");
+
+
 
     }
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
         SpringUtils.getBean(UserJobs.class).test();
+
+        log.info("finish");
     }
 
 }
