@@ -29,6 +29,6 @@
     "gulp-sass": "^4.1.0",
     "gulp-uglify": "^3.0.2",
     "minimist": "^1.2.5",
-    "node-sass": "^5.0.0"
+    "node-sass": "^4.13.1"
   }
 }
