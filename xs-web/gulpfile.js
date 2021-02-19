@@ -1,98 +1,109 @@
-let gulp = require('gulp');
-let options = require('minimist')(process.argv.slice(2));
-
-let plumber = require('gulp-plumber');
-let gulpif = require('gulp-if');
-let concat = require('gulp-concat');
+const options = require('minimist')(process.argv.slice(2));
+console.log(options);
+const {series, parallel, src, dest, watch, task} = require('gulp');
+const sass = require('gulp-sass');
+const autoprefixer = require('gulp-autoprefixer');
+const minifyCss = require('gulp-minify-css');
+const babel = require("gulp-babel");
+const gulpif = require("gulp-if");
+const uglify = require('gulp-uglify');
+const concat = require('gulp-concat');
+const connect = require('gulp-connect');
 let rename = require('gulp-rename');
 
-let babel = require('gulp-babel');
-let uglify = require('gulp-uglify');
+const imagemin = require('gulp-imagemin');
 
-let sass = require('gulp-sass');
-let less = require('gulp-less');
-let autoprefixer = require('gulp-autoprefixer');
-let minifyCss = require('gulp-minify-css');
+const plumber = require('gulp-plumber');
+
+const input = {
+    path: `./src/main/resources/static`,
+};
+
+
+const output = {
+    path: `./src/main/resources/static/build`,
+};
 
 
 console.log(options);
 
-gulp.task('copy', function () {
+function copy(cb) {
     // js-cookie
-    gulp.src([
+    src([
         './node_modules/js-cookie/src/js.cookie.js',
     ])
         .pipe(plumber())
-        .pipe(gulp.dest('./src/main/webapp/build/'));
+        .pipe(dest('./src/main/webapp/build/'));
     // jquery
-    gulp.src([
+    src([
         './node_modules/jquery/dist/jquery.min.js',
     ])
         .pipe(plumber())
-        .pipe(gulp.dest('./src/main/webapp/build/'));
+        .pipe(dest('./src/main/webapp/build/'));
     // bootstrap
-    gulp.src([
+    src([
         './node_modules/bootstrap/dist/**/*',
     ])
         .pipe(plumber())
-        .pipe(gulp.dest('./src/main/webapp/build/bootstrap/'));
+        .pipe(dest('./src/main/webapp/build/bootstrap/'));
     // swiper
-    gulp.src([
+    src([
         './node_modules/swiper/dist/**/*',
     ])
         .pipe(plumber())
-        .pipe(gulp.dest('./src/main/webapp/build/swiper/'));
+        .pipe(dest('./src/main/webapp/build/swiper/'));
     // animate.css
-    gulp.src([
+    src([
         './node_modules/animate.css/animate.min.css',
     ])
         .pipe(plumber())
-        .pipe(gulp.dest('./src/main/webapp/build/'));
+        .pipe(dest('./src/main/webapp/build/'));
+    if (cb) cb();
+}
 
-});
 
-
-gulp.task('js', function () {
+function js(cb) {
     // base.js
-    gulp.src([
+    src([
         './src/main/webapp/static/js/base/*.js',
     ])
         .pipe(plumber())
         .pipe(concat('base.js'))
         .pipe(babel({presets: ['es2015', 'stage-0']}))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/'));
+        .pipe(dest('./src/main/webapp/build/'));
 
     // *.js
-    gulp.src([
+    src([
         './src/main/webapp/static/js/*.js',
     ])
         .pipe(plumber())
         .pipe(babel({presets: ['es2015', 'react', 'stage-0']}))
         .pipe(gulpif(options.build, uglify()))
-        .pipe(gulp.dest('./src/main/webapp/build/js/'));
+        .pipe(dest('./src/main/webapp/build/js/'));
+    if (cb) cb();
 
+}
 
-});
-gulp.task('css', function () {
-    gulp.src([
+function css(cb) {
+    src([
         './src/main/webapp/static/**/*.css',
     ])
         .pipe(plumber())
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
+        .pipe(dest('./src/main/webapp/build'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/**/*.less',
     ])
         .pipe(plumber())
         .pipe(less())
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
+        .pipe(dest('./src/main/webapp/build'));
 
-    gulp.src([
+    src([
         './src/main/webapp/static/**/*.scss',
         '!_define.scss',
     ])
@@ -100,12 +111,25 @@ gulp.task('css', function () {
         .pipe(sass())
         .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
         .pipe(gulpif(options.build, minifyCss()))
-        .pipe(gulp.dest('./src/main/webapp/build'));
-});
+        .pipe(dest('./src/main/webapp/build'));
+    if (cb) cb();
+}
 
-gulp.task('default', ['copy', 'css', 'js'], function () {
-    if (!options.build) {
-        gulp.watch('./src/main/webapp/static/js/**/*', ['js']);
-        gulp.watch('./src/main/webapp/static/css/**/*', ['css']);
+
+exports.copy = copy;
+exports.js = js;
+exports.css = css;
+
+
+exports.default = series(
+    copy,
+    js,
+    css,
+    function (cb) {
+        if (!options.build) {
+            watch('./src/main/webapp/static/js/**/*', ['js']);
+            watch('./src/main/webapp/static/css/**/*', ['css']);
+        }
+        if (cb) cb();
     }
-});
+);
