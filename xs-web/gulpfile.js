@@ -94,14 +94,6 @@ function css(cb) {
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(dest('./src/main/webapp/build'));
 
-    src([
-        './src/main/webapp/static/**/*.less',
-    ])
-        .pipe(plumber())
-        .pipe(less())
-        .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
-        .pipe(gulpif(options.build, minifyCss()))
-        .pipe(dest('./src/main/webapp/build'));
 
     src([
         './src/main/webapp/static/**/*.scss',
