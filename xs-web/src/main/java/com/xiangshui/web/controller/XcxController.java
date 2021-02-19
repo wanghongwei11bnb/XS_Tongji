@@ -246,6 +246,7 @@ public class XcxController extends BaseController {
 
         return new Result(CodeMsg.SUCCESS)
                 .putData("workAreaIds", workAreaIds)
+                .putData("switch_health_tips", true)
                 ;
     }
 
