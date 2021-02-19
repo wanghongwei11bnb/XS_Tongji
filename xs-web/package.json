@@ -5,7 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "animate.css": "^3.7.0",
-    "bootstrap": "^4.1.1",
+    "bootstrap": "^4.3.1",
     "gulp-less": "^3.4.0",
     "gulp-rename": "^1.2.2",
     "jquery": "^3.3.1",
