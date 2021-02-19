@@ -90,7 +90,7 @@ function css(cb) {
         './src/main/webapp/static/**/*.css',
     ])
         .pipe(plumber())
-        .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
+        .pipe(autoprefixer({cascade: false}))
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(dest('./src/main/webapp/build'));
 
@@ -100,8 +100,8 @@ function css(cb) {
         '!_define.scss',
     ])
         .pipe(plumber())
-        .pipe(sass())
-        .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
+        .pipe(sass().on('error', sass.logError))
+        .pipe(autoprefixer({cascade: false}))
         .pipe(gulpif(options.build, minifyCss()))
         .pipe(dest('./src/main/webapp/build'));
     if (cb) cb();
