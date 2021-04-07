@@ -111,7 +111,7 @@ window.Loading = {
 
 function request(opt) {
     let header = {
-        'content-type': 'application/json',
+        // 'content-type': 'application/json',
         'User-Uin': Cookies.get('User-Uin') || 100000,
         'Req-From': 'web',
         'Client-Token': Cookies.get('Client-Token'),
@@ -119,14 +119,14 @@ function request(opt) {
     };
     if (opt.loading) Loading.open();
     $.ajax({
-        url: `${!!window.debug ? '//dev.xiangshuispace.com:18083' : '//www.xiangshuispace.com'}${opt.url}`, method: opt.method || 'get', data: opt.data,
+        url: `${opt.url}`, method: opt.method || 'get', data: opt.data,
         contentType: opt.contentType, dataType: opt.dataType || "json", headers: header,
         success: (resp) => {
             try {
-                if (resp.ret === 0) {
+                if (resp.code === 0) {
                     if (opt.success) opt.success(resp);
                 } else {
-                    if (opt.error) opt.error(resp); else Message.error(resp.err);
+                    if (opt.error) opt.error(resp); else Message.error(resp.msg);
                 }
             } catch (e) {
                 console.error(e);

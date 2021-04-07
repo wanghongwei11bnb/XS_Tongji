@@ -9,7 +9,7 @@ const gulpif = require("gulp-if");
 const uglify = require('gulp-uglify');
 const concat = require('gulp-concat');
 const connect = require('gulp-connect');
-let rename = require('gulp-rename');
+// let rename = require('gulp-rename');
 
 const imagemin = require('gulp-imagemin');
 
@@ -114,7 +114,7 @@ exports.css = css;
 
 
 exports.default = series(
-    copy,
+    // copy,
     js,
     css,
     function (cb) {

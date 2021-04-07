@@ -4,13 +4,6 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "animate.css": "^3.7.0",
-    "bootstrap": "^4.1.1",
-    "gulp-less": "^3.4.0",
-    "gulp-rename": "^1.2.2",
-    "jquery": "^3.3.1",
-    "js-cookie": "^2.2.0",
-    "swiper": "^4.4.1",
     "babel-core": "^6.26.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.7.0",

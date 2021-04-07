@@ -1,0 +1,77 @@
+#parse('fragment/nav_about.html')
+
+<link rel="stylesheet" href="/build/css/about.css">
+
+<script src="/static/qrcode.min.js"></script>
+
+<div class="section section-about container z-index-1 mb-5 mt-3" style="">
+
+    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;">
+        手机号码：<input id="input" type="text"/>
+    </div>
+
+    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;" onclick="checkOption(1)">
+        月卡<span class="" style="font-size: .8em;color:gray;">（30天）</span>
+    </div>
+
+
+    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;" onclick="checkOption(3)">
+        <span>🔥</span>季卡<span class="" style="font-size: .8em;color:gray;">（90天）</span>
+    </div>
+
+    <div id="qrcode_box" class="">
+        <div id="qrcode" class="" style=""></div>
+        <div class="" style="background-color: salmon;color:white;text-align: center;line-height: 2;">请使用微信扫一扫<br/>扫描二维码支付</div>
+    </div>
+
+
+</div>
+<script>
+    $('#qrcode_box').hide();
+
+    function checkOption(mode) {
+        const phone = $('#input').val();
+        if (!/^1\d{10}$/.test(phone)) {
+            alert('手机号码输入有误');
+            return;
+        }
+
+        request({
+            url: `/jpi/buy_month_card`, method: 'post', loading: true,
+            data: {
+                mode: mode, phone: phone
+            },
+            success: resp => {
+                $('#qrcode_box').show();
+                new QRCode(document.getElementById("qrcode"), resp.data.result.code_url);
+
+
+
+            }
+        });
+
+
+    }
+
+
+    function checkTab(tab) {
+
+        $('.tab-item-about').removeClass('active');
+        $('.tab-item-contact').removeClass('active');
+        $('.tab-item-' + tab).addClass('active');
+
+        $('.tab-content-about').hide();
+        $('.tab-content-contact').hide();
+        $('.tab-content-' + tab).show();
+
+    }
+
+    checkTab('about');
+
+    $('.tab-item-about').on('click', checkTab.bind(null, 'about'));
+    $('.tab-item-contact').on('click', checkTab.bind(null, 'contact'));
+
+</script>
+
+
+#parse('fragment/footer.html')

@@ -37,6 +37,16 @@
             <mvc:exclude-mapping path="/build/**/*"/>
             <mvc:exclude-mapping path="/error/**/*"/>
             <mvc:exclude-mapping path="/favicon.ico"/>
+            <bean class="com.xiangshui.web.interceptor.AccessControlAllowOriginInterceptor"></bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/*"/>
+            <mvc:mapping path="/**/*"/>
+            <mvc:exclude-mapping path="/vendor/**/*"/>
+            <mvc:exclude-mapping path="/static/**/*"/>
+            <mvc:exclude-mapping path="/build/**/*"/>
+            <mvc:exclude-mapping path="/error/**/*"/>
+            <mvc:exclude-mapping path="/favicon.ico"/>
             <bean class="com.xiangshui.web.interceptor.SetSessionInterceptor"></bean>
         </mvc:interceptor>
         <mvc:interceptor>
