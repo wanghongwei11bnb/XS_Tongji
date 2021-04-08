@@ -156,7 +156,7 @@ public class IndexController extends BaseController {
                 .fluentPut("mch_id", mch_id)
                 .fluentPut("body", "月卡")
                 .fluentPut("out_trade_no", out_trade_no)
-                .fluentPut("total_fee", mode == 1 ? "1" : "3")
+                .fluentPut("total_fee", mode == 1 ? "5980" : "14900")
                 .fluentPut("spbill_create_ip", "")
                 .fluentPut("notify_url", "https://www.xiangshuispace.com/jpi/buy_month_card/notify_url")
                 .fluentPut("trade_type", "NATIVE");
