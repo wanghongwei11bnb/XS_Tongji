@@ -1,5 +1,7 @@
 package com.xiangshui.web.controller;
 
+import com.xiangshui.server.IDGenerator;
+import com.xiangshui.server.crud.Conditions;
 import com.xiangshui.server.crud.Example;
 import com.xiangshui.server.dao.MonthCardRecodeDao;
 import com.xiangshui.server.dao.UserInfoDao;
@@ -9,6 +11,7 @@ import com.xiangshui.server.dao.mysql.HomeMediaDao;
 import com.xiangshui.server.domain.MonthCardRecode;
 import com.xiangshui.server.domain.mysql.Article;
 import com.xiangshui.server.domain.mysql.HomeMedia;
+import com.xiangshui.server.domain.mysql.Transaction;
 import com.xiangshui.server.exception.XiangShuiException;
 import com.xiangshui.server.service.MonthCardService;
 import com.xiangshui.server.service.UserService;
@@ -140,7 +143,7 @@ public class IndexController extends BaseController {
 
     @PostMapping("/jpi/buy_month_card")
     @ResponseBody
-    public Result buy_month_card(Integer mode, String phone) throws IOException {
+    public Result buy_month_card(Integer mode, String phone) throws IOException, NoSuchFieldException, IllegalAccessException {
 
         if (mode == null) throw new XiangShuiException("参数错误");
         if (mode != 1 && mode != 3) throw new XiangShuiException("参数错误");
@@ -159,7 +162,17 @@ public class IndexController extends BaseController {
                 .fluentPut("trade_type", "NATIVE");
         Map result = PayUtils.unifiedorder(map, key);
 
-
+        Transaction transaction = new Transaction();
+        transaction.setId(IDGenerator.generate());
+        transaction.setCreate_time(System.currentTimeMillis() / 1000);
+        transaction.setAppid(weixin_gzh_AppID);
+        transaction.setMch_id(mch_id);
+        transaction.setOut_trade_no(out_trade_no);
+        transaction.setType(Transaction.Type.pc_buy_month_card.value);
+        transaction.setSubject(Transaction.Type.pc_buy_month_card.text);
+        transaction.setStatus(Transaction.Status.normal.value);
+        transaction.setChannel(Transaction.Channel.wx.value);
+        transactionDao.insertSelective(transaction, null);
         return new Result(CodeMsg.SUCCESS)
                 .putData("result", result)
                 ;
@@ -181,6 +194,15 @@ public class IndexController extends BaseController {
                     .fluentPut("return_msg", map.get("return_msg")));
         }
         String out_trade_no = map.get("out_trade_no");
+
+
+        Transaction transaction = transactionDao.selectOne(new Conditions().eq("out_trade_no", out_trade_no), null, null);
+
+        if (transaction == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+        if (!Transaction.Status.normal.value.equals(transaction.getStatus()))
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+
+
         String phone = out_trade_no.split("_")[1];
         int mode = Integer.valueOf(out_trade_no.split("_")[2]);
         MonthCardRecode monthCardRecode = monthCardService.getMonthCardRecodeByPhone(phone, null);
@@ -191,6 +213,8 @@ public class IndexController extends BaseController {
             month_card_init_date = System.currentTimeMillis() / 1000;
         }
         monthCardService.appendMonthCardTo(phone, new LocalDate(month_card_init_date * 1000).plusDays(30 * mode));
+        transaction.setStatus(Transaction.Status.paid.value);
+        transactionDao.updateByPrimaryKey(transaction, new String[]{"status"});
         return PayUtils.makeXml(new FluentMap()
                 .fluentPut("return_code", map.get("SUCCESS"))
                 .fluentPut("return_msg", map.get("OK")));

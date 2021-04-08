@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.dao.mysql.PrizeQuotaDao;
 import com.xiangshui.server.dao.mysql.SwiperItemDao;
+import com.xiangshui.server.dao.mysql.TransactionDao;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.web.result.CodeMsg;
 import com.xiangshui.util.web.result.Result;
@@ -57,6 +58,11 @@ public class BaseController {
 
     @Autowired
     PrizeQuotaDao prizeQuotaDao;
+
+
+
+    @Autowired
+    TransactionDao transactionDao;
 
 
 
