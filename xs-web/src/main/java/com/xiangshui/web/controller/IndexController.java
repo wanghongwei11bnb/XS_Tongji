@@ -190,7 +190,7 @@ public class IndexController extends BaseController {
         } else {
             month_card_init_date = System.currentTimeMillis() / 1000;
         }
-        monthCardService.appendMonthCardTo(phone, new LocalDate((month_card_init_date + 60 * 60 * 24 * 30 * mode) * 1000));
+        monthCardService.appendMonthCardTo(phone, new LocalDate(month_card_init_date * 1000).plusDays(30 * mode));
         return PayUtils.makeXml(new FluentMap()
                 .fluentPut("return_code", map.get("SUCCESS"))
                 .fluentPut("return_msg", map.get("OK")));
