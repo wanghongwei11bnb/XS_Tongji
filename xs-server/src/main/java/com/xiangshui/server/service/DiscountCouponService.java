@@ -87,8 +87,9 @@ public class DiscountCouponService {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-//        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1654970047, 4);
-        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1270223719,600,600,null,1);
+//        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1603658153, 3);
+        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1400099320, 1);
+//        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1270223719,600,600,null,1);
 
     }
 

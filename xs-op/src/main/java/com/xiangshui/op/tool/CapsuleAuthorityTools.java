@@ -158,6 +158,7 @@ public class CapsuleAuthorityTools {
                 1100112,
                 1100071,
                 1100149,
+                1100157,
         }));
 //        authorityMap.put("wanghongwei@xiangshuispace.com", new CapsuleAuthority(
 //                new String[]{"成都市"},

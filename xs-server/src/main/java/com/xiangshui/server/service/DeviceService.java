@@ -158,11 +158,13 @@ public class DeviceService {
 
 
     public static void main(String[] args) throws IOException {
-        String device_id = "34374716323938360081786D";
+        String device_id = "303847063337383123003300";
         log.debug(getDeviceStatus(device_id).toJSONString());
-        log.debug(getWifiStatus(device_id) + "");
-        log.debug(isLocked(device_id) + "");
-        closeLamp(device_id);
+//        log.debug(getWifiStatus(device_id) + "");
+//        log.debug(isLocked(device_id) + "");
+//        openLamp(device_id);
+//        openCapsule(device_id);
+//        closeLamp(device_id);
     }
 
 
