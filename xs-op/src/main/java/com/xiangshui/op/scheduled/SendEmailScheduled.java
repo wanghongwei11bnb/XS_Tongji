@@ -986,6 +986,18 @@ public class SendEmailScheduled implements InitializingBean {
                     public Object render(CashRecord cashRecord) {
                         return String.valueOf(cashRecord.getUin());
                     }
+                },
+                new ExcelUtils.Column<CashRecord>("场地编号") {
+                    @Override
+                    public Object render(CashRecord cashRecord) {
+                        return String.valueOf(cashRecord.getArea_id());
+                    }
+                },
+                new ExcelUtils.Column<CashRecord>("场地编号") {
+                    @Override
+                    public Object render(CashRecord cashRecord) {
+                        return String.valueOf(cashRecord.getArea_title());
+                    }
                 }
         ), cashRecordList);
         OutputStream outputStream = new FileOutputStream(new File(String.format("/Users/whw/Downloads/现金交易记录-%s-%s.xlsx", DateUtils.format(start.toDate(), "yyyyMMdd"), DateUtils.format(end.toDate(), "yyyyMMdd"))));
@@ -998,7 +1010,7 @@ public class SendEmailScheduled implements InitializingBean {
 
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
-        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2021, 3, 1), new LocalDate(2021,3,31));
+        SpringUtils.getBean(SendEmailScheduled.class).export(new LocalDate(2021, 5, 1), new LocalDate(2021, 6, 8));
 
 
 //        List<String> areaIdLines = IOUtils.readLines(System.class.getResourceAsStream("/场地运营/area_id.txt"), "UTF-8");

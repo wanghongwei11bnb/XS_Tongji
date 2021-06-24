@@ -21,13 +21,14 @@ public class DiscountCouponService {
 
     /**
      * 发放优惠券
+     *
      * @param uin
      * @param min_price
      * @param cash
      * @param introduce
      * @param amount
      */
-    private void giveFullDiscountCoupon(int uin, int min_price, int cash, String introduce, int amount) {
+    private void giveFullDiscountCoupon(int uin, int min_price, int cash, String introduce, int amount, int type) {
         for (int i = amount; i > 0; i--) {
             Date now = new Date();
             long coupon_id = now.getTime() / 1000;
@@ -39,7 +40,7 @@ public class DiscountCouponService {
             coupon.setCash(cash);
             coupon.setUin(uin);
             coupon.setStatus(0);
-            coupon.setType(1);
+            coupon.setType(type);
             coupon.setValidity_time(now.getTime() / 1000 + 60 * 60 * 24 * 30);
             if (StringUtils.isNotBlank(introduce)) {
                 coupon.setIntroduce(introduce);
@@ -53,31 +54,34 @@ public class DiscountCouponService {
 
     /**
      * 发放优惠券
+     *
      * @param uin
      * @param charge_id
      */
     public void giveFullDiscountCoupon(int uin, int charge_id) {
         switch (charge_id) {
             case 1://20
-                giveFullDiscountCoupon(uin, 1000, 200, null, 4);
-                giveFullDiscountCoupon(uin, 2000, 500, null, 2);
+                giveFullDiscountCoupon(uin, 1000, 200, null, 3, 1);
+                giveFullDiscountCoupon(uin, 2000, 500, null, 2, 1);
+                giveFullDiscountCoupon(uin, 500, 500, null, 1, 2);
                 return;
             case 2://50
-                giveFullDiscountCoupon(uin, 1000, 200, null, 5);
-                giveFullDiscountCoupon(uin, 2000, 500, null, 3);
-                giveFullDiscountCoupon(uin, 5000, 1500, null, 1);
+                giveFullDiscountCoupon(uin, 2000, 500, null, 3, 1);
+                giveFullDiscountCoupon(uin, 5000, 1500, null, 1, 1);
+                giveFullDiscountCoupon(uin, 500, 500, null, 1, 2);
                 return;
             case 3://100
-                giveFullDiscountCoupon(uin, 1000, 200, null, 5);
-                giveFullDiscountCoupon(uin, 2000, 500, null, 3);
-                giveFullDiscountCoupon(uin, 5000, 1500, null, 1);
-                giveFullDiscountCoupon(uin, 9900, 3000, null, 1);
+                giveFullDiscountCoupon(uin, 1000, 200, null, 5, 1);
+                giveFullDiscountCoupon(uin, 2000, 500, null, 5, 1);
+                giveFullDiscountCoupon(uin, 5000, 1500, null, 1, 1);
+                giveFullDiscountCoupon(uin, 500, 500, null, 1, 2);
                 return;
             case 4://200
-                giveFullDiscountCoupon(uin, 1000, 200, null, 5);
-                giveFullDiscountCoupon(uin, 2000, 500, null, 3);
-                giveFullDiscountCoupon(uin, 5000, 1500, null, 1);
-                giveFullDiscountCoupon(uin, 9900, 3000, null, 2);
+                giveFullDiscountCoupon(uin, 1000, 200, null, 5, 1);
+                giveFullDiscountCoupon(uin, 2000, 500, null, 5, 1);
+                giveFullDiscountCoupon(uin, 5000, 1500, null, 1, 1);
+                giveFullDiscountCoupon(uin, 9900, 3000, null, 1, 1);
+                giveFullDiscountCoupon(uin, 500, 500, null, 1, 2);
                 return;
             default:
                 return;
@@ -88,7 +92,7 @@ public class DiscountCouponService {
     public static void main(String[] args) throws Exception {
         SpringUtils.init();
 //        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1603658153, 3);
-        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1400099320, 1);
+//        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1603658153, 2);
 //        SpringUtils.getBean(DiscountCouponService.class).giveFullDiscountCoupon(1270223719,600,600,null,1);
 
     }

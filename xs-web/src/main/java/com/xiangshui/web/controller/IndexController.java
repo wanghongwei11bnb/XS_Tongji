@@ -1,5 +1,6 @@
 package com.xiangshui.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.xiangshui.server.IDGenerator;
 import com.xiangshui.server.crud.Conditions;
 import com.xiangshui.server.crud.Example;
@@ -70,6 +71,14 @@ public class IndexController extends BaseController {
     public String buy_month_card(HttpServletRequest request) {
         setClient(request);
         return "buy_month_card";
+    }
+
+
+    @GetMapping({"/tips", "/tips.html"})
+    public String tips(HttpServletRequest request) {
+        setClient(request);
+        request.setAttribute("tips", activityDao.scan());
+        return "tips";
     }
 
 
@@ -175,6 +184,42 @@ public class IndexController extends BaseController {
         transactionDao.insertSelective(transaction, null);
         return new Result(CodeMsg.SUCCESS)
                 .putData("result", result)
+                .putData("transaction", transaction)
+                ;
+    }
+
+
+    @PostMapping("/jpi/buy_tips")
+    @ResponseBody
+    public Result buy_tips() throws IOException, NoSuchFieldException, IllegalAccessException {
+
+        String out_trade_no = Other.stringFormat("TIPS_{}", UUID.get(4));
+
+        FluentMap map = new FluentMap()
+                .fluentPut("appid", weixin_gzh_AppID)
+                .fluentPut("mch_id", mch_id)
+                .fluentPut("body", "健康小贴士")
+                .fluentPut("out_trade_no", out_trade_no)
+                .fluentPut("total_fee", "1")
+                .fluentPut("spbill_create_ip", "")
+                .fluentPut("notify_url", "https://www.xiangshuispace.com/jpi/buy_tips/notify_url")
+                .fluentPut("trade_type", "NATIVE");
+        Map result = PayUtils.unifiedorder(map, key);
+
+        Transaction transaction = new Transaction();
+        transaction.setId(IDGenerator.generate());
+        transaction.setCreate_time(System.currentTimeMillis() / 1000);
+        transaction.setAppid(weixin_gzh_AppID);
+        transaction.setMch_id(mch_id);
+        transaction.setOut_trade_no(out_trade_no);
+        transaction.setType(Transaction.Type.pc_buy_month_card.value);
+        transaction.setSubject(Transaction.Type.pc_buy_month_card.text);
+        transaction.setStatus(Transaction.Status.normal.value);
+        transaction.setChannel(Transaction.Channel.wx.value);
+        transactionDao.insertSelective(transaction, null);
+        return new Result(CodeMsg.SUCCESS)
+                .putData("result", result)
+                .putData("transaction", transaction)
                 ;
     }
 
@@ -218,6 +263,45 @@ public class IndexController extends BaseController {
         return PayUtils.makeXml(new FluentMap()
                 .fluentPut("return_code", map.get("SUCCESS"))
                 .fluentPut("return_msg", map.get("OK")));
+    }
+
+
+    @RequestMapping("/jpi/buy_tips/notify_url")
+    @ResponseBody
+    public String buy_tips_notify_url(@RequestBody String body) throws Exception {
+        TreeMap<String, String> map = PayUtils.parseXml(body);
+        if (StringUtils.isBlank(map.get("sign")) || !PayUtils.makeSign(map, key).equals(map.get("sign"))) {
+            return PayUtils.makeXml(new FluentMap()
+                    .fluentPut("return_code", map.get("return_code"))
+                    .fluentPut("return_msg", map.get("签名错误")));
+        }
+        if (!"SUCCESS".equals(map.get("return_code"))) {
+            return PayUtils.makeXml(new FluentMap()
+                    .fluentPut("return_code", map.get("return_code"))
+                    .fluentPut("return_msg", map.get("return_msg")));
+        }
+        String out_trade_no = map.get("out_trade_no");
+
+
+        Transaction transaction = transactionDao.selectOne(new Conditions().eq("out_trade_no", out_trade_no), null, null);
+
+        if (transaction == null) throw new XiangShuiException(CodeMsg.NO_FOUND);
+        if (!Transaction.Status.normal.value.equals(transaction.getStatus()))
+            throw new XiangShuiException(CodeMsg.NO_FOUND);
+
+        transaction.setStatus(Transaction.Status.paid.value);
+        transactionDao.updateByPrimaryKey(transaction, new String[]{"status"});
+        return PayUtils.makeXml(new FluentMap()
+                .fluentPut("return_code", map.get("SUCCESS"))
+                .fluentPut("return_msg", map.get("OK")));
+    }
+
+
+    @RequestMapping("/jpi/transaction/get")
+    @ResponseBody
+    public Result transaction(Long id) throws Exception {
+        Transaction transaction = transactionDao.selectByPrimaryKey(id, null);
+        return new Result(CodeMsg.SUCCESS).putData("transaction", transaction);
     }
 
 

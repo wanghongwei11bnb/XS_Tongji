@@ -2,7 +2,6 @@
 
 <link rel="stylesheet" href="/build/css/about.css">
 
-
 <style>
 
     .flex {
@@ -178,26 +177,22 @@
 
 </style>
 
-
 <script src="/static/qrcode.min.js"></script>
 
 <div class="section section-about container z-index-1 mb-5 mt-3" style="">
 
     <div class="relative my-1 " style="color:red;">如果您使用的是360浏览器，建议使用极速模式！</div>
 
-    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;">
-        手机号码：<input id="input" type="text"/>
+    #foreach($tip in $tips)
+
+    <div class="relative border-bottom p-3 flex flex-x hm" onclick="checkUrl('$tip.url')">
+        <img src="$tip.img_url" alt="" class="mr-3 border-radius" style="width:300px;height:200px;"/>
+        <div class="relative flex-1">
+            <div class="">$tip.name</div>
+        </div>
     </div>
 
-    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;" onclick="checkOption(1)">
-        月卡<span class="" style="font-size: .8em;color:gray;">（30天）</span>
-    </div>
-
-
-    <div class="relative border my-3 p-3 hm" style="border-radius: 1em;" onclick="checkOption(3)">
-        <span>🔥</span>季卡<span class="" style="font-size: .8em;color:gray;">（90天）</span>
-    </div>
-
+    #end
 
 
     <div id="qrcode_box">
@@ -209,36 +204,36 @@
 
 
 </div>
+
+
 <script>
     $('#qrcode_box').hide();
 
-    function checkOption(mode) {
-        const phone = $('#input').val();
-        if (!/^1\d{10}$/.test(phone)) {
-            alert('手机号码输入有误');
-            return;
-        }
+    var interval;
 
+    function checkUrl(url) {
+        clearInterval(interval);
         request({
-            url: `/jpi/buy_month_card`, method: 'post', loading: true,
-            data: {
-                mode: mode, phone: phone
-            },
+            url: `/jpi/buy_tips`, method: 'post', loading: true,
             success: resp => {
                 $('#qrcode_box').show();
                 new QRCode(document.getElementById("qrcode"), resp.data.result.code_url);
-
-
-
+                interval = setInterval(function () {
+                    request({
+                        url: `/jpi/transaction/get`, method: 'post',
+                        data: {id: resp.data.transaction.id},
+                        success: resp => {
+                            if (resp.data.transaction.status === 1) {
+                                clearInterval(interval);
+                                window.open(url);
+                            }
+                        }
+                    });
+                }, 1000);
             }
         });
-
-
     }
-
-
     function checkTab(tab) {
-
         $('.tab-item-about').removeClass('active');
         $('.tab-item-contact').removeClass('active');
         $('.tab-item-' + tab).addClass('active');

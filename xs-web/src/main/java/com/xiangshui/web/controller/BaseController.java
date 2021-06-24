@@ -64,6 +64,9 @@ public class BaseController {
     @Autowired
     TransactionDao transactionDao;
 
+    @Autowired
+    ActivityDao activityDao;
+
 
 
     @Value("${isdebug}")
