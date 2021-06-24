@@ -225,6 +225,7 @@
                         success: resp => {
                             if (resp.data.transaction.status === 1) {
                                 clearInterval(interval);
+                                console.log(url);
                                 window.open(url);
                             }
                         }
