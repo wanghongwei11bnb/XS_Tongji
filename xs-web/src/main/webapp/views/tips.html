@@ -211,7 +211,10 @@
     var finish;
 
     function checkUrl(url) {
-        if (finish) window.open(url);
+        if (finish) {
+            window.open(url);
+            return;
+        }
         clearInterval(interval);
         request({
             url: `/jpi/buy_tips`, method: 'post', loading: true,
