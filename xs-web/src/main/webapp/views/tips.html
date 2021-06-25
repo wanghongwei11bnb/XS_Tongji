@@ -224,8 +224,10 @@
                         data: {id: resp.data.transaction.id},
                         success: resp => {
                             if (resp.data.transaction.status === 1) {
+                                $('#qrcode_box').hide();
                                 clearInterval(interval);
                                 console.log(url);
+                                alert('支付成功');
                                 window.open(url);
                             }
                         }
