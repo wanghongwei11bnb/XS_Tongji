@@ -186,9 +186,10 @@
     #foreach($tip in $tips)
 
     <div class="relative border-bottom p-3 flex flex-x hm" onclick="checkUrl('$tip.url')">
-        <img src="$tip.img_url" alt="" class="mr-3 border-radius" style="width:300px;height:200px;"/>
+        <img src="${tip.img_url}_750" alt="" class="mr-3 border-radius" style="width:300px;height:200px;"/>
         <div class="relative flex-1">
-            <div class="">$tip.name</div>
+            <div class="bolder" style="font-size:18px;">$tip.title</div>
+            <div class="mt-3">$tip.text</div>
         </div>
     </div>
 

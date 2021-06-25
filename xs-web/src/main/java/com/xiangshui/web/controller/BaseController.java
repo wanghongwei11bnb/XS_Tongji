@@ -67,6 +67,9 @@ public class BaseController {
     @Autowired
     ActivityDao activityDao;
 
+    @Autowired
+    ActivityPushDao activityPushDao;
+
 
 
     @Value("${isdebug}")

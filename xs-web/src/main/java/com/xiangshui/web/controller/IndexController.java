@@ -77,7 +77,7 @@ public class IndexController extends BaseController {
     @GetMapping({"/tips", "/tips.html"})
     public String tips(HttpServletRequest request) {
         setClient(request);
-        request.setAttribute("tips", activityDao.scan());
+        request.setAttribute("tips", activityPushDao.scan());
         return "tips";
     }
 
