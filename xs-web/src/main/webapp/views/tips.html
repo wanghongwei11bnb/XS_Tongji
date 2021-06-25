@@ -224,6 +224,7 @@
                         data: {id: resp.data.transaction.id},
                         success: resp => {
                             if (resp.data.transaction.status === 1) {
+                                finish = true;
                                 $('#qrcode_box').hide();
                                 clearInterval(interval);
                                 console.log(url);
