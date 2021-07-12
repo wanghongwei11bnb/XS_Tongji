@@ -50,7 +50,8 @@ public class ListUtils {
         double result = 0;
         if (list != null && callBackForResult != null) {
             for (int i = 0; i < list.size(); i++) {
-                result += callBackForResult.run(list.get(i));
+                Double value = callBackForResult.run(list.get(i));
+                result += value != null ? value : 0;
             }
         }
         return result;
