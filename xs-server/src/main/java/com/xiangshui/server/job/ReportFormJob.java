@@ -133,6 +133,7 @@ public class ReportFormJob {
                 booking.setFrom_guohang(0);
             }
         }
+        bookingList = ListUtils.filter(bookingList, booking -> !new Integer(1).equals(booking.getF1()));
         bookingList.sort(Comparator.comparing(Booking::getCreate_time));
         return bookingList;
     }
