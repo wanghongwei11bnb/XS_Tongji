@@ -234,6 +234,11 @@ public class BookingGroupTool {
                     protected Integer map(Integer value, Booking booking) {
                         return value + (booking.getMonthCardPrice() != null && booking.getMonthCardPrice() > 0 ? booking.getMonthCardPrice() : 0);
                     }
+
+                    @Override
+                    public Object render(Object key) {
+                        return this.keyMap.get(key) / 100f;
+                    }
                 };
             default:
                 return null;

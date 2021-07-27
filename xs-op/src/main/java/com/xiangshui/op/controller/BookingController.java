@@ -254,6 +254,7 @@ public class BookingController extends BaseController implements InitializingBea
 
                 BookingGroupTool.GroupItem groupItem = bookingGroupTool.mkGroupItem(group);
                 List<BookingGroupTool.SelectItem> selectItemList = ListUtils.map(Arrays.asList(groupSelects.split(",")), s -> bookingGroupTool.mkSelectItem(s));
+                selectItemList = ListUtils.filter(selectItemList, selectItem -> selectItem != null);
                 bookingGroupTool.group(bookingList, groupItem, selectItemList, response, "booking.xlsx");
             } else {
                 excelTools.exportBookingList(bookingList, (auth_booking_show_phone ? ExcelTools.EXPORT_PHONE : 0) | (auth_booking_show_coupon ? ExcelTools.EXPORT_COUPON : 0), null, response, "booking.xlsx");
