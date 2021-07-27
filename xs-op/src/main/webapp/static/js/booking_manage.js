@@ -36,7 +36,7 @@ class Page extends React.Component {
         queryParams.download = true;
         // queryParams.payMonth = this.refs.payMonth.value;
         queryParams.group = this.refs.group.value;
-        queryParams.groupSelects = "count,count_user,sum_use_pay,sum_from_charge,count_month_card_flag";
+        queryParams.groupSelects = "count,count_user,sum_use_pay,sum_from_charge,count_month_card_flag,month_card_income";
         window.open(`/api/booking/search?${queryString(queryParams)}`)
     };
 

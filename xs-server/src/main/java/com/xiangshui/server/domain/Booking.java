@@ -48,10 +48,16 @@ public class Booking {
     private Integer f1;
 
 
+    private Integer monthCardPrice;
 
+    public Integer getMonthCardPrice() {
+        return monthCardPrice;
+    }
 
-
-
+    public Booking setMonthCardPrice(Integer monthCardPrice) {
+        this.monthCardPrice = monthCardPrice;
+        return this;
+    }
 
     public Integer getFrom_guohang() {
         return from_guohang;

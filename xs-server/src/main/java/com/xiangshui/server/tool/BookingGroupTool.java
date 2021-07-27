@@ -2,6 +2,7 @@ package com.xiangshui.server.tool;
 
 import com.xiangshui.server.cache.BaseCache;
 import com.xiangshui.server.domain.Booking;
+import com.xiangshui.server.job.ReportFormJob;
 import com.xiangshui.util.DateUtils;
 import com.xiangshui.util.ExcelUtils;
 import lombok.Data;
@@ -14,6 +15,9 @@ import java.util.*;
 
 @Component
 public class BookingGroupTool {
+
+    @Autowired
+    ReportFormJob reportFormJob;
 
     @Autowired
     public BaseCache cache;
@@ -217,6 +221,18 @@ public class BookingGroupTool {
                     @Override
                     protected Integer map(Integer value, Booking booking) {
                         return value + (new Integer(1).equals(booking.getMonth_card_flag()) ? 1 : 0);
+                    }
+                };
+            case "month_card_income":
+                return new SelectItem<Integer>("月卡收入") {
+                    @Override
+                    public Integer initialValue() {
+                        return 0;
+                    }
+
+                    @Override
+                    protected Integer map(Integer value, Booking booking) {
+                        return value + (booking.getMonthCardPrice() != null && booking.getMonthCardPrice() > 0 ? booking.getMonthCardPrice() : 0);
                     }
                 };
             default:

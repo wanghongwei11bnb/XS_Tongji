@@ -14,12 +14,10 @@ import com.xiangshui.server.constant.CapsuleStatusOption;
 import com.xiangshui.server.constant.PayTypeOption;
 import com.xiangshui.server.dao.*;
 import com.xiangshui.server.dao.redis.RedisService;
-import com.xiangshui.server.domain.Area;
-import com.xiangshui.server.domain.Booking;
-import com.xiangshui.server.domain.Capsule;
-import com.xiangshui.server.domain.UserInfo;
+import com.xiangshui.server.domain.*;
 import com.xiangshui.server.domain.fragment.CapsuleType;
 import com.xiangshui.server.exception.XiangShuiException;
+import com.xiangshui.server.job.ReportFormJob;
 import com.xiangshui.server.relation.BookingRelation;
 import com.xiangshui.server.relation.CapsuleRelation;
 import com.xiangshui.server.service.*;
@@ -49,6 +47,12 @@ import java.util.function.Consumer;
 
 @Controller
 public class BookingController extends BaseController implements InitializingBean {
+
+
+    @Autowired
+    ReportFormJob reportFormJob;
+
+
     @Autowired
     ExcelTools excelTools;
     @Autowired
@@ -236,6 +240,18 @@ public class BookingController extends BaseController implements InitializingBea
 
         if (download) {
             if (StringUtils.isNotBlank(group)) {
+
+                List<ChargeRecord> chargeRecordList = reportFormJob.getActiveMonthCardList(new LocalDate(create_date_start), new LocalDate(create_date_end));
+
+                for (ChargeRecord chargeRecord : chargeRecordList) {
+                    List<Booking> tempBookingList = ListUtils.filter(bookingList, booking -> chargeRecord.getUin().equals(booking.getUin()));
+                    if (tempBookingList.size() > 0) {
+                        chargeRecord.setBill_booking_id(tempBookingList.get(0).getBooking_id());
+                        chargeRecord.setBill_area_id(tempBookingList.get(0).getArea_id());
+                        tempBookingList.get(0).setMonthCardPrice(chargeRecord.getPrice());
+                    }
+                }
+
                 BookingGroupTool.GroupItem groupItem = bookingGroupTool.mkGroupItem(group);
                 List<BookingGroupTool.SelectItem> selectItemList = ListUtils.map(Arrays.asList(groupSelects.split(",")), s -> bookingGroupTool.mkSelectItem(s));
                 bookingGroupTool.group(bookingList, groupItem, selectItemList, response, "booking.xlsx");
@@ -260,7 +276,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
-        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(), true);
         Integer uin = booking.getUin();
         booking = new Booking();
         booking.setUin(uin);
@@ -276,7 +292,7 @@ public class BookingController extends BaseController implements InitializingBea
         if (booking == null) {
             return new Result(CodeMsg.NO_FOUND);
         }
-        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(), true);
         BookingRelation bookingRelation = bookingService.toRelation(booking);
         areaService.matchAreaForBooking(bookingRelation);
         userService.matchUserInfoForBooking(bookingRelation);
@@ -290,7 +306,7 @@ public class BookingController extends BaseController implements InitializingBea
     public Result update_op(@PathVariable("booking_id") Long booking_id, Integer status, Integer final_price) throws Exception {
         Booking booking = bookingService.getBookingById(booking_id);
         if (booking == null) return new Result(CodeMsg.NO_FOUND);
-        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(),true);
+        capsuleAuthorityTools.auth(booking, SessionLocal.getUsername(), true);
         booking.setBy_op(1);
         if (booking.getStatus() == 4) return new Result(-1, "已支付的订单不能修改");
 
