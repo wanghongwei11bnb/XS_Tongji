@@ -222,7 +222,7 @@ public class ReportFormJob {
                 reportFormRow.setIncome_total_each_capsule(reportFormRow.getIncome_total() / reportFormRow.getCapsule_count());
 
                 reportFormRow.setActive_income_total(reportFormRow.getPrice_income_total() + (int) ListUtils.fieldSum(activeTempBookingList, booking -> booking.getFrom_bonus() != null ? Double.valueOf(booking.getFrom_bonus()) : null));
-                reportFormRow.setIncome_total_each_capsule(reportFormRow.getActive_income_total() / reportFormRow.getCapsule_count());
+                reportFormRow.setActive_income_total_each_capsule(reportFormRow.getActive_income_total() / reportFormRow.getCapsule_count());
 
             }
             reportFormRowList.add(reportFormRow);
@@ -362,6 +362,7 @@ public class ReportFormJob {
         private Integer area_id;
         private String area_title;
         private Integer capsule_count = 0;
+
 
         private Integer income_total = 0;
         private Integer income_total_each_capsule = 0;
