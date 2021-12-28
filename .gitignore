@@ -29,4 +29,4 @@ xs-op/yarn.lock
 dump.rdb
 
 **/*.log
-
+**/*-lock.json
