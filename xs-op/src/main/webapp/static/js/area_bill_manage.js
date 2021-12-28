@@ -30,7 +30,7 @@ class Page extends React.Component {
                 年份：
                 <select ref="year" className="form-control d-inline-block w-auto m-1">
                     <option value=""></option>
-                    {[2019, 2020, 2021].map(year => <option value={year}>{year}</option>)}
+                    {[2019, 2020, 2021, 2022, 2023 , 2024 , 2025 ].map(year => <option value={year}>{year}</option>)}
                 </select>
                 月份：
                 <select ref="month" className="form-control d-inline-block w-auto m-1">
